@@ -9,7 +9,7 @@ import {
     CreditCardOutlined, ExperimentOutlined, ApartmentOutlined,
     ArrowLeftOutlined, NodeIndexOutlined, BellOutlined,
 } from '@ant-design/icons';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Theater } from 'lucide-react';
 import { Roles } from '@/shared/utils/enums/roles';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -95,6 +95,7 @@ export default function DashboardShell({
         if (pathname.startsWith('/dashboard/visit-procedures')) return 'visit-procedures';
         if (pathname.startsWith('/dashboard/wards')) return 'wards';
         if (pathname.startsWith('/dashboard/lab-requests')) return 'lab-requests';
+        if (pathname.startsWith('/dashboard/theatres')) return 'theatres';
         if (pathname.startsWith('/records')) return 'records';
         if (pathname.startsWith('/admins/billing/global')) return 'billing-global';
         if (pathname.startsWith('/admins/billing/organization')) return 'billing-organization';
@@ -213,6 +214,13 @@ export default function DashboardShell({
                                     <NavItem icon={<ApartmentOutlined />} label="Wards"
                                         href="/dashboard/wards" active={selectedKey === 'wards'} onClick={close} />
                                 )}
+                                <NavItem
+                                    icon={<Theater size={15} />}
+                                    label="Theatres"
+                                    href="/dashboard/theatres"
+                                    active={selectedKey === 'theatres'}
+                                    onClick={close}
+                                />
                             </NavSection>
                         )}
 
