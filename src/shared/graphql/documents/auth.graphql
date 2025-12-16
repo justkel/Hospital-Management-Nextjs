@@ -1,0 +1,17 @@
+mutation StaffLogin($input: StaffLoginInput!) {
+  staffLogin(input: $input) {
+    accessToken
+    refreshToken
+  }
+}
+
+mutation RefreshToken {
+  refreshToken {
+    accessToken
+    refreshToken
+  }
+}
+
+query WhoAmI {
+  whoAmI
+}
