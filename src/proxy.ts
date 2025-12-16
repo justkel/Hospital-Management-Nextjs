@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const accessToken = req.cookies.get('access_token');
 
   const isAuthRoute = req.nextUrl.pathname.startsWith('/login');
