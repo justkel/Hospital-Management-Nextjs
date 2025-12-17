@@ -2,15 +2,18 @@
 
 import { Button, Card, Form, Input, Typography } from 'antd';
 import { loginAction } from '@/lib/auth/login.action';
+import { useRouter } from 'next/navigation';
 
 const { Title } = Typography;
 
 export default function LoginPage() {
   const [form] = Form.useForm();
+  const router = useRouter();
 
   const onFinish = async (values: { userCode: string; password: string }) => {
     await loginAction(values);
     console.log(values);
+    router.push('/dashboard');
   };
 
   return (
