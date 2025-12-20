@@ -36,16 +36,16 @@ export async function loginAction(input: { userCode: string; password: string })
   const tokens = json.data?.staffLogin;
   if (!tokens) throw new Error('Invalid credentials');
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
-  (await cookieStore).set('access_token', tokens.accessToken, {
+  cookieStore.set('access_token', tokens.accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
   });
 
-  (await cookieStore).set('refresh_token', tokens.refreshToken, {
+  cookieStore.set('refresh_token', tokens.refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
