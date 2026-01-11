@@ -1,6 +1,5 @@
 'use server';
 
-import { setAccessToken } from '@/shared/graphql/tokenStore';
 import { cookies } from 'next/headers';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
@@ -51,8 +50,6 @@ export async function loginAction(input: { userCode: string; password: string })
     sameSite: 'lax',
     path: '/',
   });
-
-  setAccessToken(tokens.accessToken);
 
   return { success: true };
 }

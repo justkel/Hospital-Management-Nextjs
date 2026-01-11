@@ -1,12 +1,77 @@
+// import { print } from 'graphql';
+// import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
+// import { cookies, headers } from 'next/headers';
+
+// const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
+
+// export class AuthError extends Error {
+//   constructor() {
+//     super('UNAUTHENTICATED');
+//   }
+// }
+
+// export async function graphqlFetch<TData, TVariables>(
+//   document: TypedDocumentNode<TData, TVariables>,
+//   variables?: TVariables
+// ): Promise<TData> {
+//   const cookieStore = await cookies();
+//   const cookieHeader = (await headers()).get('cookie') ?? '';
+//   const accessToken = cookieStore.get('access_token')?.value;
+
+//   const res = await fetch(GATEWAY_URL, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+//     },
+//     body: JSON.stringify({
+//       query: print(document),
+//       variables,
+//     }),
+//     cache: 'no-store',
+//   });
+
+//   const json: {
+//     data?: TData;
+//     errors?: { message: string; extensions?: { code?: string } }[];
+//   } = await res.json();
+
+//   if (!json.errors) {
+//     return json.data!;
+//   }
+
+//   const unauthenticated = json.errors.some(
+//     (e) => e.extensions?.code === 'UNAUTHENTICATED'
+//   );
+
+//   if (unauthenticated) {
+//     const REFRESH_URL =
+//       process.env.NEXT_PUBLIC_BASE_URL + '/api/refresh';
+
+//     const refreshRes = await fetch(REFRESH_URL, {
+//       method: 'POST',
+//       headers: { Cookie: cookieHeader },
+//     });
+
+//     const refreshJson = await refreshRes.json();
+
+//     if (!refreshJson.success) {
+//       throw new AuthError();
+//     }
+
+//     // Cookies updated — abort render and let next request retry cleanly
+//     throw new AuthError();
+//   }
+
+//   throw new Error(json.errors[0].message);
+// }
+
+
 import { print } from 'graphql';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
-import { headers, cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { getAccessToken, setAccessToken } from './tokenStore';
+import { cookies } from 'next/headers';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
-
-// type GraphQLError = { message: string; extensions?: { code?: string } };
 
 export class AuthError extends Error {
   constructor() {
@@ -16,12 +81,10 @@ export class AuthError extends Error {
 
 export async function graphqlFetch<TData, TVariables>(
   document: TypedDocumentNode<TData, TVariables>,
-  variables?: TVariables,
-  retry = true
-): Promise<TData> {
-  const cookieStore = cookies();
-  const cookieHeader = (await headers()).get('cookie') ?? '';
-  const accessToken = getAccessToken() ?? (await cookieStore).get('access_token')?.value;
+  variables?: TVariables
+): Promise<TData | null> { // <- allow null if unauthenticated
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get('access_token')?.value;
 
   const res = await fetch(GATEWAY_URL, {
     method: 'POST',
@@ -36,34 +99,22 @@ export async function graphqlFetch<TData, TVariables>(
     cache: 'no-store',
   });
 
-  const json: { data?: TData; errors?: { message: string; extensions?: { code?: string } }[] } = await res.json();
+  const json: {
+    data?: TData;
+    errors?: { message: string; extensions?: { code?: string } }[];
+  } = await res.json();
 
   if (!json.errors) return json.data!;
 
-  const unauthenticated = json.errors.some((e) => e.extensions?.code === 'UNAUTHENTICATED');
+  const unauthenticated = json.errors.some(
+    (e) => e.extensions?.code === 'UNAUTHENTICATED'
+  );
 
-  if (unauthenticated && retry) {
-    console.log('Access token expired → refreshing...');
-
-    const REFRESH_URL = process.env.NEXT_PUBLIC_BASE_URL + '/api/refresh';
-    const refreshRes = await fetch(REFRESH_URL, {
-      method: 'POST',
-      headers: { Cookie: cookieHeader },
-    });
-    const refreshJson = await refreshRes.json();
-
-    if (!refreshJson.success || !refreshJson.accessToken) {
-      console.warn('Refresh failed → redirecting to login');
-      redirect('/login');
-    }
-
-    const newAccessToken = refreshJson.accessToken;
-    setAccessToken(newAccessToken);
-
-    // Retry only once, using the new token
-    return graphqlFetch(document, variables, false);
+  if (unauthenticated) {
+    // let client handle refresh
+    console.log('Access token expired → returning null to server');
+    return null;
   }
 
   throw new Error(json.errors[0].message);
 }
-
