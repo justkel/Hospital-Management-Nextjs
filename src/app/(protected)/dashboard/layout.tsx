@@ -1,15 +1,7 @@
 'use client';
 
 import { ReactNode, useState } from 'react';
-import {
-  Layout,
-  Menu,
-  Button,
-  Avatar,
-  Dropdown,
-  Space,
-  Typography,
-} from 'antd';
+import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography } from 'antd';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -20,36 +12,43 @@ import {
   TeamOutlined,
   FileTextOutlined,
 } from '@ant-design/icons';
+import { useUserRoles } from '@/lib/auth/useUserRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
+  const userRoles = useUserRoles();
+  const roles = userRoles.roles;
 
   const userMenu = (
     <Menu
       items={[
-        {
-          key: 'profile',
-          icon: <UserOutlined />,
-          label: 'Profile',
-        },
-        {
-          key: 'settings',
-          icon: <SettingOutlined />,
-          label: 'Settings',
-        },
+        { key: 'profile', icon: <UserOutlined />, label: 'Profile' },
+        { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
         { type: 'divider' },
-        {
-          key: 'logout',
-          icon: <LogoutOutlined />,
-          label: 'Logout',
-          danger: true,
-        },
+        { key: 'logout', icon: <LogoutOutlined />, label: 'Logout', danger: true },
       ]}
     />
   );
+
+  const menuItems = [
+    { key: 'dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+    { key: 'patients', icon: <TeamOutlined />, label: 'Patients' },
+    { key: 'records', icon: <FileTextOutlined />, label: 'Medical Records' },
+    { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
+    ...(roles.includes(Roles.ADMIN)
+    ? [
+        {
+          key: 'audit',
+          icon: <FileTextOutlined />,
+          label: 'Audit Logs',
+        },
+      ]
+    : []),
+  ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -58,12 +57,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         collapsed={collapsed}
         trigger={null}
         width={260}
-        style={{
-          background: '#ffffff',
-          borderRight: '1px solid #f0f0f0',
-        }}
+        style={{ background: '#ffffff', borderRight: '1px solid #f0f0f0' }}
       >
-        {/* Logo */}
         <div
           style={{
             height: 64,
@@ -76,39 +71,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             fontSize: 18,
           }}
         >
-          <Avatar shape="square" size={40} style={{ background: '#1677ff' }}>
-            H
-          </Avatar>
+          <Avatar shape="square" size={40} style={{ background: '#1677ff' }}>H</Avatar>
           {!collapsed && <span>Hospital Admin</span>}
         </div>
 
-        <Menu
-          mode="inline"
-          defaultSelectedKeys={['dashboard']}
-          style={{ borderRight: 0 }}
-          items={[
-            {
-              key: 'dashboard',
-              icon: <DashboardOutlined />,
-              label: 'Dashboard',
-            },
-            {
-              key: 'patients',
-              icon: <TeamOutlined />,
-              label: 'Patients',
-            },
-            {
-              key: 'records',
-              icon: <FileTextOutlined />,
-              label: 'Medical Records',
-            },
-            {
-              key: 'settings',
-              icon: <SettingOutlined />,
-              label: 'Settings',
-            },
-          ]}
-        />
+        <Menu mode="inline" defaultSelectedKeys={['dashboard']} style={{ borderRight: 0 }} items={menuItems} />
       </Sider>
 
       <Layout>
