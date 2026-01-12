@@ -18,17 +18,10 @@ export default async function DashboardPage() {
     return <SessionGuard needsRefresh />;
   }
 
-  const raw = data.whoAmI ?? '';
-  const [emailPart, rolesPart] = raw.split(' and ');
-
-  const email =
-    emailPart?.replace('Your email is ', '').trim() ?? 'Unknown';
-
-  const roles =
-    rolesPart
-      ?.replace('your roles are ', '')
-      .split(',')
-      .map((r) => r.trim()) ?? [];
+  const email = data.whoAmI?.email ?? 'Unknown';
+  const roles = Array.isArray(data.whoAmI?.roles)
+    ? data.whoAmI.roles
+    : [];
 
   return (
     <SessionGuard needsRefresh={false}>

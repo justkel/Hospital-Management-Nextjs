@@ -13,5 +13,8 @@ mutation RefreshToken {
 }
 
 query WhoAmI {
-  whoAmI
+  whoAmI {
+    email
+    roles
+  }
 }

@@ -24,17 +24,14 @@ export function proxy(req: NextRequest) {
   const isAuthRoute = req.nextUrl.pathname.startsWith('/login');
   const isProtected = req.nextUrl.pathname.startsWith('/dashboard');
 
-  // redirect if not authenticated
   if (isProtected && !accessToken) {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
-  // redirect logged-in users away from login
   if (isAuthRoute && accessToken) {
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
-  // role-based access control
   if (isProtected && accessToken) {
     try {
       const decoded: JwtPayload = jwtDecode(accessToken);
