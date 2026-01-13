@@ -17,7 +17,7 @@ export default function StaffManagementClient({
   staffs: StaffItem[];
 }) {
   const [list, setList] = useState<StaffItem[]>(staffs);
-  const [baseList] = useState<StaffItem[]>(staffs);
+  const [baseList, setBaseList] = useState<StaffItem[]>(staffs);
   const [open, setOpen] = useState(false);
   const [roleFilter, setRoleFilter] = useState<StaffRole | 'ALL'>('ALL');
   const [search, setSearch] = useState('');
@@ -27,16 +27,16 @@ export default function StaffManagementClient({
 
   useEffect(() => {
     const run = async () => {
-      if (!search.trim()) {
+        if (!search.trim()) {
         setList(baseList);
         return;
-      }
+        }
 
-      const res = await fetch(
+        const res = await fetch(
         `/api/staff/search?query=${encodeURIComponent(search)}`
-      );
-      const json = await res.json();
-      setList(json.staff ?? []);
+        );
+        const json = await res.json();
+        setList(json.staff ?? []);
     };
 
     const t = setTimeout(run, 350);
@@ -62,15 +62,16 @@ export default function StaffManagementClient({
 
   async function handleCreate(data: CreateStaffInput) {
     const res = await fetch('/api/staff/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-      credentials: 'include',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        credentials: 'include',
     });
     const json = await res.json();
     if (json.staff) {
-      setList(prev => [json.staff, ...prev]);
-      setOpen(false);
+        setBaseList(prev => [json.staff, ...prev]);
+        setList(prev => [json.staff, ...prev]);
+        setOpen(false);
     }
   }
 
