@@ -10,7 +10,11 @@ import CreateStaffModal from './CreateStaffModal';
 
 type StaffItem = GetAllStaffQuery['staffs'][number];
 
-export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] }) {
+export default function StaffManagementClient({
+  staffs,
+}: {
+  staffs: StaffItem[];
+}) {
   const [list, setList] = useState<StaffItem[]>(staffs);
   const [baseList] = useState<StaffItem[]>(staffs);
   const [open, setOpen] = useState(false);
@@ -27,7 +31,9 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
         return;
       }
 
-      const res = await fetch(`/api/staff/search?query=${encodeURIComponent(search)}`);
+      const res = await fetch(
+        `/api/staff/search?query=${encodeURIComponent(search)}`
+      );
       const json = await res.json();
       setList(json.staff ?? []);
     };
@@ -44,6 +50,7 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
   async function openDetails(id: string) {
     setSelectedId(id);
     setLoadingDetails(true);
+    setDetails(null);
 
     const res = await fetch(`/api/staff/get-by-id?id=${id}`);
     const json = await res.json();
@@ -116,14 +123,12 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
           <div
             key={staff.id}
             onClick={() => openDetails(staff.id)}
-            className="cursor-pointer bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition flex flex-col justify-between group"
+            className="cursor-pointer bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition group"
           >
-            <div>
-              <h2 className="text-lg font-semibold group-hover:text-indigo-600 transition">
-                {staff.fullName}
-              </h2>
-              <p className="text-gray-500 text-sm mt-1">{staff.email}</p>
-            </div>
+            <h2 className="text-lg font-semibold group-hover:text-indigo-600 transition">
+              {staff.fullName}
+            </h2>
+            <p className="text-gray-500 text-sm mt-1">{staff.email}</p>
 
             <div className="mt-4 flex flex-wrap gap-2">
               {staff.roles.map(r => (
@@ -140,44 +145,120 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
       </div>
 
       {selectedId && (
-        <div className="fixed inset-0 bg-black/30 z-40 flex justify-end">
-          <div className="w-full sm:max-w-md bg-white h-full p-6 animate-slide-in-right">
-            <button
-              onClick={() => {
-                setSelectedId(null);
-                setDetails(null);
-              }}
-              className="text-sm text-gray-500 hover:text-gray-700"
-            >
-              Close
-            </button>
-
+        <div
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex justify-end"
+          onClick={() => {
+            setSelectedId(null);
+            setDetails(null);
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="w-full sm:max-w-md h-full bg-white p-6 sm:p-8 animate-drawer-in"
+          >
             {loadingDetails ? (
-              <p className="mt-8 text-gray-500">Loading staff details…</p>
+              <DetailsSkeleton />
             ) : details ? (
-              <div className="mt-6 space-y-4">
-                <h2 className="text-2xl font-bold">{details.fullName}</h2>
-                <p className="text-gray-600">{details.email}</p>
+              <div className="space-y-8">
+                <div className="flex items-center gap-4">
+                  <Avatar name={details.fullName} />
+                  <div>
+                    <h2 className="text-xl font-extrabold">
+                      {details.fullName}
+                    </h2>
+                    <p className="text-sm text-gray-500">{details.email}</p>
+                  </div>
+                </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {details.roles.map(r => (
-                    <span
-                      key={r}
-                      className="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium"
-                    >
-                      {r}
-                    </span>
-                  ))}
+                <div className="grid grid-cols-2 gap-4 rounded-2xl bg-slate-50 p-4">
+                  <Meta label="Staff ID" value={details.id} />
+                  <Meta label="User Code" value={details.userCode} />
+                  <Meta
+                    label="Phone"
+                    value={details.phoneNumber ?? '—'}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-gray-700">
+                    Assigned roles
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {details.roles.map(r => (
+                      <span
+                        key={r}
+                        className="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium"
+                      >
+                        {r}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             ) : (
-              <p className="mt-8 text-gray-500">Staff not found</p>
+              <p className="text-gray-500 mt-12">Staff not found</p>
             )}
           </div>
         </div>
       )}
 
-      {open && <CreateStaffModal onClose={() => setOpen(false)} onCreate={handleCreate} />}
+      {open && (
+        <CreateStaffModal
+          onClose={() => setOpen(false)}
+          onCreate={handleCreate}
+        />
+      )}
+    </div>
+  );
+}
+
+function Meta({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="space-y-0.5">
+      <p className="text-xs text-gray-500">{label}</p>
+      <p className="text-sm font-semibold text-gray-800 truncate">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function Avatar({ name }: { name: string }) {
+  const initials = name
+    .split(' ')
+    .slice(0, 2)
+    .map(n => n[0])
+    .join('')
+    .toUpperCase();
+
+  return (
+    <div className="h-14 w-14 rounded-full flex items-center justify-center text-white font-bold text-lg bg-linear-to-br from-indigo-500 to-purple-600 shadow-md">
+      {initials}
+    </div>
+  );
+}
+
+function DetailsSkeleton() {
+  return (
+    <div className="space-y-8 animate-pulse">
+      <div className="flex items-center gap-4">
+        <div className="h-14 w-14 rounded-full bg-gray-200" />
+        <div className="space-y-2">
+          <div className="h-4 w-32 bg-gray-200 rounded" />
+          <div className="h-3 w-40 bg-gray-200 rounded" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl">
+        <div className="h-10 bg-gray-200 rounded" />
+        <div className="h-10 bg-gray-200 rounded" />
+        <div className="h-10 bg-gray-200 rounded col-span-2" />
+      </div>
+
+      <div className="flex gap-2">
+        <div className="h-6 w-16 bg-gray-200 rounded-full" />
+        <div className="h-6 w-20 bg-gray-200 rounded-full" />
+      </div>
     </div>
   );
 }
