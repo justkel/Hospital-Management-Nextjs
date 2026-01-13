@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, useState } from 'react';
-import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography } from 'antd';
+import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, Modal } from 'antd';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -20,8 +20,21 @@ const { Title, Text } = Typography;
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [logoutModal, setLogoutModal] = useState(false);
   const userRoles = useUserRoles();
   const roles = userRoles.roles;
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+      const json = await res.json();
+      if (json.success) {
+        window.location.href = '/login';
+      }
+    } catch (err) {
+      console.error('Logout failed', err);
+    }
+  };
 
   const userMenu = (
     <Menu
@@ -29,7 +42,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         { key: 'profile', icon: <UserOutlined />, label: 'Profile' },
         { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
         { type: 'divider' },
-        { key: 'logout', icon: <LogoutOutlined />, label: 'Logout', danger: true },
+        {
+          key: 'logout',
+          icon: <LogoutOutlined />,
+          label: 'Logout',
+          danger: true,
+          onClick: () => setLogoutModal(true),
+        },
       ]}
     />
   );
@@ -40,14 +59,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { key: 'records', icon: <FileTextOutlined />, label: 'Medical Records' },
     { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
     ...(roles.includes(Roles.ADMIN)
-    ? [
-        {
-          key: 'audit',
-          icon: <FileTextOutlined />,
-          label: 'Audit Logs',
-        },
-      ]
-    : []),
+      ? [{ key: 'audit', icon: <FileTextOutlined />, label: 'Audit Logs' }]
+      : []),
   ];
 
   return (
@@ -71,11 +84,24 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             fontSize: 18,
           }}
         >
-          <Avatar shape="square" size={40} style={{ background: '#1677ff' }}>H</Avatar>
+          <Avatar shape="square" size={40} style={{ background: '#1677ff' }}>
+            H
+          </Avatar>
           {!collapsed && <span>Hospital Admin</span>}
         </div>
 
         <Menu mode="inline" defaultSelectedKeys={['dashboard']} style={{ borderRight: 0 }} items={menuItems} />
+
+        <div style={{ position: 'absolute', bottom: 24, width: '100%', textAlign: 'center' }}>
+          <Button
+            type="text"
+            icon={<LogoutOutlined />}
+            danger
+            onClick={() => setLogoutModal(true)}
+          >
+            {!collapsed && 'Logout'}
+          </Button>
+        </div>
       </Sider>
 
       <Layout>
@@ -121,6 +147,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           {children}
         </Content>
       </Layout>
+
+      <Modal
+        title="Confirm Logout"
+        open={logoutModal}
+        onOk={handleLogout}
+        onCancel={() => setLogoutModal(false)}
+        okText="Logout"
+        okButtonProps={{ danger: true }}
+      >
+        <p>Are you sure you want to logout?</p>
+      </Modal>
     </Layout>
   );
 }
