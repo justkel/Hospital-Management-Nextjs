@@ -7,6 +7,7 @@ import {
   CreateStaffInput,
 } from '@/shared/graphql/generated/graphql';
 import CreateStaffModal from './CreateStaffModal';
+import { ROLE_STYLES } from '@/shared/utils/enums/roles';
 
 type StaffItem = GetAllStaffQuery['staffs'][number];
 
@@ -131,14 +132,17 @@ export default function StaffManagementClient({
             <p className="text-gray-500 text-sm mt-1">{staff.email}</p>
 
             <div className="mt-4 flex flex-wrap gap-2">
-              {staff.roles.map(r => (
-                <span
-                  key={r}
-                  className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-medium"
-                >
-                  {r}
-                </span>
-              ))}
+                {staff.roles.map(r => {
+                    const style = ROLE_STYLES[r];
+                    return (
+                    <span
+                        key={r}
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}
+                    >
+                        {r}
+                    </span>
+                    );
+                })}
             </div>
           </div>
         ))}
@@ -184,14 +188,17 @@ export default function StaffManagementClient({
                     Assigned roles
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {details.roles.map(r => (
-                      <span
-                        key={r}
-                        className="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium"
-                      >
-                        {r}
-                      </span>
-                    ))}
+                    {details.roles.map(r => {
+                        const style = ROLE_STYLES[r];
+                        return (
+                        <span
+                            key={r}
+                            className={`px-3 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}
+                        >
+                            {r}
+                        </span>
+                        );
+                    })}
                   </div>
                 </div>
               </div>
