@@ -97,10 +97,15 @@ export default function StaffManagementClient({
 
       <div className="flex flex-col md:flex-row md:items-center gap-4">
         <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search by name or email…"
-          className="w-full md:max-w-sm px-4 py-2 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by name or email…"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            name="staff-search"
+            className="w-full md:max-w-sm px-4 py-2 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
 
         <div className="flex flex-wrap gap-2">
