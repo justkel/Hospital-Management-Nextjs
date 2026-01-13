@@ -65,3 +65,45 @@ mutation CreateStaff($data: CreateStaffInput!) {
     organizationId
   }
 }
+
+query GetStaffById($id: String!) {
+  staffById(id: $id) {
+    id
+    fullName
+    email
+    phoneNumber
+    roles
+    userCode
+  }
+}
+
+query SearchStaff($query: String!) {
+  searchStaff(query: $query) {
+    id
+    fullName
+    email
+    phoneNumber
+    roles
+    userCode
+  }
+}
+
+mutation UpdateStaff($data: UpdateStaffInput!) {
+  updateStaff(data: $data) {
+    id
+    fullName
+    email
+    phoneNumber
+    roles
+  }
+}
+
+mutation UpdateStaffRoles($data: UpdateStaffRolesInput!) {
+  updateStaffRoles(data: $data) {
+    id
+    fullName
+    email
+    roles
+  }
+}
+
