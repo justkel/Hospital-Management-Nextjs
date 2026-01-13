@@ -23,7 +23,7 @@ export default function DashboardClient({ email, roles }: Props) {
             'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
           color: '#fff',
         }}
-        bordered={false}
+        variant='outlined'
       >
         <Title level={2} style={{ color: '#fff', marginBottom: 4 }}>
           Welcome back 👋
