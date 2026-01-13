@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
+import AntdRegistry from "./AntdRegistry";
+import "antd/dist/reset.css";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -16,13 +18,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <body className={`${montserrat.variable} antialiased`}>
-        {children}
+        <AntdRegistry>
+          {children}
+        </AntdRegistry>
       </body>
     </html>
   );
