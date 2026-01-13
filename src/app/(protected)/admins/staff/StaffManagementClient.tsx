@@ -28,43 +28,56 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
   }
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="p-8 space-y-8">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-semibold">Staff Management</h1>
-          <p className="text-muted-foreground">Manage staff across your organization</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">Staff Management</h1>
+          <p className="text-gray-500 mt-1">Manage your staff across the organization</p>
         </div>
 
         <button
           onClick={() => setOpen(true)}
-          className="px-4 py-2 rounded-xl bg-black text-white hover:opacity-90"
+          className="px-5 py-2 rounded-2xl bg-linear-to-r from-indigo-600 to-purple-600 text-white font-medium hover:scale-105 transition-transform"
         >
-          + New Staff
+          + Add Staff
         </button>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {(['ALL', ...Object.values(StaffRole)] as const).map(r => (
           <button
             key={r}
             onClick={() => setRoleFilter(r)}
-            className={`px-3 py-1 rounded-full text-sm ${roleFilter === r ? 'bg-black text-white' : 'bg-gray-100'}`}
+            className={`px-4 py-1 rounded-full text-sm font-medium transition ${
+              roleFilter === r
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
           >
             {r}
           </button>
         ))}
       </div>
 
-      <div className="grid gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map(staff => (
-          <div key={staff.id} className="flex items-center justify-between rounded-xl border p-4 hover:shadow-sm transition">
+          <div
+            key={staff.id}
+            className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-lg transition-shadow flex flex-col justify-between"
+          >
             <div>
-              <p className="font-medium">{staff.fullName}</p>
-              <p className="text-sm text-muted-foreground">{staff.email}</p>
+              <h2 className="text-lg font-semibold">{staff.fullName}</h2>
+              <p className="text-gray-500 text-sm mt-1">{staff.email}</p>
             </div>
-            <div className="flex gap-2 flex-wrap">
+
+            <div className="mt-3 flex flex-wrap gap-2">
               {staff.roles.map(r => (
-                <span key={r} className="px-2 py-1 rounded-md bg-gray-100 text-xs">{r}</span>
+                <span
+                  key={r}
+                  className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-medium"
+                >
+                  {r}
+                </span>
               ))}
             </div>
           </div>
