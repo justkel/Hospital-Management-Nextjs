@@ -1,3 +1,7 @@
+############################
+# AUTH
+############################
+
 mutation StaffLogin($input: StaffLoginInput!) {
   staffLogin(input: $input) {
     accessToken
@@ -16,5 +20,48 @@ query WhoAmI {
   whoAmI {
     email
     roles
+  }
+}
+
+############################
+# STAFF
+############################
+
+query GetAllStaff {
+  staffs {
+    id
+    fullName
+    email
+    userCode
+    userType
+    roles
+    phoneNumber
+    organizationId
+  }
+}
+
+query GetStaffByRole($role: StaffRole!) {
+  staffByRole(role: $role) {
+    id
+    fullName
+    email
+    userCode
+    userType
+    roles
+    phoneNumber
+    organizationId
+  }
+}
+
+mutation CreateStaff($data: CreateStaffInput!) {
+  createStaff(data: $data) {
+    id
+    fullName
+    email
+    userCode
+    userType
+    roles
+    phoneNumber
+    organizationId
   }
 }
