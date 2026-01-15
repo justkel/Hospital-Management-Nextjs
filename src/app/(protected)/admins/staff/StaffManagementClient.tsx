@@ -174,14 +174,22 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-        {filtered.map(staff => (
+        {filtered.length > 0 ? (
+            filtered.map(staff => (
             <StaffCard
-            key={staff.id}
-            staff={staff}
-            onView={openDetails}
-            onEdit={openRoleModal}
+                key={staff.id}
+                staff={staff}
+                onView={openDetails}
+                onEdit={openRoleModal}
             />
-        ))}
+            ))
+        ) : (
+            <div className="col-span-full text-center py-12 text-gray-500">
+            {roleFilter === 'ALL'
+                ? 'No staff available.'
+                : `No staff found with the role "${roleFilter}".`}
+            </div>
+        )}
       </div>
 
       {selectedId && (
