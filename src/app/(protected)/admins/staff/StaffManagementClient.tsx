@@ -24,6 +24,7 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
   const [viewingStaff, setViewingStaff] = useState<StaffItem | null>(null);
   const [rolesToUpdate, setRolesToUpdate] = useState<StaffRole[]>([]);
   const [updatingRoles, setUpdatingRoles] = useState(false);
+  const [roleError, setRoleError] = useState<string | null>(null);
 
   const filtered = roleFilter === 'ALL' ? list : list.filter(s => s.roles.includes(roleFilter));
 
@@ -44,6 +45,7 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
   function openRoleModal(staff: StaffItem) {
     setEditingStaff(staff);
     setRolesToUpdate(staff.roles);
+    setRoleError(null);
   }
 
   function toggleRole(role: StaffRole) {
@@ -55,27 +57,31 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
   async function handleUpdateRoles() {
     if (!editingStaff) return;
     setUpdatingRoles(true);
+    setRoleError(null);
 
     const body: UpdateStaffRolesInput = {
-      staffId: editingStaff.id,
-      roles: rolesToUpdate,
+        staffId: editingStaff.id,
+        roles: rolesToUpdate,
     };
 
     const res = await clientFetch('/api/staff/update-roles', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      credentials: 'include',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        credentials: 'include',
     });
 
     const json = await res.json();
 
-    if (json.staff) {
-      setBaseList(prev => prev.map(s => (s.id === json.staff.id ? json.staff : s)));
-      setList(prev => prev.map(s => (s.id === json.staff.id ? json.staff : s)));
-      setEditingStaff(null);
+    if (!res.ok) {
+        setRoleError(json.error ?? 'Something went wrong');
+        setUpdatingRoles(false);
+        return;
     }
 
+    setBaseList(prev => prev.map(s => (s.id === json.staff.id ? json.staff : s)));
+    setList(prev => prev.map(s => (s.id === json.staff.id ? json.staff : s)));
+    setEditingStaff(null);
     setUpdatingRoles(false);
   }
 
@@ -187,7 +193,12 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
           >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Staff Details</h2>
-              <button onClick={() => setViewingStaff(null)}>
+              <button
+                onClick={() => {
+                    setEditingStaff(null);
+                    setRoleError(null);
+                }}
+                >
                 <XMarkIcon className="h-5 w-5 text-gray-500 hover:text-gray-700" />
               </button>
             </div>
@@ -280,6 +291,12 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
                 })}
               </div>
             </div>
+
+            {roleError && (
+                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-3">
+                {roleError}
+                </p>
+            )}
 
             <button
               onClick={handleUpdateRoles}

@@ -7,6 +7,13 @@ import {
   UpdateStaffRolesMutationVariables,
 } from '@/shared/graphql/generated/graphql';
 
+type GraphQLErrorShape = {
+  message: string;
+  extensions?: {
+    code?: string;
+  };
+};
+
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
 export async function POST(req: Request) {
@@ -34,7 +41,7 @@ export async function POST(req: Request) {
 
   const json: {
     data?: UpdateStaffRolesMutation;
-    errors?: { extensions?: { code?: string } }[];
+    errors?: GraphQLErrorShape[];
   } = await res.json();
 
   const unauthenticated = json.errors?.some(
@@ -43,6 +50,13 @@ export async function POST(req: Request) {
 
   if (unauthenticated) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (json.errors?.length) {
+    return NextResponse.json(
+        { error: json.errors[0].message },
+        { status: 400 }
+    );
   }
 
   if (!json.data?.updateStaffRoles) {
