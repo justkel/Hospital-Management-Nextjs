@@ -27,16 +27,21 @@ query WhoAmI {
 # STAFF
 ############################
 
-query GetAllStaff {
-  staffs {
-    id
-    fullName
-    email
-    userCode
-    userType
-    roles
-    phoneNumber
-    organizationId
+query GetAllStaff($page: Int! = 1, $limit: Int! = 25) {
+  staffs(page: $page, limit: $limit) {
+    items {
+      id
+      fullName
+      email
+      userCode
+      userType
+      roles
+      phoneNumber
+      organizationId
+    }
+    total
+    page
+    pageCount
   }
 }
 
