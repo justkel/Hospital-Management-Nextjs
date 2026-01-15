@@ -1,4 +1,3 @@
-// /src/app/api/staff/create/route.ts
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { print } from 'graphql';
@@ -33,7 +32,19 @@ export async function POST(req: Request) {
     }),
   });
 
-  const json: { data?: CreateStaffMutation } = await res.json();
+  const json: {
+    data?: CreateStaffMutation;
+    errors?: { extensions?: { code?: string } }[];
+  } = await res.json();
+
+  const unauthenticated = json.errors?.some(
+    e => e.extensions?.code === 'UNAUTHENTICATED'
+  );
+
+  if (unauthenticated) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   if (!json.data?.createStaff) {
     return NextResponse.json({ error: 'Failed to create staff' }, { status: 500 });
   }

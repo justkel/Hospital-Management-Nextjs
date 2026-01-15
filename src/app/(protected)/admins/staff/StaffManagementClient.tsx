@@ -9,7 +9,8 @@ import {
 } from '@/shared/graphql/generated/graphql';
 import CreateStaffModal from './CreateStaffModal';
 import { ROLE_STYLES } from '@/shared/utils/enums/roles';
-import { PencilIcon, XMarkIcon } from '@heroicons/react/24/solid';
+import { PencilIcon, XMarkIcon, EyeIcon } from '@heroicons/react/24/solid';
+import { clientFetch } from '@/lib/clientFetch';
 
 type StaffItem = GetAllStaffQuery['staffs'][number];
 
@@ -20,6 +21,7 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
   const [roleFilter, setRoleFilter] = useState<StaffRole | 'ALL'>('ALL');
   const [search, setSearch] = useState('');
   const [editingStaff, setEditingStaff] = useState<StaffItem | null>(null);
+  const [viewingStaff, setViewingStaff] = useState<StaffItem | null>(null);
   const [rolesToUpdate, setRolesToUpdate] = useState<StaffRole[]>([]);
   const [updatingRoles, setUpdatingRoles] = useState(false);
 
@@ -31,7 +33,7 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
         setList(baseList);
         return;
       }
-      const res = await fetch(`/api/staff/search?query=${encodeURIComponent(search)}`);
+      const res = await clientFetch(`/api/staff/search?query=${encodeURIComponent(search)}`);
       const json = await res.json();
       setList(json.staff ?? []);
     };
@@ -59,7 +61,7 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
       roles: rolesToUpdate,
     };
 
-    const res = await fetch('/api/staff/update-roles', {
+    const res = await clientFetch('/api/staff/update-roles', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -78,7 +80,7 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
   }
 
   async function handleCreate(data: CreateStaffInput) {
-    const res = await fetch('/api/staff/create', {
+    const res = await clientFetch('/api/staff/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -133,20 +135,26 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
         </div>
       </div>
 
-      {/* Staff Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
         {filtered.map(staff => (
           <div
             key={staff.id}
             className="relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition group"
           >
-            {/* Edit icon */}
-            <button
-              onClick={() => openRoleModal(staff)}
-              className="absolute top-3 right-3 p-1 rounded-full bg-gray-100 hover:bg-indigo-50 text-gray-500 hover:text-indigo-600 transition"
-            >
-              <PencilIcon className="h-5 w-5" />
-            </button>
+            <div className="absolute top-3 right-3 flex gap-2">
+              <button
+                onClick={() => setViewingStaff(staff)}
+                className="p-1 rounded-full bg-gray-100 hover:bg-indigo-50 text-gray-500 hover:text-indigo-600 transition"
+              >
+                <EyeIcon className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => openRoleModal(staff)}
+                className="p-1 rounded-full bg-gray-100 hover:bg-indigo-50 text-gray-500 hover:text-indigo-600 transition"
+              >
+                <PencilIcon className="h-5 w-5" />
+              </button>
+            </div>
 
             <h2 className="text-lg font-semibold">{staff.fullName}</h2>
             <p className="text-gray-500 text-sm mt-1">{staff.email}</p>
@@ -168,7 +176,54 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
         ))}
       </div>
 
-      {/* Role Update Modal */}
+      {viewingStaff && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-center items-center"
+          onClick={() => setViewingStaff(null)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="w-full max-w-md bg-white p-6 rounded-2xl shadow-xl animate-fade-in"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Staff Details</h2>
+              <button onClick={() => setViewingStaff(null)}>
+                <XMarkIcon className="h-5 w-5 text-gray-500 hover:text-gray-700" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-500">Full Name</p>
+                <p className="font-medium">{viewingStaff.fullName}</p>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-500">Email</p>
+                <p className="font-medium">{viewingStaff.email}</p>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-500">Roles</p>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {viewingStaff.roles.map(r => {
+                    const style = ROLE_STYLES[r];
+                    return (
+                      <span
+                        key={r}
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}
+                      >
+                        {r}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {editingStaff && (
         <div
           className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-center items-center"

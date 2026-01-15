@@ -32,9 +32,24 @@ export async function POST(req: Request) {
     }),
   });
 
-  const json: { data?: UpdateStaffRolesMutation } = await res.json();
+  const json: {
+    data?: UpdateStaffRolesMutation;
+    errors?: { extensions?: { code?: string } }[];
+  } = await res.json();
+
+  const unauthenticated = json.errors?.some(
+    e => e.extensions?.code === 'UNAUTHENTICATED'
+  );
+
+  if (unauthenticated) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   if (!json.data?.updateStaffRoles) {
-    return NextResponse.json({ error: 'Failed to update staff roles' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to update staff roles' },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ staff: json.data.updateStaffRoles });

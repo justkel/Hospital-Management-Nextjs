@@ -14,14 +14,17 @@ export async function GET(req: Request) {
   const accessToken = cookieStore.get('access_token')?.value;
 
   if (!accessToken) {
-    return NextResponse.json({ staff: [] }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { searchParams } = new URL(req.url);
   const query = searchParams.get('query');
 
   if (!query) {
-    return NextResponse.json({ staff: [], error: 'Missing search query' }, { status: 400 });
+    return NextResponse.json(
+      { staff: [], error: 'Missing search query' },
+      { status: 400 }
+    );
   }
 
   const res = await fetch(GATEWAY_URL, {
@@ -36,7 +39,20 @@ export async function GET(req: Request) {
     }),
   });
 
-  const json: { data?: SearchStaffQuery } = await res.json();
+  const json: {
+    data?: SearchStaffQuery;
+    errors?: { extensions?: { code?: string } }[];
+  } = await res.json();
 
-  return NextResponse.json({ staff: json.data?.searchStaff ?? [] });
+  const unauthenticated = json.errors?.some(
+    e => e.extensions?.code === 'UNAUTHENTICATED'
+  );
+
+  if (unauthenticated) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  return NextResponse.json({
+    staff: json.data?.searchStaff ?? [],
+  });
 }

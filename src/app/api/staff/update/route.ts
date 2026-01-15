@@ -32,7 +32,19 @@ export async function POST(req: Request) {
     }),
   });
 
-  const json: { data?: UpdateStaffMutation } = await res.json();
+  const json: {
+    data?: UpdateStaffMutation;
+    errors?: { extensions?: { code?: string } }[];
+  } = await res.json();
+
+  const unauthenticated = json.errors?.some(
+    e => e.extensions?.code === 'UNAUTHENTICATED'
+  );
+
+  if (unauthenticated) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   if (!json.data?.updateStaff) {
     return NextResponse.json({ error: 'Failed to update staff' }, { status: 500 });
   }
