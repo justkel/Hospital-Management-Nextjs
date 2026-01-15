@@ -5,7 +5,7 @@ import { GetAllStaffQuery } from '@/shared/graphql/generated/graphql';
 import { Meta, Avatar, DetailsSkeleton } from '@/components/DetailsParts';
 import { ROLE_STYLES } from '@/shared/utils/enums/roles';
 
-type StaffItem = GetAllStaffQuery['staffs'][number];
+type StaffItem = GetAllStaffQuery['staffs']['items'][number];
 
 interface Props {
   staff: StaffItem | null;

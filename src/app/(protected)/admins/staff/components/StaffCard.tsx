@@ -4,7 +4,7 @@ import { PencilIcon, EyeIcon } from '@heroicons/react/24/solid';
 import { GetAllStaffQuery } from '@/shared/graphql/generated/graphql';
 import { ROLE_STYLES } from '@/shared/utils/enums/roles';
 
-type StaffItem = GetAllStaffQuery['staffs'][number];
+type StaffItem = GetAllStaffQuery['staffs']['items'][number];
 
 interface Props {
   staff: StaffItem;

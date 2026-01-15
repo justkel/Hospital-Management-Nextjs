@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Pagination } from 'antd';
 import {
   StaffRole,
   GetAllStaffQuery,
@@ -13,11 +14,21 @@ import RolesModal from './components/RolesModal';
 import DetailsDrawer from './components/DetailsDrawer';
 import { clientFetch } from '@/lib/clientFetch';
 
-type StaffItem = GetAllStaffQuery['staffs'][number];
+type StaffItem = GetAllStaffQuery['staffs']['items'][number];
+type StaffsQueryResult = GetAllStaffQuery['staffs'];
 
-export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] }) {
-  const [list, setList] = useState<StaffItem[]>(staffs);
-  const [baseList, setBaseList] = useState<StaffItem[]>(staffs);
+export default function StaffManagementClient({
+  paginated,
+}: {
+  paginated: StaffsQueryResult;
+}) {
+  const [list, setList] = useState<StaffItem[]>(paginated.items);
+  const [baseList, setBaseList] = useState<StaffItem[]>(paginated.items);
+
+  const [page, setPage] = useState(paginated.page);
+  const [limit, setLimit] = useState(25);
+  const [total, setTotal] = useState(paginated.total);
+
   const [openCreate, setOpenCreate] = useState(false);
   const [roleFilter, setRoleFilter] = useState<StaffRole | 'ALL'>('ALL');
   const [search, setSearch] = useState('');
@@ -30,7 +41,33 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const filtered = roleFilter === 'ALL' ? list : list.filter(s => s.roles.includes(roleFilter));
+  async function fetchPage(nextPage: number, nextLimit = limit) {
+    try {
+        const res = await fetch(
+        `/api/staff/staff-list?page=${nextPage}&limit=${nextLimit}`,
+        {
+            method: 'GET',
+            credentials: 'include',
+        }
+        );
+
+        const json = await res.json();
+
+        if (!res.ok) {
+        console.error(json.error ?? 'Failed to fetch staff');
+        return;
+        }
+
+        const data = json.staffs;
+
+        setPage(data.page);
+        setTotal(data.total);
+        setBaseList(data.items);
+        setList(data.items);
+    } catch (err) {
+        console.error(err);
+    }
+  }
 
   useEffect(() => {
     const run = async () => {
@@ -38,7 +75,10 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
         setList(baseList);
         return;
       }
-      const res = await clientFetch(`/api/staff/search?query=${encodeURIComponent(search)}`);
+
+      const res = await clientFetch(
+        `/api/staff/search?query=${encodeURIComponent(search)}`
+      );
       const json = await res.json();
       setList(json.staff ?? []);
     };
@@ -46,26 +86,19 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
     return () => clearTimeout(t);
   }, [search, baseList]);
 
+  const filtered = useMemo(() => {
+    return roleFilter === 'ALL'
+      ? list
+      : list.filter(s => s.roles.includes(roleFilter));
+  }, [list, roleFilter]);
+
+
   function openRoleModal(staff: StaffItem) {
     setEditingStaff(staff);
     setRolesToUpdate(staff.roles);
     setRoleError(null);
   }
 
-  async function openDetails(id: string) {
-    setSelectedId(id);
-    setLoadingDetails(true);
-    setDetails(null);
-    const res = await clientFetch(`/api/staff/get-by-id?id=${id}`);
-    const json = await res.json();
-    setDetails(json.staff ?? null);
-    setLoadingDetails(false);
-  }
-
-  function closeDetails() {
-    setSelectedId(null);
-    setDetails(null);
-  }
 
   function toggleRole(role: StaffRole) {
     setRolesToUpdate(prev =>
@@ -98,8 +131,13 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
       return;
     }
 
-    setBaseList(prev => prev.map(s => (s.id === json.staff.id ? json.staff : s)));
-    setList(prev => prev.map(s => (s.id === json.staff.id ? json.staff : s)));
+    setBaseList(prev =>
+      prev.map(s => (s.id === json.staff.id ? json.staff : s))
+    );
+    setList(prev =>
+      prev.map(s => (s.id === json.staff.id ? json.staff : s))
+    );
+
     setEditingStaff(null);
     setUpdatingRoles(false);
 
@@ -118,8 +156,26 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
     if (json.staff) {
       setBaseList(prev => [json.staff, ...prev]);
       setList(prev => [json.staff, ...prev]);
+      setTotal(t => t + 1);
       setOpenCreate(false);
     }
+  }
+  
+  async function openDetails(id: string) {
+    setSelectedId(id);
+    setLoadingDetails(true);
+    setDetails(null);
+
+    const res = await clientFetch(`/api/staff/get-by-id?id=${id}`);
+    const json = await res.json();
+
+    setDetails(json.staff ?? null);
+    setLoadingDetails(false);
+  }
+
+  function closeDetails() {
+    setSelectedId(null);
+    setDetails(null);
   }
 
   return (
@@ -153,7 +209,7 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search by name or email…"
-          className="w-full md:max-w-sm px-4 py-2 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full md:max-w-sm px-4 py-2 rounded-xl border focus:ring-2 focus:ring-indigo-500"
         />
 
         <div className="flex flex-wrap gap-2">
@@ -161,9 +217,9 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
             <button
               key={r}
               onClick={() => setRoleFilter(r)}
-              className={`px-4 py-1 rounded-full text-xs sm:text-sm font-medium transition ${
+              className={`px-4 py-1 rounded-full text-sm font-medium transition ${
                 roleFilter === r
-                  ? 'bg-indigo-600 text-white shadow'
+                  ? 'bg-indigo-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -173,23 +229,36 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
         {filtered.length > 0 ? (
-            filtered.map(staff => (
+          filtered.map(staff => (
             <StaffCard
-                key={staff.id}
-                staff={staff}
-                onView={openDetails}
-                onEdit={openRoleModal}
+              key={staff.id}
+              staff={staff}
+              onView={openDetails}
+              onEdit={openRoleModal}
             />
-            ))
+          ))
         ) : (
-            <div className="col-span-full text-center py-12 text-gray-500">
+          <div className="col-span-full text-center py-12 text-gray-500">
             {roleFilter === 'ALL'
-                ? 'No staff available.'
-                : `No staff found with the role "${roleFilter}".`}
-            </div>
+              ? 'No staff available.'
+              : `No staff found with the role "${roleFilter}".`}
+          </div>
         )}
+      </div>
+
+      <div className="flex justify-center pt-6">
+        <Pagination
+          current={page}
+          pageSize={limit}
+          total={total}
+          showSizeChanger
+          onChange={(p, l) => {
+            setLimit(l);
+            fetchPage(p, l);
+          }}
+        />
       </div>
 
       {selectedId && (

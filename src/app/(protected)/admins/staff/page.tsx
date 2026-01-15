@@ -11,7 +11,10 @@ import StaffManagementClient from './StaffManagementClient';
 export default async function StaffPage() {
   const data = await graphqlFetch<GetAllStaffQuery, GetAllStaffQueryVariables>(
     GetAllStaffDocument,
-    {}
+    {
+      page: 1,
+      limit: 25,
+    }
   );
 
   if (!data) {
@@ -21,7 +24,7 @@ export default async function StaffPage() {
   return (
     <SessionGuard needsRefresh={false}>
       <DashboardLayout>
-        <StaffManagementClient staffs={data.staffs} />
+        <StaffManagementClient paginated={data.staffs} />
       </DashboardLayout>
     </SessionGuard>
   );
