@@ -9,8 +9,9 @@ import {
 } from '@/shared/graphql/generated/graphql';
 import CreateStaffModal from './CreateStaffModal';
 import { ROLE_STYLES } from '@/shared/utils/enums/roles';
-import { PencilIcon, XMarkIcon, EyeIcon } from '@heroicons/react/24/solid';
+import { XMarkIcon } from '@heroicons/react/24/solid';
 import { Meta, Avatar, DetailsSkeleton } from '@/components/DetailsParts';
+import StaffCard from './components/StaffCard';
 import { clientFetch } from '@/lib/clientFetch';
 
 type StaffItem = GetAllStaffQuery['staffs'][number];
@@ -165,46 +166,12 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
         {filtered.map(staff => (
-          <div
+            <StaffCard
             key={staff.id}
-            className="relative bg-white rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-lg transition"
-          >
-            <div className="absolute top-3 right-3 flex gap-2">
-              <button
-                onClick={() => openDetails(staff.id)}
-                className="p-2 rounded-full bg-gray-100 hover:bg-indigo-600 hover:text-white transition"
-              >
-                <EyeIcon className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => openRoleModal(staff)}
-                className="p-2 rounded-full bg-gray-100 hover:bg-indigo-50 text-gray-500 hover:text-indigo-600 transition"
-              >
-                <PencilIcon className="h-4 w-4" />
-              </button>
-            </div>
-
-            <h2 className="text-base sm:text-lg font-semibold">
-              {staff.fullName}
-            </h2>
-            <p className="text-gray-500 text-xs sm:text-sm mt-1 break-all">
-              {staff.email}
-            </p>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {staff.roles.map(r => {
-                const style = ROLE_STYLES[r];
-                return (
-                  <span
-                    key={r}
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}
-                  >
-                    {r}
-                  </span>
-                );
-              })}
-            </div>
-          </div>
+            staff={staff}
+            onView={openDetails}
+            onEdit={openRoleModal}
+            />
         ))}
       </div>
 
