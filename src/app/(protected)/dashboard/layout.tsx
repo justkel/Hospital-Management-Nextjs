@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, useState } from 'react';
-import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, Modal } from 'antd';
+import { Layout, Menu, Avatar, Dropdown, Space, Typography, Modal } from 'antd';
 import {
   DashboardOutlined,
   TeamOutlined,
@@ -10,14 +10,40 @@ import {
   LogoutOutlined,
   UserOutlined,
   MedicineBoxOutlined,
+  FileSearchOutlined,
 } from '@ant-design/icons';
 import { useUserRoles } from '@/lib/auth/useUserRoles';
 import { Roles } from '@/shared/utils/enums/roles';
 import Link from 'next/link';
-import { MenuOutlined } from '@ant-design/icons';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
+
+function Hamburger({ isOpen, toggle }: { isOpen: boolean; toggle: () => void }) {
+  return (
+    <button
+      onClick={toggle}
+      className="flex flex-col justify-between w-8 h-6 cursor-pointer"
+      aria-label="Toggle Menu"
+    >
+      <span
+        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
+          isOpen ? 'rotate-0 translate-y-3' : 'w-6'
+        }`}
+      />
+      <span
+        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
+          isOpen ? 'opacity-0' : 'w-5'
+        }`}
+      />
+      <span
+        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
+          isOpen ? '-rotate-90 -translate-y-2 w-6' : 'w-4'
+        }`}
+      />
+    </button>
+  );
+}
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(true);
@@ -52,7 +78,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { key: 'patients', icon: <MedicineBoxOutlined />, label: 'Patients' },
     { key: 'records', icon: <FileTextOutlined />, label: 'Medical Records' },
     { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
-    ...(roles.includes(Roles.ADMIN) ? [{ key: 'audit', icon: <FileTextOutlined />, label: 'Audit Logs' }] : []),
+    ...(roles.includes(Roles.ADMIN) ? [{ key: 'audit', icon: <FileSearchOutlined />, label: 'Audit Logs' }] : []),
   ];
 
   return (
@@ -62,12 +88,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         collapsed={collapsed}
         trigger={null}
         width={260}
+        breakpoint="md"
+        collapsedWidth={0}
+        onCollapse={setCollapsed}
         style={{
           position: 'fixed',
           left: 0,
           top: 0,
           bottom: 0,
-          height: '100vh',
           overflow: 'auto',
           background: '#fff',
           borderRight: '1px solid #f0f0f0',
@@ -93,13 +121,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <Menu mode="inline" defaultSelectedKeys={['dashboard']} style={{ borderRight: 0 }} items={menuItems} />
 
         <div style={{ position: 'absolute', bottom: 24, width: '100%', textAlign: 'center' }}>
-          <Button type="text" icon={<LogoutOutlined />} danger onClick={() => setLogoutModal(true)}>
-            {!collapsed && 'Logout'}
-          </Button>
+          <button
+            className="flex items-center justify-center text-red-600 w-full"
+            onClick={() => setLogoutModal(true)}
+          >
+            {!collapsed ? 'Logout' : <LogoutOutlined />}
+          </button>
         </div>
       </Sider>
 
-      <Layout style={{ marginLeft: collapsed ? 80 : 260, transition: 'margin-left 0.3s' }}>
+      <Layout style={{ marginLeft: collapsed ? 0 : 260, transition: 'margin-left 0.3s' }}>
         <Header
           style={{
             position: 'sticky',
@@ -114,11 +145,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           }}
         >
           <Space size="middle">
-            <Button
-              type="text"
-              icon={<MenuOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              style={{ fontSize: 20, fontWeight: 700 }}
+            <Hamburger
+              isOpen={!collapsed}
+              toggle={() => setCollapsed(!collapsed)}
             />
             <Title level={4} style={{ margin: 0, whiteSpace: 'nowrap' }}>
               Dashboard
