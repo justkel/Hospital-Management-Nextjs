@@ -28,7 +28,7 @@ function Hamburger({ isOpen, toggle }: { isOpen: boolean; toggle: () => void }) 
     >
       <span
         className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
-          isOpen ? 'rotate-0 translate-y-3' : 'w-6'
+          isOpen ? 'rotate-45 translate-y-2' : 'w-6'
         }`}
       />
       <span
@@ -38,7 +38,7 @@ function Hamburger({ isOpen, toggle }: { isOpen: boolean; toggle: () => void }) 
       />
       <span
         className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
-          isOpen ? '-rotate-90 -translate-y-2 w-6' : 'w-4'
+          isOpen ? '-rotate-45 -translate-y-2 w-6' : 'w-4'
         }`}
       />
     </button>
@@ -46,7 +46,7 @@ function Hamburger({ isOpen, toggle }: { isOpen: boolean; toggle: () => void }) 
 }
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const [collapsed, setCollapsed] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [logoutModal, setLogoutModal] = useState(false);
   const userRoles = useUserRoles();
   const roles = userRoles.roles;
@@ -82,24 +82,23 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: '100vh', position: 'relative' }}>
       <Sider
         collapsible
-        collapsed={collapsed}
+        collapsed={!menuOpen}
         trigger={null}
         width={260}
-        breakpoint="md"
-        collapsedWidth={0}
-        onCollapse={setCollapsed}
         style={{
-          position: 'fixed',
-          left: 0,
+          position: 'absolute',
           top: 0,
+          left: 0,
           bottom: 0,
+          zIndex: 100,
           overflow: 'auto',
           background: '#fff',
           borderRight: '1px solid #f0f0f0',
-          zIndex: 100,
+          transform: menuOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s ease',
         }}
       >
         <div
@@ -107,15 +106,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             height: 64,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            padding: collapsed ? 0 : '0 24px',
+            justifyContent: 'flex-start',
+            padding: '0 24px',
             gap: 12,
             fontWeight: 700,
             fontSize: 18,
           }}
         >
           <Avatar shape="square" size={40} style={{ background: '#1677ff' }}>H</Avatar>
-          {!collapsed && <span>Hospital Admin</span>}
+          <span>Hospital Admin</span>
         </div>
 
         <Menu mode="inline" defaultSelectedKeys={['dashboard']} style={{ borderRight: 0 }} items={menuItems} />
@@ -125,12 +124,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             className="flex items-center justify-center text-red-600 w-full"
             onClick={() => setLogoutModal(true)}
           >
-            {!collapsed ? 'Logout' : <LogoutOutlined />}
+            Logout
           </button>
         </div>
       </Sider>
 
-      <Layout style={{ marginLeft: collapsed ? 0 : 260, transition: 'margin-left 0.3s' }}>
+      <Layout>
         <Header
           style={{
             position: 'sticky',
@@ -145,10 +144,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           }}
         >
           <Space size="middle">
-            <Hamburger
-              isOpen={!collapsed}
-              toggle={() => setCollapsed(!collapsed)}
-            />
+            <Hamburger isOpen={menuOpen} toggle={() => setMenuOpen(!menuOpen)} />
             <Title level={4} style={{ margin: 0, whiteSpace: 'nowrap' }}>
               Dashboard
             </Title>
@@ -168,12 +164,26 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             background: '#fff',
             borderRadius: 12,
             minHeight: 'calc(100vh - 112px)',
-            transition: 'margin-left 0.3s',
           }}
         >
           {children}
         </Content>
       </Layout>
+
+      {menuOpen && (
+        <div
+          onClick={() => setMenuOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 50,
+            backgroundColor: 'rgba(0,0,0,0.3)',
+          }}
+        />
+      )}
 
       <Modal
         title="Confirm Logout"
