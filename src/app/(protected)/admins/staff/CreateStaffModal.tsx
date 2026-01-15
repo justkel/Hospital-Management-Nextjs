@@ -40,7 +40,7 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md px-4 py-6 sm:py-12 overflow-auto">
-      <div className="w-full max-w-md sm:max-w-xl rounded-3xl bg-linear-to-br from-white to-slate-50 shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-md sm:max-w-xl rounded-3xl bg-linear-to-br from-white to-slate-50 shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in max-h-[90vh] overflow-y-auto scrollbar-none">
         <form autoComplete="off" className="space-y-8">
           <div className="flex items-start justify-between">
             <div className="flex-1 pr-4">
