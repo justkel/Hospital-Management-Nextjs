@@ -20,13 +20,13 @@ export default function StaffCard({ staff, onView, onEdit }: Props) {
           onClick={() => onView(staff.id)}
           className="p-2 rounded-full bg-gray-100 hover:bg-indigo-600 hover:text-white transition"
         >
-          <EyeIcon className="h-4 w-4" />
+          <EyeIcon className="h-3 w-3 md:h-4 md:w-4" />
         </button>
         <button
           onClick={() => onEdit(staff)}
           className="p-2 rounded-full bg-gray-100 hover:bg-indigo-50 text-gray-500 hover:text-indigo-600 transition"
         >
-          <PencilIcon className="h-4 w-4" />
+          <PencilIcon className="h-3 w-3 md:h-4 md:w-4" />
         </button>
       </div>
 

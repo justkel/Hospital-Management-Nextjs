@@ -163,7 +163,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
         <Content
           style={{
-            margin: 24,
+            margin: 12,
             padding: 24,
             background: '#fff',
             borderRadius: 12,

@@ -21,7 +21,7 @@ export default function DetailsDrawer({ staff, loading, onClose }: Props) {
     >
       <div
         onClick={e => e.stopPropagation()}
-        className="w-full sm:max-w-md h-[92vh] sm:h-full bg-white p-5 sm:p-8 rounded-t-3xl sm:rounded-none animate-drawer-in relative"
+        className="w-full mt-14 sm:max-w-md h-[92vh] sm:h-full bg-white p-5 sm:p-8 rounded-t-3xl sm:rounded-none animate-drawer-in relative"
       >
         <button
           onClick={onClose}
