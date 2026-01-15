@@ -19,10 +19,7 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
     phoneNumber: undefined,
   });
 
-  function update<K extends keyof CreateStaffInput>(
-    key: K,
-    value: CreateStaffInput[K]
-  ) {
+  function update<K extends keyof CreateStaffInput>(key: K, value: CreateStaffInput[K]) {
     setForm(prev => ({ ...prev, [key]: value }));
   }
 
@@ -42,13 +39,15 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
     form.roles.length > 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md px-4">
-      <div className="w-full max-w-xl rounded-3xl bg-linear-to-br from-white to-slate-50 shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md px-4 py-6 sm:py-12 overflow-auto">
+      <div className="w-full max-w-md sm:max-w-xl rounded-3xl bg-linear-to-br from-white to-slate-50 shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in max-h-[90vh] overflow-y-auto">
         <form autoComplete="off" className="space-y-8">
           <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight">Create staff</h2>
-              <p className="text-sm text-slate-500 mt-1">
+            <div className="flex-1 pr-4">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-800">
+                Create Staff
+              </h2>
+              <p className="text-sm sm:text-base text-slate-500 mt-1">
                 Add a new staff member and assign roles
               </p>
             </div>
@@ -64,14 +63,14 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <Field
-              label="Full name"
+              label="Full Name"
               name="create-staff-full-name"
               value={form.fullName}
               onChange={v => update('fullName', v)}
             />
 
             <Field
-              label="Email address"
+              label="Email Address"
               type="email"
               name="create-staff-email"
               value={form.email}
@@ -79,7 +78,7 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
             />
 
             <div className="sm:col-span-2 space-y-1">
-              <label className="text-sm font-medium text-slate-700">
+              <label className="text-sm sm:text-base font-medium text-slate-700">
                 Password
               </label>
 
@@ -99,12 +98,13 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
                   autoCorrect="off"
                   autoCapitalize="off"
                   spellCheck={false}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-12 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-14 text-sm sm:text-base outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition"
+                  placeholder="Enter a strong password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 hover:text-slate-800"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-slate-500 hover:text-slate-800"
                 >
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
@@ -112,7 +112,7 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
             </div>
 
             <Field
-              label="Phone number (optional)"
+              label="Phone Number"
               name="create-staff-phone"
               value={form.phoneNumber ?? ''}
               onChange={v => update('phoneNumber', v || undefined)}
@@ -120,7 +120,7 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
           </div>
 
           <div className="space-y-3">
-            <p className="text-sm font-medium text-slate-700">Assign roles</p>
+            <p className="text-sm sm:text-base font-medium text-slate-700">Assign Roles</p>
             <div className="flex flex-wrap gap-2">
               {Object.values(StaffRole).map(role => {
                 const active = form.roles.includes(role);
@@ -129,7 +129,7 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
                     key={role}
                     type="button"
                     onClick={() => toggleRole(role)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all ${
                       active
                         ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20 scale-[1.02]'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -146,7 +146,7 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition"
+              className="px-5 py-2 rounded-xl text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 transition w-full sm:w-auto"
             >
               Cancel
             </button>
@@ -155,9 +155,9 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
               type="button"
               disabled={!canSubmit}
               onClick={() => onCreate(form)}
-              className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-medium shadow-lg shadow-indigo-600/25 hover:shadow-xl hover:scale-[1.02] transition disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm sm:text-base font-medium shadow-lg shadow-indigo-600/25 hover:shadow-xl hover:scale-[1.02] transition disabled:opacity-40 disabled:cursor-not-allowed w-full sm:w-auto"
             >
-              Create staff
+              Create Staff
             </button>
           </div>
         </form>
@@ -181,7 +181,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1">
-      <label className="text-sm font-medium text-slate-700">{label}</label>
+      <label className="text-sm sm:text-base font-medium text-slate-700">{label}</label>
       <input
         type={type}
         name={name}
@@ -191,7 +191,8 @@ function Field({
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck={false}
-        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition"
+        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm sm:text-base outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition"
+        placeholder={`Enter ${label.toLowerCase()}`}
       />
     </div>
   );
