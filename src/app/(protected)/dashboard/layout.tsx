@@ -3,24 +3,24 @@
 import { ReactNode, useState } from 'react';
 import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, Modal } from 'antd';
 import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
   DashboardOutlined,
-  UserOutlined,
-  SettingOutlined,
-  LogoutOutlined,
   TeamOutlined,
   FileTextOutlined,
+  SettingOutlined,
+  LogoutOutlined,
+  UserOutlined,
+  MedicineBoxOutlined,
 } from '@ant-design/icons';
 import { useUserRoles } from '@/lib/auth/useUserRoles';
 import { Roles } from '@/shared/utils/enums/roles';
 import Link from 'next/link';
+import { MenuOutlined } from '@ant-design/icons';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [logoutModal, setLogoutModal] = useState(false);
   const userRoles = useUserRoles();
   const roles = userRoles.roles;
@@ -29,9 +29,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     try {
       const res = await fetch('/api/logout', { method: 'POST', credentials: 'include' });
       const json = await res.json();
-      if (json.success) {
-        window.location.href = '/login';
-      }
+      if (json.success) window.location.href = '/login';
     } catch (err) {
       console.error('Logout failed', err);
     }
@@ -43,28 +41,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         { key: 'profile', icon: <UserOutlined />, label: 'Profile' },
         { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
         { type: 'divider' },
-        {
-          key: 'logout',
-          icon: <LogoutOutlined />,
-          label: 'Logout',
-          danger: true,
-          onClick: () => setLogoutModal(true),
-        },
+        { key: 'logout', icon: <LogoutOutlined />, label: 'Logout', danger: true, onClick: () => setLogoutModal(true) },
       ]}
     />
   );
 
   const menuItems = [
     { key: 'dashboard', icon: <DashboardOutlined />, label: <Link href="/dashboard">Dashboard</Link> },
-    ...(roles.includes(Roles.ADMIN)
-    ? [{ key: 'staff', icon: <TeamOutlined />, label: <Link href="/admins/staff">Staff</Link> }]
-    : []),
-    { key: 'patients', icon: <TeamOutlined />, label: 'Patients' },
+    ...(roles.includes(Roles.ADMIN) ? [{ key: 'staff', icon: <TeamOutlined />, label: <Link href="/admins/staff">Staff</Link> }] : []),
+    { key: 'patients', icon: <MedicineBoxOutlined />, label: 'Patients' },
     { key: 'records', icon: <FileTextOutlined />, label: 'Medical Records' },
     { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
-    ...(roles.includes(Roles.ADMIN)
-      ? [{ key: 'audit', icon: <FileTextOutlined />, label: 'Audit Logs' }]
-      : []),
+    ...(roles.includes(Roles.ADMIN) ? [{ key: 'audit', icon: <FileTextOutlined />, label: 'Audit Logs' }] : []),
   ];
 
   return (
@@ -74,7 +62,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         collapsed={collapsed}
         trigger={null}
         width={260}
-        style={{ background: '#ffffff', borderRight: '1px solid #f0f0f0' }}
+        style={{
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          height: '100vh',
+          overflow: 'auto',
+          background: '#fff',
+          borderRight: '1px solid #f0f0f0',
+          zIndex: 100,
+        }}
       >
         <div
           style={{
@@ -88,31 +86,27 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             fontSize: 18,
           }}
         >
-          <Avatar shape="square" size={40} style={{ background: '#1677ff' }}>
-            H
-          </Avatar>
+          <Avatar shape="square" size={40} style={{ background: '#1677ff' }}>H</Avatar>
           {!collapsed && <span>Hospital Admin</span>}
         </div>
 
         <Menu mode="inline" defaultSelectedKeys={['dashboard']} style={{ borderRight: 0 }} items={menuItems} />
 
         <div style={{ position: 'absolute', bottom: 24, width: '100%', textAlign: 'center' }}>
-          <Button
-            type="text"
-            icon={<LogoutOutlined />}
-            danger
-            onClick={() => setLogoutModal(true)}
-          >
+          <Button type="text" icon={<LogoutOutlined />} danger onClick={() => setLogoutModal(true)}>
             {!collapsed && 'Logout'}
           </Button>
         </div>
       </Sider>
 
-      <Layout>
+      <Layout style={{ marginLeft: collapsed ? 80 : 260, transition: 'margin-left 0.3s' }}>
         <Header
           style={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 50,
             padding: '0 24px',
-            background: '#ffffff',
+            background: '#fff',
             borderBottom: '1px solid #f0f0f0',
             display: 'flex',
             alignItems: 'center',
@@ -122,11 +116,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <Space size="middle">
             <Button
               type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              icon={<MenuOutlined />}
               onClick={() => setCollapsed(!collapsed)}
-              style={{ fontSize: 18 }}
+              style={{ fontSize: 20, fontWeight: 700 }}
             />
-            <Title level={4} style={{ margin: 0 }}>
+            <Title level={4} style={{ margin: 0, whiteSpace: 'nowrap' }}>
               Dashboard
             </Title>
           </Space>
@@ -140,11 +134,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
         <Content
           style={{
-            margin: '24px',
-            padding: '24px',
-            background: '#ffffff',
+            margin: 24,
+            padding: 24,
+            background: '#fff',
             borderRadius: 12,
             minHeight: 'calc(100vh - 112px)',
+            transition: 'margin-left 0.3s',
           }}
         >
           {children}
