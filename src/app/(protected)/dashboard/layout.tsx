@@ -14,6 +14,7 @@ import {
 } from '@ant-design/icons';
 import { useUserRoles } from '@/lib/auth/useUserRoles';
 import { Roles } from '@/shared/utils/enums/roles';
+import Link from 'next/link';
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -54,7 +55,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   );
 
   const menuItems = [
-    { key: 'dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+    { key: 'dashboard', icon: <DashboardOutlined />, label: <Link href="/dashboard">Dashboard</Link> },
+    ...(roles.includes(Roles.ADMIN)
+    ? [{ key: 'staff', icon: <TeamOutlined />, label: <Link href="/admins/staff">Staff</Link> }]
+    : []),
     { key: 'patients', icon: <TeamOutlined />, label: 'Patients' },
     { key: 'records', icon: <FileTextOutlined />, label: 'Medical Records' },
     { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
