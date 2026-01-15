@@ -17,7 +17,7 @@ import { Roles } from '@/shared/utils/enums/roles';
 import Link from 'next/link';
 
 const { Header, Sider, Content } = Layout;
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -134,7 +134,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <Dropdown menu={{ items: userMenu.props.items }} placement="bottomRight">
             <Space style={{ cursor: 'pointer' }}>
               <Avatar icon={<UserOutlined />} />
-              <Text strong>Admin</Text>
             </Space>
           </Dropdown>
         </Header>
