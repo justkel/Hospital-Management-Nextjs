@@ -12,6 +12,7 @@ import { ROLE_STYLES } from '@/shared/utils/enums/roles';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { Meta, Avatar, DetailsSkeleton } from '@/components/DetailsParts';
 import StaffCard from './components/StaffCard';
+import RolesModal from './components/RolesModal';
 import { clientFetch } from '@/lib/clientFetch';
 
 type StaffItem = GetAllStaffQuery['staffs'][number];
@@ -29,6 +30,7 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [details, setDetails] = useState<StaffItem | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const filtered = roleFilter === 'ALL' ? list : list.filter(s => s.roles.includes(roleFilter));
 
@@ -102,6 +104,9 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
     setList(prev => prev.map(s => (s.id === json.staff.id ? json.staff : s)));
     setEditingStaff(null);
     setUpdatingRoles(false);
+
+    setSuccessMessage('Roles updated successfully!');
+    setTimeout(() => setSuccessMessage(null), 3000);
   }
 
   async function handleCreate(data: CreateStaffInput) {
@@ -138,6 +143,12 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
           + Add Staff
         </button>
       </div>
+
+      {successMessage && (
+        <div className="fixed top-20 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md animate-fade-in">
+            {successMessage}
+        </div>
+      )}
 
       <div className="flex flex-col md:flex-row gap-3 md:items-center">
         <input
@@ -240,65 +251,15 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
       )}
 
       {editingStaff && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
-          onClick={() => setEditingStaff(null)}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            className="w-full max-w-md bg-white p-6 rounded-2xl shadow-xl animate-fade-in"
-          >
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Update Roles</h2>
-              <button onClick={() => setEditingStaff(null)}>
-                <XMarkIcon className="h-5 w-5 text-gray-500" />
-              </button>
-            </div>
-
-            <div className="space-y-4 mb-6">
-              <input
-                value={editingStaff.fullName}
-                disabled
-                className="w-full px-3 py-2 rounded-lg bg-gray-100 text-sm"
-              />
-              <input
-                value={editingStaff.email}
-                disabled
-                className="w-full px-3 py-2 rounded-lg bg-gray-100 text-sm"
-              />
-            </div>
-
-            <div className="flex flex-wrap gap-2 mb-4">
-              {Object.values(StaffRole).map(role => (
-                <button
-                  key={role}
-                  onClick={() => toggleRole(role)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition ${
-                    rolesToUpdate.includes(role)
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-gray-100 hover:bg-gray-200'
-                  }`}
-                >
-                  {role}
-                </button>
-              ))}
-            </div>
-
-            {roleError && (
-              <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 mb-3">
-                {roleError}
-              </p>
-            )}
-
-            <button
-              onClick={handleUpdateRoles}
-              disabled={updatingRoles}
-              className="w-full py-2 rounded-2xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition disabled:opacity-50"
-            >
-              {updatingRoles ? 'Updating…' : 'Save Roles'}
-            </button>
-          </div>
-        </div>
+        <RolesModal
+            staff={editingStaff}
+            rolesToUpdate={rolesToUpdate}
+            onClose={() => setEditingStaff(null)}
+            onToggleRole={toggleRole}
+            onSave={handleUpdateRoles}
+            updating={updatingRoles}
+            error={roleError}
+        />
       )}
 
       {openCreate && (
