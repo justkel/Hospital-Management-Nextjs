@@ -8,11 +8,9 @@ import {
   UpdateStaffRolesInput,
 } from '@/shared/graphql/generated/graphql';
 import CreateStaffModal from './CreateStaffModal';
-import { ROLE_STYLES } from '@/shared/utils/enums/roles';
-import { XMarkIcon } from '@heroicons/react/24/solid';
-import { Meta, Avatar, DetailsSkeleton } from '@/components/DetailsParts';
 import StaffCard from './components/StaffCard';
 import RolesModal from './components/RolesModal';
+import DetailsDrawer from './components/DetailsDrawer';
 import { clientFetch } from '@/lib/clientFetch';
 
 type StaffItem = GetAllStaffQuery['staffs'][number];
@@ -187,67 +185,11 @@ export default function StaffManagementClient({ staffs }: { staffs: StaffItem[] 
       </div>
 
       {selectedId && (
-        <div
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex justify-end sm:items-stretch items-end"
-          onClick={closeDetails}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            className="w-full sm:max-w-md h-[92vh] sm:h-full bg-white p-5 sm:p-8 rounded-t-3xl sm:rounded-none animate-drawer-in relative"
-          >
-            <button
-              onClick={closeDetails}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition"
-            >
-              <XMarkIcon className="h-5 w-5 text-gray-600" />
-            </button>
-
-            {loadingDetails ? (
-              <DetailsSkeleton />
-            ) : details ? (
-              <div className="space-y-8">
-                <div className="flex items-center gap-4">
-                  <Avatar name={details.fullName} />
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-extrabold">
-                      {details.fullName}
-                    </h2>
-                    <p className="text-sm text-gray-500 break-all">
-                      {details.email}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl">
-                  <Meta label="Staff ID" value={details.id} />
-                  <Meta label="User Code" value={details.userCode} />
-                  <Meta label="Phone" value={details.phoneNumber ?? '—'} />
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-sm font-semibold text-gray-700">
-                    Assigned roles
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {details.roles.map(r => {
-                      const style = ROLE_STYLES[r];
-                      return (
-                        <span
-                          key={r}
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}
-                        >
-                          {r}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <p className="text-gray-500 mt-12">Staff not found</p>
-            )}
-          </div>
-        </div>
+        <DetailsDrawer
+            staff={details}
+            loading={loadingDetails}
+            onClose={closeDetails}
+        />
       )}
 
       {editingStaff && (
