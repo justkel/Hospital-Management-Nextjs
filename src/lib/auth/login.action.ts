@@ -4,37 +4,72 @@ import { cookies } from 'next/headers';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
+type StaffLoginData = {
+  staffLogin?: {
+    accessToken: string;
+    refreshToken: string;
+  };
+};
+
+type GraphQLErrorExtension = {
+  code?: string;
+  status?: string;
+};
+
+type GraphQLErrorResponse = {
+  message: string;
+  extensions?: GraphQLErrorExtension;
+};
+
+type GraphQLResponse<T> = {
+  data?: T;
+  errors?: GraphQLErrorResponse[];
+};
+
 export async function loginAction(input: {
   userCode: string;
   password: string;
 }) {
-  const res = await fetch(GATEWAY_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      query: `
-        mutation StaffLogin($input: StaffLoginInput!) {
-          staffLogin(input: $input) {
-            accessToken
-            refreshToken
+  let json: GraphQLResponse<StaffLoginData>;
+
+  try {
+    const res = await fetch(GATEWAY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `
+          mutation StaffLogin($input: StaffLoginInput!) {
+            staffLogin(input: $input) {
+              accessToken
+              refreshToken
+            }
           }
-        }
-      `,
-      variables: {
-        input: {
-          userCode: Number(input.userCode),
-          password: input.password,
+        `,
+        variables: {
+          input: {
+            userCode: Number(input.userCode),
+            password: input.password,
+          },
         },
-      },
-    }),
-  });
+      }),
+    });
 
-  const json = await res.json();
-
-  if (json.errors?.length) {
+    json = (await res.json()) as GraphQLResponse<StaffLoginData>;
+  } catch {
     return {
       success: false,
-      message: json.errors[0].message,
+      message: 'Unable to reach authentication server',
+    };
+  }
+
+  if (json.errors?.length) {
+    const err = json.errors[0];
+
+    return {
+      success: false,
+      message: err.message || 'Login failed',
+      code: err.extensions?.code,
+      status: err.extensions?.status,
     };
   }
 

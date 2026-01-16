@@ -7,6 +7,12 @@ import { useState } from 'react';
 
 const { Title } = Typography;
 
+const STATUS_MESSAGE_MAP: Record<string, string> = {
+  SUSPENDED: 'Your account has been suspended. Please contact an administrator.',
+  PENDING: 'Your account is pending approval.',
+  INACTIVE: 'Your account is inactive.',
+};
+
 export default function LoginPage() {
   const [form] = Form.useForm();
   const router = useRouter();
@@ -26,7 +32,12 @@ export default function LoginPage() {
     setLoading(false);
 
     if (!result.success) {
-      setError(result.message);
+      const customMessage =
+        (result.status && STATUS_MESSAGE_MAP[result.status]) ||
+        result.message ||
+        'Login failed';
+
+      setError(customMessage);
       return;
     }
 
