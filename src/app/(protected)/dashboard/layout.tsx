@@ -15,6 +15,7 @@ import {
 import { useUserRoles } from '@/lib/auth/useUserRoles';
 import { Roles } from '@/shared/utils/enums/roles';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -60,6 +61,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       console.error('Logout failed', err);
     }
   };
+
+  const pathname = usePathname();
+
+  const selectedKey = (() => {
+    if (pathname.startsWith('/dashboard')) return 'dashboard';
+    if (pathname.startsWith('/admins/staff')) return 'staff';
+    if (pathname.startsWith('/patients')) return 'patients';
+    if (pathname.startsWith('/records')) return 'records';
+    if (pathname.startsWith('/settings')) return 'settings';
+    if (pathname.startsWith('/audit')) return 'audit';
+    return '';
+  })();
 
   const userMenu = (
     <Menu
@@ -117,7 +130,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <span>Hospital Admin</span>
         </div>
 
-        <Menu mode="inline" defaultSelectedKeys={['dashboard']} style={{ borderRight: 0 }} items={menuItems} />
+        <Menu
+          mode="inline"
+          selectedKeys={[selectedKey]}
+          style={{ borderRight: 0 }}
+          items={menuItems}
+        />
 
         <div style={{ position: 'absolute', bottom: 24, width: '100%', textAlign: 'center' }}>
           <button
