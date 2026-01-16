@@ -263,9 +263,13 @@ export default function StaffManagementClient({
 
       {selectedId && (
         <DetailsDrawer
-            staff={details}
-            loading={loadingDetails}
-            onClose={closeDetails}
+          staff={details}
+          loading={loadingDetails}
+          onClose={closeDetails}
+          onStatusUpdated={updatedStaff => {
+            setBaseList(prev => prev.map(s => s.id === updatedStaff.id ? updatedStaff : s));
+            setList(prev => prev.map(s => s.id === updatedStaff.id ? updatedStaff : s));
+          }}
         />
       )}
 

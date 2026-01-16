@@ -1,9 +1,12 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { GetAllStaffQuery } from '@/shared/graphql/generated/graphql';
 import { Meta, Avatar, DetailsSkeleton } from '@/components/DetailsParts';
 import { ROLE_STYLES } from '@/shared/utils/enums/roles';
+import { STATUS_LABELS, STATUS_COLORS } from '@/shared/utils/enums/staff';
+import { StaffStatus } from '@/shared/graphql/generated/graphql';
 
 type StaffItem = GetAllStaffQuery['staffs']['items'][number];
 
@@ -11,9 +14,41 @@ interface Props {
   staff: StaffItem | null;
   loading: boolean;
   onClose: () => void;
+  onStatusUpdated?: (staff: StaffItem) => void;
 }
 
-export default function DetailsDrawer({ staff, loading, onClose }: Props) {
+export default function DetailsDrawer({ staff, loading, onClose, onStatusUpdated }: Props) {
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState<StaffStatus | null>(staff?.status ?? null);
+
+  useEffect(() => {
+    setCurrentStatus(staff?.status ?? null);
+  }, [staff]);
+
+  async function handleStatusChange(newStatus: StaffStatus) {
+    if (!staff || currentStatus === newStatus) return;
+    setUpdatingStatus(true);
+
+    try {
+      const res = await fetch('/api/staff/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ staffId: staff.id, status: newStatus }),
+        credentials: 'include',
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Failed to update status');
+
+      setCurrentStatus(json.staff.status);
+      onStatusUpdated?.(json.staff);
+    } catch (err) {
+      console.error(err);
+      alert((err as Error).message);
+    } finally {
+      setUpdatingStatus(false);
+    }
+  }
+
   return (
     <div
       className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex justify-end sm:items-stretch items-end"
@@ -62,6 +97,24 @@ export default function DetailsDrawer({ staff, loading, onClose }: Props) {
                     </span>
                   );
                 })}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold text-gray-700 mb-1">Status</p>
+              <div className="flex flex-wrap gap-2">
+                {Object.values(StaffStatus).map(status => (
+                  <button
+                    key={status}
+                    disabled={updatingStatus}
+                    onClick={() => handleStatusChange(status)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition ${
+                      currentStatus === status ? 'ring-2 ring-indigo-500' : ''
+                    } ${STATUS_COLORS[status]}`}
+                  >
+                    {STATUS_LABELS[status]}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
