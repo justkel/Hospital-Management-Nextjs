@@ -9,8 +9,12 @@ async function refreshSession(): Promise<boolean> {
   refreshing = true;
   refreshPromise = fetch('/api/refresh', { method: 'POST' })
     .then(res => res.json())
-    .then(json => {
+    .then(async json => {
       if (!json.success) {
+        await fetch('/api/logout', {
+          method: 'POST',
+          credentials: 'include',
+        });
         window.location.href = '/login';
         return false;
       }

@@ -13,10 +13,14 @@ export default function SessionGuard({ needsRefresh, children }: Props) {
 
     const refresh = async () => {
       try {
-        const res = await fetch('/api/refresh', { method: 'POST' });
+        const res = await fetch('/api/refresh', { method: 'POST', credentials: 'include' });
         const json = await res.json();
 
         if (!json.success) {
+          await fetch('/api/logout', {
+            method: 'POST',
+            credentials: 'include',
+          });
           window.location.href = '/login';
           return;
         }
@@ -24,8 +28,12 @@ export default function SessionGuard({ needsRefresh, children }: Props) {
         setTimeout(() => {
           window.location.reload();
         }, 600);
-      } catch {
-        window.location.href = '/login';
+      } catch{
+          await fetch('/api/logout', {
+            method: 'POST',
+            credentials: 'include',
+          });
+          window.location.href = '/login';
       }
     };
 
