@@ -1,8 +1,9 @@
 'use client';
 
-import { Button, Card, Form, Input, Typography } from 'antd';
+import { Button, Card, Form, Input, Typography, Alert } from 'antd';
 import { loginAction } from '@/lib/auth/login.action';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 const { Title } = Typography;
 
@@ -10,9 +11,25 @@ export default function LoginPage() {
   const [form] = Form.useForm();
   const router = useRouter();
 
-  const onFinish = async (values: { userCode: string; password: string }) => {
-    await loginAction(values);
-    console.log(values);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values: {
+    userCode: string;
+    password: string;
+  }) => {
+    setError(null);
+    setLoading(true);
+
+    const result = await loginAction(values);
+
+    setLoading(false);
+
+    if (!result.success) {
+      setError(result.message);
+      return;
+    }
+
     router.push('/dashboard');
   };
 
@@ -30,7 +47,21 @@ export default function LoginPage() {
           Staff Login
         </Title>
 
-        <Form form={form} layout="vertical" onFinish={onFinish}>
+        {error && (
+          <Alert
+            type="error"
+            title={error}
+            showIcon
+            style={{ marginBottom: 16 }}
+          />
+        )}
+
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          disabled={loading}
+        >
           <Form.Item
             label="Staff Code"
             name="userCode"
@@ -47,7 +78,12 @@ export default function LoginPage() {
             <Input.Password />
           </Form.Item>
 
-          <Button type="primary" htmlType="submit" block>
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            loading={loading}
+          >
             Login
           </Button>
         </Form>

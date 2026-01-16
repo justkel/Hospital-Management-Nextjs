@@ -4,7 +4,10 @@ import { cookies } from 'next/headers';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
-export async function loginAction(input: { userCode: string; password: string }) {
+export async function loginAction(input: {
+  userCode: string;
+  password: string;
+}) {
   const res = await fetch(GATEWAY_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -26,14 +29,23 @@ export async function loginAction(input: { userCode: string; password: string })
     }),
   });
 
-  if (!res.ok) throw new Error('Login failed');
-
   const json = await res.json();
 
-  if (json.errors?.length) throw new Error(json.errors[0].message || 'Login failed');
+  if (json.errors?.length) {
+    return {
+      success: false,
+      message: json.errors[0].message,
+    };
+  }
 
   const tokens = json.data?.staffLogin;
-  if (!tokens) throw new Error('Invalid credentials');
+
+  if (!tokens) {
+    return {
+      success: false,
+      message: 'Invalid credentials',
+    };
+  }
 
   const cookieStore = await cookies();
 
