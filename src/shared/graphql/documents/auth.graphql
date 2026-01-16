@@ -36,6 +36,7 @@ query GetAllStaff($page: Int! = 1, $limit: Int! = 25) {
       userCode
       userType
       roles
+      status
       phoneNumber
       organizationId
     }
@@ -112,3 +113,14 @@ mutation UpdateStaffRoles($data: UpdateStaffRolesInput!) {
   }
 }
 
+mutation UpdateStaffStatus($data: UpdateStaffStatusInput!) {
+  updateStaffStatus(data: $data) {
+    id
+    fullName
+    email
+    userCode
+    roles
+    status
+    organizationId
+  }
+}
