@@ -101,16 +101,18 @@ export default function DetailsDrawer({ staff, loading, onClose, onStatusUpdated
             </div>
 
             <div>
-              <p className="text-sm font-semibold text-gray-700 mb-1">Status</p>
+              <p className="text-sm font-semibold text-gray-700 mb-1">
+                Status <span className="text-gray-400 font-normal text-xs">Click to update staff status</span>
+              </p>
               <div className="flex flex-wrap gap-2">
-                {Object.values(StaffStatus).map(status => (
+                {Object.values(StaffStatus).map((status: StaffStatus) => (
                   <button
                     key={status}
                     disabled={updatingStatus}
                     onClick={() => handleStatusChange(status)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition ${
-                      currentStatus === status ? 'ring-2 ring-indigo-500' : ''
-                    } ${STATUS_COLORS[status]}`}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition
+                      ${currentStatus === status ? 'ring-2 ring-indigo-500 font-semibold' : ''}
+                      ${STATUS_COLORS[status]}`}
                   >
                     {STATUS_LABELS[status]}
                   </button>

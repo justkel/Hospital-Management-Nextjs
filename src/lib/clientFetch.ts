@@ -36,8 +36,6 @@ export async function clientFetch(
     credentials: 'include',
   });
 
-  console.log('RES', res);
-
   if (res.status !== 401) {
     return res;
   }
