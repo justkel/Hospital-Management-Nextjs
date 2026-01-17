@@ -20,7 +20,11 @@ export async function POST() {
   if (!refreshToken) {
     cookieStore.delete('access_token');
     cookieStore.delete('refresh_token');
-    return NextResponse.json({ success: false }, { status: 401 });
+
+    return NextResponse.json(
+      { success: false, reason: 'NO_REFRESH_TOKEN' },
+      { status: 401 }
+    );
   }
 
   const res = await fetch(GATEWAY_URL, {
@@ -37,12 +41,33 @@ export async function POST() {
   const json: { data?: RefreshTokenMutation; errors?: GraphQLError[] } =
     await res.json();
 
+  if (json.errors?.length) {
+    const isInactiveAccount = json.errors.some(
+      (err) => err.message === 'Account is not active'
+    );
+
+    cookieStore.delete('access_token');
+    cookieStore.delete('refresh_token');
+
+    return NextResponse.json(
+      {
+        success: false,
+        reason: isInactiveAccount ? 'ACCOUNT_INACTIVE' : 'UNAUTHORIZED',
+      },
+      { status: 401 }
+    );
+  }
+
   const tokenData = json.data?.refreshToken;
 
   if (!tokenData?.accessToken || !tokenData?.refreshToken) {
     cookieStore.delete('access_token');
     cookieStore.delete('refresh_token');
-    return NextResponse.json({ success: false }, { status: 401 });
+
+    return NextResponse.json(
+      { success: false, reason: 'INVALID_REFRESH_RESPONSE' },
+      { status: 401 }
+    );
   }
 
   const response = NextResponse.json({ success: true });
