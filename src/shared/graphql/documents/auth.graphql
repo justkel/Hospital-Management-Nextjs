@@ -54,6 +54,7 @@ query GetStaffByRole($role: StaffRole!) {
     userCode
     userType
     roles
+    status
     phoneNumber
     organizationId
   }
@@ -80,6 +81,7 @@ query GetStaffById($id: String!) {
     phoneNumber
     roles
     userCode
+    status
   }
 }
 
