@@ -41,7 +41,13 @@ export default function LoginPage() {
       return;
     }
 
-    router.push('/dashboard');
+    if (result.forcePasswordChange) {
+      router.replace('/force-password-change');
+      return;
+    }
+
+    router.replace('/dashboard');
+
   };
 
   return (

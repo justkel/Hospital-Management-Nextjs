@@ -8,6 +8,7 @@ type StaffLoginData = {
   staffLogin?: {
     accessToken: string;
     refreshToken: string;
+    forcePasswordChange: boolean;
   };
 };
 
@@ -42,6 +43,7 @@ export async function loginAction(input: {
             staffLogin(input: $input) {
               accessToken
               refreshToken
+              forcePasswordChange
             }
           }
         `,
@@ -98,5 +100,8 @@ export async function loginAction(input: {
     path: '/',
   });
 
-  return { success: true };
+  return {
+    success: true,
+    forcePasswordChange: tokens.forcePasswordChange,
+  };
 }

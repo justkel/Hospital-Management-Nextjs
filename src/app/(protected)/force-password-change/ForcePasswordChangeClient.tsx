@@ -52,9 +52,9 @@ export default function ForcePasswordChangeClient() {
     setLoading(false);
 
     // // force re-login
-    // setTimeout(() => {
-    //   window.location.href = '/login';
-    // }, 1500);
+    setTimeout(() => {
+      window.location.href = '/login';
+    }, 1500);
   }
 
   return (
