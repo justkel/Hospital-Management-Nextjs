@@ -43,29 +43,29 @@ export default function StaffManagementClient({
 
   async function fetchPage(nextPage: number, nextLimit = limit) {
     try {
-        const res = await fetch(
+      const res = await clientFetch(
         `/api/staff/staff-list?page=${nextPage}&limit=${nextLimit}`,
         {
-            method: 'GET',
-            credentials: 'include',
+          method: 'GET',
+          credentials: 'include',
         }
-        );
+      );
 
-        const json = await res.json();
+      const json = await res.json();
 
-        if (!res.ok) {
+      if (!res.ok) {
         console.error(json.error ?? 'Failed to fetch staff');
         return;
-        }
+      }
 
-        const data = json.staffs;
+      const data = json.staffs;
 
-        setPage(data.page);
-        setTotal(data.total);
-        setBaseList(data.items);
-        setList(data.items);
+      setPage(data.page);
+      setTotal(data.total);
+      setBaseList(data.items);
+      setList(data.items);
     } catch (err) {
-        console.error(err);
+      console.error(err);
     }
   }
 
@@ -152,15 +152,20 @@ export default function StaffManagementClient({
       body: JSON.stringify(data),
       credentials: 'include',
     });
+
     const json = await res.json();
-    if (json.staff) {
-      setBaseList(prev => [json.staff, ...prev]);
-      setList(prev => [json.staff, ...prev]);
-      setTotal(t => t + 1);
-      setOpenCreate(false);
+
+    if (!res.ok) {
+      throw new Error(json.error || 'Failed to create staff');
     }
+
+    const staff = json.staff;
+
+    setBaseList(prev => [staff, ...prev]);
+    setList(prev => [staff, ...prev]);
+    setTotal(t => t + 1);
   }
-  
+
   async function openDetails(id: string) {
     setSelectedId(id);
     setLoadingDetails(true);
@@ -200,7 +205,7 @@ export default function StaffManagementClient({
 
       {successMessage && (
         <div className="fixed top-20 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md animate-fade-in">
-            {successMessage}
+          {successMessage}
         </div>
       )}
 
@@ -217,11 +222,10 @@ export default function StaffManagementClient({
             <button
               key={r}
               onClick={() => setRoleFilter(r)}
-              className={`px-4 py-1 rounded-full text-sm font-medium transition ${
-                roleFilter === r
+              className={`px-4 py-1 rounded-full text-sm font-medium transition ${roleFilter === r
                   ? 'bg-indigo-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               {r}
             </button>
@@ -275,13 +279,13 @@ export default function StaffManagementClient({
 
       {editingStaff && (
         <RolesModal
-            staff={editingStaff}
-            rolesToUpdate={rolesToUpdate}
-            onClose={() => setEditingStaff(null)}
-            onToggleRole={toggleRole}
-            onSave={handleUpdateRoles}
-            updating={updatingRoles}
-            error={roleError}
+          staff={editingStaff}
+          rolesToUpdate={rolesToUpdate}
+          onClose={() => setEditingStaff(null)}
+          onToggleRole={toggleRole}
+          onSave={handleUpdateRoles}
+          updating={updatingRoles}
+          error={roleError}
         />
       )}
 

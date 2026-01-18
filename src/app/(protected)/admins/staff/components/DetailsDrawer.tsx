@@ -7,6 +7,7 @@ import { Meta, Avatar, DetailsSkeleton } from '@/components/DetailsParts';
 import { ROLE_STYLES } from '@/shared/utils/enums/roles';
 import { STATUS_LABELS, STATUS_COLORS } from '@/shared/utils/enums/staff';
 import { StaffStatus } from '@/shared/graphql/generated/graphql';
+import { clientFetch } from '@/lib/clientFetch';
 
 type StaffItem = GetAllStaffQuery['staffs']['items'][number];
 
@@ -30,7 +31,7 @@ export default function DetailsDrawer({ staff, loading, onClose, onStatusUpdated
     setUpdatingStatus(true);
 
     try {
-      const res = await fetch('/api/staff/update-status', {
+      const res = await clientFetch('/api/staff/update-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ staffId: staff.id, status: newStatus }),
