@@ -9,12 +9,10 @@ interface Props {
 }
 
 export default function CreateStaffModal({ onClose, onCreate }: Props) {
-  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState<CreateStaffInput>({
     fullName: '',
     email: '',
-    password: '',
     roles: [],
     phoneNumber: undefined,
   });
@@ -35,7 +33,6 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
   const canSubmit =
     form.fullName.trim() &&
     form.email.trim() &&
-    form.password.trim() &&
     form.roles.length > 0;
 
   return (
@@ -76,40 +73,6 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
               value={form.email}
               onChange={v => update('email', v)}
             />
-
-            <div className="sm:col-span-2 space-y-1">
-              <label className="text-sm sm:text-base font-medium text-slate-700">
-                Password
-              </label>
-
-              <input
-                type="text"
-                name="fake-username"
-                autoComplete="username"
-                style={{ display: 'none' }}
-              />
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={form.password}
-                  onChange={e => update('password', e.target.value)}
-                  autoComplete="new-password"
-                  name="create-staff-password"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck={false}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-14 text-sm sm:text-base outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition"
-                  placeholder="Enter a strong password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-slate-500 hover:text-slate-800"
-                >
-                  {showPassword ? 'Hide' : 'Show'}
-                </button>
-              </div>
-            </div>
 
             <Field
               label="Phone Number"

@@ -126,3 +126,8 @@ mutation UpdateStaffStatus($data: UpdateStaffStatusInput!) {
     organizationId
   }
 }
+
+mutation UpdateStaffPassword($input: UpdateStaffPasswordInput!) {
+  updateStaffPassword(input: $input)
+}
+
