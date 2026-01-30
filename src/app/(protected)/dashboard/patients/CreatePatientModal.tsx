@@ -14,7 +14,9 @@ export default function CreatePatientModal({
     onCreate,
 }: {
     onClose: () => void;
-    onCreate: (data: CreatePatientInput) => Promise<void>;
+    onCreate: (
+        data: CreatePatientInput
+    ) => Promise<{ warning?: string; matches?: any[] }>;
 }) {
     const [form, setForm] = useState<CreatePatientInput>({
         gender: '',
@@ -25,6 +27,8 @@ export default function CreatePatientModal({
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
+    const [warning, setWarning] = useState<string | null>(null);
 
     function update<K extends keyof CreatePatientInput>(
         key: K,
@@ -51,12 +55,6 @@ export default function CreatePatientModal({
             if (!form.email)
                 errors.email = 'Email is required';
 
-            if (!form.bloodGroup)
-                errors.bloodGroup = 'Blood group is required';
-
-            if (!form.allergies || form.allergies.length === 0)
-                errors.allergies = 'Specify allergies (use "None" if applicable)';
-
             if (!form.nextOfKinName)
                 errors.nextOfKinName = 'Next of kin name is required';
 
@@ -78,6 +76,8 @@ export default function CreatePatientModal({
 
     async function submit() {
         setError(null);
+        setSuccess(null);
+        setWarning(null);
 
         const errors = validate(form);
         if (Object.keys(errors).length > 0) {
@@ -87,8 +87,16 @@ export default function CreatePatientModal({
 
         setLoading(true);
         try {
-            await onCreate(form);
-            onClose();
+            const result = await onCreate(form);
+
+            setSuccess('Patient created successfully');
+            if (result?.warning) {
+                setWarning(result.warning);
+            }
+
+            setTimeout(() => {
+                onClose();
+            }, 4500);
         } catch (e: unknown) {
             setError(e instanceof Error ? e.message : 'Something went wrong');
         } finally {
@@ -120,7 +128,18 @@ export default function CreatePatientModal({
                     </button>
                 </div>
                 <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
+                    {success && (
+                        <div className="rounded-2xl bg-green-50 text-green-700 px-4 py-3">
+                            {success}
+                        </div>
+                    )}
 
+                    {warning && (
+                        <div className="rounded-2xl bg-yellow-50 text-yellow-800 px-4 py-3">
+                            ⚠️ {warning}
+                        </div>
+                    )}
+                    
                     {error && (
                         <div className="rounded-2xl bg-red-50 text-red-700 px-4 py-3">
                             {error}

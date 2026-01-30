@@ -50,6 +50,11 @@ export default function PatientManagementClient({
 
         setList(prev => [json.patient, ...prev]);
         setTotal(t => t + 1);
+
+        return {
+            warning: json.warning as string | undefined,
+            matches: json.matches,
+        };
     }
 
     return (
