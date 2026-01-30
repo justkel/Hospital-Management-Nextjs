@@ -22,7 +22,6 @@ export async function GET(req: Request) {
 
   const pageParam = searchParams.get('page');
   const limitParam = searchParams.get('limit');
-  const search = searchParams.get('search');
   const statusParam = searchParams.get('status');
 
   const page = pageParam ? parseInt(pageParam) : 1;
@@ -46,7 +45,6 @@ export async function GET(req: Request) {
           pagination: {
             page,
             limit,
-            ...(search && { search }),
             ...(status && { status }),
           },
         } as GetAllPatientsQueryVariables,
