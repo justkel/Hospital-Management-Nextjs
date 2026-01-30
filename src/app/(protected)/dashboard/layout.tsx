@@ -88,7 +88,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const menuItems = [
     { key: 'dashboard', icon: <DashboardOutlined />, label: <Link href="/dashboard">Dashboard</Link> },
     ...(roles.includes(Roles.ADMIN) ? [{ key: 'staff', icon: <TeamOutlined />, label: <Link href="/admins/staff">Staff</Link> }] : []),
-    { key: 'patients', icon: <MedicineBoxOutlined />, label: 'Patients' },
+    { key: 'patients', icon: <MedicineBoxOutlined />, label: <Link href="/dashboard/patients">Patients</Link> },
     { key: 'records', icon: <FileTextOutlined />, label: 'Medical Records' },
     { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
     ...(roles.includes(Roles.ADMIN) ? [{ key: 'audit', icon: <FileSearchOutlined />, label: 'Audit Logs' }] : []),

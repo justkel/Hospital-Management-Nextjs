@@ -90,12 +90,23 @@ export type CreatePatientInput = {
   addresses?: InputMaybe<Array<CreateAddressInput>>;
   allergies?: InputMaybe<Array<Scalars['String']['input']>>;
   bloodGroup?: InputMaybe<BloodGroup>;
-  dateOfBirth: Scalars['String']['input'];
+  dateOfBirth?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
-  fullName: Scalars['String']['input'];
+  emergency: Scalars['Boolean']['input'];
+  extraDetails?: InputMaybe<Scalars['String']['input']>;
+  fullName?: InputMaybe<Scalars['String']['input']>;
   gender: Scalars['String']['input'];
-  organizationId: Scalars['String']['input'];
+  nextOfKinName?: InputMaybe<Scalars['String']['input']>;
+  nextOfKinPhone?: InputMaybe<Scalars['String']['input']>;
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
+  secondaryPhoneNumber?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreatePatientResult = {
+  __typename?: 'CreatePatientResult';
+  matches?: Maybe<Array<DuplicatePatientMatch>>;
+  patient: Patient;
+  warning?: Maybe<Scalars['String']['output']>;
 };
 
 export type CreateStaffInput = {
@@ -105,13 +116,28 @@ export type CreateStaffInput = {
   roles: Array<StaffRole>;
 };
 
+export type DuplicatePatientMatch = {
+  __typename?: 'DuplicatePatientMatch';
+  confidence: Scalars['Float']['output'];
+  fullName: Scalars['String']['output'];
+  patientId: Scalars['String']['output'];
+  patientNumber: Scalars['String']['output'];
+};
+
+export type LoginAuthResponse = {
+  __typename?: 'LoginAuthResponse';
+  accessToken: Scalars['String']['output'];
+  forcePasswordChange: Scalars['Boolean']['output'];
+  refreshToken?: Maybe<Scalars['String']['output']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createOrganization: Organization;
-  createPatient: Patient;
+  createPatient: CreatePatientResult;
   createStaff: Staff;
   refreshToken: AuthResponse;
-  staffLogin: AuthResponse;
+  staffLogin: LoginAuthResponse;
   updateOrganizationStatus: Organization;
   updatePatientStatus: Patient;
   updateStaff: Staff;
@@ -202,18 +228,40 @@ export type Patient = {
   __typename?: 'Patient';
   allergies?: Maybe<Array<Scalars['String']['output']>>;
   bloodGroup?: Maybe<BloodGroup>;
-  dateOfBirth: Scalars['String']['output'];
+  createdByStaffId?: Maybe<Scalars['ID']['output']>;
+  dateOfBirth?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
-  fullName: Scalars['String']['output'];
+  emergency: Scalars['Boolean']['output'];
+  extraDetails?: Maybe<Scalars['String']['output']>;
+  fullName?: Maybe<Scalars['String']['output']>;
   gender: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  likelyDuplicatePatientIds?: Maybe<Array<Scalars['ID']['output']>>;
+  nextOfKinName?: Maybe<Scalars['String']['output']>;
+  nextOfKinPhone?: Maybe<Scalars['String']['output']>;
   organization: Organization;
   organizationId: Scalars['ID']['output'];
   patientNumber: Scalars['String']['output'];
   phoneNumber?: Maybe<Scalars['String']['output']>;
+  secondaryPhoneNumber?: Maybe<Scalars['String']['output']>;
   status: PatientStatus;
   userCode: Scalars['Float']['output'];
   userType: UserType;
+};
+
+export type PatientPaginationInput = {
+  limit: Scalars['Float']['input'];
+  page: Scalars['Float']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<PatientStatus>;
+};
+
+export type PatientPaginationResult = {
+  __typename?: 'PatientPaginationResult';
+  items: Array<Patient>;
+  page: Scalars['Int']['output'];
+  pageCount: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
 };
 
 /** Status of the patient */
@@ -233,7 +281,7 @@ export type Query = {
   health: Scalars['String']['output'];
   organization: Organization;
   organizations: Array<Organization>;
-  patients: Array<Patient>;
+  patients: PatientPaginationResult;
   searchStaff: Array<Staff>;
   secretRoute: Scalars['String']['output'];
   staffById: Staff;
@@ -245,6 +293,11 @@ export type Query = {
 
 export type QueryOrganizationArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryPatientsArgs = {
+  pagination: PatientPaginationInput;
 };
 
 
@@ -350,7 +403,7 @@ export type StaffLoginMutationVariables = Exact<{
 }>;
 
 
-export type StaffLoginMutation = { __typename?: 'Mutation', staffLogin: { __typename?: 'AuthResponse', accessToken: string, refreshToken?: string | null } };
+export type StaffLoginMutation = { __typename?: 'Mutation', staffLogin: { __typename?: 'LoginAuthResponse', accessToken: string, refreshToken?: string | null } };
 
 export type RefreshTokenMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -426,6 +479,20 @@ export type UpdateStaffPasswordMutationVariables = Exact<{
 
 export type UpdateStaffPasswordMutation = { __typename?: 'Mutation', updateStaffPassword: boolean };
 
+export type CreatePatientMutationVariables = Exact<{
+  data: CreatePatientInput;
+}>;
+
+
+export type CreatePatientMutation = { __typename?: 'Mutation', createPatient: { __typename?: 'CreatePatientResult', warning?: string | null, patient: { __typename?: 'Patient', id: string, patientNumber: string, fullName?: string | null, gender: string, phoneNumber?: string | null, email?: string | null, bloodGroup?: BloodGroup | null, emergency: boolean }, matches?: Array<{ __typename?: 'DuplicatePatientMatch', patientId: string, patientNumber: string, fullName: string, confidence: number }> | null } };
+
+export type GetAllPatientsQueryVariables = Exact<{
+  pagination: PatientPaginationInput;
+}>;
+
+
+export type GetAllPatientsQuery = { __typename?: 'Query', patients: { __typename?: 'PatientPaginationResult', total: number, page: number, pageCount: number, items: Array<{ __typename?: 'Patient', id: string, patientNumber: string, fullName?: string | null, gender: string, phoneNumber?: string | null, email?: string | null, bloodGroup?: BloodGroup | null, emergency: boolean, status: PatientStatus }> } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -439,3 +506,5 @@ export const UpdateStaffDocument = {"kind":"Document","definitions":[{"kind":"Op
 export const UpdateStaffRolesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateStaffRoles"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateStaffRolesInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateStaffRoles"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"roles"}}]}}]}}]} as unknown as DocumentNode<UpdateStaffRolesMutation, UpdateStaffRolesMutationVariables>;
 export const UpdateStaffStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateStaffStatus"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateStaffStatusInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateStaffStatus"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"roles"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<UpdateStaffStatusMutation, UpdateStaffStatusMutationVariables>;
 export const UpdateStaffPasswordDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateStaffPassword"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateStaffPasswordInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateStaffPassword"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]} as unknown as DocumentNode<UpdateStaffPasswordMutation, UpdateStaffPasswordMutationVariables>;
+export const CreatePatientDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreatePatient"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreatePatientInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createPatient"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"patient"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"patientNumber"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"gender"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"bloodGroup"}},{"kind":"Field","name":{"kind":"Name","value":"emergency"}}]}},{"kind":"Field","name":{"kind":"Name","value":"warning"}},{"kind":"Field","name":{"kind":"Name","value":"matches"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"patientId"}},{"kind":"Field","name":{"kind":"Name","value":"patientNumber"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"confidence"}}]}}]}}]}}]} as unknown as DocumentNode<CreatePatientMutation, CreatePatientMutationVariables>;
+export const GetAllPatientsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAllPatients"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PatientPaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"patients"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"patientNumber"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"gender"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"bloodGroup"}},{"kind":"Field","name":{"kind":"Name","value":"emergency"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pageCount"}}]}}]}}]} as unknown as DocumentNode<GetAllPatientsQuery, GetAllPatientsQueryVariables>;

@@ -131,3 +131,43 @@ mutation UpdateStaffPassword($input: UpdateStaffPasswordInput!) {
   updateStaffPassword(input: $input)
 }
 
+mutation CreatePatient($data: CreatePatientInput!) {
+  createPatient(data: $data) {
+    patient {
+      id
+      patientNumber
+      fullName
+      gender
+      phoneNumber
+      email
+      bloodGroup
+      emergency
+    }
+    warning
+    matches {
+      patientId
+      patientNumber
+      fullName
+      confidence
+    }
+  }
+}
+
+query GetAllPatients($pagination: PatientPaginationInput!) {
+  patients(pagination: $pagination) {
+    items {
+      id
+      patientNumber
+      fullName
+      gender
+      phoneNumber
+      email
+      bloodGroup
+      emergency
+      status
+    }
+    total
+    page
+    pageCount
+  }
+}
