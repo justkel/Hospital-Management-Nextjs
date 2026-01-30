@@ -71,8 +71,6 @@ export default function PatientManagementClient({
                     + New Patient
                 </button>
             </div>
-
-            {/* Dormant search input */}
             <input
                 disabled
                 placeholder="Search patient name or number…"
