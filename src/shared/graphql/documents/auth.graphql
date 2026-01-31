@@ -171,3 +171,16 @@ query GetAllPatients($pagination: PatientPaginationInput!) {
     pageCount
   }
 }
+
+query SearchPatient($query: String!) {
+  searchPatient(query: $query) {
+    id
+    fullName
+    email
+    phoneNumber
+    gender
+    patientNumber
+    status
+    emergency
+  }
+}

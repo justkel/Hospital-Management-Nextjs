@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pagination } from 'antd';
 import {
     GetAllPatientsQuery,
@@ -19,10 +19,13 @@ export default function PatientManagementClient({
     paginated: GetAllPatientsQuery['patients'];
 }) {
     const [list, setList] = useState<PatientListItem[]>(paginated.items);
+    const [baseList, setBaseList] = useState<PatientListItem[]>(paginated.items);
+
     const [page, setPage] = useState(paginated.page);
     const [total, setTotal] = useState(paginated.total);
     const [limit, setLimit] = useState(20);
 
+    const [search, setSearch] = useState('');
     const [openCreate, setOpenCreate] = useState(false);
 
     async function fetchPage(nextPage: number, nextLimit = limit) {
@@ -35,8 +38,28 @@ export default function PatientManagementClient({
 
         setPage(json.patients.page);
         setTotal(json.patients.total);
+        setBaseList(json.patients.items);
         setList(json.patients.items);
     }
+
+    useEffect(() => {
+        const run = async () => {
+            if (!search.trim()) {
+                setList(baseList);
+                return;
+            }
+
+            const res = await clientFetch(
+                `/api/patients/search?query=${encodeURIComponent(search)}`
+            );
+
+            const json = await res.json();
+            setList(json.patients ?? []);
+        };
+
+        const t = setTimeout(run, 350);
+        return () => clearTimeout(t);
+    }, [search, baseList]);
 
     async function handleCreate(data: CreatePatientInput) {
         const res = await clientFetch('/api/patients/create', {
@@ -48,6 +71,7 @@ export default function PatientManagementClient({
         const json = await res.json();
         if (!res.ok) throw new Error(json.error);
 
+        setBaseList(prev => [json.patient, ...prev]);
         setList(prev => [json.patient, ...prev]);
         setTotal(t => t + 1);
 
@@ -76,16 +100,25 @@ export default function PatientManagementClient({
                     + New Patient
                 </button>
             </div>
+
             <input
-                disabled
+                value={search}
+                onChange={e => setSearch(e.target.value)}
                 placeholder="Search patient name or number…"
-                className="w-full md:max-w-sm rounded-xl border px-4 py-3 bg-gray-100 text-gray-400 cursor-not-allowed"
+                className="w-full md:max-w-sm rounded-xl border px-4 py-3
+                           focus:ring-2 focus:ring-emerald-500"
             />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {list.map(p => (
-                    <PatientCard key={p.id} patient={p} />
-                ))}
+                {list.length > 0 ? (
+                    list.map(p => (
+                        <PatientCard key={p.id} patient={p} />
+                    ))
+                ) : (
+                    <div className="col-span-full text-center py-12 text-gray-500">
+                        No patients found.
+                    </div>
+                )}
             </div>
 
             <div className="flex justify-center pt-6">

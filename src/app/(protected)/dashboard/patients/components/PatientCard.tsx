@@ -22,7 +22,6 @@ export default function PatientCard({ patient }: { patient: PatientListItem }) {
         </div>
       </div>
 
-      {/* RIGHT SECTION */}
       <div className="mt-4 sm:mt-0 flex flex-col sm:items-end gap-2">
         {patient.emergency && (
           <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
