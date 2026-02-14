@@ -52,7 +52,7 @@ export default async function PatientDetailPage({ params }: Props) {
             
             <div className="flex items-center gap-6">
               <div className="h-20 w-20 rounded-2xl bg-emerald-100 flex items-center justify-center text-2xl font-bold text-emerald-700">
-                {patient.fullName?.charAt(0)}
+                {patient.fullName?.charAt(0)?.toUpperCase()}
               </div>
 
               <div>
