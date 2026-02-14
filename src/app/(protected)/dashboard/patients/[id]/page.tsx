@@ -12,6 +12,22 @@ interface Props {
   }>;
 }
 
+function calculateAge(dateOfBirth?: string | null) {
+  if (!dateOfBirth) return null;
+
+  const dob = new Date(dateOfBirth);
+  const today = new Date();
+
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+    age--;
+  }
+
+  return age;
+}
+
 export default async function PatientDetailPage({ params }: Props) {
   const { id } = await params;
 
@@ -25,25 +41,27 @@ export default async function PatientDetailPage({ params }: Props) {
   }
 
   const patient = data.patientById;
+  const age = calculateAge(patient.dateOfBirth);
 
   return (
     <SessionGuard needsRefresh={false}>
       <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-10">
-        <div className="max-w-6xl mx-auto space-y-8">
+        <div className="max-w-7xl mx-auto space-y-8">
 
-          <div className="bg-white rounded-3xl shadow-sm p-6 sm:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="bg-white rounded-3xl shadow-sm p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-6">
               <div className="h-20 w-20 rounded-2xl bg-emerald-100 flex items-center justify-center text-2xl font-bold text-emerald-700">
                 {patient.fullName?.charAt(0)}
               </div>
 
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                <h1 className="text-3xl font-bold text-gray-900">
                   {patient.fullName}
                 </h1>
+
                 <p className="text-gray-500 mt-1">
-                  Patient No: {patient.patientNumber}
+                  Patient No: {patient.patientNumber} • Code: {patient.userCode}
                 </p>
 
                 <div className="flex flex-wrap gap-2 mt-3">
@@ -53,21 +71,25 @@ export default async function PatientDetailPage({ params }: Props) {
                     </span>
                   )}
 
-                  {patient.status && (
-                    <span
-                      className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                        patient.status === 'ACTIVE'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-200 text-gray-600'
-                      }`}
-                    >
-                      {patient.status}
-                    </span>
-                  )}
+                  <span
+                    className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                      patient.status === 'ACTIVE'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-gray-200 text-gray-600'
+                    }`}
+                  >
+                    {patient.status}
+                  </span>
 
                   <span className="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
                     {patient.gender}
                   </span>
+
+                  {patient.bloodGroup && (
+                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-red-50 text-red-700">
+                      {patient.bloodGroup}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -78,23 +100,36 @@ export default async function PatientDetailPage({ params }: Props) {
             <div className="lg:col-span-2 space-y-6">
 
               <div className="bg-white rounded-3xl shadow-sm p-6">
-                <h2 className="text-lg font-semibold mb-4">Contact Information</h2>
+                <h2 className="text-lg font-semibold mb-4">Personal Information</h2>
 
                 <div className="grid sm:grid-cols-2 gap-6 text-sm">
-                  <div>
-                    <p className="text-gray-500">Email</p>
-                    <p className="font-medium text-gray-900">
-                      {patient.email ?? '—'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-gray-500">Phone</p>
-                    <p className="font-medium text-gray-900">
-                      {patient.phoneNumber ?? '—'}
-                    </p>
-                  </div>
+                  <Info label="Date of Birth" value={patient.dateOfBirth} />
+                  <Info label="Age" value={age ? `${age} years` : '—'} />
+                  <Info label="Email" value={patient.email} />
+                  <Info label="Phone" value={patient.phoneNumber} />
+                  <Info label="Secondary Phone" value={patient.secondaryPhoneNumber} />
                 </div>
+              </div>
+
+              <div className="bg-white rounded-3xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold mb-4">Medical Information</h2>
+
+                {patient.allergies?.length ? (
+                  <div className="flex flex-wrap gap-2">
+                    {patient.allergies.map((allergy, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 font-medium"
+                      >
+                        {allergy}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    No recorded allergies.
+                  </p>
+                )}
               </div>
 
               <div className="bg-white rounded-3xl shadow-sm p-6">
@@ -105,7 +140,7 @@ export default async function PatientDetailPage({ params }: Props) {
                     {patient.addresses.map((addr, i) => (
                       <div
                         key={i}
-                        className="rounded-2xl border bg-gray-50 p-4 text-sm"
+                        className="rounded-2xl bg-gray-50 p-4 text-sm"
                       >
                         <p className="font-medium">{addr?.addressLine1}</p>
                         <p className="text-gray-600">{addr?.city}</p>
@@ -132,34 +167,46 @@ export default async function PatientDetailPage({ params }: Props) {
                 </div>
               )}
             </div>
-
             <div className="space-y-6">
 
               <div className="bg-white rounded-3xl shadow-sm p-6">
                 <h2 className="text-lg font-semibold mb-4">Next of Kin</h2>
-
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <p className="text-gray-500">Name</p>
-                    <p className="font-medium text-gray-900">
-                      {patient.nextOfKinName ?? '—'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-gray-500">Phone</p>
-                    <p className="font-medium text-gray-900">
-                      {patient.nextOfKinPhone ?? '—'}
-                    </p>
-                  </div>
-                </div>
+                <Info label="Name" value={patient.nextOfKinName} />
+                <Info label="Phone" value={patient.nextOfKinPhone} />
               </div>
+
+              <div className="bg-white rounded-3xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold mb-4">System Information</h2>
+                <Info label="Created By Staff ID" value={patient.createdByStaffId} />
+              </div>
+
+              {patient.likelyDuplicatePatientIds?.length ? (
+                <div className="bg-red-50 border border-red-200 rounded-3xl p-6">
+                  <h2 className="text-lg font-semibold text-red-700 mb-3">
+                    Possible Duplicates
+                  </h2>
+                  <ul className="text-sm text-red-800 space-y-1">
+                    {patient.likelyDuplicatePatientIds.map((dup, i) => (
+                      <li key={i}>{dup}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
 
             </div>
           </div>
-
         </div>
       </div>
     </SessionGuard>
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function Info({ label, value }: { label: string; value?: any }) {
+  return (
+    <div className="text-sm">
+      <p className="text-gray-500">{label}</p>
+      <p className="font-medium text-gray-900">{value ?? '—'}</p>
+    </div>
   );
 }
