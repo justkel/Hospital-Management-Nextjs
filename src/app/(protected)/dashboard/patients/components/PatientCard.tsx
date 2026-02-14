@@ -1,8 +1,11 @@
+import { useRouter } from 'next/navigation';
 import { PatientListItem } from "../PatientManagementClient";
 
 export default function PatientCard({ patient }: { patient: PatientListItem }) {
+  const router = useRouter();
+
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center rounded-3xl bg-white p-6 shadow-lg hover:shadow-2xl transition-all duration-200 w-full max-w-md mx-auto sm:max-w-full">
+    <div onClick={() => router.push(`/dashboard/patients/${patient.id}`)} className="flex flex-col sm:flex-row justify-between items-start sm:items-center rounded-3xl bg-white p-6 shadow-lg hover:shadow-2xl transition-all duration-200 w-full max-w-md mx-auto sm:max-w-full cursor-pointer">
       
       <div className="flex-1">
         {patient.fullName && (
