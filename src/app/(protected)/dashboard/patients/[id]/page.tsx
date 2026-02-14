@@ -5,6 +5,7 @@ import {
 } from '@/shared/graphql/generated/graphql';
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 import SessionGuard from '@/components/SessionGuard';
+import SystemInformation from '@/app/(protected)/admins/staff/components/SystemInformation';
 
 interface Props {
   params: Promise<{
@@ -175,10 +176,7 @@ export default async function PatientDetailPage({ params }: Props) {
                 <Info label="Phone" value={patient.nextOfKinPhone} />
               </div>
 
-              <div className="bg-white rounded-3xl shadow-sm p-6">
-                <h2 className="text-lg font-semibold mb-4">System Information</h2>
-                <Info label="Created By Staff ID" value={patient.createdByStaffId} />
-              </div>
+              <SystemInformation staffId={patient.createdByStaffId} />
 
               {patient.likelyDuplicatePatientIds?.length ? (
                 <div className="bg-red-50 border border-red-200 rounded-3xl p-6">
