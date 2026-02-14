@@ -189,20 +189,27 @@ query GetPatientById($id: String!) {
   patientById(id: $id) {
     id
     fullName
-    email
-    phoneNumber
+    dateOfBirth
     gender
+    phoneNumber
+    secondaryPhoneNumber
+    email
     patientNumber
+    userCode
     status
+    bloodGroup
+    allergies
     emergency
+    extraDetails
+    nextOfKinName
+    nextOfKinPhone
+    createdByStaffId
+    likelyDuplicatePatientIds
     addresses {
       addressLine1
       city
       state
       country
     }
-    extraDetails
-    nextOfKinName
-    nextOfKinPhone
   }
 }
