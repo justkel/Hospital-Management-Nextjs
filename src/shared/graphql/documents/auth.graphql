@@ -184,3 +184,25 @@ query SearchPatient($query: String!) {
     emergency
   }
 }
+
+query GetPatientById($id: String!) {
+  patientById(id: $id) {
+    id
+    fullName
+    email
+    phoneNumber
+    gender
+    patientNumber
+    status
+    emergency
+    addresses {
+      addressLine1
+      city
+      state
+      country
+    }
+    extraDetails
+    nextOfKinName
+    nextOfKinPhone
+  }
+}
