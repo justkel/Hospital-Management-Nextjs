@@ -6,6 +6,7 @@ import {
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 import SessionGuard from '@/components/SessionGuard';
 import SystemInformation from '@/app/(protected)/admins/staff/components/SystemInformation';
+import EditPatientButton from '../components/EditPatientButton';
 
 interface Props {
   params: Promise<{
@@ -112,6 +113,8 @@ export default async function PatientDetailPage({ params }: Props) {
                 </div>
               </div>
             </div>
+
+            <EditPatientButton patient={patient} />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

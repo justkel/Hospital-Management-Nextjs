@@ -32,11 +32,8 @@ export default function CreatePatientModal({
         gender: '',
         emergency: false,
         allergies: [],
-        addresses: [
-            {
-                country: 'NIGERIA',
-            } as any,
-        ],
+        addresses: undefined,
+
     });
 
     const [loading, setLoading] = useState(false);
@@ -117,6 +114,17 @@ export default function CreatePatientModal({
 
         setLoading(true);
         try {
+            const address = form.addresses?.[0];
+
+            const isAddressComplete =
+                address?.addressLine1 &&
+                address?.city &&
+                address?.state &&
+                address?.country;
+
+            if (!isAddressComplete) {
+                delete form.addresses;
+            }
             const result = await onCreate(form);
 
             setSuccess('Patient created successfully');
@@ -218,10 +226,9 @@ export default function CreatePatientModal({
 
                         <Select
                             label="Country"
-                            disabled
+                            disabled={isLocked}
                             options={['NIGERIA']}
-                            value="NIGERIA"
-                            onChange={() => { }}
+                            onChange={v => updateAddress({ country: v })}
                         />
 
                         <Select
@@ -288,7 +295,7 @@ function Input({
     );
 }
 
-function Select({
+export function Select({
     label,
     options,
     onChange,
