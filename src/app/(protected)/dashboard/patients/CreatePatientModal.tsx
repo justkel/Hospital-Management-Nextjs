@@ -40,6 +40,7 @@ export default function CreatePatientModal({
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [warning, setWarning] = useState<string | null>(null);
+    const [addressWarning, setAddressWarning] = useState<string | null>(null);
 
     const contentRef = useRef<HTMLDivElement>(null);
 
@@ -105,6 +106,7 @@ export default function CreatePatientModal({
         setError(null);
         setSuccess(null);
         setWarning(null);
+        setAddressWarning(null);
 
         const errors = validate(form);
         if (Object.keys(errors).length > 0) {
@@ -113,6 +115,7 @@ export default function CreatePatientModal({
         }
 
         setLoading(true);
+
         try {
             const address = form.addresses?.[0];
 
@@ -122,12 +125,27 @@ export default function CreatePatientModal({
                 address?.state &&
                 address?.country;
 
-            if (!isAddressComplete) {
-                delete form.addresses;
-            }
-            const result = await onCreate(form);
+            const isAddressPartiallyFilled =
+                address?.addressLine1 ||
+                address?.city ||
+                address?.state ||
+                address?.country;
+
+            const payload: CreatePatientInput = {
+                ...form,
+                addresses: isAddressComplete
+                    ? form.addresses
+                    : undefined,
+            };
+
+            const result = await onCreate(payload);
 
             setSuccess('Patient created successfully');
+
+            if (!isAddressComplete && isAddressPartiallyFilled) {
+                setAddressWarning('Incomplete address detected — it was ignored.');
+            }
+
             if (result?.warning) setWarning(result.warning);
 
             setTimeout(onClose, 4500);
@@ -137,6 +155,7 @@ export default function CreatePatientModal({
             setLoading(false);
         }
     }
+
 
     const hasErrors = Object.keys(validate(form)).length > 0;
 
@@ -172,6 +191,12 @@ export default function CreatePatientModal({
                     {warning && (
                         <div className="rounded-2xl bg-yellow-50 text-yellow-800 px-4 py-3">
                             ⚠️ {warning}
+                        </div>
+                    )}
+
+                    {addressWarning && (
+                        <div className="rounded-2xl bg-yellow-50 text-yellow-800 px-4 py-3">
+                            {addressWarning} ⚠️
                         </div>
                     )}
 
