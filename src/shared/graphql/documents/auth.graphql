@@ -213,3 +213,10 @@ query GetPatientById($id: String!) {
     }
   }
 }
+
+mutation UpdatePatient($data: UpdatePatientInput!) {
+  updatePatient(data: $data) {
+    id
+    userCode
+  }
+}
