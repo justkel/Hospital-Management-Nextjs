@@ -44,6 +44,25 @@ export default async function PatientDetailPage({ params }: Props) {
   const patient = data.patientById;
   const age = calculateAge(patient.dateOfBirth);
 
+  const duplicatePatients =
+    patient.likelyDuplicatePatientIds?.length
+      ? (
+        await Promise.all(
+          patient.likelyDuplicatePatientIds.map(async (dupId) => {
+            const res = await graphqlFetch<
+              GetPatientByIdQuery,
+              GetPatientByIdQueryVariables
+            >(GetPatientByIdDocument, { id: dupId });
+
+            return res?.patientById ?? null;
+          })
+        )
+      ).filter(
+        (p): p is NonNullable<GetPatientByIdQuery['patientById']> =>
+          p !== null
+      )
+      : [];
+
   return (
     <SessionGuard needsRefresh={false}>
       <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-10">
@@ -73,11 +92,10 @@ export default async function PatientDetailPage({ params }: Props) {
                   )}
 
                   <span
-                    className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                      patient.status === 'ACTIVE'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-gray-200 text-gray-600'
-                    }`}
+                    className={`px-3 py-1 text-xs font-semibold rounded-full ${patient.status === 'ACTIVE'
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-gray-200 text-gray-600'
+                      }`}
                   >
                     {patient.status}
                   </span>
@@ -178,14 +196,16 @@ export default async function PatientDetailPage({ params }: Props) {
 
               <SystemInformation staffId={patient.createdByStaffId} />
 
-              {patient.likelyDuplicatePatientIds?.length ? (
+              {duplicatePatients.length ? (
                 <div className="bg-red-50 border border-red-200 rounded-3xl p-6">
                   <h2 className="text-lg font-semibold text-red-700 mb-3">
                     Possible Duplicates
                   </h2>
                   <ul className="text-sm text-red-800 space-y-1">
-                    {patient.likelyDuplicatePatientIds.map((dup, i) => (
-                      <li key={i}>{dup}</li>
+                    {duplicatePatients.map((dup, i) => (
+                      <li key={i}>
+                        {dup?.fullName} • Code: {dup?.userCode}
+                      </li>
                     ))}
                   </ul>
                 </div>
