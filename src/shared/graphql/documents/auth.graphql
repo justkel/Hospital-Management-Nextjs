@@ -233,7 +233,12 @@ query FindAllVisits($pagination: VisitPaginationInput!) {
   visits(pagination: $pagination) {
     items {
       id
-      patientId
+      patient {
+        id
+        fullName
+        email
+        phoneNumber
+      }
       visitType
       status
       visitDateTime
