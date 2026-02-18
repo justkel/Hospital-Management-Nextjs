@@ -42,8 +42,6 @@ export default function SystemInformation({ staffId }: Props) {
     <div className="bg-white rounded-3xl shadow-sm p-6">
       <h2 className="text-lg font-semibold mb-4">System Information</h2>
 
-      <Info label="Created By Staff ID" value={staffId} />
-
       {loading ? (
         <p className="text-sm text-gray-500">Loading staff details...</p>
       ) : (

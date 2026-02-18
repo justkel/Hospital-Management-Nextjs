@@ -7,6 +7,7 @@ import {
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 import SessionGuard from '@/components/SessionGuard';
 import Link from 'next/link';
+import SystemInformation from '@/app/(protected)/admins/staff/components/SystemInformation';
 
 interface Props {
   params: Promise<{
@@ -102,14 +103,14 @@ export default async function VisitDetailPage({ params }: Props) {
                     label="Visit Date & Time"
                     value={formatDate(visit.visitDateTime)}
                   />
-                  <Info
-                    label="Closed At"
-                    value={formatDate(visit.closedAt)}
-                  />
-                  <Info
-                    label="Attending Staff ID"
-                    value={visit.attendingStaffId}
-                  />
+                  {visit.closedAt && (
+                    <Info
+                        label="Closed At"
+                        value={formatDate(visit.closedAt)}
+                    />
+                  )}
+                  
+                  <SystemInformation staffId={visit.attendingStaffId} />
                 </div>
               </div>
 
