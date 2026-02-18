@@ -220,3 +220,58 @@ mutation UpdatePatient($data: UpdatePatientInput!) {
     userCode
   }
 }
+
+mutation CreateVisit($data: CreateVisitInput!) {
+  createVisit(data: $data) {
+    id
+    patientId
+    status
+  }
+} 
+
+query FindAllVisits($pagination: VisitPaginationInput!) {
+  visits(pagination: $pagination) {
+    items {
+      id
+      patientId
+      visitType
+      status
+      visitDateTime
+      attendingStaffId
+    }
+    total
+    page
+    pageCount
+  }
+}
+
+query GetPatientVisitHistory($patientId: String!) {
+  patientVisitHistory(patientId: $patientId) {
+    id
+    visitType
+    status
+    visitDateTime
+    attendingStaffId
+  }
+}
+
+query GetVisitById($id: String!) {
+  visit(id: $id) {
+    id
+    visitType
+    status
+    visitDateTime
+    closedAt
+
+    patient {
+      id
+      fullName
+      email
+      phoneNumber
+    }
+    attendingStaffId
+  }
+}
+
+
+

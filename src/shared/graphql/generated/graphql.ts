@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -13,7 +14,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  DateTime: { input: unknown; output: unknown; }
+  DateTime: { input: any; output: any; }
 };
 
 export type Address = {
@@ -57,6 +58,16 @@ export type AuthResponse = {
   refreshToken?: Maybe<Scalars['String']['output']>;
 };
 
+export type BillingCatalogueCategory = {
+  __typename?: 'BillingCatalogueCategory';
+  code: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  items?: Maybe<Array<GlobalBillingCatalogueItem>>;
+  name: Scalars['String']['output'];
+  organizationId?: Maybe<Scalars['ID']['output']>;
+};
+
 /** Blood group of the patient */
 export enum BloodGroup {
   AbNeg = 'AB_NEG',
@@ -74,6 +85,19 @@ export type CreateAddressInput = {
   city: Scalars['String']['input'];
   country: Scalars['String']['input'];
   state: Scalars['String']['input'];
+};
+
+export type CreateBillingCategoryInput = {
+  code: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
+export type CreateBillingItemInput = {
+  categoryId: Scalars['ID']['input'];
+  code: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
 };
 
 export type CreateOrganizationInput = {
@@ -116,12 +140,38 @@ export type CreateStaffInput = {
   roles: Array<StaffRole>;
 };
 
+export type CreateVisitInput = {
+  patientId: Scalars['ID']['input'];
+  visitType: VisitType;
+};
+
+export type CreateVisitVitalInput = {
+  bloodPressure?: InputMaybe<Scalars['String']['input']>;
+  heartRate?: InputMaybe<Scalars['Int']['input']>;
+  height?: InputMaybe<Scalars['Float']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  respiratoryRate?: InputMaybe<Scalars['Int']['input']>;
+  spo2?: InputMaybe<Scalars['Int']['input']>;
+  temperature?: InputMaybe<Scalars['Float']['input']>;
+  visitId: Scalars['ID']['input'];
+  weight?: InputMaybe<Scalars['Float']['input']>;
+};
+
 export type DuplicatePatientMatch = {
   __typename?: 'DuplicatePatientMatch';
   confidence: Scalars['Float']['output'];
   fullName: Scalars['String']['output'];
   patientId: Scalars['String']['output'];
   patientNumber: Scalars['String']['output'];
+};
+
+export type GlobalBillingCatalogueItem = {
+  __typename?: 'GlobalBillingCatalogueItem';
+  code: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  organizationId?: Maybe<Scalars['ID']['output']>;
 };
 
 export type LoginAuthResponse = {
@@ -133,11 +183,17 @@ export type LoginAuthResponse = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  cloneGlobalCategoryToOrganization: BillingCatalogueCategory;
+  createBillingCategory: BillingCatalogueCategory;
+  createBillingItem: GlobalBillingCatalogueItem;
   createOrganization: Organization;
   createPatient: CreatePatientResult;
   createStaff: Staff;
+  createVisit: Visit;
+  createVisitVital: VisitVital;
   refreshToken: AuthResponse;
   staffLogin: LoginAuthResponse;
+  updateBillingCategory: BillingCatalogueCategory;
   updateOrganizationStatus: Organization;
   updatePatient: Patient;
   updatePatientStatus: Patient;
@@ -145,6 +201,23 @@ export type Mutation = {
   updateStaffPassword: Scalars['Boolean']['output'];
   updateStaffRoles: Staff;
   updateStaffStatus: Staff;
+  updateVisitVital: VisitVital;
+};
+
+
+export type MutationCloneGlobalCategoryToOrganizationArgs = {
+  categoryId: Scalars['String']['input'];
+  organizationId: Scalars['String']['input'];
+};
+
+
+export type MutationCreateBillingCategoryArgs = {
+  data: CreateBillingCategoryInput;
+};
+
+
+export type MutationCreateBillingItemArgs = {
+  data: CreateBillingItemInput;
 };
 
 
@@ -163,8 +236,23 @@ export type MutationCreateStaffArgs = {
 };
 
 
+export type MutationCreateVisitArgs = {
+  data: CreateVisitInput;
+};
+
+
+export type MutationCreateVisitVitalArgs = {
+  data: CreateVisitVitalInput;
+};
+
+
 export type MutationStaffLoginArgs = {
   input: StaffLoginInput;
+};
+
+
+export type MutationUpdateBillingCategoryArgs = {
+  data: UpdateBillingCategoryInput;
 };
 
 
@@ -201,6 +289,11 @@ export type MutationUpdateStaffRolesArgs = {
 
 export type MutationUpdateStaffStatusArgs = {
   data: UpdateStaffStatusInput;
+};
+
+
+export type MutationUpdateVisitVitalArgs = {
+  data: UpdateVisitVitalInput;
 };
 
 export type Organization = {
@@ -283,11 +376,15 @@ export enum PatientStatus {
 export type Query = {
   __typename?: 'Query';
   adminOnly: Scalars['String']['output'];
+  billingCategoryById: BillingCatalogueCategory;
   getAuditLogs: Array<AuditLog>;
+  globalBillingCategories: Array<BillingCatalogueCategory>;
   health: Scalars['String']['output'];
   organization: Organization;
+  organizationBillingCategories: Array<BillingCatalogueCategory>;
   organizations: Array<Organization>;
   patientById: Patient;
+  patientVisitHistory: Array<Visit>;
   patients: PatientPaginationResult;
   searchPatient: Array<Patient>;
   searchStaff: Array<Staff>;
@@ -295,7 +392,15 @@ export type Query = {
   staffById: Staff;
   staffByRole: Array<Staff>;
   staffs: PaginatedStaff;
+  visit: Visit;
+  visitVitals: Array<VisitVital>;
+  visits: VisitPaginationResult;
   whoAmI: WhoAmIDto;
+};
+
+
+export type QueryBillingCategoryByIdArgs = {
+  categoryId: Scalars['String']['input'];
 };
 
 
@@ -306,6 +411,11 @@ export type QueryOrganizationArgs = {
 
 export type QueryPatientByIdArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryPatientVisitHistoryArgs = {
+  patientId: Scalars['String']['input'];
 };
 
 
@@ -337,6 +447,21 @@ export type QueryStaffByRoleArgs = {
 export type QueryStaffsArgs = {
   limit?: Scalars['Int']['input'];
   page?: Scalars['Int']['input'];
+};
+
+
+export type QueryVisitArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryVisitVitalsArgs = {
+  visitId: Scalars['String']['input'];
+};
+
+
+export type QueryVisitsArgs = {
+  pagination: VisitPaginationInput;
 };
 
 export type Staff = {
@@ -376,10 +501,17 @@ export enum StaffStatus {
   Suspended = 'SUSPENDED'
 }
 
+export type UpdateBillingCategoryInput = {
+  categoryId: Scalars['ID']['input'];
+  code?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdatePatientInput = {
   addresses?: InputMaybe<Array<CreateAddressInput>>;
   allergies?: InputMaybe<Array<Scalars['String']['input']>>;
-  bloodGroup?: InputMaybe<Scalars['String']['input']>;
+  bloodGroup?: InputMaybe<BloodGroup>;
   extraDetails?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
   nextOfKinName?: InputMaybe<Scalars['String']['input']>;
@@ -414,12 +546,90 @@ export type UpdateStaffStatusInput = {
   status: StaffStatus;
 };
 
+export type UpdateVisitVitalInput = {
+  bloodPressure?: InputMaybe<Scalars['String']['input']>;
+  heartRate?: InputMaybe<Scalars['Int']['input']>;
+  height?: InputMaybe<Scalars['Float']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  respiratoryRate?: InputMaybe<Scalars['Int']['input']>;
+  spo2?: InputMaybe<Scalars['Int']['input']>;
+  temperature?: InputMaybe<Scalars['Float']['input']>;
+  vitalId: Scalars['ID']['input'];
+  weight?: InputMaybe<Scalars['Float']['input']>;
+};
+
 /** Type of user */
 export enum UserType {
   Admin = 'ADMIN',
   Patient = 'PATIENT',
   Staff = 'STAFF'
 }
+
+export type Visit = {
+  __typename?: 'Visit';
+  attendingStaffId?: Maybe<Scalars['ID']['output']>;
+  closedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  organization: Organization;
+  organizationId: Scalars['ID']['output'];
+  patient: Patient;
+  patientId: Scalars['ID']['output'];
+  status: VisitStatus;
+  visitDateTime: Scalars['DateTime']['output'];
+  visitType: VisitType;
+};
+
+export type VisitPaginationInput = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  status?: InputMaybe<VisitStatus>;
+  visitType?: InputMaybe<VisitType>;
+};
+
+export type VisitPaginationResult = {
+  __typename?: 'VisitPaginationResult';
+  items: Array<Visit>;
+  page: Scalars['Int']['output'];
+  pageCount: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
+/** Current status of a visit */
+export enum VisitStatus {
+  Admitted = 'ADMITTED',
+  Cancelled = 'CANCELLED',
+  Closed = 'CLOSED',
+  Discharged = 'DISCHARGED',
+  Open = 'OPEN'
+}
+
+/** Type of patient visit */
+export enum VisitType {
+  Admission = 'ADMISSION',
+  Consultation = 'CONSULTATION',
+  Daycare = 'DAYCARE',
+  Emergency = 'EMERGENCY',
+  FollowUp = 'FOLLOW_UP',
+  Opd = 'OPD',
+  Surgery = 'SURGERY',
+  Telemedicine = 'TELEMEDICINE'
+}
+
+export type VisitVital = {
+  __typename?: 'VisitVital';
+  bloodPressure?: Maybe<Scalars['String']['output']>;
+  bmi?: Maybe<Scalars['Float']['output']>;
+  heartRate?: Maybe<Scalars['Float']['output']>;
+  height?: Maybe<Scalars['Float']['output']>;
+  id: Scalars['ID']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
+  recordedByStaffId: Scalars['ID']['output'];
+  respiratoryRate?: Maybe<Scalars['Float']['output']>;
+  spo2?: Maybe<Scalars['Float']['output']>;
+  temperature?: Maybe<Scalars['Float']['output']>;
+  visitId: Scalars['ID']['output'];
+  weight?: Maybe<Scalars['Float']['output']>;
+};
 
 export type WhoAmIDto = {
   __typename?: 'WhoAmIDto';
@@ -543,6 +753,34 @@ export type UpdatePatientMutationVariables = Exact<{
 
 export type UpdatePatientMutation = { __typename?: 'Mutation', updatePatient: { __typename?: 'Patient', id: string, userCode: number } };
 
+export type CreateVisitMutationVariables = Exact<{
+  data: CreateVisitInput;
+}>;
+
+
+export type CreateVisitMutation = { __typename?: 'Mutation', createVisit: { __typename?: 'Visit', id: string, patientId: string, status: VisitStatus } };
+
+export type FindAllVisitsQueryVariables = Exact<{
+  pagination: VisitPaginationInput;
+}>;
+
+
+export type FindAllVisitsQuery = { __typename?: 'Query', visits: { __typename?: 'VisitPaginationResult', total: number, page: number, pageCount: number, items: Array<{ __typename?: 'Visit', id: string, patientId: string, visitType: VisitType, status: VisitStatus, visitDateTime: any, attendingStaffId?: string | null }> } };
+
+export type GetPatientVisitHistoryQueryVariables = Exact<{
+  patientId: Scalars['String']['input'];
+}>;
+
+
+export type GetPatientVisitHistoryQuery = { __typename?: 'Query', patientVisitHistory: Array<{ __typename?: 'Visit', id: string, visitType: VisitType, status: VisitStatus, visitDateTime: any, attendingStaffId?: string | null }> };
+
+export type GetVisitByIdQueryVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type GetVisitByIdQuery = { __typename?: 'Query', visit: { __typename?: 'Visit', id: string, visitType: VisitType, status: VisitStatus, visitDateTime: any, closedAt?: any | null, attendingStaffId?: string | null, patient: { __typename?: 'Patient', id: string, fullName?: string | null, email?: string | null, phoneNumber?: string | null } } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -561,3 +799,7 @@ export const GetAllPatientsDocument = {"kind":"Document","definitions":[{"kind":
 export const SearchPatientDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SearchPatient"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"query"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"searchPatient"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"query"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"gender"}},{"kind":"Field","name":{"kind":"Name","value":"patientNumber"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"emergency"}}]}}]}}]} as unknown as DocumentNode<SearchPatientQuery, SearchPatientQueryVariables>;
 export const GetPatientByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPatientById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"patientById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"dateOfBirth"}},{"kind":"Field","name":{"kind":"Name","value":"gender"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"secondaryPhoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"patientNumber"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"bloodGroup"}},{"kind":"Field","name":{"kind":"Name","value":"allergies"}},{"kind":"Field","name":{"kind":"Name","value":"emergency"}},{"kind":"Field","name":{"kind":"Name","value":"extraDetails"}},{"kind":"Field","name":{"kind":"Name","value":"nextOfKinName"}},{"kind":"Field","name":{"kind":"Name","value":"nextOfKinPhone"}},{"kind":"Field","name":{"kind":"Name","value":"createdByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"likelyDuplicatePatientIds"}},{"kind":"Field","name":{"kind":"Name","value":"addresses"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addressLine1"}},{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"country"}}]}}]}}]}}]} as unknown as DocumentNode<GetPatientByIdQuery, GetPatientByIdQueryVariables>;
 export const UpdatePatientDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdatePatient"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdatePatientInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updatePatient"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}}]}}]}}]} as unknown as DocumentNode<UpdatePatientMutation, UpdatePatientMutationVariables>;
+export const CreateVisitDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVisit"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVisit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"patientId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]} as unknown as DocumentNode<CreateVisitMutation, CreateVisitMutationVariables>;
+export const FindAllVisitsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindAllVisits"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"VisitPaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visits"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"patientId"}},{"kind":"Field","name":{"kind":"Name","value":"visitType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"visitDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"attendingStaffId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pageCount"}}]}}]}}]} as unknown as DocumentNode<FindAllVisitsQuery, FindAllVisitsQueryVariables>;
+export const GetPatientVisitHistoryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPatientVisitHistory"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"patientId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"patientVisitHistory"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"patientId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"patientId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"visitDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"attendingStaffId"}}]}}]}}]} as unknown as DocumentNode<GetPatientVisitHistoryQuery, GetPatientVisitHistoryQueryVariables>;
+export const GetVisitByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"visitDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"closedAt"}},{"kind":"Field","name":{"kind":"Name","value":"patient"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}}]}},{"kind":"Field","name":{"kind":"Name","value":"attendingStaffId"}}]}}]}}]} as unknown as DocumentNode<GetVisitByIdQuery, GetVisitByIdQueryVariables>;
