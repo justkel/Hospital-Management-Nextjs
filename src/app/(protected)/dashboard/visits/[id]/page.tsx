@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   GetVisitByIdDocument,
   GetVisitByIdQuery,
@@ -8,6 +9,7 @@ import { graphqlFetch } from '@/shared/graphql/fetcher';
 import SessionGuard from '@/components/SessionGuard';
 import Link from 'next/link';
 import SystemInformation from '@/app/(protected)/admins/staff/components/SystemInformation';
+import CollapsibleSection from '../components/CollapsibleSection';
 
 interface Props {
   params: Promise<{
@@ -91,11 +93,7 @@ export default async function VisitDetailPage({ params }: Props) {
 
             <div className="lg:col-span-2 space-y-6">
 
-              <div className="bg-white rounded-3xl shadow-sm p-6">
-                <h2 className="text-lg font-semibold mb-4">
-                  Visit Information
-                </h2>
-
+              <CollapsibleSection title="Visit Information">
                 <div className="grid sm:grid-cols-2 gap-6 text-sm">
                   <Info label="Visit Type" value={visit.visitType} />
                   <Info label="Status" value={visit.status} />
@@ -109,16 +107,11 @@ export default async function VisitDetailPage({ params }: Props) {
                         value={formatDate(visit.closedAt)}
                     />
                   )}
-                  
                   <SystemInformation staffId={visit.attendingStaffId} />
                 </div>
-              </div>
+              </CollapsibleSection>
 
-              <div className="bg-white rounded-3xl shadow-sm p-6">
-                <h2 className="text-lg font-semibold mb-6">
-                  Visit Timeline
-                </h2>
-
+              <CollapsibleSection title="Visit Timeline">
                 <div className="relative pl-6 space-y-6">
                   <TimelineItem
                     title="Visit Created"
@@ -132,37 +125,32 @@ export default async function VisitDetailPage({ params }: Props) {
                     />
                   )}
                 </div>
-              </div>
+              </CollapsibleSection>
             </div>
 
             <div className="space-y-6">
 
-              <div className="bg-white rounded-3xl shadow-sm p-6">
-                <h2 className="text-lg font-semibold mb-4">
-                  Patient Information
-                </h2>
-
+              <CollapsibleSection title="Patient Information">
                 <Info label="Full Name" value={patient?.fullName} />
                 <Info label="Email" value={patient?.email} />
                 <Info label="Phone" value={patient?.phoneNumber} />
-              </div>
+              </CollapsibleSection>
 
-              <div className="bg-indigo-50 border border-indigo-100 rounded-3xl p-6">
-                <h2 className="text-lg font-semibold text-indigo-700 mb-2">
-                  Visit Summary
-                </h2>
-
-                <p className="text-sm text-indigo-900">
+              <CollapsibleSection
+                title="Visit Summary"
+                defaultOpen
+              >
+                <p className="text-sm text-gray-700">
                   This visit is currently{' '}
                   <span className="font-semibold">{visit.status}</span>.
                 </p>
 
                 {isClosed && (
-                  <p className="text-sm text-indigo-900 mt-2">
+                  <p className="text-sm text-gray-700 mt-2">
                     Closed on {formatDate(visit.closedAt)}.
                   </p>
                 )}
-              </div>
+              </CollapsibleSection>
             </div>
           </div>
         </div>
@@ -171,7 +159,6 @@ export default async function VisitDetailPage({ params }: Props) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Info({ label, value }: { label: string; value?: any }) {
   return (
     <div className="text-sm">
