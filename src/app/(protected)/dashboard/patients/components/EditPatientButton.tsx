@@ -30,11 +30,22 @@ export default function EditPatientButton({ patient }: Props) {
     const [warning, setWarning] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    const [form, setForm] = useState({
+    const [form, setForm] = useState<{
+        phoneNumber: string;
+        nextOfKinName: string;
+        nextOfKinPhone: string;
+        bloodGroup?: BloodGroup;
+        extraDetails: string;
+        allergies: string;
+        addressLine1: string;
+        city: string;
+        state: string;
+        country: string;
+    }>({
         phoneNumber: patient.phoneNumber ?? '',
         nextOfKinName: patient.nextOfKinName ?? '',
         nextOfKinPhone: patient.nextOfKinPhone ?? '',
-        bloodGroup: patient.bloodGroup ?? '',
+        bloodGroup: patient.bloodGroup as BloodGroup | undefined,
         extraDetails: patient.extraDetails ?? '',
         allergies: patient.allergies?.join(', ') ?? '',
         addressLine1: '',
@@ -55,7 +66,10 @@ export default function EditPatientButton({ patient }: Props) {
         setOpen(false);
     };
 
-    const handleChange = (key: string, value: string) => {
+    const handleChange = <K extends keyof typeof form>(
+        key: K,
+        value: (typeof form)[K]
+    ) => {
         setForm(prev => ({ ...prev, [key]: value }));
     };
 
