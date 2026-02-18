@@ -11,6 +11,7 @@ import {
   UserOutlined,
   MedicineBoxOutlined,
   FileSearchOutlined,
+  SolutionOutlined,
 } from '@ant-design/icons';
 import { useUserRoles } from '@/lib/auth/useUserRoles';
 import { Roles } from '@/shared/utils/enums/roles';
@@ -65,12 +66,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   const selectedKey = (() => {
-    if (pathname.startsWith('/dashboard')) return 'dashboard';
     if (pathname.startsWith('/admins/staff')) return 'staff';
-    if (pathname.startsWith('/patients')) return 'patients';
+    if (pathname.startsWith('/dashboard/patients')) return 'patients';
+    if (pathname.startsWith('/dashboard/visits')) return 'visits';
     if (pathname.startsWith('/records')) return 'records';
     if (pathname.startsWith('/settings')) return 'settings';
     if (pathname.startsWith('/audit')) return 'audit';
+    if (pathname.startsWith('/dashboard')) return 'dashboard';
     return '';
   })();
 
@@ -90,6 +92,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     ...(roles.includes(Roles.ADMIN) ? [{ key: 'staff', icon: <TeamOutlined />, label: <Link href="/admins/staff">Staff</Link> }] : []),
     { key: 'patients', icon: <MedicineBoxOutlined />, label: <Link href="/dashboard/patients">Patients</Link> },
     { key: 'records', icon: <FileTextOutlined />, label: 'Medical Records' },
+    { key: 'visits', icon: <SolutionOutlined />, label: <Link href="/dashboard/visits">Visits</Link> },
     { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
     ...(roles.includes(Roles.ADMIN) ? [{ key: 'audit', icon: <FileSearchOutlined />, label: 'Audit Logs' }] : []),
   ];
@@ -127,7 +130,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           }}
         >
           <Avatar shape="square" size={40} style={{ background: '#1677ff' }}>H</Avatar>
-          <span>Hospital Admin</span>
+          <span>Hospital Staff</span>
         </div>
 
         <Menu
