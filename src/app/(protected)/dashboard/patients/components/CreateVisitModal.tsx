@@ -60,7 +60,7 @@ export default function CreateVisitModal({ patientId }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="px-5 py-2.5 rounded-2xl bg-emerald-600 text-white font-medium shadow-sm hover:bg-emerald-700 transition"
+        className="px-5 py-2.5 rounded-2xl bg-green-700 text-white! font-medium shadow-sm hover:bg-emerald-700 transition cursor-pointer"
       >
         Create Visit
       </button>
@@ -105,7 +105,7 @@ export default function CreateVisitModal({ patientId }: Props) {
                   <div className="flex gap-3 pt-4">
                     <button
                       onClick={closeModal}
-                      className="flex-1 rounded-2xl border border-gray-200 py-2.5 text-sm hover:bg-gray-50 transition"
+                      className="flex-1 rounded-2xl border border-gray-200 py-2.5 text-sm hover:bg-gray-50 transition cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -113,7 +113,7 @@ export default function CreateVisitModal({ patientId }: Props) {
                     <button
                       onClick={handleCreate}
                       disabled={loading}
-                      className="flex-1 rounded-2xl bg-emerald-600 text-white py-2.5 text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition"
+                      className="flex-1 rounded-2xl bg-emerald-600 text-white! py-2.5 text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition cursor-pointer"
                     >
                       {loading ? 'Creating...' : 'Create'}
                     </button>
