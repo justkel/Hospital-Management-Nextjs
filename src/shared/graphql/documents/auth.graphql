@@ -278,5 +278,115 @@ query GetVisitById($id: String!) {
   }
 }
 
+query GetGlobalBillingCategories {
+  globalBillingCategories {
+    id
+    code
+    name
+    description
+    organizationId
+    items {
+      id
+      code
+      name
+      description
+      organizationId
+    }
+  }
+}
+
+query GetOrganizationBillingCategories {
+  organizationBillingCategories {
+    id
+    code
+    name
+    description
+    organizationId
+
+    items {
+      id
+      code
+      name
+      description
+      organizationId
+    }
+  }
+}
+
+query GetBillingCategoryById($categoryId: String!) {
+  billingCategoryById(categoryId: $categoryId) {
+    id
+    code
+    name
+    description
+    organizationId
+
+    items {
+      id
+      code
+      name
+      description
+      organizationId
+    }
+  }
+}
+
+mutation CreateBillingCategory($data: CreateBillingCategoryInput!) {
+  createBillingCategory(data: $data) {
+    id
+    code
+    name
+    description
+    organizationId
+  }
+}
+
+mutation UpdateBillingCategory($data: UpdateBillingCategoryInput!) {
+  updateBillingCategory(data: $data) {
+    id
+    code
+    name
+    description
+    organizationId
+  }
+}
+
+mutation CreateBillingItem($data: CreateBillingItemInput!) {
+  createBillingItem(data: $data) {
+    id
+    code
+    name
+    description
+    organizationId
+  }
+}
+
+mutation CloneGlobalCategoryToOrganization(
+  $categoryId: String!
+) {
+  cloneGlobalCategoryToOrganization(
+    categoryId: $categoryId
+  ) {
+    id
+    code
+    name
+    description
+    organizationId
+    items {
+      id
+      code
+      name
+      description
+      organizationId
+    }
+  }
+}
+
+
+
+
+
+
+
 
 
