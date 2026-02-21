@@ -12,6 +12,7 @@ import {
   MedicineBoxOutlined,
   FileSearchOutlined,
   SolutionOutlined,
+  CreditCardOutlined,
 } from '@ant-design/icons';
 import { useUserRoles } from '@/lib/auth/useUserRoles';
 import { Roles } from '@/shared/utils/enums/roles';
@@ -29,19 +30,16 @@ function Hamburger({ isOpen, toggle }: { isOpen: boolean; toggle: () => void }) 
       aria-label="Toggle Menu"
     >
       <span
-        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
-          isOpen ? 'rotate-45 translate-y-2' : 'w-6'
-        }`}
+        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-2' : 'w-6'
+          }`}
       />
       <span
-        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
-          isOpen ? 'opacity-0' : 'w-5'
-        }`}
+        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${isOpen ? 'opacity-0' : 'w-5'
+          }`}
       />
       <span
-        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
-          isOpen ? '-rotate-45 -translate-y-2 w-6' : 'w-4'
-        }`}
+        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${isOpen ? '-rotate-45 -translate-y-2 w-6' : 'w-4'
+          }`}
       />
     </button>
   );
@@ -70,11 +68,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     if (pathname.startsWith('/dashboard/patients')) return 'patients';
     if (pathname.startsWith('/dashboard/visits')) return 'visits';
     if (pathname.startsWith('/records')) return 'records';
+    if (pathname.startsWith('/dashboard/billing/global')) return 'billing-global';
+    if (pathname.startsWith('/dashboard/billing/organization')) return 'billing-organization';
     if (pathname.startsWith('/settings')) return 'settings';
     if (pathname.startsWith('/audit')) return 'audit';
     if (pathname.startsWith('/dashboard')) return 'dashboard';
     return '';
   })();
+
+  const [openKeys, setOpenKeys] = useState<string[]>(
+    selectedKey?.startsWith('billing') ? ['billing'] : []
+  );
 
   const userMenu = (
     <Menu
@@ -93,6 +97,25 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { key: 'patients', icon: <MedicineBoxOutlined />, label: <Link href="/dashboard/patients">Patients</Link> },
     { key: 'records', icon: <FileTextOutlined />, label: 'Medical Records' },
     { key: 'visits', icon: <SolutionOutlined />, label: <Link href="/dashboard/visits">Visits</Link> },
+    ...(roles.includes(Roles.ADMIN)
+      ? [
+        {
+          key: 'billing',
+          icon: <CreditCardOutlined />,
+          label: 'Billing',
+          children: [
+            {
+              key: 'billing-global',
+              label: <Link href="/dashboard/billing/global">Global</Link>,
+            },
+            {
+              key: 'billing-organization',
+              label: <Link href="/dashboard/billing/organization">Organization</Link>,
+            },
+          ],
+        },
+      ]
+      : []),
     { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
     ...(roles.includes(Roles.ADMIN) ? [{ key: 'audit', icon: <FileSearchOutlined />, label: 'Audit Logs' }] : []),
   ];
@@ -136,6 +159,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <Menu
           mode="inline"
           selectedKeys={[selectedKey]}
+          openKeys={openKeys}
+          onOpenChange={(keys) => setOpenKeys(keys)}
           style={{ borderRight: 0 }}
           items={menuItems}
         />
