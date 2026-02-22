@@ -27,7 +27,7 @@ export default function SessionGuard({ needsRefresh, children }: Props) {
 
         setTimeout(() => {
           window.location.reload();
-        }, 600);
+        }, 200);
       } catch{
           await fetch('/api/logout', {
             method: 'POST',
