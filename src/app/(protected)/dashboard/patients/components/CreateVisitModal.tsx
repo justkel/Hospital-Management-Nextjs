@@ -144,7 +144,7 @@ export default function CreateVisitModal({ patientId }: Props) {
                         `/dashboard/visits/${createdVisitId}`
                       )
                     }
-                    className="flex-1 rounded-2xl bg-emerald-600 text-white py-2.5 text-sm font-medium hover:bg-emerald-700 transition"
+                    className="flex-1 rounded-2xl bg-emerald-600 text-white! py-2.5 text-sm font-medium hover:bg-emerald-700 transition"
                   >
                     Proceed to Visit
                   </button>
