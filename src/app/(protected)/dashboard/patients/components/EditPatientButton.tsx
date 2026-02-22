@@ -8,7 +8,7 @@ import {
     BloodGroup,
     UpdatePatientInput,
 } from '@/shared/graphql/generated/graphql';
-import { Select } from '../CreatePatientModal';
+import { Select } from './CreatePatientModal';
 
 interface Props {
     patient: {
