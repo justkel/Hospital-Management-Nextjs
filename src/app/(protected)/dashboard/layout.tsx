@@ -68,8 +68,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     if (pathname.startsWith('/dashboard/patients')) return 'patients';
     if (pathname.startsWith('/dashboard/visits')) return 'visits';
     if (pathname.startsWith('/records')) return 'records';
-    if (pathname.startsWith('/dashboard/billing/global')) return 'billing-global';
-    if (pathname.startsWith('/dashboard/billing/organization')) return 'billing-organization';
+    if (pathname.startsWith('/admins/billing/global')) return 'billing-global';
+    if (pathname.startsWith('/admins/billing/organization')) return 'billing-organization';
     if (pathname.startsWith('/settings')) return 'settings';
     if (pathname.startsWith('/audit')) return 'audit';
     if (pathname.startsWith('/dashboard')) return 'dashboard';
@@ -106,11 +106,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           children: [
             {
               key: 'billing-global',
-              label: <Link href="/dashboard/billing/global">Global</Link>,
+              label: <Link href="/admins/billing/global">Global</Link>,
             },
             {
               key: 'billing-organization',
-              label: <Link href="/dashboard/billing/organization">Organization</Link>,
+              label: <Link href="/admins/billing/organization">Organization</Link>,
             },
           ],
         },
