@@ -7,7 +7,7 @@ import {
     CreatePatientInput,
 } from '@/shared/graphql/generated/graphql';
 import { clientFetch } from '@/lib/clientFetch';
-import CreatePatientModal from './CreatePatientModal';
+import CreatePatientModal from './components/CreatePatientModal';
 import PatientCard from './components/PatientCard';
 
 export type PatientListItem =
