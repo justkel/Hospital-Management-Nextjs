@@ -40,6 +40,14 @@ export async function POST(req: Request) {
       errors?: { message?: string; extensions?: { code?: string } }[];
     } = await res.json();
 
+    const unauthenticated = json.errors?.some(
+      e => e.extensions?.code === 'UNAUTHENTICATED'
+    );
+
+    if (unauthenticated) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     if (json.errors?.length) {
       return NextResponse.json(
         { error: json.errors[0].message },
