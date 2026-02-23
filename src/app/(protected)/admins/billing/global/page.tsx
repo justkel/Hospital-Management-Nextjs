@@ -6,6 +6,7 @@ import {
   GetGlobalBillingCategoriesQuery,
   GetGlobalBillingCategoriesQueryVariables,
 } from '@/shared/graphql/generated/graphql';
+import DashboardLayout from '@/app/(protected)/dashboard/layout';
 
 export default async function GlobalBillingPage() {
   const data = await graphqlFetch<
@@ -19,9 +20,12 @@ export default async function GlobalBillingPage() {
 
   return (
     <SessionGuard needsRefresh={false}>
+      <DashboardLayout>
         <GlobalBillingClient
           categories={data.globalBillingCategories}
         />
+      </DashboardLayout>
+
     </SessionGuard>
   );
 }
