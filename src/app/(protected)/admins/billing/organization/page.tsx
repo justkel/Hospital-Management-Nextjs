@@ -6,6 +6,7 @@ import {
   GetOrganizationBillingCategoriesQuery,
   GetOrganizationBillingCategoriesQueryVariables,
 } from '@/shared/graphql/generated/graphql';
+import DashboardLayout from '@/app/(protected)/dashboard/layout';
 
 export default async function OrganizationBillingPage() {
   const data = await graphqlFetch<
@@ -19,9 +20,12 @@ export default async function OrganizationBillingPage() {
 
   return (
     <SessionGuard needsRefresh={false}>
-      <OrganizationBillingClient
-        categories={data.organizationBillingCategories}
-      />
+      <DashboardLayout>
+        <OrganizationBillingClient
+          categories={data.organizationBillingCategories}
+        />
+      </DashboardLayout>
+
     </SessionGuard>
   );
 }
