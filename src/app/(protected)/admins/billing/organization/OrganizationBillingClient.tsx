@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Pencil } from 'lucide-react';
 import { clientFetch } from '@/lib/clientFetch';
 import {
   GetOrganizationBillingCategoriesQuery,
@@ -24,6 +25,15 @@ export default function OrganizationBillingClient({ categories: initial }: Props
   const [selectedId, setSelectedId] = useState<string | null>(
     initial[0]?.id ?? null
   );
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [editCategory, setEditCategory] = useState({
+    categoryId: '',
+    code: '',
+    name: '',
+    description: '',
+  });
 
   const [newCategory, setNewCategory] = useState({
     code: '',
@@ -53,6 +63,27 @@ export default function OrganizationBillingClient({ categories: initial }: Props
     setNewCategory({ code: '', name: '', description: '' });
   }
 
+  async function updateCategory() {
+    const res = await clientFetch('/api/billing/update-category', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editCategory),
+    });
+
+    const json = await res.json();
+    if (!res.ok) return;
+
+    setCategories(prev =>
+      prev.map(cat =>
+        cat.id === editCategory.categoryId
+          ? { ...cat, ...json.category }
+          : cat
+      )
+    );
+
+    setIsEditing(false);
+  }
+
   async function createItem() {
     if (!selectedId) return;
 
@@ -72,14 +103,24 @@ export default function OrganizationBillingClient({ categories: initial }: Props
       prev.map(cat =>
         cat.id === selectedId
           ? {
-              ...cat,
-              items: [...(cat.items ?? []), json.item],
-            }
+            ...cat,
+            items: [...(cat.items ?? []), json.item],
+          }
           : cat
       )
     );
 
     setNewItem({ code: '', name: '', description: '' });
+  }
+
+  function startEdit(category: Category) {
+    setEditCategory({
+      categoryId: category.id,
+      code: category.code,
+      name: category.name,
+      description: category.description ?? '',
+    });
+    setIsEditing(true);
   }
 
   return (
@@ -154,28 +195,86 @@ export default function OrganizationBillingClient({ categories: initial }: Props
             )}
 
             {categories.map(cat => (
-              <button
+              <div
                 key={cat.id}
-                onClick={() => setSelectedId(cat.id)}
-                className={`w-full text-left px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
-                  selectedId === cat.id
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                className="flex items-center gap-2 group px-2 py-1 rounded-2xl hover:bg-gray-50 transition"
               >
-                <div className="flex items-center justify-between">
-                  <span>{cat.name}</span>
-                  <span className="text-xs text-gray-400">
-                    {cat.items?.length ?? 0}
-                  </span>
-                </div>
-              </button>
+                <button
+                  onClick={() => setSelectedId(cat.id)}
+                  className={`flex-1 text-left px-4 py-3 rounded-2xl text-sm font-medium transition-all ${selectedId === cat.id
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span>{cat.name}</span>
+                    <span className="text-xs text-gray-400">
+                      {cat.items?.length ?? 0}
+                    </span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => startEdit(cat)}
+                  className="opacity-0 group-hover:opacity-100 transition p-2 rounded-xl hover:bg-gray-200 text-gray-400 hover:text-emerald-600"
+                  title="Edit category"
+                >
+                  <Pencil size={18} />
+                </button>
+              </div>
             ))}
           </div>
 
           <div className="lg:col-span-3 space-y-8">
 
-            {selectedCategory ? (
+            {isEditing && (
+              <div className="bg-white rounded-3xl border border-emerald-100 shadow-sm p-8 space-y-6 animate-fadeIn">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Edit Category
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <input
+                    value={editCategory.code}
+                    onChange={e =>
+                      setEditCategory({ ...editCategory, code: e.target.value })
+                    }
+                    className="rounded-xl border border-gray-200 px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <input
+                    value={editCategory.name}
+                    onChange={e =>
+                      setEditCategory({ ...editCategory, name: e.target.value })
+                    }
+                    className="rounded-xl border border-gray-200 px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <input
+                    value={editCategory.description}
+                    onChange={e =>
+                      setEditCategory({ ...editCategory, description: e.target.value })
+                    }
+                    className="rounded-xl border border-gray-200 px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={updateCategory}
+                    className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-medium text-white! shadow-sm hover:bg-emerald-700 transition"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="rounded-xl bg-gray-100 px-6 py-3 text-sm font-medium text-gray-600 hover:bg-gray-200 transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {selectedCategory && !isEditing && (
               <>
                 <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 space-y-6">
                   <h2 className="text-lg font-semibold text-gray-900">
@@ -189,7 +288,7 @@ export default function OrganizationBillingClient({ categories: initial }: Props
                       onChange={e =>
                         setNewItem({ ...newItem, code: e.target.value })
                       }
-                      className="rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+                      className="rounded-xl border border-gray-200 px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500"
                     />
                     <input
                       placeholder="Name"
@@ -197,7 +296,7 @@ export default function OrganizationBillingClient({ categories: initial }: Props
                       onChange={e =>
                         setNewItem({ ...newItem, name: e.target.value })
                       }
-                      className="rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+                      className="rounded-xl border border-gray-200 px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500"
                     />
                     <input
                       placeholder="Description"
@@ -205,13 +304,13 @@ export default function OrganizationBillingClient({ categories: initial }: Props
                       onChange={e =>
                         setNewItem({ ...newItem, description: e.target.value })
                       }
-                      className="rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+                      className="rounded-xl border border-gray-200 px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500"
                     />
                   </div>
 
                   <button
                     onClick={createItem}
-                    className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-medium text-white! shadow-sm hover:bg-emerald-700 transition active:scale-[0.98] cursor-pointer"
+                    className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-medium text-white! shadow-sm hover:bg-emerald-700 transition"
                   >
                     Create Item
                   </button>
@@ -226,11 +325,9 @@ export default function OrganizationBillingClient({ categories: initial }: Props
                         <h3 className="font-semibold text-lg text-gray-900 group-hover:text-emerald-600 transition">
                           {item.name}
                         </h3>
-
                         <p className="text-xs text-gray-400 mt-1 tracking-wide">
                           CODE · {item.code}
                         </p>
-
                         {item.description && (
                           <p className="text-sm text-gray-600 mt-3 leading-relaxed">
                             {item.description}
@@ -245,10 +342,6 @@ export default function OrganizationBillingClient({ categories: initial }: Props
                   </div>
                 )}
               </>
-            ) : (
-              <div className="bg-white rounded-3xl border border-dashed border-gray-200 p-16 text-center text-gray-400">
-                Select a category to view and manage its items.
-              </div>
             )}
 
           </div>
