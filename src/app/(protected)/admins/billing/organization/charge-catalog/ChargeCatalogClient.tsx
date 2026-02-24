@@ -36,7 +36,9 @@ export default function ChargeCatalogClient({
     });
 
     const json = await res.json();
-    if (!res.ok) return;
+    if (!res.ok) {
+      throw new Error(json.error || 'Failed to create charge');
+    }
 
     setCatalogData(prev => ({
       ...prev,

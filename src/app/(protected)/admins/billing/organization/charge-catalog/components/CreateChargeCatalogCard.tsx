@@ -24,6 +24,7 @@ export default function CreateChargeCatalogCard({
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -90,12 +91,36 @@ export default function CreateChargeCatalogCard({
     if (!validate()) return;
 
     try {
-      setLoading(true);
-      await onCreate(form);
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 2000);
+        setLoading(true);
+        setServerError(null);
+
+        await onCreate(form);
+        setSuccess(true);
+
+        setForm({
+            catalogueItemId: '',
+            categoryId: '',
+            name: '',
+            code: '',
+            description: '',
+            unitPrice: 0,
+            billingType: BillingType.Fixed,
+            currency: 'NGN',
+        });
+
+        setSelectedItem(null);
+        setSearch('');
+
+        setTimeout(() => setSuccess(false), 2000);
+
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            setServerError(err.message);
+        } else {
+            setServerError('Something went wrong');
+        }
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   }
 
@@ -266,6 +291,12 @@ export default function CreateChargeCatalogCard({
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 md:static md:border-none md:p-0 md:mt-8">
+        {serverError && (
+            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 mb-4 text-sm text-red-700">
+                {serverError}
+            </div>
+        )}
+
         <button
           disabled={isDisabled}
           onClick={handleSubmit}
