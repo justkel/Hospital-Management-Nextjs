@@ -463,15 +463,12 @@ mutation UpdateChargeCatalog($data: UpdateChargeCatalogInput!) {
     currency
     isActive
     description
-
+    categoryId
+    catalogueItemId
     category {
       id
       name
-    }
-
-    catalogueItem {
-      id
-      name
+      code
     }
   }
 }
