@@ -11,6 +11,7 @@ import CategorySidebar from './components/CategorySidebar';
 import EditCategoryCard from './components/EditCategoryCard';
 import AddItemCard from './components/AddItemCard';
 import ItemsGrid from './components/ItemsGrid';
+import Link from 'next/link';
 
 type Category =
   GetOrganizationBillingCategoriesQuery['organizationBillingCategories'][number];
@@ -108,9 +109,9 @@ export default function OrganizationBillingClient({ categories: initial }: Props
       prev.map(cat =>
         cat.id === selectedId
           ? {
-              ...cat,
-              items: [...(cat.items ?? []), json.item],
-            }
+            ...cat,
+            items: [...(cat.items ?? []), json.item],
+          }
           : cat
       )
     );
@@ -132,14 +133,23 @@ export default function OrganizationBillingClient({ categories: initial }: Props
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-12">
 
-        <div className="space-y-2">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
-            Organization Billing
-          </h1>
-          <p className="text-gray-500 max-w-2xl">
-            Manage your billing categories and items. Create structured billing
-            models tailored to your organization.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+          <div className="space-y-2">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
+              Organization Billing
+            </h1>
+            <p className="text-gray-500 max-w-2xl">
+              Manage your billing categories and items. Create structured billing
+              models tailored to your organization.
+            </p>
+          </div>
+
+          <Link
+            href="/admins/billing/organization/charge-catalog"
+            className="inline-flex items-center justify-center rounded-2xl bg-black text-white px-6 py-3 text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200"
+          >
+            Visit Charge Catalog →
+          </Link>
         </div>
 
         <CreateCategoryCard
