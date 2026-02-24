@@ -1,0 +1,44 @@
+import SessionGuard from '@/components/SessionGuard';
+import DashboardLayout from '@/app/(protected)/dashboard/layout';
+import ChargeCatalogClient from './ChargeCatalogClient';
+import { graphqlFetch } from '@/shared/graphql/fetcher';
+
+import {
+  OrganizationChargeItemsDocument,
+  OrganizationChargeItemsQuery,
+  OrganizationChargeItemsQueryVariables,
+  OrganizationChargeCatalogsDocument,
+  OrganizationChargeCatalogsQuery,
+  OrganizationChargeCatalogsQueryVariables,
+} from '@/shared/graphql/generated/graphql';
+
+export default async function ChargeCatalogPage() {
+  const [itemsData, catalogData] = await Promise.all([
+    graphqlFetch<
+      OrganizationChargeItemsQuery,
+      OrganizationChargeItemsQueryVariables
+    >(OrganizationChargeItemsDocument, {}),
+
+    graphqlFetch<
+      OrganizationChargeCatalogsQuery,
+      OrganizationChargeCatalogsQueryVariables
+    >(OrganizationChargeCatalogsDocument, {
+      pagination: { page: 1, limit: 10 },
+    }),
+  ]);
+
+  if (!itemsData || !catalogData) {
+    return <SessionGuard needsRefresh />;
+  }
+
+  return (
+    <SessionGuard needsRefresh={false}>
+      <DashboardLayout>
+        <ChargeCatalogClient
+          items={itemsData.organizationChargeItems}
+          initialCatalogs={catalogData.organizationChargeCatalogs}
+        />
+      </DashboardLayout>
+    </SessionGuard>
+  );
+}
