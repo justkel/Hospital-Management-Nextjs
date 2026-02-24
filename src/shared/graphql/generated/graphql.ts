@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -68,6 +67,14 @@ export type BillingCatalogueCategory = {
   organizationId?: Maybe<Scalars['ID']['output']>;
 };
 
+/** Billing calculation type */
+export enum BillingType {
+  Fixed = 'FIXED',
+  Manual = 'MANUAL',
+  PerDay = 'PER_DAY',
+  PerUnit = 'PER_UNIT'
+}
+
 /** Blood group of the patient */
 export enum BloodGroup {
   AbNeg = 'AB_NEG',
@@ -79,6 +86,37 @@ export enum BloodGroup {
   ONeg = 'O_NEG',
   OPos = 'O_POS'
 }
+
+export type ChargeCatalog = {
+  __typename?: 'ChargeCatalog';
+  billingType: BillingType;
+  catalogueItem: GlobalBillingCatalogueItem;
+  catalogueItemId: Scalars['ID']['output'];
+  category: BillingCatalogueCategory;
+  categoryId: Scalars['ID']['output'];
+  code: Scalars['String']['output'];
+  currency: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  organizationId: Scalars['ID']['output'];
+  unitPrice: Scalars['Float']['output'];
+};
+
+export type ChargeCatalogPaginationInput = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ChargeCatalogPaginationResult = {
+  __typename?: 'ChargeCatalogPaginationResult';
+  items: Array<ChargeCatalog>;
+  page: Scalars['Int']['output'];
+  pageCount: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
 
 export type CreateAddressInput = {
   addressLine1: Scalars['String']['input'];
@@ -98,6 +136,17 @@ export type CreateBillingItemInput = {
   code: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+};
+
+export type CreateChargeCatalogInput = {
+  billingType: BillingType;
+  catalogueItemId: Scalars['ID']['input'];
+  categoryId: Scalars['ID']['input'];
+  code: Scalars['String']['input'];
+  currency?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  unitPrice: Scalars['Float']['input'];
 };
 
 export type CreateOrganizationInput = {
@@ -167,6 +216,7 @@ export type DuplicatePatientMatch = {
 
 export type GlobalBillingCatalogueItem = {
   __typename?: 'GlobalBillingCatalogueItem';
+  category?: Maybe<BillingCatalogueCategory>;
   code: Scalars['String']['output'];
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -186,6 +236,7 @@ export type Mutation = {
   cloneGlobalCategoryToOrganization: BillingCatalogueCategory;
   createBillingCategory: BillingCatalogueCategory;
   createBillingItem: GlobalBillingCatalogueItem;
+  createChargeCatalog: ChargeCatalog;
   createOrganization: Organization;
   createPatient: CreatePatientResult;
   createStaff: Staff;
@@ -194,6 +245,7 @@ export type Mutation = {
   refreshToken: AuthResponse;
   staffLogin: LoginAuthResponse;
   updateBillingCategory: BillingCatalogueCategory;
+  updateChargeCatalog: ChargeCatalog;
   updateOrganizationStatus: Organization;
   updatePatient: Patient;
   updatePatientStatus: Patient;
@@ -217,6 +269,11 @@ export type MutationCreateBillingCategoryArgs = {
 
 export type MutationCreateBillingItemArgs = {
   data: CreateBillingItemInput;
+};
+
+
+export type MutationCreateChargeCatalogArgs = {
+  data: CreateChargeCatalogInput;
 };
 
 
@@ -252,6 +309,11 @@ export type MutationStaffLoginArgs = {
 
 export type MutationUpdateBillingCategoryArgs = {
   data: UpdateBillingCategoryInput;
+};
+
+
+export type MutationUpdateChargeCatalogArgs = {
+  data: UpdateChargeCatalogInput;
 };
 
 
@@ -381,6 +443,8 @@ export type Query = {
   health: Scalars['String']['output'];
   organization: Organization;
   organizationBillingCategories: Array<BillingCatalogueCategory>;
+  organizationChargeCatalogs: ChargeCatalogPaginationResult;
+  organizationChargeItems: Array<GlobalBillingCatalogueItem>;
   organizations: Array<Organization>;
   patientById: Patient;
   patientVisitHistory: Array<Visit>;
@@ -405,6 +469,11 @@ export type QueryBillingCategoryByIdArgs = {
 
 export type QueryOrganizationArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryOrganizationChargeCatalogsArgs = {
+  pagination: ChargeCatalogPaginationInput;
 };
 
 
@@ -505,6 +574,17 @@ export type UpdateBillingCategoryInput = {
   code?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateChargeCatalogInput = {
+  billingType?: InputMaybe<BillingType>;
+  chargeCatalogId: Scalars['ID']['input'];
+  code?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  unitPrice?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type UpdatePatientInput = {
@@ -825,6 +905,32 @@ export type CloneGlobalCategoryToOrganizationMutationVariables = Exact<{
 
 export type CloneGlobalCategoryToOrganizationMutation = { __typename?: 'Mutation', cloneGlobalCategoryToOrganization: { __typename?: 'BillingCatalogueCategory', id: string, code: string, name: string, description?: string | null, organizationId?: string | null, items?: Array<{ __typename?: 'GlobalBillingCatalogueItem', id: string, code: string, name: string, description?: string | null, organizationId?: string | null }> | null } };
 
+export type OrganizationChargeItemsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type OrganizationChargeItemsQuery = { __typename?: 'Query', organizationChargeItems: Array<{ __typename?: 'GlobalBillingCatalogueItem', id: string, code: string, name: string, description?: string | null, organizationId?: string | null, category?: { __typename?: 'BillingCatalogueCategory', id: string, code: string, name: string, description?: string | null } | null }> };
+
+export type OrganizationChargeCatalogsQueryVariables = Exact<{
+  pagination: ChargeCatalogPaginationInput;
+}>;
+
+
+export type OrganizationChargeCatalogsQuery = { __typename?: 'Query', organizationChargeCatalogs: { __typename?: 'ChargeCatalogPaginationResult', total: number, page: number, pageCount: number, items: Array<{ __typename?: 'ChargeCatalog', id: string, code: string, name: string, unitPrice: number, billingType: BillingType, currency: string, isActive: boolean, description?: string | null, category: { __typename?: 'BillingCatalogueCategory', id: string, name: string, code: string }, catalogueItem: { __typename?: 'GlobalBillingCatalogueItem', id: string, name: string, code: string } }> } };
+
+export type CreateChargeCatalogMutationVariables = Exact<{
+  data: CreateChargeCatalogInput;
+}>;
+
+
+export type CreateChargeCatalogMutation = { __typename?: 'Mutation', createChargeCatalog: { __typename?: 'ChargeCatalog', id: string, code: string, name: string, unitPrice: number, billingType: BillingType, currency: string, isActive: boolean, description?: string | null, category: { __typename?: 'BillingCatalogueCategory', id: string, name: string }, catalogueItem: { __typename?: 'GlobalBillingCatalogueItem', id: string, name: string, code: string } } };
+
+export type UpdateChargeCatalogMutationVariables = Exact<{
+  data: UpdateChargeCatalogInput;
+}>;
+
+
+export type UpdateChargeCatalogMutation = { __typename?: 'Mutation', updateChargeCatalog: { __typename?: 'ChargeCatalog', id: string, code: string, name: string, unitPrice: number, billingType: BillingType, currency: string, isActive: boolean, description?: string | null, category: { __typename?: 'BillingCatalogueCategory', id: string, name: string }, catalogueItem: { __typename?: 'GlobalBillingCatalogueItem', id: string, name: string } } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -854,3 +960,7 @@ export const CreateBillingCategoryDocument = {"kind":"Document","definitions":[{
 export const UpdateBillingCategoryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateBillingCategory"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateBillingCategoryInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateBillingCategory"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<UpdateBillingCategoryMutation, UpdateBillingCategoryMutationVariables>;
 export const CreateBillingItemDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateBillingItem"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateBillingItemInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createBillingItem"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<CreateBillingItemMutation, CreateBillingItemMutationVariables>;
 export const CloneGlobalCategoryToOrganizationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CloneGlobalCategoryToOrganization"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"categoryId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cloneGlobalCategoryToOrganization"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"categoryId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"categoryId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]}}]} as unknown as DocumentNode<CloneGlobalCategoryToOrganizationMutation, CloneGlobalCategoryToOrganizationMutationVariables>;
+export const OrganizationChargeItemsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"OrganizationChargeItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"organizationChargeItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]}}]} as unknown as DocumentNode<OrganizationChargeItemsQuery, OrganizationChargeItemsQueryVariables>;
+export const OrganizationChargeCatalogsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"OrganizationChargeCatalogs"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ChargeCatalogPaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"organizationChargeCatalogs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}},{"kind":"Field","name":{"kind":"Name","value":"billingType"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}}]}},{"kind":"Field","name":{"kind":"Name","value":"catalogueItem"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pageCount"}}]}}]}}]} as unknown as DocumentNode<OrganizationChargeCatalogsQuery, OrganizationChargeCatalogsQueryVariables>;
+export const CreateChargeCatalogDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateChargeCatalog"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateChargeCatalogInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createChargeCatalog"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}},{"kind":"Field","name":{"kind":"Name","value":"billingType"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"catalogueItem"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}}]}}]}}]}}]} as unknown as DocumentNode<CreateChargeCatalogMutation, CreateChargeCatalogMutationVariables>;
+export const UpdateChargeCatalogDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateChargeCatalog"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateChargeCatalogInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateChargeCatalog"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}},{"kind":"Field","name":{"kind":"Name","value":"billingType"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"catalogueItem"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateChargeCatalogMutation, UpdateChargeCatalogMutationVariables>;

@@ -382,6 +382,100 @@ mutation CloneGlobalCategoryToOrganization(
   }
 }
 
+query OrganizationChargeItems {
+  organizationChargeItems {
+    id
+    code
+    name
+    description
+    organizationId
+    category {
+      id
+      code
+      name
+      description
+    }
+  }
+}
+
+query OrganizationChargeCatalogs($pagination: ChargeCatalogPaginationInput!) {
+  organizationChargeCatalogs(pagination: $pagination) {
+    items {
+      id
+      code
+      name
+      unitPrice
+      billingType
+      currency
+      isActive
+      description
+
+      category {
+        id
+        name
+        code
+      }
+
+      catalogueItem {
+        id
+        name
+        code
+      }
+    }
+
+    total
+    page
+    pageCount
+  }
+}
+
+mutation CreateChargeCatalog($data: CreateChargeCatalogInput!) {
+  createChargeCatalog(data: $data) {
+    id
+    code
+    name
+    unitPrice
+    billingType
+    currency
+    isActive
+    description
+
+    category {
+      id
+      name
+    }
+
+    catalogueItem {
+      id
+      name
+      code
+    }
+  }
+}
+
+mutation UpdateChargeCatalog($data: UpdateChargeCatalogInput!) {
+  updateChargeCatalog(data: $data) {
+    id
+    code
+    name
+    unitPrice
+    billingType
+    currency
+    isActive
+    description
+
+    category {
+      id
+      name
+    }
+
+    catalogueItem {
+      id
+      name
+    }
+  }
+}
+
 
 
 
