@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Pagination } from 'antd';
 import {
   OrganizationChargeItemsQuery,
   OrganizationChargeCatalogsQuery,
@@ -29,8 +30,26 @@ export default function ChargeCatalogClient({
 }: Props) {
   const [catalogData, setCatalogData] =
     useState<PaginationResult>(initialCatalogs);
+
+  const [page, setPage] = useState(initialCatalogs.page);
+  const [limit, setLimit] = useState(10);
+  const [total, setTotal] = useState(initialCatalogs.total);
+
   const [editing, setEditing] =
-  useState<UpdateChargeCatalogInput | null>(null);
+    useState<UpdateChargeCatalogInput | null>(null);
+
+  async function fetchPage(nextPage: number, nextLimit = limit) {
+    const res = await clientFetch(
+      `/api/billing/charge-catalogs?page=${nextPage}&limit=${nextLimit}`
+    );
+
+    const json = await res.json();
+    if (!res.ok) return;
+
+    setCatalogData(json.organizationChargeCatalogs);
+    setPage(json.organizationChargeCatalogs.page);
+    setTotal(json.organizationChargeCatalogs.total);
+  }
 
   async function createCharge(data: CreateChargeCatalogInput) {
     const res = await clientFetch('/api/billing/create-charge-catalog', {
@@ -44,11 +63,7 @@ export default function ChargeCatalogClient({
       throw new Error(json.error || 'Failed to create charge');
     }
 
-    setCatalogData(prev => ({
-      ...prev,
-      items: [json.charge, ...prev.items],
-      total: prev.total + 1,
-    }));
+    fetchPage(1);
   }
 
   async function updateCharge(data: UpdateChargeCatalogInput) {
@@ -103,6 +118,20 @@ export default function ChargeCatalogClient({
           data={catalogData}
           onEdit={setEditing}
         />
+
+        <div className="flex justify-center pt-4">
+          <Pagination
+            current={page}
+            pageSize={limit}
+            total={total}
+            showSizeChanger
+            pageSizeOptions={['5', '10', '20', '50']}
+            onChange={(p, l) => {
+              setLimit(l);
+              fetchPage(p, l);
+            }}
+          />
+        </div>
 
         {editing && (
           <EditChargeCatalogModal
