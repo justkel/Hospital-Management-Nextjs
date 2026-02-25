@@ -12,6 +12,8 @@ import VisitTimelineSection from '../components/VisitTimelineSection';
 import PatientInfoSection from '../components/PatientInfoSection';
 import VisitSummarySection from '../components/VisitSummarySection';
 
+import CollapsibleSection from '../components/CollapsibleSection';
+
 interface Props {
   params: Promise<{ id: string }>;
 }
@@ -37,19 +39,23 @@ export default async function VisitDetailPage({ params }: Props) {
 
           <VisitHeaderCard visit={visit} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <CollapsibleSection title="Visit Records">
 
-            <div className="lg:col-span-2 space-y-6">
-              <VisitInfoSection visit={visit} />
-              <VisitTimelineSection visit={visit} />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+              <div className="lg:col-span-2 space-y-6">
+                <VisitInfoSection visit={visit} />
+                <VisitTimelineSection visit={visit} />
+              </div>
+
+              <div className="space-y-6">
+                <PatientInfoSection patient={visit.patient} />
+                <VisitSummarySection visit={visit} />
+              </div>
+
             </div>
 
-            <div className="space-y-6">
-              <PatientInfoSection patient={visit.patient} />
-              <VisitSummarySection visit={visit} />
-            </div>
-
-          </div>
+          </CollapsibleSection>
 
         </div>
       </div>
