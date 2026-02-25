@@ -1,5 +1,6 @@
 'use client';
 
+import { clientFetch } from '@/lib/clientFetch';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface VisitVital {
@@ -51,7 +52,7 @@ export default function VisitVitalsSection({ visitId }: Props) {
   const fetchVitals = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(
+      const res = await clientFetch(
         `/api/visit-vital/list?visitId=${visitId}`
       );
 
@@ -104,7 +105,7 @@ export default function VisitVitalsSection({ visitId }: Props) {
   const handleCreate = async () => {
     setSubmitting(true);
     try {
-      const res = await fetch('/api/visit-vital/create', {
+      const res = await clientFetch('/api/visit-vital/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(buildPayload()),
@@ -126,7 +127,7 @@ export default function VisitVitalsSection({ visitId }: Props) {
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/visit-vital/update', {
+      const res = await clientFetch('/api/visit-vital/update', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
