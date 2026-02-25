@@ -13,7 +13,7 @@ import PatientInfoSection from '../components/PatientInfoSection';
 import VisitSummarySection from '../components/VisitSummarySection';
 
 import CollapsibleSection from '../components/CollapsibleSection';
-import VisitVitalsSection from '../components/VisitVitalsSection';
+import VisitVitalsSection from '../components/vitals/VisitVitalsSection';
 
 interface Props {
   params: Promise<{ id: string }>;
