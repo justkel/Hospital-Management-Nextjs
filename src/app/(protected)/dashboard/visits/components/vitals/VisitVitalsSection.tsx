@@ -2,8 +2,10 @@
 
 import { clientFetch } from '@/lib/clientFetch';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import VisitVitalForm from './VisitVitalForm';
+import VisitVitalsList from './VisitVitalsList';
 
-interface VisitVital {
+export interface VisitVital {
   id: string;
   temperature: number | null;
   bloodPressure: string | null;
@@ -13,10 +15,10 @@ interface VisitVital {
   weight: number | null;
   height: number | null;
   notes: string | null;
-  createdAt: string;
+  createdAt?: string;
 }
 
-interface VitalFormValues {
+export interface VitalFormValues {
   temperature: string;
   bloodPressure: string;
   heartRate: string;
@@ -165,101 +167,27 @@ export default function VisitVitalsSection({ visitId }: Props) {
 
   return (
     <div className="space-y-10">
-
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold tracking-tight text-gray-900">
           Visit Vitals
         </h2>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: 'Temp (°C)', key: 'temperature' },
-          { label: 'BP', key: 'bloodPressure' },
-          { label: 'HR', key: 'heartRate' },
-          { label: 'RR', key: 'respiratoryRate' },
-          { label: 'SpO2', key: 'spo2' },
-          { label: 'Weight', key: 'weight' },
-          { label: 'Height', key: 'height' },
-        ].map(field => (
-          <input
-            key={field.key}
-            placeholder={field.label}
-            className="px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
-            value={form[field.key as keyof VitalFormValues]}
-            onChange={e =>
-              setForm(prev => ({
-                ...prev,
-                [field.key]: e.target.value,
-              }))
-            }
-          />
-        ))}
+      <VisitVitalForm
+        form={form}
+        setForm={setForm}
+        submitting={submitting}
+        isEditing={isEditing}
+        onCreate={handleCreate}
+        onUpdate={handleUpdate}
+        onCancel={resetForm}
+      />
 
-        <textarea
-          placeholder="Notes"
-          className="col-span-2 md:col-span-4 px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
-          value={form.notes}
-          onChange={e =>
-            setForm(prev => ({ ...prev, notes: e.target.value }))
-          }
-        />
-      </div>
-
-      <div className="flex gap-4">
-        <button
-          disabled={submitting}
-          onClick={isEditing ? handleUpdate : handleCreate}
-          className="px-6 py-2 bg-indigo-600 text-white! rounded-xl hover:bg-indigo-700 transition text-sm disabled:opacity-50 cursor-pointer"
-        >
-          {isEditing ? 'Update Vitals' : 'Record Vitals'}
-        </button>
-
-        {isEditing && (
-          <button
-            onClick={resetForm}
-            className="px-6 py-2 border border-gray-300 rounded-xl text-sm"
-          >
-            Cancel
-          </button>
-        )}
-      </div>
-
-      <div className="space-y-4">
-        {loading && (
-          <p className="text-sm text-gray-500">Loading vitals...</p>
-        )}
-
-        {!loading && vitals.length === 0 && (
-          <p className="text-sm text-gray-400">
-            No vitals recorded yet.
-          </p>
-        )}
-
-        {vitals.map(vital => (
-          <div
-            key={vital.id}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-2xl border border-gray-100 bg-white shadow-sm"
-          >
-            <div>Temp: {vital.temperature ?? '—'}</div>
-            <div>BP: {vital.bloodPressure ?? '—'}</div>
-            <div>HR: {vital.heartRate ?? '—'}</div>
-            <div>RR: {vital.respiratoryRate ?? '—'}</div>
-            <div>SpO2: {vital.spo2 ?? '—'}</div>
-            <div>Weight: {vital.weight ?? '—'}</div>
-            <div>Height: {vital.height ?? '—'}</div>
-
-            <div className="col-span-2 md:col-span-4 flex justify-end">
-              <button
-                onClick={() => handleEdit(vital)}
-                className="text-sm text-indigo-600 hover:underline"
-              >
-                Edit
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <VisitVitalsList
+        vitals={vitals}
+        loading={loading}
+        onEdit={handleEdit}
+      />
     </div>
   );
 }
