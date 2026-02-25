@@ -17,27 +17,37 @@ export default function CollapsibleSection({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
+    <div className="w-full bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+      
       <button
         onClick={() => setOpen(prev => !prev)}
-        className="w-full flex items-center justify-between px-6 py-5 text-left"
+        className="w-full flex items-center justify-between gap-4 px-5 py-4 sm:px-6 sm:py-4 text-left group"
       >
-        <h2 className="text-lg font-semibold">{title}</h2>
+        <h2 className="text-base sm:text-lg font-semibold text-gray-900 tracking-tight">
+          {title}
+        </h2>
 
         <ChevronDown
-          size={20}
-          className={`transition-transform duration-300 ${
-            open ? 'rotate-180' : ''
-          }`}
+          size={18}
+          className={`
+            text-gray-500
+            transition-all duration-300 ease-in-out
+            group-hover:text-gray-800
+            ${open ? 'rotate-180' : ''}
+          `}
         />
       </button>
 
       <div
-        className={`transition-all duration-300 ease-in-out ${
-          open ? 'max-h-250 opacity-100' : 'max-h-0 opacity-0'
-        } overflow-hidden`}
+        className={`
+          overflow-hidden
+          transition-[max-height,opacity] duration-400 ease-in-out
+          ${open ? 'max-h-200 opacity-100' : 'max-h-0 opacity-0'}
+        `}
       >
-        <div className="px-6 pb-6">{children}</div>
+        <div className="px-5 sm:px-6 pb-5 sm:pb-6 text-sm text-gray-700">
+          {children}
+        </div>
       </div>
     </div>
   );
