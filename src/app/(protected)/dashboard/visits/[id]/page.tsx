@@ -13,6 +13,7 @@ import PatientInfoSection from '../components/PatientInfoSection';
 import VisitSummarySection from '../components/VisitSummarySection';
 
 import CollapsibleSection from '../components/CollapsibleSection';
+import VisitVitalsSection from '../components/VisitVitalsSection';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -56,6 +57,8 @@ export default async function VisitDetailPage({ params }: Props) {
             </div>
 
           </CollapsibleSection>
+
+          <VisitVitalsSection visitId={visit.id} />
 
         </div>
       </div>
