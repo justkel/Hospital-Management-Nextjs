@@ -473,6 +473,56 @@ mutation UpdateChargeCatalog($data: UpdateChargeCatalogInput!) {
   }
 }
 
+mutation CreateVisitVital($data: CreateVisitVitalInput!) {
+  createVisitVital(data: $data) {
+    id
+    visitId
+    temperature
+    bloodPressure
+    heartRate
+    respiratoryRate
+    spo2
+    weight
+    height
+    bmi
+    notes
+    recordedByStaffId
+  }
+}
+
+mutation UpdateVisitVital($data: UpdateVisitVitalInput!) {
+  updateVisitVital(data: $data) {
+    id
+    visitId
+    temperature
+    bloodPressure
+    heartRate
+    respiratoryRate
+    spo2
+    weight
+    height
+    bmi
+    notes
+    recordedByStaffId
+  }
+}
+
+query VisitVitals($visitId: String!) {
+  visitVitals(visitId: $visitId) {
+    id
+    temperature
+    bloodPressure
+    heartRate
+    respiratoryRate
+    spo2
+    weight
+    height
+    bmi
+    notes
+    recordedByStaffId
+  }
+}
+
 
 
 
