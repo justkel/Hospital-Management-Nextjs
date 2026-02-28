@@ -50,10 +50,13 @@ export async function POST(req: Request) {
     }
 
     if (json.errors?.length) {
-      return NextResponse.json(
-        { error: json.errors[0].message },
-        { status: 400 }
-      );
+        return NextResponse.json(
+            {
+            error: json.errors[0].message,
+            code: json.errors[0].extensions?.code,
+            },
+            { status: 400 }
+        );
     }
 
     return NextResponse.json({
