@@ -119,6 +119,41 @@ export type ChargeCatalogPaginationResult = {
   total: Scalars['Int']['output'];
 };
 
+export enum ChargeDomain {
+  Administrative = 'ADMINISTRATIVE',
+  Admission = 'ADMISSION',
+  Bed = 'BED',
+  Consultation = 'CONSULTATION',
+  Consumable = 'CONSUMABLE',
+  Dental = 'DENTAL',
+  Diagnosis = 'DIAGNOSIS',
+  Emergency = 'EMERGENCY',
+  Equipment = 'EQUIPMENT',
+  Icu = 'ICU',
+  Lab = 'LAB',
+  Maternity = 'MATERNITY',
+  MentalHealth = 'MENTAL_HEALTH',
+  Nursing = 'NURSING',
+  Other = 'OTHER',
+  Pharmacy = 'PHARMACY',
+  Physiotherapy = 'PHYSIOTHERAPY',
+  Procedure = 'PROCEDURE',
+  Radiology = 'RADIOLOGY',
+  Registration = 'REGISTRATION',
+  Surgery = 'SURGERY',
+  Vitals = 'VITALS'
+}
+
+export type ChargeDomainCatalogMapping = {
+  __typename?: 'ChargeDomainCatalogMapping';
+  chargeCatalog: ChargeCatalog;
+  chargeCatalogId: Scalars['ID']['output'];
+  chargeDomain: ChargeDomain;
+  id: Scalars['ID']['output'];
+  organization: Organization;
+  organizationId: Scalars['ID']['output'];
+};
+
 export type CreateAddressInput = {
   addressLine1: Scalars['String']['input'];
   city: Scalars['String']['input'];
@@ -245,6 +280,7 @@ export type Mutation = {
   createVisitVital: VisitVital;
   refreshToken: AuthResponse;
   staffLogin: LoginAuthResponse;
+  syncChargeDomainMapping: Array<ChargeDomainCatalogMapping>;
   updateBillingCategory: BillingCatalogueCategory;
   updateChargeCatalog: ChargeCatalog;
   updateOrganizationStatus: Organization;
@@ -305,6 +341,11 @@ export type MutationCreateVisitVitalArgs = {
 
 export type MutationStaffLoginArgs = {
   input: StaffLoginInput;
+};
+
+
+export type MutationSyncChargeDomainMappingArgs = {
+  data: SyncChargeDomainMappingInput;
 };
 
 
@@ -439,6 +480,7 @@ export type Query = {
   __typename?: 'Query';
   adminOnly: Scalars['String']['output'];
   billingCategoryById: BillingCatalogueCategory;
+  chargeDomainMappings: Array<ChargeDomainCatalogMapping>;
   getAuditLogs: Array<AuditLog>;
   globalBillingCategories: Array<BillingCatalogueCategory>;
   health: Scalars['String']['output'];
@@ -569,6 +611,11 @@ export enum StaffStatus {
   Pending = 'PENDING',
   Suspended = 'SUSPENDED'
 }
+
+export type SyncChargeDomainMappingInput = {
+  chargeCatalogIds: Array<Scalars['ID']['input']>;
+  chargeDomain: ChargeDomain;
+};
 
 export type UpdateBillingCategoryInput = {
   categoryId: Scalars['ID']['input'];
@@ -953,6 +1000,18 @@ export type VisitVitalsQueryVariables = Exact<{
 
 export type VisitVitalsQuery = { __typename?: 'Query', visitVitals: Array<{ __typename?: 'VisitVital', id: string, temperature?: number | null, bloodPressure?: string | null, heartRate?: number | null, respiratoryRate?: number | null, spo2?: number | null, weight?: number | null, height?: number | null, bmi?: number | null, notes?: string | null, recordedByStaffId: string }> };
 
+export type ChargeDomainMappingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ChargeDomainMappingsQuery = { __typename?: 'Query', chargeDomainMappings: Array<{ __typename?: 'ChargeDomainCatalogMapping', id: string, organizationId: string, chargeDomain: ChargeDomain, chargeCatalogId: string, chargeCatalog: { __typename?: 'ChargeCatalog', id: string, name: string, billingType: BillingType, code: string, unitPrice: number, isActive: boolean } }> };
+
+export type SyncChargeDomainMappingMutationVariables = Exact<{
+  data: SyncChargeDomainMappingInput;
+}>;
+
+
+export type SyncChargeDomainMappingMutation = { __typename?: 'Mutation', syncChargeDomainMapping: Array<{ __typename?: 'ChargeDomainCatalogMapping', id: string, organizationId: string, chargeDomain: ChargeDomain, chargeCatalogId: string, chargeCatalog: { __typename?: 'ChargeCatalog', id: string, name: string, billingType: BillingType, unitPrice: number, code: string, isActive: boolean } }> };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -989,3 +1048,5 @@ export const UpdateChargeCatalogDocument = {"kind":"Document","definitions":[{"k
 export const CreateVisitVitalDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVisitVital"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitVitalInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVisitVital"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"bloodPressure"}},{"kind":"Field","name":{"kind":"Name","value":"heartRate"}},{"kind":"Field","name":{"kind":"Name","value":"respiratoryRate"}},{"kind":"Field","name":{"kind":"Name","value":"spo2"}},{"kind":"Field","name":{"kind":"Name","value":"weight"}},{"kind":"Field","name":{"kind":"Name","value":"height"}},{"kind":"Field","name":{"kind":"Name","value":"bmi"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"recordedByStaffId"}}]}}]}}]} as unknown as DocumentNode<CreateVisitVitalMutation, CreateVisitVitalMutationVariables>;
 export const UpdateVisitVitalDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitVital"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitVitalInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitVital"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"bloodPressure"}},{"kind":"Field","name":{"kind":"Name","value":"heartRate"}},{"kind":"Field","name":{"kind":"Name","value":"respiratoryRate"}},{"kind":"Field","name":{"kind":"Name","value":"spo2"}},{"kind":"Field","name":{"kind":"Name","value":"weight"}},{"kind":"Field","name":{"kind":"Name","value":"height"}},{"kind":"Field","name":{"kind":"Name","value":"bmi"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"recordedByStaffId"}}]}}]}}]} as unknown as DocumentNode<UpdateVisitVitalMutation, UpdateVisitVitalMutationVariables>;
 export const VisitVitalsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"VisitVitals"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitVitals"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"temperature"}},{"kind":"Field","name":{"kind":"Name","value":"bloodPressure"}},{"kind":"Field","name":{"kind":"Name","value":"heartRate"}},{"kind":"Field","name":{"kind":"Name","value":"respiratoryRate"}},{"kind":"Field","name":{"kind":"Name","value":"spo2"}},{"kind":"Field","name":{"kind":"Name","value":"weight"}},{"kind":"Field","name":{"kind":"Name","value":"height"}},{"kind":"Field","name":{"kind":"Name","value":"bmi"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"recordedByStaffId"}}]}}]}}]} as unknown as DocumentNode<VisitVitalsQuery, VisitVitalsQueryVariables>;
+export const ChargeDomainMappingsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ChargeDomainMappings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"chargeDomainMappings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeDomain"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalog"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"billingType"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]}}]} as unknown as DocumentNode<ChargeDomainMappingsQuery, ChargeDomainMappingsQueryVariables>;
+export const SyncChargeDomainMappingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SyncChargeDomainMapping"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SyncChargeDomainMappingInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"syncChargeDomainMapping"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeDomain"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalog"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"billingType"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]}}]} as unknown as DocumentNode<SyncChargeDomainMappingMutation, SyncChargeDomainMappingMutationVariables>;

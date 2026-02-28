@@ -523,6 +523,40 @@ query VisitVitals($visitId: String!) {
   }
 }
 
+query ChargeDomainMappings {
+  chargeDomainMappings {
+    id
+    organizationId
+    chargeDomain
+    chargeCatalogId
+    chargeCatalog {
+      id
+      name
+      billingType
+      code
+      unitPrice
+      isActive
+    }
+  }
+}
+
+mutation SyncChargeDomainMapping($data: SyncChargeDomainMappingInput!) {
+  syncChargeDomainMapping(data: $data) {
+    id
+    organizationId
+    chargeDomain
+    chargeCatalogId
+    chargeCatalog {
+      id
+      name
+      billingType
+      unitPrice
+      code
+      isActive
+    }
+  }
+}
+
 
 
 
