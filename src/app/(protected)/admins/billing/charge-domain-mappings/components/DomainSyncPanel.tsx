@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Select, Button, message } from 'antd';
 import {
   ChargeDomain,
@@ -84,15 +84,27 @@ export default function DomainSyncPanel({
     }
 
     setMappings(prev => {
-      const filtered = prev.filter(
+      const otherDomains = prev.filter(
         m => m.chargeDomain !== selectedDomain
       );
 
-      return [...filtered, ...json.mappings];
+       return [...otherDomains, ...json.mappings];
     });
 
     showMessage('success', 'Domain synced successfully');
   }
+
+  const catalogDomainMap = useMemo(() => {
+    const map: Record<string, string> = {};
+
+    Object.entries(grouped).forEach(([domain, mappings]) => {
+        mappings.forEach(m => {
+        map[m.chargeCatalogId] = domain;
+        });
+    });
+
+    return map;
+  }, [grouped]);
 
   return (
     <>
@@ -136,10 +148,18 @@ export default function DomainSyncPanel({
               onChange={setSelectedCatalogIds}
               placeholder="Select charge catalogs"
               className="w-full"
-              options={catalogs.map(c => ({
-                label: `${c.name} • ${c.code}`,
-                value: c.id,
-              }))}
+              options={catalogs.map(c => {
+                const mappedDomain = catalogDomainMap[c.id];
+
+                const disabled =
+                   Boolean(mappedDomain) && mappedDomain !== selectedDomain;
+
+                return {
+                    label: `${c.name} • ${c.code}`,
+                    value: c.id,
+                    disabled,
+                };
+              })}
             />
           </div>
 
