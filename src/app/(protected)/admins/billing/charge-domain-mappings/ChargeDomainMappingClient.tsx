@@ -1,14 +1,13 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Select, Button, Card, message } from 'antd';
 import {
-  ChargeDomain,
   ChargeDomainMappingsQuery,
   OrganizationChargeCatalogsQuery,
-  SyncChargeDomainMappingInput,
 } from '@/shared/graphql/generated/graphql';
-import { clientFetch } from '@/lib/clientFetch';
+
+import DomainSyncPanel from './components/DomainSyncPanel';
+import DomainMappingGrid from './components/DomainMappingGrid';
 
 type Mapping =
   ChargeDomainMappingsQuery['chargeDomainMappings'][number];
@@ -22,14 +21,10 @@ interface Props {
 }
 
 export default function ChargeDomainMappingClient({
-  mappings,
+  mappings: initialMappings,
   catalogs,
 }: Props) {
-  const [selectedDomain, setSelectedDomain] =
-    useState<ChargeDomain | null>(null);
-
-  const [selectedCatalogIds, setSelectedCatalogIds] =
-    useState<string[]>([]);
+  const [mappings, setMappings] = useState<Mapping[]>(initialMappings);
 
   const grouped = useMemo(() => {
     const map: Record<string, Mapping[]> = {};
@@ -42,108 +37,28 @@ export default function ChargeDomainMappingClient({
     return map;
   }, [mappings]);
 
-  async function handleSync() {
-    if (!selectedDomain) {
-      message.error('Please select a domain');
-      return;
-    }
-
-    const payload: SyncChargeDomainMappingInput = {
-      chargeDomain: selectedDomain,
-      chargeCatalogIds: selectedCatalogIds,
-    };
-
-    const res = await clientFetch(
-      '/api/billing/sync-charge-domain-mapping',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      }
-    );
-
-    const json = await res.json();
-
-    if (!res.ok) {
-      message.error(json.error || 'Sync failed');
-      return;
-    }
-
-    message.success('Domain synced successfully');
-    window.location.reload();
-  }
-
   return (
-    <div className="space-y-10">
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 space-y-12">
 
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold">
-          Charge Domain Mapping
-        </h1>
-        <p className="text-gray-500">
-          Assign charge catalogs to billing domains.
-        </p>
-      </div>
-
-      <Card className="rounded-2xl shadow-sm">
-        <div className="space-y-4">
-
-          <Select
-            placeholder="Select Charge Domain"
-            className="w-full"
-            onChange={value => {
-              setSelectedDomain(value);
-              const existing =
-                grouped[value]?.map(m => m.chargeCatalogId) || [];
-              setSelectedCatalogIds(existing);
-            }}
-            options={Object.values(ChargeDomain).map(domain => ({
-              label: domain,
-              value: domain,
-            }))}
-          />
-
-          <Select
-            mode="multiple"
-            placeholder="Select Charge Catalogs"
-            className="w-full"
-            value={selectedCatalogIds}
-            onChange={setSelectedCatalogIds}
-            options={catalogs.map(c => ({
-              label: `${c.name} (${c.code})`,
-              value: c.id,
-            }))}
-          />
-
-          <Button
-            type="primary"
-            onClick={handleSync}
-            className="rounded-xl"
-          >
-            Sync Domain
-          </Button>
-
+        <div className="space-y-3">
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+            Charge Domain Mapping
+          </h1>
+          <p className="text-gray-500 max-w-2xl">
+            Structure billing logic by assigning charge catalogs to billing domains.
+          </p>
         </div>
-      </Card>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {Object.entries(grouped).map(([domain, domainMappings]) => (
-          <Card
-            key={domain}
-            title={domain}
-            className="rounded-2xl shadow-sm"
-          >
-            <ul className="space-y-2">
-              {domainMappings.map(m => (
-                <li key={m.id}>
-                  {m.chargeCatalog.name} ({m.chargeCatalog.code})
-                </li>
-              ))}
-            </ul>
-          </Card>
-        ))}
+        <DomainSyncPanel
+          catalogs={catalogs}
+          grouped={grouped}
+          setMappings={setMappings}
+        />
+
+        <DomainMappingGrid grouped={grouped} />
+
       </div>
-
     </div>
   );
 }
