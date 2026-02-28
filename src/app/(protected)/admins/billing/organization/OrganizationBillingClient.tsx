@@ -132,8 +132,7 @@ export default function OrganizationBillingClient({ categories: initial }: Props
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-12">
-
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-2">
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
               Organization Billing
@@ -143,13 +142,23 @@ export default function OrganizationBillingClient({ categories: initial }: Props
               models tailored to your organization.
             </p>
           </div>
+          <div className="flex flex-col sm:flex-row gap-4">
 
-          <Link
-            href="/admins/billing/organization/charge-catalog"
-            className="inline-flex items-center justify-center rounded-2xl bg-black text-white px-6 py-3 text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200"
-          >
-            Visit Charge Catalog →
-          </Link>
+            <Link
+              href="/admins/billing/organization/charge-catalog"
+              className="inline-flex items-center justify-center rounded-2xl bg-black text-white px-6 py-3 text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200"
+            >
+              Visit Charge Catalog →
+            </Link>
+
+            <Link
+              href="/admins/billing/charge-domain-mappings"
+              className="inline-flex items-center justify-center rounded-2xl bg-white border border-gray-200 text-gray-900 px-6 py-3 text-sm font-semibold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-200"
+            >
+              Manage Domain Mapping →
+            </Link>
+
+          </div>
         </div>
 
         <CreateCategoryCard
