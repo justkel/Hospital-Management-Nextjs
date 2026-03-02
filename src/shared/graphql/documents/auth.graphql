@@ -557,9 +557,61 @@ mutation SyncChargeDomainMapping($data: SyncChargeDomainMappingInput!) {
   }
 }
 
+query GetAuditDistinctValues($field: AuditDistinctField!) {
+  getAuditDistinctValues(field: $field)
+}
 
+query GetAuditLogById($id: String!) {
+  getAuditLogById(id: $id) {
+    id
+    organizationId
+    actorId
+    actorType
+    actorDescription
+    action
+    entity
+    appName
+    entityId
+    metadata
+    createdAt
+  }
+}
 
+query GetAuditLogs($pagination: AuditPaginationInput!) {
+  auditLogs(pagination: $pagination) {
+    items {
+      id
+      actorId
+      actorType
+      action
+      entity
+      appName
+      entityId
+      createdAt
+    }
+    total
+    page
+    pageCount
+  }
+}
 
+query GetAuditLogs($pagination: AuditPaginationInput!) {
+  auditLogs(pagination: $pagination) {
+    items {
+      id
+      actorId
+      actorType
+      action
+      entity
+      appName
+      entityId
+      createdAt
+    }
+    total
+    page
+    pageCount
+  }
+}
 
 
 
