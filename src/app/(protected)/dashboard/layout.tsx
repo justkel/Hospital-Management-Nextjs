@@ -117,7 +117,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       ]
       : []),
     { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
-    ...(roles.includes(Roles.ADMIN) ? [{ key: 'audit', icon: <FileSearchOutlined />, label: 'Audit Logs' }] : []),
+    ...(roles.includes(Roles.ADMIN) ? [{ key: 'audit', icon: <FileSearchOutlined />, label: <Link href="/dashboard/audit">Audits</Link> }] : []),
   ];
 
   return (
