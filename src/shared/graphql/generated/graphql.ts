@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -14,8 +13,8 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  DateTime: { input: any; output: any; }
-  JSON: { input: any; output: any; }
+  DateTime: { input: string; output: string; }
+  JSON: { input: Record<string, unknown>; output: Record<string, unknown>; }
 };
 
 export type Address = {
@@ -943,21 +942,21 @@ export type FindAllVisitsQueryVariables = Exact<{
 }>;
 
 
-export type FindAllVisitsQuery = { __typename?: 'Query', visits: { __typename?: 'VisitPaginationResult', total: number, page: number, pageCount: number, items: Array<{ __typename?: 'Visit', id: string, visitType: VisitType, status: VisitStatus, visitDateTime: any, attendingStaffId?: string | null, patient: { __typename?: 'Patient', id: string, fullName?: string | null, email?: string | null, phoneNumber?: string | null } }> } };
+export type FindAllVisitsQuery = { __typename?: 'Query', visits: { __typename?: 'VisitPaginationResult', total: number, page: number, pageCount: number, items: Array<{ __typename?: 'Visit', id: string, visitType: VisitType, status: VisitStatus, visitDateTime: string, attendingStaffId?: string | null, patient: { __typename?: 'Patient', id: string, fullName?: string | null, email?: string | null, phoneNumber?: string | null } }> } };
 
 export type GetPatientVisitHistoryQueryVariables = Exact<{
   patientId: Scalars['String']['input'];
 }>;
 
 
-export type GetPatientVisitHistoryQuery = { __typename?: 'Query', patientVisitHistory: Array<{ __typename?: 'Visit', id: string, visitType: VisitType, status: VisitStatus, visitDateTime: any, attendingStaffId?: string | null }> };
+export type GetPatientVisitHistoryQuery = { __typename?: 'Query', patientVisitHistory: Array<{ __typename?: 'Visit', id: string, visitType: VisitType, status: VisitStatus, visitDateTime: string, attendingStaffId?: string | null }> };
 
 export type GetVisitByIdQueryVariables = Exact<{
   id: Scalars['String']['input'];
 }>;
 
 
-export type GetVisitByIdQuery = { __typename?: 'Query', visit: { __typename?: 'Visit', id: string, visitType: VisitType, status: VisitStatus, visitDateTime: any, closedAt?: any | null, attendingStaffId?: string | null, patient: { __typename?: 'Patient', id: string, fullName?: string | null, email?: string | null, phoneNumber?: string | null } } };
+export type GetVisitByIdQuery = { __typename?: 'Query', visit: { __typename?: 'Visit', id: string, visitType: VisitType, status: VisitStatus, visitDateTime: string, closedAt?: string | null, attendingStaffId?: string | null, patient: { __typename?: 'Patient', id: string, fullName?: string | null, email?: string | null, phoneNumber?: string | null } } };
 
 export type GetGlobalBillingCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1075,14 +1074,14 @@ export type GetAuditLogByIdQueryVariables = Exact<{
 }>;
 
 
-export type GetAuditLogByIdQuery = { __typename?: 'Query', getAuditLogById: { __typename?: 'AuditLog', id: string, organizationId: string, actorId?: string | null, actorType?: string | null, actorDescription?: string | null, action: string, entity: string, appName: string, metadata?: any | null, createdAt: any } };
+export type GetAuditLogByIdQuery = { __typename?: 'Query', getAuditLogById: { __typename?: 'AuditLog', id: string, organizationId: string, actorId?: string | null, actorType?: string | null, actorDescription?: string | null, action: string, entity: string, appName: string, metadata?: Record<string, unknown> | null, createdAt: string } };
 
 export type GetAuditLogsQueryVariables = Exact<{
   pagination: AuditPaginationInput;
 }>;
 
 
-export type GetAuditLogsQuery = { __typename?: 'Query', auditLogs: { __typename?: 'AuditPaginationResult', total: number, page: number, pageCount: number, items: Array<{ __typename?: 'AuditLog', id: string, actorId?: string | null, actorType?: string | null, action: string, entity: string, appName: string, createdAt: any }> } };
+export type GetAuditLogsQuery = { __typename?: 'Query', auditLogs: { __typename?: 'AuditPaginationResult', total: number, page: number, pageCount: number, items: Array<{ __typename?: 'AuditLog', id: string, actorId?: string | null, actorType?: string | null, action: string, entity: string, appName: string, createdAt: string }> } };
 
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
