@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Modal } from 'antd';
 import { clientFetch } from '@/lib/clientFetch';
+import { StaffById } from './AuditFilters';
 
 type AuditDetails = {
   id: string;
@@ -25,6 +26,11 @@ export default function AuditViewModal({
   onClose: () => void;
 }) {
   const [audit, setAudit] = useState<AuditDetails | null>(null);
+  const [staff, setStaff] = useState<{
+    id: string;
+    userCode: string;
+    fullName: string;
+  } | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -37,6 +43,18 @@ export default function AuditViewModal({
         await res.json();
 
       setAudit(json.audit);
+
+      if (json.audit?.actorId) {
+        const staffRes = await clientFetch(
+          `/api/staff/get-by-id?id=${json.audit.actorId}`
+        );
+
+        if (staffRes.ok) {
+          const staffJson: { staff: StaffById } =
+            await staffRes.json();
+          setStaff(staffJson.staff);
+        }
+      }
     }
 
     load();
@@ -54,15 +72,22 @@ export default function AuditViewModal({
           <p><strong>Action:</strong> {audit.action}</p>
           <p><strong>Entity:</strong> {audit.entity}</p>
           <p><strong>Description:</strong> {audit.actorDescription ?? 'N/A'}</p>
-          <p><strong>Actor ID:</strong> {audit.actorId ?? 'N/A'}</p>
+          <p>
+            <strong>Actor:</strong>{' '}
+            {staff
+              ? `${staff.userCode} - ${staff.fullName}`
+              : audit.actorId ?? 'N/A'}
+          </p>
           <p><strong>Entity:</strong> {audit.entity ?? 'N/A'}</p>
           <p><strong>Date:</strong> {new Date(audit.createdAt).toLocaleString()}</p>
-          <div>
-            <strong>Metadata:</strong>
-            <pre className="bg-gray-100 p-3 rounded mt-2 text-xs overflow-auto">
-              {JSON.stringify(audit.metadata ?? {}, null, 2)}
-            </pre>
-          </div>
+          {audit.metadata && Object.keys(audit.metadata).length > 0 && (
+            <div>
+              <strong>Metadata:</strong>
+              <pre className="bg-gray-100 p-3 rounded mt-2 text-xs overflow-auto">
+                {JSON.stringify(audit.metadata, null, 2)}
+              </pre>
+            </div>
+          )}
         </div>
       ) : (
         <p>Loading...</p>
