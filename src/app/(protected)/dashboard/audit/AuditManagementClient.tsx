@@ -15,7 +15,7 @@ export type AuditItem =
 
 type AuditPaginated = GetAuditLogsQuery['auditLogs'];
 
-type Filters = {
+export type Filters = {
   action?: string;
   actorId?: string;
   entity?: string;
@@ -87,7 +87,11 @@ export default function AuditManagementClient({
         onChange={handleFilterChange}
       />
 
-      <AuditTable list={list} />
+      <AuditTable
+        list={list}
+        page={page}
+        limit={limit}
+      />
 
       <AuditPagination
         page={page}
