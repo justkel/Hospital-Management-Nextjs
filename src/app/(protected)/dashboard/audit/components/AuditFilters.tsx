@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import {
   AuditDateFilter,
   AuditDistinctField,
 } from '@/shared/graphql/generated/graphql';
 import { clientFetch } from '@/lib/clientFetch';
+import { useEffect, useState } from 'react';
+import { Filters } from '../AuditManagementClient';
 
 type Staff = {
   id: string;
@@ -14,21 +15,11 @@ type Staff = {
 };
 
 type Props = {
-  filters: {
-    action?: string;
-    actorId?: string;
-    entity?: string;
-    dateFilter?: AuditDateFilter;
-    startDate?: string;
-    endDate?: string;
-  };
-  onChange: (filters: Props['filters']) => void;
+  filters: Filters;
+  onChange: (filters: Filters) => void;
 };
 
-export default function AuditFilters({
-  filters,
-  onChange,
-}: Props) {
+export default function AuditFilters({ filters, onChange }: Props) {
   const [actions, setActions] = useState<string[]>([]);
   const [actorIds, setActorIds] = useState<string[]>([]);
   const [entities, setEntities] = useState<string[]>([]);
@@ -79,7 +70,7 @@ export default function AuditFilters({
   }, []);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
       <select
         className="border rounded-lg p-2"
         value={filters.action ?? ''}
@@ -89,9 +80,7 @@ export default function AuditFilters({
       >
         <option value="">All Actions</option>
         {actions.map(a => (
-          <option key={a} value={a}>
-            {a}
-          </option>
+          <option key={a} value={a}>{a}</option>
         ))}
       </select>
 
@@ -126,11 +115,48 @@ export default function AuditFilters({
       >
         <option value="">All Entities</option>
         {entities.map(e => (
-          <option key={e} value={e}>
-            {e}
-          </option>
+          <option key={e} value={e}>{e}</option>
         ))}
       </select>
+
+      <select
+        className="border rounded-lg p-2"
+        value={filters.dateFilter ?? ''}
+        onChange={e =>
+          onChange({
+            ...filters,
+            dateFilter:
+              (e.target.value as AuditDateFilter) || undefined,
+          })
+        }
+      >
+        <option value="">All Dates</option>
+        <option value={AuditDateFilter.Today}>Today</option>
+        <option value={AuditDateFilter.ThisWeek}>This Week</option>
+        <option value={AuditDateFilter.ThisMonth}>This Month</option>
+        <option value={AuditDateFilter.Custom}>Custom</option>
+      </select>
+
+      {filters.dateFilter === AuditDateFilter.Custom && (
+        <>
+          <input
+            type="date"
+            className="border rounded-lg p-2"
+            value={filters.startDate ?? ''}
+            onChange={e =>
+              onChange({ ...filters, startDate: e.target.value })
+            }
+          />
+          <input
+            type="date"
+            className="border rounded-lg p-2"
+            value={filters.endDate ?? ''}
+            onChange={e =>
+              onChange({ ...filters, endDate: e.target.value })
+            }
+          />
+        </>
+      )}
     </div>
   );
 }
