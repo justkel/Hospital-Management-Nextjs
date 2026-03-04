@@ -9,10 +9,7 @@ import {
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: Request) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('access_token')?.value;
 
@@ -20,10 +17,14 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const id = params.id;
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get('id');
 
   if (!id) {
-    return NextResponse.json({ error: 'Missing audit ID' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Missing audit ID' },
+      { status: 400 }
+    );
   }
 
   const res = await fetch(GATEWAY_URL, {
@@ -40,7 +41,10 @@ export async function GET(
 
   const json: {
     data?: GetAuditLogByIdQuery;
-    errors?: { message?: string; extensions?: { code?: string } }[];
+    errors?: {
+      message?: string;
+      extensions?: { code?: string };
+    }[];
   } = await res.json();
 
   const unauthenticated = json.errors?.some(
@@ -53,7 +57,10 @@ export async function GET(
 
   if (json.errors?.length) {
     return NextResponse.json(
-      { error: json.errors[0].message ?? 'Failed to fetch audit log' },
+      {
+        error:
+          json.errors[0].message ?? 'Failed to fetch audit log',
+      },
       { status: 400 }
     );
   }
