@@ -8,7 +8,7 @@ import { clientFetch } from '@/lib/clientFetch';
 import { useEffect, useState } from 'react';
 import { Filters } from '../AuditManagementClient';
 
-type Staff = {
+export type StaffById = {
   id: string;
   userCode: string;
   fullName: string;
@@ -23,7 +23,7 @@ export default function AuditFilters({ filters, onChange }: Props) {
   const [actions, setActions] = useState<string[]>([]);
   const [actorIds, setActorIds] = useState<string[]>([]);
   const [entities, setEntities] = useState<string[]>([]);
-  const [staffMap, setStaffMap] = useState<Record<string, Staff>>({});
+  const [staffMap, setStaffMap] = useState<Record<string, StaffById>>({});
 
   async function fetchDistinct(field: AuditDistinctField) {
     const res = await clientFetch(`/api/audit/distinct?field=${field}`);
@@ -32,11 +32,11 @@ export default function AuditFilters({ filters, onChange }: Props) {
     return json.values;
   }
 
-  async function fetchStaffById(id: string): Promise<Staff | null> {
+  async function fetchStaffById(id: string): Promise<StaffById | null> {
     const res = await clientFetch(`/api/staff/get-by-id?id=${id}`);
     if (!res.ok) return null;
 
-    const json: { staff: Staff | null } = await res.json();
+    const json: { staff: StaffById | null } = await res.json();
     return json.staff;
   }
 
@@ -56,7 +56,7 @@ export default function AuditFilters({ filters, onChange }: Props) {
         actorIdsResult.map(id => fetchStaffById(id))
       );
 
-      const map: Record<string, Staff> = {};
+      const map: Record<string, StaffById> = {};
       resolved.forEach(staff => {
         if (staff) {
           map[staff.id] = staff;
