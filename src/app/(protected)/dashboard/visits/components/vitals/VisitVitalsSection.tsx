@@ -4,6 +4,8 @@ import { clientFetch } from '@/lib/clientFetch';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import VisitVitalForm from './VisitVitalForm';
 import VisitVitalsList from './VisitVitalsList';
+import { useBilling } from '@/hooks/billing/useBilling';
+import { ChargeDomain } from '@/shared/graphql/generated/graphql';
 
 export interface VisitVital {
   id: string;
@@ -19,6 +21,7 @@ export interface VisitVital {
 }
 
 export interface VitalFormValues {
+  chargeCatalogId: string;
   temperature: string;
   bloodPressure: string;
   heartRate: string;
@@ -33,7 +36,13 @@ interface Props {
   visitId: string;
 }
 
+export interface ChargeCatalogOption {
+  id: string;
+  name: string;
+}
+
 const initialForm: VitalFormValues = {
+  chargeCatalogId: '',
   temperature: '',
   bloodPressure: '',
   heartRate: '',
@@ -50,6 +59,7 @@ export default function VisitVitalsSection({ visitId }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<VitalFormValues>(initialForm);
+  const { catalogs } = useBilling(ChargeDomain.Vitals);
 
   const fetchVitals = useCallback(async () => {
     setLoading(true);
@@ -78,6 +88,7 @@ export default function VisitVitalsSection({ visitId }: Props) {
 
   const buildPayload = () => ({
     visitId,
+    chargeCatalogId: form.chargeCatalogId,
     temperature: parseNumber(form.temperature),
     bloodPressure: form.bloodPressure || null,
     heartRate: parseNumber(form.heartRate),
@@ -152,6 +163,7 @@ export default function VisitVitalsSection({ visitId }: Props) {
   const handleEdit = (vital: VisitVital) => {
     setEditingId(vital.id);
     setForm({
+      chargeCatalogId: '',
       temperature: vital.temperature?.toString() ?? '',
       bloodPressure: vital.bloodPressure ?? '',
       heartRate: vital.heartRate?.toString() ?? '',
@@ -177,6 +189,7 @@ export default function VisitVitalsSection({ visitId }: Props) {
         form={form}
         setForm={setForm}
         submitting={submitting}
+        catalogs={catalogs}
         isEditing={isEditing}
         onCreate={handleCreate}
         onUpdate={handleUpdate}
