@@ -593,6 +593,21 @@ query GetAuditLogs($pagination: AuditPaginationInput!) {
   }
 }
 
+query CatalogsByChargeDomain($chargeDomain: ChargeDomain!) {
+  catalogsByChargeDomain(chargeDomain: $chargeDomain) {
+    id
+    chargeDomain
+    chargeCatalogId
+    organizationId
+    chargeCatalog {
+      id
+      name
+      description
+      unitPrice
+    }
+  }
+}
+
 
 
 
