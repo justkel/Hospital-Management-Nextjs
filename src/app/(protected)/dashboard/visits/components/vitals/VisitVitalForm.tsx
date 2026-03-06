@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ChargeCatalogOption, VitalFormValues } from './VisitVitalsSection';
+import { ChargeDomain } from '@/shared/graphql/generated/graphql';
 
 interface Props {
   form: VitalFormValues;
@@ -9,9 +10,10 @@ interface Props {
   submitting: boolean;
   catalogs: ChargeCatalogOption[];
   isEditing: boolean;
-  onCreate: () => void;
+  onCreate: () => Promise<void>;
   onUpdate: () => void;
   onCancel: () => void;
+  visitId: string;
 }
 
 export default function VisitVitalForm({
@@ -23,51 +25,111 @@ export default function VisitVitalForm({
   onCreate,
   onUpdate,
   onCancel,
+  visitId,
 }: Props) {
   const [error, setError] = useState<string | null>(null);
+  const [chargeExists, setChargeExists] = useState(false);
+  const [loadingChargeCheck, setLoadingChargeCheck] = useState(true);
+
+  useEffect(() => {
+    const checkCharge = async () => {
+      try {
+        const res = await fetch(
+          `/api/visit-charge/charge-exists?visitId=${visitId}&chargeDomain=${ChargeDomain.Vitals}`
+        );
+
+        const json = await res.json();
+
+        if (json.exists) {
+          setChargeExists(true);
+
+          setForm(prev => ({
+            ...prev,
+            chargeEnabled: false,
+            chargeCatalogId: '',
+          }));
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingChargeCheck(false);
+      }
+    };
+
+    if (visitId && !isEditing) {
+      checkCharge();
+    }
+  }, [visitId, isEditing, setForm]);
 
   const hasVitalValue = useMemo(() => {
     return Object.entries(form).some(([key, value]) => {
-      if (key === 'notes' || key === 'chargeCatalogId' || key === 'chargeEnabled') {
+      if (
+        key === 'notes' ||
+        key === 'chargeCatalogId' ||
+        key === 'chargeEnabled'
+      ) {
         return false;
       }
+
       return String(value).trim() !== '';
     });
   }, [form]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!hasVitalValue) {
       setError('Please record at least one vital measurement.');
       return;
     }
 
     if (form.chargeEnabled && !form.chargeCatalogId) {
-      setError('Please select a charge type for vital billing or uncheck the charge option.');
+      setError('Please select a charge type for vitals billing.');
       return;
     }
 
     setError(null);
 
-    if (isEditing) onUpdate();
-    else onCreate();
+    if (isEditing) {
+      onUpdate();
+      return;
+    }
+
+    await onCreate();
+
+    if (form.chargeEnabled && form.chargeCatalogId) {
+      setChargeExists(true);
+    }
+
+    setForm(prev => ({
+      ...prev,
+      chargeEnabled: false,
+      chargeCatalogId: '',
+    }));
   };
+
+  if (loadingChargeCheck) {
+    return <p className="text-sm text-gray-500">Checking billing status...</p>;
+  }
 
   return (
     <>
-      {/* Charge Toggle Section */}
-      {!isEditing && (
+      {chargeExists && (
+        <div className="mb-5 p-4 rounded-xl bg-yellow-50 text-yellow-700 text-sm">
+          Vital billing has already been applied for this visit.
+        </div>
+      )}
+
+      {!isEditing && !chargeExists && (
         <div className="mb-6 space-y-4">
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
+              disabled={chargeExists}
               checked={form.chargeEnabled || false}
               onChange={e => {
                 setForm(prev => ({
                   ...prev,
                   chargeEnabled: e.target.checked,
-                  chargeCatalogId: e.target.checked
-                    ? prev.chargeCatalogId
-                    : '',
+                  chargeCatalogId: '',
                 }));
                 setError(null);
               }}
@@ -75,7 +137,7 @@ export default function VisitVitalForm({
             />
 
             <span className="text-sm text-gray-700">
-              Check this box if vitals should be charged
+              Check this box to charge for vitals recording
             </span>
           </label>
 
@@ -113,39 +175,36 @@ export default function VisitVitalForm({
           { label: 'Weight (kg)', key: 'weight' },
           { label: 'Height (cm)', key: 'height' },
         ].map(field => (
-          <div key={field.key}>
-            <input
-              placeholder={field.label}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 
-              bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 
-              focus:border-indigo-500 outline-none text-sm transition
-              placeholder:text-gray-400"
-              value={String(form[field.key as keyof VitalFormValues] ?? '')}
-              onChange={e => {
-                setForm(prev => ({
-                  ...prev,
-                  [field.key]: e.target.value,
-                }));
-                if (error) setError(null);
-              }}
-            />
-          </div>
-        ))}
-
-        <div className="sm:col-span-2 md:col-span-3">
-          <textarea
-            placeholder="Clinical notes..."
+          <input
+            key={field.key}
+            placeholder={field.label}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 
             bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 
-            focus:border-indigo-500 outline-none text-sm transition 
-            min-h-25"
-            value={form.notes}
+            focus:border-indigo-500 outline-none text-sm transition"
+            value={String(
+              form[field.key as keyof VitalFormValues] ?? ''
+            )}
             onChange={e => {
-              setForm(prev => ({ ...prev, notes: e.target.value }));
+              setForm(prev => ({
+                ...prev,
+                [field.key]: e.target.value,
+              }));
               if (error) setError(null);
             }}
           />
-        </div>
+        ))}
+
+        <textarea
+          placeholder="Clinical notes..."
+          className="sm:col-span-2 md:col-span-3 w-full px-4 py-3 rounded-xl border border-gray-200 
+          bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 
+          focus:border-indigo-500 outline-none text-sm min-h-25"
+          value={form.notes}
+          onChange={e => {
+            setForm(prev => ({ ...prev, notes: e.target.value }));
+            if (error) setError(null);
+          }}
+        />
       </div>
 
       {error && (

@@ -196,6 +196,7 @@ export default function VisitVitalsSection({ visitId }: Props) {
         onCreate={handleCreate}
         onUpdate={handleUpdate}
         onCancel={resetForm}
+        visitId={visitId}
       />
 
       <VisitVitalsList
