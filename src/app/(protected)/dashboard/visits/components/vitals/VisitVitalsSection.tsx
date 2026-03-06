@@ -22,6 +22,7 @@ export interface VisitVital {
 
 export interface VitalFormValues {
   chargeCatalogId: string;
+  chargeEnabled?: boolean;
   temperature: string;
   bloodPressure: string;
   heartRate: string;
@@ -43,6 +44,7 @@ export interface ChargeCatalogOption {
 
 const initialForm: VitalFormValues = {
   chargeCatalogId: '',
+  chargeEnabled: false,
   temperature: '',
   bloodPressure: '',
   heartRate: '',

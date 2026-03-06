@@ -26,52 +26,80 @@ export default function VisitVitalForm({
 }: Props) {
   const [error, setError] = useState<string | null>(null);
 
-  const hasAtLeastOneValue = useMemo(() => {
-    return Object.values(form).some(value => value.trim() !== '');
+  const hasVitalValue = useMemo(() => {
+    return Object.entries(form).some(([key, value]) => {
+      if (key === 'notes' || key === 'chargeCatalogId' || key === 'chargeEnabled') {
+        return false;
+      }
+      return String(value).trim() !== '';
+    });
   }, [form]);
 
   const handleSubmit = () => {
-    if (!hasAtLeastOneValue) {
-      setError('Please enter at least one vital before submitting.');
+    if (!hasVitalValue) {
+      setError('Please record at least one vital measurement.');
+      return;
+    }
+
+    if (form.chargeEnabled && !form.chargeCatalogId) {
+      setError('Please select a charge type for vital billing or uncheck the charge option.');
       return;
     }
 
     setError(null);
 
-    if (isEditing) {
-      onUpdate();
-    } else {
-      onCreate();
-    }
+    if (isEditing) onUpdate();
+    else onCreate();
   };
 
   return (
     <>
+      {/* Charge Toggle Section */}
       {!isEditing && (
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Vital Charge Type
+        <div className="mb-6 space-y-4">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.chargeEnabled || false}
+              onChange={e => {
+                setForm(prev => ({
+                  ...prev,
+                  chargeEnabled: e.target.checked,
+                  chargeCatalogId: e.target.checked
+                    ? prev.chargeCatalogId
+                    : '',
+                }));
+                setError(null);
+              }}
+              className="w-4 h-4 accent-indigo-600"
+            />
+
+            <span className="text-sm text-gray-700">
+              Check this box if vitals should be charged
+            </span>
           </label>
 
-          <select
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 
-        bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 
-        focus:border-indigo-500 outline-none transition text-sm"
-            value={form.chargeCatalogId}
-            onChange={e =>
-              setForm(prev => ({
-                ...prev,
-                chargeCatalogId: e.target.value,
-              }))
-            }
-          >
-            <option value="">Select vital charge type</option>
-            {catalogs?.map(cat => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+          {form.chargeEnabled && (
+            <select
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 
+              bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 
+              focus:border-indigo-500 outline-none transition text-sm"
+              value={form.chargeCatalogId}
+              onChange={e =>
+                setForm(prev => ({
+                  ...prev,
+                  chargeCatalogId: e.target.value,
+                }))
+              }
+            >
+              <option value="">Select vital charge type</option>
+              {catalogs?.map(cat => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
       )}
 
@@ -85,14 +113,14 @@ export default function VisitVitalForm({
           { label: 'Weight (kg)', key: 'weight' },
           { label: 'Height (cm)', key: 'height' },
         ].map(field => (
-          <div key={field.key} className="relative">
+          <div key={field.key}>
             <input
               placeholder={field.label}
               className="w-full px-4 py-3 rounded-xl border border-gray-200 
-          bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 
-          focus:border-indigo-500 outline-none text-sm transition
-          placeholder:text-gray-400"
-              value={form[field.key as keyof VitalFormValues]}
+              bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 
+              focus:border-indigo-500 outline-none text-sm transition
+              placeholder:text-gray-400"
+              value={String(form[field.key as keyof VitalFormValues] ?? '')}
               onChange={e => {
                 setForm(prev => ({
                   ...prev,
@@ -108,9 +136,9 @@ export default function VisitVitalForm({
           <textarea
             placeholder="Clinical notes..."
             className="w-full px-4 py-3 rounded-xl border border-gray-200 
-        bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 
-        focus:border-indigo-500 outline-none text-sm transition 
-        min-h-25"
+            bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 
+            focus:border-indigo-500 outline-none text-sm transition 
+            min-h-25"
             value={form.notes}
             onChange={e => {
               setForm(prev => ({ ...prev, notes: e.target.value }));
@@ -131,8 +159,8 @@ export default function VisitVitalForm({
           disabled={submitting}
           onClick={handleSubmit}
           className="px-8 py-3 rounded-xl bg-indigo-600 text-white! font-medium
-      hover:bg-indigo-700 transition shadow-md
-      disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          hover:bg-indigo-700 transition shadow-md
+          disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {isEditing ? 'Update Vitals' : 'Record Vitals'}
         </button>
@@ -144,7 +172,7 @@ export default function VisitVitalForm({
               onCancel();
             }}
             className="px-8 py-3 rounded-xl border border-gray-300 
-        hover:bg-gray-50 transition text-sm cursor-pointer"
+            hover:bg-gray-50 transition text-sm cursor-pointer"
           >
             Cancel
           </button>
