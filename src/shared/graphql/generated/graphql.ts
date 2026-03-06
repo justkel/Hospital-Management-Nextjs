@@ -257,6 +257,16 @@ export type CreateStaffInput = {
   roles: Array<StaffRole>;
 };
 
+export type CreateVisitChargeInput = {
+  chargeCatalogId: Scalars['ID']['input'];
+  chargeDomain?: InputMaybe<ChargeDomain>;
+  chargeType: VisitChargeType;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  overrideReason?: InputMaybe<Scalars['String']['input']>;
+  quantity?: Scalars['Int']['input'];
+  visitId: Scalars['ID']['input'];
+};
+
 export type CreateVisitInput = {
   patientId: Scalars['ID']['input'];
   visitType: VisitType;
@@ -264,7 +274,7 @@ export type CreateVisitInput = {
 
 export type CreateVisitVitalInput = {
   bloodPressure?: InputMaybe<Scalars['String']['input']>;
-  chargeCatalogId: Scalars['ID']['input'];
+  chargeCatalogId?: InputMaybe<Scalars['ID']['input']>;
   heartRate?: InputMaybe<Scalars['Int']['input']>;
   height?: InputMaybe<Scalars['Float']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -310,6 +320,7 @@ export type Mutation = {
   createPatient: CreatePatientResult;
   createStaff: Staff;
   createVisit: Visit;
+  createVisitCharge: VisitCharge;
   createVisitVital: VisitVital;
   refreshToken: AuthResponse;
   staffLogin: LoginAuthResponse;
@@ -364,6 +375,11 @@ export type MutationCreateStaffArgs = {
 
 export type MutationCreateVisitArgs = {
   data: CreateVisitInput;
+};
+
+
+export type MutationCreateVisitChargeArgs = {
+  data: CreateVisitChargeInput;
 };
 
 
@@ -536,6 +552,7 @@ export type Query = {
   staffByRole: Array<Staff>;
   staffs: PaginatedStaff;
   visit: Visit;
+  visitChargeExistsByDomain: Scalars['Boolean']['output'];
   visitVitals: Array<VisitVital>;
   visits: VisitPaginationResult;
   whoAmI: WhoAmIDto;
@@ -620,6 +637,12 @@ export type QueryStaffsArgs = {
 
 export type QueryVisitArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryVisitChargeExistsByDomainArgs = {
+  chargeDomain: ChargeDomain;
+  visitId: Scalars['String']['input'];
 };
 
 
@@ -762,6 +785,40 @@ export type Visit = {
   visitDateTime: Scalars['DateTime']['output'];
   visitType: VisitType;
 };
+
+export type VisitCharge = {
+  __typename?: 'VisitCharge';
+  chargeCatalog: ChargeCatalog;
+  chargeCatalogId: Scalars['ID']['output'];
+  chargeDomain?: Maybe<ChargeDomain>;
+  chargeName: Scalars['String']['output'];
+  chargeType: VisitChargeType;
+  createdBy: Staff;
+  createdByStaffId: Scalars['ID']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
+  organization: Organization;
+  organizationId: Scalars['ID']['output'];
+  overrideReason?: Maybe<Scalars['String']['output']>;
+  quantity: Scalars['Float']['output'];
+  status: VisitChargeStatus;
+  totalAmount?: Maybe<Scalars['Float']['output']>;
+  unitPrice: Scalars['Float']['output'];
+  visit: Visit;
+  visitId: Scalars['ID']['output'];
+};
+
+export enum VisitChargeStatus {
+  Billed = 'BILLED',
+  Pending = 'PENDING',
+  Waived = 'WAIVED'
+}
+
+export enum VisitChargeType {
+  Fixed = 'FIXED',
+  Variable = 'VARIABLE'
+}
 
 export type VisitPaginationInput = {
   limit: Scalars['Int']['input'];
@@ -1097,6 +1154,14 @@ export type CatalogsByChargeDomainQueryVariables = Exact<{
 
 export type CatalogsByChargeDomainQuery = { __typename?: 'Query', catalogsByChargeDomain: Array<{ __typename?: 'ChargeDomainCatalogMapping', id: string, chargeDomain: ChargeDomain, chargeCatalogId: string, organizationId: string, chargeCatalog: { __typename?: 'ChargeCatalog', id: string, name: string, description?: string | null, unitPrice: number } }> };
 
+export type VisitChargeExistsByDomainQueryVariables = Exact<{
+  visitId: Scalars['String']['input'];
+  chargeDomain: ChargeDomain;
+}>;
+
+
+export type VisitChargeExistsByDomainQuery = { __typename?: 'Query', visitChargeExistsByDomain: boolean };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -1139,3 +1204,4 @@ export const GetAuditDistinctValuesDocument = {"kind":"Document","definitions":[
 export const GetAuditLogByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAuditLogById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getAuditLogById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"actorId"}},{"kind":"Field","name":{"kind":"Name","value":"actorType"}},{"kind":"Field","name":{"kind":"Name","value":"actorDescription"}},{"kind":"Field","name":{"kind":"Name","value":"action"}},{"kind":"Field","name":{"kind":"Name","value":"entity"}},{"kind":"Field","name":{"kind":"Name","value":"appName"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<GetAuditLogByIdQuery, GetAuditLogByIdQueryVariables>;
 export const GetAuditLogsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAuditLogs"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AuditPaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"auditLogs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"actorId"}},{"kind":"Field","name":{"kind":"Name","value":"actorType"}},{"kind":"Field","name":{"kind":"Name","value":"action"}},{"kind":"Field","name":{"kind":"Name","value":"entity"}},{"kind":"Field","name":{"kind":"Name","value":"appName"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pageCount"}}]}}]}}]} as unknown as DocumentNode<GetAuditLogsQuery, GetAuditLogsQueryVariables>;
 export const CatalogsByChargeDomainDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CatalogsByChargeDomain"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"chargeDomain"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ChargeDomain"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"catalogsByChargeDomain"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"chargeDomain"},"value":{"kind":"Variable","name":{"kind":"Name","value":"chargeDomain"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"chargeDomain"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalog"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}}]}}]}}]}}]} as unknown as DocumentNode<CatalogsByChargeDomainQuery, CatalogsByChargeDomainQueryVariables>;
+export const VisitChargeExistsByDomainDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"VisitChargeExistsByDomain"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"chargeDomain"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ChargeDomain"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitChargeExistsByDomain"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}},{"kind":"Argument","name":{"kind":"Name","value":"chargeDomain"},"value":{"kind":"Variable","name":{"kind":"Name","value":"chargeDomain"}}}]}]}}]} as unknown as DocumentNode<VisitChargeExistsByDomainQuery, VisitChargeExistsByDomainQueryVariables>;

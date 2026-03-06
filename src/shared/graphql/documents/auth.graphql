@@ -608,6 +608,13 @@ query CatalogsByChargeDomain($chargeDomain: ChargeDomain!) {
   }
 }
 
+query VisitChargeExistsByDomain($visitId: String!, $chargeDomain: ChargeDomain!) {
+  visitChargeExistsByDomain(
+    visitId: $visitId
+    chargeDomain: $chargeDomain
+  )
+}
+
 
 
 
