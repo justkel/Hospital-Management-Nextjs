@@ -99,12 +99,48 @@ export default function DomainSyncPanel({
 
     Object.entries(grouped).forEach(([domain, mappings]) => {
         mappings.forEach(m => {
-        map[m.chargeCatalogId] = domain;
+          map[m.chargeCatalogId] = domain;
         });
     });
 
     return map;
   }, [grouped]);
+
+  const catalogOptions = useMemo(() => {
+    return catalogs.map(c => {
+      const mappedDomain = catalogDomainMap[c.id];
+
+      const alreadyMappedToSelectedDomain =
+        mappedDomain === selectedDomain;
+
+      const mappedToAnotherDomain =
+        Boolean(mappedDomain) && mappedDomain !== selectedDomain;
+
+      const inactive = !c.isActive;
+
+      const disabled = inactive || mappedToAnotherDomain;
+
+      const shouldBeRed =
+        inactive || alreadyMappedToSelectedDomain;
+
+      return {
+        value: c.id,
+        disabled,
+        label: (
+          <span
+            style={{
+              color: shouldBeRed ? '#dc2626' : undefined,
+              fontWeight: shouldBeRed ? 500 : undefined,
+            }}
+          >
+            {c.name} • {c.code}
+            {inactive && ' (inactive)'}
+            {alreadyMappedToSelectedDomain && ' (synced)'}
+          </span>
+        ),
+      };
+    });
+  }, [catalogs, catalogDomainMap, selectedDomain]);
 
   return (
     <>
@@ -148,18 +184,7 @@ export default function DomainSyncPanel({
               onChange={setSelectedCatalogIds}
               placeholder="Select charge catalogs"
               className="w-full"
-              options={catalogs.map(c => {
-                const mappedDomain = catalogDomainMap[c.id];
-
-                const disabled =
-                   Boolean(mappedDomain) && mappedDomain !== selectedDomain;
-
-                return {
-                    label: `${c.name} • ${c.code}`,
-                    value: c.id,
-                    disabled,
-                };
-              })}
+              options={catalogOptions}
             />
           </div>
 
