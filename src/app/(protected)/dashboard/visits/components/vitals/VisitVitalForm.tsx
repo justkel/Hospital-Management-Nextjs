@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChargeCatalogOption, VitalFormValues } from './VisitVitalsSection';
 import { ChargeDomain } from '@/shared/graphql/generated/graphql';
+import { useVisitChargeExists } from '@/hooks/billing/useVisitChargeExists';
 
 interface Props {
   form: VitalFormValues;
@@ -28,38 +29,26 @@ export default function VisitVitalForm({
   visitId,
 }: Props) {
   const [error, setError] = useState<string | null>(null);
-  const [chargeExists, setChargeExists] = useState(false);
-  const [loadingChargeCheck, setLoadingChargeCheck] = useState(true);
+
+  const {
+    chargeExists,
+    loading: loadingChargeCheck,
+    markChargeCreated,
+  } = useVisitChargeExists({
+    visitId,
+    chargeDomain: ChargeDomain.Vitals,
+    enabled: !!visitId && !isEditing,
+  });
 
   useEffect(() => {
-    const checkCharge = async () => {
-      try {
-        const res = await fetch(
-          `/api/visit-charge/charge-exists?visitId=${visitId}&chargeDomain=${ChargeDomain.Vitals}`
-        );
-
-        const json = await res.json();
-
-        if (json.exists) {
-          setChargeExists(true);
-
-          setForm(prev => ({
-            ...prev,
-            chargeEnabled: false,
-            chargeCatalogId: '',
-          }));
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingChargeCheck(false);
-      }
-    };
-
-    if (visitId && !isEditing) {
-      checkCharge();
+    if (chargeExists) {
+      setForm(prev => ({
+        ...prev,
+        chargeEnabled: false,
+        chargeCatalogId: '',
+      }));
     }
-  }, [visitId, isEditing, setForm]);
+  }, [chargeExists, setForm]);
 
   const hasVitalValue = useMemo(() => {
     return Object.entries(form).some(([key, value]) => {
@@ -96,7 +85,7 @@ export default function VisitVitalForm({
     await onCreate();
 
     if (form.chargeEnabled && form.chargeCatalogId) {
-      setChargeExists(true);
+      markChargeCreated();
     }
 
     setForm(prev => ({
