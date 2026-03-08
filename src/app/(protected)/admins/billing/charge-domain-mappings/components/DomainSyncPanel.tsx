@@ -109,6 +109,7 @@ export default function DomainSyncPanel({
   const catalogOptions = useMemo(() => {
     return catalogs.map(c => {
       const mappedDomain = catalogDomainMap[c.id];
+      const inactive = !c.isActive;
 
       const alreadyMappedToSelectedDomain =
         mappedDomain === selectedDomain;
@@ -116,12 +117,11 @@ export default function DomainSyncPanel({
       const mappedToAnotherDomain =
         Boolean(mappedDomain) && mappedDomain !== selectedDomain;
 
-      const inactive = !c.isActive;
+      const disabled =
+        mappedToAnotherDomain ||
+        (inactive && !alreadyMappedToSelectedDomain);
 
-      const disabled = inactive || mappedToAnotherDomain;
-
-      const shouldBeRed =
-        inactive || alreadyMappedToSelectedDomain;
+      const isRed = inactive;
 
       return {
         value: c.id,
@@ -129,8 +129,8 @@ export default function DomainSyncPanel({
         label: (
           <span
             style={{
-              color: shouldBeRed ? '#dc2626' : undefined,
-              fontWeight: shouldBeRed ? 500 : undefined,
+              color: isRed ? '#dc2626' : undefined,
+              fontWeight: isRed ? 500 : undefined,
             }}
           >
             {c.name} • {c.code}
@@ -157,6 +157,7 @@ export default function DomainSyncPanel({
 
             <Select
               size="large"
+              showSearch={{ optionFilterProp: 'label' }}
               placeholder="Choose billing domain"
               className="w-full"
               onChange={value => {
@@ -185,6 +186,24 @@ export default function DomainSyncPanel({
               placeholder="Select charge catalogs"
               className="w-full"
               options={catalogOptions}
+
+              tagRender={props => {
+                const { label, closable, onClose } = props;
+
+                return (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-sm mr-2">
+                    {label}
+                    {closable && (
+                      <span
+                        onClick={onClose}
+                        className="ml-2 cursor-pointer text-gray-500 hover:text-red-600"
+                      >
+                        ×
+                      </span>
+                    )}
+                  </span>
+                );
+              }}
             />
           </div>
 
