@@ -615,6 +615,42 @@ query VisitChargeExistsByDomain($visitId: String!, $chargeDomain: ChargeDomain!)
   )
 }
 
+query VisitComplaints($visitId: ID!) {
+  visitComplaints(visitId: $visitId) {
+    id
+    visitId
+    complaint
+    code
+    recordedByStaffId
+    createdAt
+    updatedAt
+  }
+}
+
+query VisitComplaintById($id: ID!) {
+  visitComplaintById(id: $id) {
+    id
+    visitId
+    complaint
+    code
+    recordedByStaffId
+    createdAt
+    updatedAt
+  }
+}
+
+mutation CreateVisitComplaint($data: CreateVisitComplaintInput!) {
+  createVisitComplaint(data: $data) {
+    id
+    visitId
+    complaint
+    code
+    recordedByStaffId
+    createdAt
+    updatedAt
+  }
+}
+
 
 
 
