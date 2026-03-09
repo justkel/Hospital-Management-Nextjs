@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AuditDateFilter,
   GetAuditLogsQuery,
@@ -9,6 +9,7 @@ import { clientFetch } from '@/lib/clientFetch';
 import AuditFilters from './components/AuditFilters';
 import AuditTable from './components/AuditTable';
 import AuditPagination from './components/AuditPagination';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export type AuditItem =
   GetAuditLogsQuery['auditLogs']['items'][number];
@@ -29,46 +30,65 @@ export default function AuditManagementClient({
 }: {
   paginated: AuditPaginated;
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [list, setList] = useState<AuditItem[]>(paginated.items);
-  const [page, setPage] = useState<number>(paginated.page);
+  const [page, setPage] = useState<number>(
+    Number(searchParams.get('page')) || paginated.page
+  );
   const [total, setTotal] = useState<number>(paginated.total);
-  const [limit, setLimit] = useState<number>(20);
-  const [filters, setFilters] = useState<Filters>({});
+  const [limit, setLimit] = useState<number>(
+    Number(searchParams.get('limit')) || 20
+  );
 
-  async function fetchAudits(
-    nextPage: number,
-    nextLimit: number,
-    nextFilters: Filters
-  ) {
-    const params = new URLSearchParams({
-      page: String(nextPage),
-      limit: String(nextLimit),
-      ...(nextFilters.action && { action: nextFilters.action }),
-      ...(nextFilters.actorId && { actorId: nextFilters.actorId }),
-      ...(nextFilters.entity && { entity: nextFilters.entity }),
-      ...(nextFilters.dateFilter && { dateFilter: nextFilters.dateFilter }),
-      ...(nextFilters.startDate && { startDate: nextFilters.startDate }),
-      ...(nextFilters.endDate && { endDate: nextFilters.endDate }),
-    });
+  const [filters, setFilters] = useState<Filters>({
+    action: searchParams.get('action') || undefined,
+    actorId: searchParams.get('actorId') || undefined,
+    entity: searchParams.get('entity') || undefined,
+    dateFilter:
+      (searchParams.get('dateFilter') as AuditDateFilter) || undefined,
+    startDate: searchParams.get('startDate') || undefined,
+    endDate: searchParams.get('endDate') || undefined,
+  });
 
-    const res = await clientFetch(`/api/audit/list?${params.toString()}`);
-    if (!res.ok) return;
+  useEffect(() => {
+    async function load() {
+      const params = new URLSearchParams();
 
-    const json: { audits: AuditPaginated } = await res.json();
+      params.set('page', String(page));
+      params.set('limit', String(limit));
 
-    setList(json.audits.items);
-    setPage(json.audits.page);
-    setTotal(json.audits.total);
-  }
+      if (filters.action) params.set('action', filters.action);
+      if (filters.actorId) params.set('actorId', filters.actorId);
+      if (filters.entity) params.set('entity', filters.entity);
+      if (filters.dateFilter) params.set('dateFilter', filters.dateFilter);
+      if (filters.startDate) params.set('startDate', filters.startDate);
+      if (filters.endDate) params.set('endDate', filters.endDate);
+
+      router.replace(`?${params.toString()}`);
+
+      const res = await clientFetch(`/api/audit/list?${params}`);
+      if (!res.ok) return;
+
+      const json: { audits: AuditPaginated } = await res.json();
+
+      setList(json.audits.items);
+      setPage(json.audits.page);
+      setTotal(json.audits.total);
+    }
+
+    load();
+  }, [page, limit, filters, router]);
 
   function handleFilterChange(nextFilters: Filters) {
     setFilters(nextFilters);
-    fetchAudits(1, limit, nextFilters);
+    setPage(1);
   }
 
   function handlePaginationChange(nextPage: number, nextLimit: number) {
+    setPage(nextPage);
     setLimit(nextLimit);
-    fetchAudits(nextPage, nextLimit, filters);
   }
 
   return (
