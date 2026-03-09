@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
-import { ChargeDomain } from '@/shared/graphql/generated/graphql';
+import { useEffect, useState } from 'react';
+import {
+  ChargeDomain,
+  VisitChargeType,
+} from '@/shared/graphql/generated/graphql';
 import { useBilling } from '@/hooks/billing/useBilling';
 import { useVisitChargeExists } from '@/hooks/billing/useVisitChargeExists';
 
@@ -22,11 +25,12 @@ export default function VisitComplaintBilling({
 }: Props) {
   const { catalogs } = useBilling(ChargeDomain.Consultation);
 
-  const { chargeExists, loading } = useVisitChargeExists({
+  const { chargeExists, loading, refetch } = useVisitChargeExists({
     visitId,
     chargeDomain: ChargeDomain.Consultation,
     enabled: !!visitId,
   });
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     if (chargeExists) {
@@ -34,6 +38,45 @@ export default function VisitComplaintBilling({
       setChargeCatalogId('');
     }
   }, [chargeExists, setChargeEnabled, setChargeCatalogId]);
+
+  const createVisitCharge = async () => {
+    if (!chargeCatalogId) {
+      alert('Please select a consultation charge type');
+      return;
+    }
+
+    try {
+      setCreating(true);
+
+      const res = await fetch('/api/visit-charge/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          visitId,
+          chargeCatalogId,
+          chargeType: VisitChargeType.Fixed,
+          chargeDomain: ChargeDomain.Consultation,
+          quantity: 1,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json.error || 'Failed to create consultation charge');
+      }
+
+      await refetch();
+
+    } catch (err) {
+      console.error(err);
+      alert('Failed to apply consultation charge');
+    } finally {
+      setCreating(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -44,16 +87,16 @@ export default function VisitComplaintBilling({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full max-w-lg mx-auto px-2 sm:px-4">
       {chargeExists && (
-        <div className="p-4 rounded-xl bg-yellow-50 text-yellow-700 text-sm">
+        <div className="p-4 rounded-xl bg-yellow-50 text-yellow-700 text-sm text-center sm:text-left">
           Consultation billing has already been applied for this visit.
         </div>
       )}
 
       {!chargeExists && (
         <>
-          <label className="flex items-center gap-3 cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer text-sm sm:text-base">
             <input
               type="checkbox"
               checked={chargeEnabled}
@@ -61,40 +104,64 @@ export default function VisitComplaintBilling({
                 setChargeEnabled(e.target.checked);
                 setChargeCatalogId('');
               }}
-              className="w-4 h-4 accent-indigo-600"
+              className="w-5 h-5 accent-indigo-600"
             />
-
-            <span className="text-sm text-gray-700">
+            <span className="text-gray-700">
               Apply consultation billing for this visit
             </span>
           </label>
 
           {chargeEnabled && (
-            <select
-              value={chargeCatalogId}
-              onChange={e => setChargeCatalogId(e.target.value)}
-              className="
-              w-full md:w-80
-              px-4 py-3
-              rounded-xl
-              border border-gray-200
-              bg-white
-              shadow-sm
-              text-sm
-              focus:ring-2 focus:ring-indigo-500
-              focus:border-indigo-500
-              outline-none
-              transition
-            "
-            >
-              <option value="">Select consultation charge type</option>
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full">
+              <select
+                value={chargeCatalogId}
+                disabled={creating}
+                onChange={e => setChargeCatalogId(e.target.value)}
+                className="
+                  w-full sm:w-80
+                  px-4 py-3
+                  rounded-xl
+                  border border-gray-300
+                  bg-white
+                  shadow-sm
+                  text-sm sm:text-base
+                  focus:ring-2 focus:ring-indigo-500
+                  focus:border-indigo-500
+                  outline-none
+                  transition
+                "
+              >
+                <option value="">Select consultation charge type</option>
+                {catalogs?.map(cat => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
 
-              {catalogs?.map(cat => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+              <button
+                onClick={createVisitCharge}
+                disabled={!chargeCatalogId || creating}
+                className="
+                  w-full sm:w-auto
+                  px-5 py-3
+                  rounded-xl
+                  bg-indigo-600
+                  text-white!
+                  text-sm sm:text-base
+                  font-medium
+                  shadow-md
+                  hover:bg-indigo-700
+                  disabled:opacity-50
+                  disabled:cursor-not-allowed
+                  transition
+                  cursor-pointer
+                  text-center
+                "
+              >
+                {creating ? 'Applying...' : 'Apply Charge'}
+              </button>
+            </div>
           )}
         </>
       )}
