@@ -651,6 +651,15 @@ mutation CreateVisitComplaint($data: CreateVisitComplaintInput!) {
   }
 }
 
+mutation CreateVisitCharge($data: CreateVisitChargeInput!) {
+  createVisitCharge(data: $data) {
+    id
+    visitId
+    quantity
+    unitPrice
+  }
+}
+
 
 
 
