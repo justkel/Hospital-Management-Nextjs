@@ -7,6 +7,7 @@ import {
 } from '@/shared/graphql/generated/graphql';
 import { useBilling } from '@/hooks/billing/useBilling';
 import { useVisitChargeExists } from '@/hooks/billing/useVisitChargeExists';
+import { clientFetch } from '@/lib/clientFetch';
 
 interface Props {
   visitId: string;
@@ -48,7 +49,7 @@ export default function VisitComplaintBilling({
     try {
       setCreating(true);
 
-      const res = await fetch('/api/visit-charge/create', {
+      const res = await clientFetch('/api/visit-charge/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
