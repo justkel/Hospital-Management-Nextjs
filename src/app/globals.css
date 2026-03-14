@@ -25,3 +25,11 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.ant-message {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.ant-message-notice-content {
+  font-family: 'Montserrat', sans-serif !important;
+}
