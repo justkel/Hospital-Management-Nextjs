@@ -273,6 +273,13 @@ export type CreateVisitComplaintInput = {
   visitId: Scalars['ID']['input'];
 };
 
+export type CreateVisitDiagnosisInput = {
+  diagnosis: Scalars['String']['input'];
+  diagnosisCode?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  visitId: Scalars['ID']['input'];
+};
+
 export type CreateVisitInput = {
   patientId: Scalars['ID']['input'];
   visitType: VisitType;
@@ -328,6 +335,7 @@ export type Mutation = {
   createVisit: Visit;
   createVisitCharge: VisitCharge;
   createVisitComplaint: VisitComplaint;
+  createVisitDiagnosis: VisitDiagnosis;
   createVisitVital: VisitVital;
   refreshToken: AuthResponse;
   staffLogin: LoginAuthResponse;
@@ -342,6 +350,7 @@ export type Mutation = {
   updateStaffRoles: Staff;
   updateStaffStatus: Staff;
   updateVisitComplaint: VisitComplaint;
+  updateVisitDiagnosis: VisitDiagnosis;
   updateVisitVital: VisitVital;
 };
 
@@ -393,6 +402,11 @@ export type MutationCreateVisitChargeArgs = {
 
 export type MutationCreateVisitComplaintArgs = {
   data: CreateVisitComplaintInput;
+};
+
+
+export type MutationCreateVisitDiagnosisArgs = {
+  data: CreateVisitDiagnosisInput;
 };
 
 
@@ -459,6 +473,11 @@ export type MutationUpdateStaffStatusArgs = {
 
 export type MutationUpdateVisitComplaintArgs = {
   data: UpdateVisitComplaintInput;
+};
+
+
+export type MutationUpdateVisitDiagnosisArgs = {
+  data: UpdateVisitDiagnosisInput;
 };
 
 
@@ -573,6 +592,8 @@ export type Query = {
   visitChargeExistsByDomain: Scalars['Boolean']['output'];
   visitComplaintById: VisitComplaint;
   visitComplaints: Array<VisitComplaint>;
+  visitDiagnoses: Array<VisitDiagnosis>;
+  visitDiagnosisById: VisitDiagnosis;
   visitVitals: Array<VisitVital>;
   visits: VisitPaginationResult;
   whoAmI: WhoAmIDto;
@@ -673,6 +694,16 @@ export type QueryVisitComplaintByIdArgs = {
 
 export type QueryVisitComplaintsArgs = {
   visitId: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitDiagnosesArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitDiagnosisByIdArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -788,6 +819,13 @@ export type UpdateVisitComplaintInput = {
   complaintId: Scalars['ID']['input'];
 };
 
+export type UpdateVisitDiagnosisInput = {
+  diagnosis: Scalars['String']['input'];
+  diagnosisCode?: InputMaybe<Scalars['String']['input']>;
+  diagnosisId: Scalars['ID']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdateVisitVitalInput = {
   bloodPressure?: InputMaybe<Scalars['String']['input']>;
   heartRate?: InputMaybe<Scalars['Int']['input']>;
@@ -862,6 +900,18 @@ export type VisitComplaint = {
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
   recordedByStaffId: Scalars['ID']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  visitId: Scalars['ID']['output'];
+};
+
+export type VisitDiagnosis = {
+  __typename?: 'VisitDiagnosis';
+  createdAt: Scalars['DateTime']['output'];
+  diagnosedByStaffId: Scalars['ID']['output'];
+  diagnosis: Scalars['String']['output'];
+  diagnosisCode?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   visitId: Scalars['ID']['output'];
 };
