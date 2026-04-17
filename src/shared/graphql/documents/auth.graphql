@@ -671,7 +671,9 @@ mutation UpdateVisitComplaint($data: UpdateVisitComplaintInput!) {
   }
 }
 
-
+mutation Logout {
+  logout
+}
 
 
 
