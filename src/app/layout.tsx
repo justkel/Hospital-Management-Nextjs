@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google";
 import AntdRegistry from "./AntdRegistry";
 import "antd/dist/reset.css";
 import "./globals.css";
+import AuthOverlay from "@/components/AuthOverlay";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -25,6 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${montserrat.variable} antialiased`}>
         <AntdRegistry>
+          <AuthOverlay />
           {children}
         </AntdRegistry>
       </body>
