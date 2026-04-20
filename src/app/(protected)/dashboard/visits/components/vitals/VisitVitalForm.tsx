@@ -40,6 +40,8 @@ export default function VisitVitalForm({
     enabled: !!visitId && !isEditing,
   });
 
+  const noCatalogs = !catalogs || catalogs.length === 0;
+
   useEffect(() => {
     if (chargeExists) {
       setForm(prev => ({
@@ -67,6 +69,13 @@ export default function VisitVitalForm({
   const handleSubmit = async () => {
     if (!hasVitalValue) {
       setError('Please record at least one vital measurement.');
+      return;
+    }
+
+    if (form.chargeEnabled && noCatalogs) {
+      setError(
+        'No billing catalogs available for vitals. Please contact an administrator.'
+      );
       return;
     }
 
@@ -131,25 +140,47 @@ export default function VisitVitalForm({
           </label>
 
           {form.chargeEnabled && (
-            <select
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 
-              bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 
-              focus:border-indigo-500 outline-none transition text-sm"
-              value={form.chargeCatalogId}
-              onChange={e =>
-                setForm(prev => ({
-                  ...prev,
-                  chargeCatalogId: e.target.value,
-                }))
-              }
-            >
-              <option value="">Select vital charge type</option>
-              {catalogs?.map(cat => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+            <>
+              <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
+                Charges shown here come from billing catalogs mapped to the{' '}
+                <span className="font-medium text-gray-700">
+                  Vitals
+                </span>{' '}
+                domain. If no options appear, an administrator may need to
+                configure or map vital-related catalogs in the billing settings.
+              </p>
+
+              {noCatalogs && (
+                <div className="p-3 rounded-lg bg-blue-50 text-blue-700 text-xs sm:text-sm">
+                  No vital charge catalogs are currently available.
+                  Please contact an administrator to configure billing catalogs
+                  for the Vitals domain.
+                </div>
+              )}
+
+              <select
+                className="
+                  w-full px-4 py-3 rounded-xl border border-gray-200
+                  bg-white shadow-sm focus:ring-2 focus:ring-indigo-500
+                  focus:border-indigo-500 outline-none transition text-sm
+                "
+                value={form.chargeCatalogId}
+                disabled={noCatalogs}
+                onChange={e =>
+                  setForm(prev => ({
+                    ...prev,
+                    chargeCatalogId: e.target.value,
+                  }))
+                }
+              >
+                <option value="">Select vital charge type</option>
+                {catalogs?.map(cat => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </>
           )}
         </div>
       )}
@@ -204,7 +235,10 @@ export default function VisitVitalForm({
 
       <div className="flex flex-wrap gap-4 mt-6">
         <button
-          disabled={submitting}
+          disabled={
+            submitting ||
+            (form.chargeEnabled && noCatalogs)
+          }
           onClick={handleSubmit}
           className="px-8 py-3 rounded-xl bg-indigo-600 text-white! font-medium
           hover:bg-indigo-700 transition shadow-md
