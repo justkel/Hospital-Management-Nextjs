@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { print } from 'graphql';
 import {
   LogoutDocument,
@@ -15,7 +15,10 @@ type GraphQLError = {
 
 export async function POST() {
   const cookieStore = await cookies();
+  const headerStore = headers();
+
   const accessToken = cookieStore.get('access_token')?.value;
+  const rawCookie = (await headerStore).get('cookie');
 
   if (!accessToken) {
     cookieStore.delete('access_token');
@@ -30,6 +33,7 @@ export async function POST() {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
+        ...(rawCookie ? { cookie: rawCookie } : {}),
       },
       body: JSON.stringify({
         query: print(LogoutDocument),
