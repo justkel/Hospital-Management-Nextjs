@@ -186,16 +186,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         trigger={null}
         width={260}
         style={{
-          position: 'absolute',
+          position: 'fixed',
           top: 0,
           left: 0,
-          bottom: 0,
+          height: '100vh',
           zIndex: 100,
-          overflow: 'auto',
           background: '#fff',
           borderRight: '1px solid #f0f0f0',
           transform: menuOpen ? 'translateX(0)' : 'translateX(-100%)',
           transition: 'transform 0.3s ease',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         <div
@@ -203,48 +204,61 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             height: 64,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'flex-start',
             padding: '0 24px',
             gap: 12,
             fontWeight: 700,
             fontSize: 18,
+            borderBottom: '1px solid #f0f0f0',
+            flexShrink: 0,
           }}
         >
           <Avatar shape="square" size={40} style={{ background: '#1677ff' }}>
             H
           </Avatar>
-          <span>Hospital Staff</span>
+          {menuOpen && <span>Hospital Staff</span>}
         </div>
-
-        <Menu
-          mode="inline"
-          selectedKeys={[selectedKey]}
-          openKeys={openKeys}
-          onOpenChange={(keys) => setOpenKeys(keys)}
-          onClick={({ key, keyPath }) => {
-            const isLeaf = keyPath.length > 1 || !menuItems.some(item => item.key === key && 'children' in item);
-
-            if (isLeaf) {
-              setMenuOpen(false);
-            }
-          }}
-          style={{ borderRight: 0 }}
-          items={menuItems}
-        />
 
         <div
           style={{
-            position: 'absolute',
-            bottom: 24,
-            width: '100%',
-            textAlign: 'center',
+            flex: 1,
+            overflowY: 'auto',
+            paddingBottom: 16,
+          }}
+          className="scrollbar-hide"
+        >
+          <Menu
+            mode="inline"
+            selectedKeys={[selectedKey]}
+            openKeys={openKeys}
+            onOpenChange={(keys) => setOpenKeys(keys)}
+            onClick={({ key, keyPath }) => {
+              const isLeaf =
+                keyPath.length > 1 ||
+                !menuItems.some(item => item.key === key && 'children' in item);
+
+              if (isLeaf) {
+                setMenuOpen(false);
+              }
+            }}
+            style={{ borderRight: 0 }}
+            items={menuItems}
+          />
+        </div>
+
+        <div
+          style={{
+            padding: '12px 16px',
+            marginTop: '220px',
+            borderTop: '1px solid #f0f0f0',
+            flexShrink: 0,
           }}
         >
           <button
-            className="flex items-center justify-center text-red-600 w-full"
+            className="flex items-center justify-center gap-2 text-red-600 w-full py-2 rounded-lg hover:bg-red-50 transition cursor-pointer"
             onClick={() => setLogoutModal(true)}
           >
-            Logout
+            <LogoutOutlined />
+            {menuOpen && <span>Logout</span>}
           </button>
         </div>
       </Sider>
