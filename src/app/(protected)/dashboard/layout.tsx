@@ -30,19 +30,16 @@ function Hamburger({ isOpen, toggle }: { isOpen: boolean; toggle: () => void }) 
       aria-label="Toggle Menu"
     >
       <span
-        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
-          isOpen ? 'rotate-45 translate-y-2' : 'w-6'
-        }`}
+        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-2' : 'w-6'
+          }`}
       />
       <span
-        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
-          isOpen ? 'opacity-0' : 'w-5'
-        }`}
+        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${isOpen ? 'opacity-0' : 'w-5'
+          }`}
       />
       <span
-        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
-          isOpen ? '-rotate-45 -translate-y-2 w-6' : 'w-4'
-        }`}
+        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${isOpen ? '-rotate-45 -translate-y-2 w-6' : 'w-4'
+          }`}
       />
     </button>
   );
@@ -120,12 +117,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     },
     ...(roles.includes(Roles.ADMIN)
       ? [
-          {
-            key: 'staff',
-            icon: <TeamOutlined />,
-            label: <Link href="/admins/staff">Staff</Link>,
-          },
-        ]
+        {
+          key: 'staff',
+          icon: <TeamOutlined />,
+          label: <Link href="/admins/staff">Staff</Link>,
+        },
+      ]
       : []),
     {
       key: 'patients',
@@ -144,26 +141,26 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     },
     ...(roles.includes(Roles.ADMIN)
       ? [
-          {
-            key: 'billing',
-            icon: <CreditCardOutlined />,
-            label: 'Billing',
-            children: [
-              {
-                key: 'billing-global',
-                label: <Link href="/admins/billing/global">Global</Link>,
-              },
-              {
-                key: 'billing-organization',
-                label: (
-                  <Link href="/admins/billing/organization">
-                    Organization
-                  </Link>
-                ),
-              },
-            ],
-          },
-        ]
+        {
+          key: 'billing',
+          icon: <CreditCardOutlined />,
+          label: 'Billing',
+          children: [
+            {
+              key: 'billing-global',
+              label: <Link href="/admins/billing/global">Global</Link>,
+            },
+            {
+              key: 'billing-organization',
+              label: (
+                <Link href="/admins/billing/organization">
+                  Organization
+                </Link>
+              ),
+            },
+          ],
+        },
+      ]
       : []),
     {
       key: 'settings',
@@ -172,12 +169,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     },
     ...(roles.includes(Roles.ADMIN)
       ? [
-          {
-            key: 'audit',
-            icon: <FileSearchOutlined />,
-            label: <Link href="/dashboard/audit">Audits</Link>,
-          },
-        ]
+        {
+          key: 'audit',
+          icon: <FileSearchOutlined />,
+          label: <Link href="/dashboard/audit">Audits</Link>,
+        },
+      ]
       : []),
   ];
 
@@ -224,6 +221,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           selectedKeys={[selectedKey]}
           openKeys={openKeys}
           onOpenChange={(keys) => setOpenKeys(keys)}
+          onClick={({ key, keyPath }) => {
+            const isLeaf = keyPath.length > 1 || !menuItems.some(item => item.key === key && 'children' in item);
+
+            if (isLeaf) {
+              setMenuOpen(false);
+            }
+          }}
           style={{ borderRight: 0 }}
           items={menuItems}
         />
