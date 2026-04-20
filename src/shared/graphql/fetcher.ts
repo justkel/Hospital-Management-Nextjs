@@ -1,6 +1,7 @@
 import { print } from 'graphql';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { cookies } from 'next/headers';
+import { AUTH_ERROR_CODES } from '@/lib/handle-graphql-error';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
@@ -38,7 +39,9 @@ export async function graphqlFetch<TData, TVariables>(
   if (!json.errors) return json.data!;
 
   const unauthenticated = json.errors.some(
-    (e) => e.extensions?.code === 'UNAUTHENTICATED'
+    (e) => AUTH_ERROR_CODES.includes(
+      e.extensions?.code as (typeof AUTH_ERROR_CODES)[number]
+    )
   );
 
   if (unauthenticated) {
