@@ -48,6 +48,13 @@ export async function GET(req: Request) {
   const errorResponse = handleGraphQLError(json.errors);
   if (errorResponse) return errorResponse;
 
+  if (!json.data?.getAuditLogById) {
+    return NextResponse.json(
+      { error: 'Failed to fetch audit log' },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json({
     audit: json.data?.getAuditLogById ?? null,
   });

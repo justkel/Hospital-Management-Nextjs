@@ -45,6 +45,13 @@ export async function POST(req: Request) {
   const errorResponse = handleGraphQLError(json.errors);
   if (errorResponse) return errorResponse;
 
+  if (!json.data?.createVisitCharge) {
+    return NextResponse.json(
+      { error: 'Failed to create visit charge' },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json({
     charge: json.data?.createVisitCharge ?? null,
   });

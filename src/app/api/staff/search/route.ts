@@ -48,6 +48,13 @@ export async function GET(req: Request) {
   const errorResponse = handleGraphQLError(json.errors);
   if (errorResponse) return errorResponse;
 
+  if (!json.data?.searchStaff) {
+    return NextResponse.json(
+      { error: 'Failed to search staff' },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json({
     staff: json.data?.searchStaff ?? [],
   });

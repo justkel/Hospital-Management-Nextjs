@@ -46,6 +46,13 @@ export async function GET(req: Request) {
     const errorResponse = handleGraphQLError(json.errors);
     if (errorResponse) return errorResponse;
 
+    if (!json.data?.staffs) {
+      return NextResponse.json(
+        { error: 'Failed to fetch staffs' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ staffs: json.data?.staffs });
   } catch (err) {
     console.error(err);

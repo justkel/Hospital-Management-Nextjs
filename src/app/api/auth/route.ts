@@ -35,6 +35,13 @@ export async function GET() {
   const errorResponse = handleGraphQLError(json.errors);
   if (errorResponse) return errorResponse;
 
+  if (!json.data?.whoAmI) {
+    return NextResponse.json(
+      { error: 'Failed to retrieve user information' },
+      { status: 500 }
+    );
+  }
+
   const roles = json.data?.whoAmI ?? [];
 
   return NextResponse.json({ roles });

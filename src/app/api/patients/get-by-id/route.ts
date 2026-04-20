@@ -45,5 +45,12 @@ export async function GET(req: Request) {
   const errorResponse = handleGraphQLError(json.errors);
   if (errorResponse) return errorResponse;
 
+  if (!json.data?.patientById) {
+    return NextResponse.json(
+      { error: 'Failed to fetch patient' },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json({ patient: json.data?.patientById ?? null });
 }

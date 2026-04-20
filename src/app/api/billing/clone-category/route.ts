@@ -44,6 +44,13 @@ export async function POST(req: Request) {
     const errorResponse = handleGraphQLError(json.errors);
     if (errorResponse) return errorResponse;
 
+    if (!json.data?.cloneGlobalCategoryToOrganization) {
+      return NextResponse.json(
+        { error: 'Failed to clone category' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
       category: json.data?.cloneGlobalCategoryToOrganization,
     });

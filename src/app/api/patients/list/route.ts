@@ -60,6 +60,13 @@ export async function GET(req: Request) {
     const errorResponse = handleGraphQLError(json.errors);
     if (errorResponse) return errorResponse;
 
+    if (!json.data?.patients) {
+      return NextResponse.json(
+        { error: 'Failed to fetch patients' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ patients: json.data?.patients });
   } catch (err) {
     console.error(err);

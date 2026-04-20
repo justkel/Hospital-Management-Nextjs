@@ -42,6 +42,13 @@ export async function POST(req: Request) {
     const errorResponse = handleGraphQLError(json.errors);
     if (errorResponse) return errorResponse;
 
+    if (!json.data?.createPatient) {
+      return NextResponse.json(
+        { error: 'Failed to create patient' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
         patient: json?.data?.createPatient.patient,
         warning: json.data?.createPatient.warning,

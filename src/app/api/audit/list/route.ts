@@ -72,6 +72,13 @@ export async function GET(req: Request) {
     const errorResponse = handleGraphQLError(json.errors);
     if (errorResponse) return errorResponse;
 
+    if (!json.data?.auditLogs) {
+      return NextResponse.json(
+        { error: 'Failed to fetch audit logs' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ audits: json.data?.auditLogs });
   } catch (error) {
     console.error(error);

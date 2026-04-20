@@ -42,10 +42,17 @@ export async function GET(
   const json: {
     data?: GetVisitByIdQuery;
     errors?: GraphQLErrorShape[];
-      } = await res.json();
-    
-      const errorResponse = handleGraphQLError(json.errors);
-      if (errorResponse) return errorResponse;
+  } = await res.json();
+
+  const errorResponse = handleGraphQLError(json.errors);
+  if (errorResponse) return errorResponse;
+
+  if (!json.data?.visit) {
+    return NextResponse.json(
+      { error: 'Failed to fetch visit' },
+      { status: 500 }
+    );
+  }
 
   return NextResponse.json({
     visit: json.data?.visit ?? null,

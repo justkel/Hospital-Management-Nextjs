@@ -48,6 +48,13 @@ export async function GET(req: Request) {
   const errorResponse = handleGraphQLError(json.errors);
   if (errorResponse) return errorResponse;
 
+  if (!json.data?.searchPatient) {
+    return NextResponse.json(
+      { error: 'Failed to search patients' },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json({
     patients: json.data?.searchPatient ?? [],
   });

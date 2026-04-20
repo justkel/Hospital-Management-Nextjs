@@ -44,5 +44,12 @@ export async function POST(req: Request) {
   const errorResponse = handleGraphQLError(json.errors);
   if (errorResponse) return errorResponse;
 
+  if (!json.data?.updateVisitComplaint) {
+    return NextResponse.json(
+      { error: 'Failed to update visit complaint' },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json({ visitComplaint: json.data?.updateVisitComplaint });
 }

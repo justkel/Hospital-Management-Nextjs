@@ -47,6 +47,13 @@ export async function GET(
   const errorResponse = handleGraphQLError(json.errors);
   if (errorResponse) return errorResponse;
 
+  if (!json.data?.visitComplaintById) {
+    return NextResponse.json(
+      { error: 'Failed to fetch visit complaint' },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json({
     complaint: json.data?.visitComplaintById ?? null,
   });

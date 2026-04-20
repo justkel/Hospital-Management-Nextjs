@@ -58,6 +58,13 @@ export async function GET(req: Request) {
     const errorResponse = handleGraphQLError(json.errors);
     if (errorResponse) return errorResponse;
 
+    if (!json.data?.getAuditDistinctValues) {
+      return NextResponse.json(
+        { error: 'Failed to fetch distinct values' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
       values: json?.data?.getAuditDistinctValues,
     });

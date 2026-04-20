@@ -44,5 +44,12 @@ export async function POST(req: Request) {
   const errorResponse = handleGraphQLError(json.errors);
   if (errorResponse) return errorResponse;
 
+  if (!json.data?.updateStaffPassword) {
+    return NextResponse.json(
+      { error: 'Failed to update staff password' },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json({ success: true });
 }
