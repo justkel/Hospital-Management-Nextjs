@@ -197,7 +197,7 @@ export default function StaffManagementClient({
 
         <button
           onClick={() => setOpenCreate(true)}
-          className="px-6 py-2 rounded-2xl bg-linear-to-r from-indigo-600 to-purple-600 text-white font-medium hover:scale-[1.03] transition self-start"
+          className="px-6 py-2 rounded-2xl bg-green-700 text-white! font-medium hover:bg-slate-700 transition self-start"
         >
           + Add Staff
         </button>
@@ -223,7 +223,7 @@ export default function StaffManagementClient({
               key={r}
               onClick={() => setRoleFilter(r)}
               className={`px-4 py-1 rounded-full text-sm font-medium transition ${roleFilter === r
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-green-700 text-white!'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >

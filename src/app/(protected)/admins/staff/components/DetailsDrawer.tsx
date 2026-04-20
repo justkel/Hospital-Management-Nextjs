@@ -79,7 +79,6 @@ export default function DetailsDrawer({ staff, loading, onClose, onStatusUpdated
             </div>
 
             <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl">
-              <Meta label="Staff ID" value={staff.id} />
               <Meta label="User Code" value={staff.userCode} />
               <Meta label="Phone" value={staff.phoneNumber ?? '—'} />
             </div>
@@ -111,7 +110,7 @@ export default function DetailsDrawer({ staff, loading, onClose, onStatusUpdated
                     key={status}
                     disabled={updatingStatus}
                     onClick={() => handleStatusChange(status)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition !text-gray-500
                       ${currentStatus === status ? 'ring-2 ring-indigo-500 font-semibold' : ''}
                       ${STATUS_COLORS[status]}`}
                   >

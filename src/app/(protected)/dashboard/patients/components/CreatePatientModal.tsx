@@ -277,7 +277,7 @@ export default function CreatePatientModal({
                     <button
                         disabled={hasErrors || isLocked}
                         onClick={submit}
-                        className="px-6 py-2 rounded-xl bg-green-500 text-white disabled:opacity-40 cursor-pointer"
+                        className="px-6 py-2 rounded-xl bg-green-500 text-white! disabled:opacity-40 cursor-pointer"
                     >
                         {success ? 'Created ✓' : loading ? 'Creating…' : 'Create Patient'}
                     </button>
@@ -312,6 +312,9 @@ function Input({
             <label className="text-sm font-medium">{label}</label>
             <input
                 type={type}
+                value={undefined}  // uncontrolled is fine, but add defaultValue
+                defaultValue="" 
+                placeholder={type === 'date' ? 'DD/MM/YYYY' : ''}
                 disabled={disabled}
                 onChange={e => onChange(e.target.value)}
                 className="w-full rounded-xl border px-4 py-3 disabled:bg-gray-100 disabled:cursor-not-allowed"

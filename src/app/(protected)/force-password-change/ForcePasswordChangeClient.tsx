@@ -141,7 +141,7 @@ export default function ForcePasswordChangeClient() {
 
         <button
           disabled={loading}
-          className="w-full py-2 rounded-2xl bg-linear-to-r from-indigo-600 to-purple-600 text-white font-medium hover:scale-[1.02] transition disabled:opacity-60"
+          className="w-full py-2 rounded-2xl !bg-green-700 text-white! font-medium hover:scale-[1.02] transition disabled:opacity-60"
         >
           {loading ? 'Updating…' : 'Update password'}
         </button>

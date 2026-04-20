@@ -18,9 +18,9 @@ export default function StaffCard({ staff, onView, onEdit }: Props) {
       <div className="absolute top-3 right-3 flex gap-2">
         <button
           onClick={() => onView(staff.id)}
-          className="p-2 rounded-full bg-gray-100 hover:bg-indigo-600 hover:text-white transition"
+          className="p-2 rounded-full bg-gray-100 !hover:bg-amber-300 hover:text-white transition"
         >
-          <EyeIcon className="h-3 w-3 md:h-4 md:w-4" />
+          <EyeIcon className="h-3 w-3 md:h-4 md:w-4 text-amber-700 hover:text-blue-400" />
         </button>
         <button
           onClick={() => onEdit(staff)}
