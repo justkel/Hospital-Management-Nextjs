@@ -7,6 +7,7 @@ import {
   GetAuditDistinctValuesQueryVariables,
   AuditDistinctField,
 } from '@/shared/graphql/generated/graphql';
+import { GraphQLErrorShape, handleGraphQLError } from '@/lib/handle-graphql-error';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
@@ -23,9 +24,9 @@ export async function GET(req: Request) {
 
   const field =
     fieldParam &&
-    Object.values(AuditDistinctField).includes(
-      fieldParam as AuditDistinctField
-    )
+      Object.values(AuditDistinctField).includes(
+        fieldParam as AuditDistinctField
+      )
       ? (fieldParam as AuditDistinctField)
       : undefined;
 
@@ -51,26 +52,14 @@ export async function GET(req: Request) {
 
     const json: {
       data?: GetAuditDistinctValuesQuery;
-      errors?: { message?: string; extensions?: { code?: string } }[];
+      errors?: GraphQLErrorShape[];
     } = await res.json();
 
-    const unauthenticated = json.errors?.some(
-      e => e.extensions?.code === 'UNAUTHENTICATED'
-    );
-
-    if (unauthenticated) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    if (!json.data?.getAuditDistinctValues) {
-      return NextResponse.json(
-        { error: 'Failed to fetch distinct values' },
-        { status: 500 }
-      );
-    }
+    const errorResponse = handleGraphQLError(json.errors);
+    if (errorResponse) return errorResponse;
 
     return NextResponse.json({
-      values: json.data.getAuditDistinctValues,
+      values: json?.data?.getAuditDistinctValues,
     });
   } catch (error) {
     console.error(error);

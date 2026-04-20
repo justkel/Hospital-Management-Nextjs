@@ -7,6 +7,7 @@ import {
   GetAllPatientsQueryVariables,
   PatientStatus,
 } from '@/shared/graphql/generated/graphql';
+import { GraphQLErrorShape, handleGraphQLError } from '@/lib/handle-graphql-error';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
@@ -53,25 +54,13 @@ export async function GET(req: Request) {
 
     const json: {
       data?: GetAllPatientsQuery;
-      errors?: { message?: string; extensions?: { code?: string } }[];
+      errors?: GraphQLErrorShape[];
     } = await res.json();
 
-    const unauthenticated = json.errors?.some(
-      e => e.extensions?.code === 'UNAUTHENTICATED'
-    );
+    const errorResponse = handleGraphQLError(json.errors);
+    if (errorResponse) return errorResponse;
 
-    if (unauthenticated) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    if (!json.data?.patients) {
-      return NextResponse.json(
-        { error: 'Failed to fetch patients' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ patients: json.data.patients });
+    return NextResponse.json({ patients: json.data?.patients });
   } catch (err) {
     console.error(err);
     return NextResponse.json(

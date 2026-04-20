@@ -6,13 +6,7 @@ import {
   UpdateStaffStatusMutation,
   UpdateStaffStatusMutationVariables,
 } from '@/shared/graphql/generated/graphql';
-
-type GraphQLErrorShape = {
-  message: string;
-  extensions?: {
-    code?: string;
-  };
-};
+import { GraphQLErrorShape, handleGraphQLError } from '@/lib/handle-graphql-error';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
@@ -30,17 +24,14 @@ export async function POST(req: Request) {
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
     body: JSON.stringify({ query: print(UpdateStaffStatusDocument), variables }),
   });
-  
-  const json: {
-      data?: UpdateStaffStatusMutation;
-      errors?: GraphQLErrorShape[];
-    } = await res.json();
 
-  if (json.errors?.length) {
-    const unauthenticated = json.errors.some(e => e.extensions?.code === 'UNAUTHENTICATED');
-    if (unauthenticated) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    return NextResponse.json({ error: json.errors[0].message }, { status: 400 });
-  }
+  const json: {
+    data?: UpdateStaffStatusMutation;
+    errors?: GraphQLErrorShape[];
+  } = await res.json();
+
+  const errorResponse = handleGraphQLError(json.errors);
+  if (errorResponse) return errorResponse;
 
   if (!json.data?.updateStaffStatus) {
     return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });

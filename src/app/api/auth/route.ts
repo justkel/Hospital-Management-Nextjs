@@ -5,6 +5,7 @@ import {
   WhoAmIDocument,
   WhoAmIQuery,
 } from '@/shared/graphql/generated/graphql';
+import { GraphQLErrorShape, handleGraphQLError } from '@/lib/handle-graphql-error';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
@@ -27,7 +28,12 @@ export async function GET() {
     }),
   });
 
-  const json: { data?: WhoAmIQuery } = await res.json();
+  const json: {
+    data?: WhoAmIQuery; errors?: GraphQLErrorShape[];
+  } = await res.json();
+
+  const errorResponse = handleGraphQLError(json.errors);
+  if (errorResponse) return errorResponse;
 
   const roles = json.data?.whoAmI ?? [];
 

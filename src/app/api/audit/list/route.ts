@@ -7,6 +7,7 @@ import {
   GetAuditLogsQueryVariables,
   AuditDateFilter,
 } from '@/shared/graphql/generated/graphql';
+import { GraphQLErrorShape, handleGraphQLError } from '@/lib/handle-graphql-error';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
@@ -33,9 +34,9 @@ export async function GET(req: Request) {
 
   const dateFilter =
     dateFilterParam &&
-    Object.values(AuditDateFilter).includes(
-      dateFilterParam as AuditDateFilter
-    )
+      Object.values(AuditDateFilter).includes(
+        dateFilterParam as AuditDateFilter
+      )
       ? (dateFilterParam as AuditDateFilter)
       : undefined;
 
@@ -65,25 +66,13 @@ export async function GET(req: Request) {
 
     const json: {
       data?: GetAuditLogsQuery;
-      errors?: { message?: string; extensions?: { code?: string } }[];
+      errors?: GraphQLErrorShape[];
     } = await res.json();
 
-    const unauthenticated = json.errors?.some(
-      e => e.extensions?.code === 'UNAUTHENTICATED'
-    );
+    const errorResponse = handleGraphQLError(json.errors);
+    if (errorResponse) return errorResponse;
 
-    if (unauthenticated) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    if (!json.data?.auditLogs) {
-      return NextResponse.json(
-        { error: 'Failed to fetch audit logs' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ audits: json.data.auditLogs });
+    return NextResponse.json({ audits: json.data?.auditLogs });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

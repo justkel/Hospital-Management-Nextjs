@@ -6,6 +6,7 @@ import {
   VisitVitalsQuery,
   VisitVitalsQueryVariables,
 } from '@/shared/graphql/generated/graphql';
+import { GraphQLErrorShape, handleGraphQLError } from '@/lib/handle-graphql-error';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
@@ -39,16 +40,11 @@ export async function GET(req: Request) {
 
     const json: {
       data?: VisitVitalsQuery;
-      errors?: { message?: string; extensions?: { code?: string } }[];
+      errors?: GraphQLErrorShape[];
     } = await res.json();
 
-    const unauthenticated = json.errors?.some(
-      e => e.extensions?.code === 'UNAUTHENTICATED'
-    );
-
-    if (unauthenticated) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const errorResponse = handleGraphQLError(json.errors);
+    if (errorResponse) return errorResponse;
 
     if (!json.data?.visitVitals) {
       return NextResponse.json(
