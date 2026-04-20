@@ -20,9 +20,9 @@ export const AUTH_ERROR_CODES = [
   'PASSWORD_CHANGED',
 ] as const;
 
-export async function handleGraphQLError(
+export function handleGraphQLError(
   errors?: GraphQLErrorShape[]
-): Promise<NextResponse | null> {
+): NextResponse | null {
   const error = errors?.[0];
   if (!error) return null;
 
