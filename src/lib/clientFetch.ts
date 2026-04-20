@@ -73,7 +73,7 @@ export async function clientFetch(
 
   if (json.code && forceLogoutCodes.includes(json.code)) {
     handleForcedLogout(json.error || 'Session expired');
-    throw new Error(json.error ||'Force logout');
+    throw new Error(json.error || 'Force logout');
   }
 
   if ((init as RequestInit & { _retry?: boolean })._retry) {
