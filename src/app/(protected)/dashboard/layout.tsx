@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Layout, Menu, Avatar, Dropdown, Space, Typography, Modal } from 'antd';
 import {
   DashboardOutlined,
@@ -30,16 +30,19 @@ function Hamburger({ isOpen, toggle }: { isOpen: boolean; toggle: () => void }) 
       aria-label="Toggle Menu"
     >
       <span
-        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-2' : 'w-6'
-          }`}
+        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
+          isOpen ? 'rotate-45 translate-y-2' : 'w-6'
+        }`}
       />
       <span
-        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${isOpen ? 'opacity-0' : 'w-5'
-          }`}
+        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
+          isOpen ? 'opacity-0' : 'w-5'
+        }`}
       />
       <span
-        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${isOpen ? '-rotate-45 -translate-y-2 w-6' : 'w-4'
-          }`}
+        className={`block h-0.5 rounded bg-gray-800 transition-all duration-300 ${
+          isOpen ? '-rotate-45 -translate-y-2 w-6' : 'w-4'
+        }`}
       />
     </button>
   );
@@ -53,7 +56,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+      const res = await fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
       const json = await res.json();
       if (json.success) window.location.href = '/login';
     } catch (err) {
@@ -76,9 +82,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return '';
   })();
 
-  const [openKeys, setOpenKeys] = useState<string[]>(
-    selectedKey?.startsWith('billing') ? ['billing'] : []
-  );
+  const defaultOpenKeys =
+    selectedKey?.startsWith('billing') ? ['billing'] : [];
+
+  const [openKeys, setOpenKeys] = useState<string[]>(defaultOpenKeys);
+
+  useEffect(() => {
+    if (menuOpen) {
+      setOpenKeys(defaultOpenKeys);
+    } else {
+      setOpenKeys([]);
+    }
+  }, [menuOpen, selectedKey]);
 
   const userMenu = (
     <Menu
@@ -86,38 +101,84 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         { key: 'profile', icon: <UserOutlined />, label: 'Profile' },
         { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
         { type: 'divider' },
-        { key: 'logout', icon: <LogoutOutlined />, label: 'Logout', danger: true, onClick: () => setLogoutModal(true) },
+        {
+          key: 'logout',
+          icon: <LogoutOutlined />,
+          label: 'Logout',
+          danger: true,
+          onClick: () => setLogoutModal(true),
+        },
       ]}
     />
   );
 
   const menuItems = [
-    { key: 'dashboard', icon: <DashboardOutlined />, label: <Link href="/dashboard">Dashboard</Link> },
-    ...(roles.includes(Roles.ADMIN) ? [{ key: 'staff', icon: <TeamOutlined />, label: <Link href="/admins/staff">Staff</Link> }] : []),
-    { key: 'patients', icon: <MedicineBoxOutlined />, label: <Link href="/dashboard/patients">Patients</Link> },
-    { key: 'records', icon: <FileTextOutlined />, label: 'Medical Records' },
-    { key: 'visits', icon: <SolutionOutlined />, label: <Link href="/dashboard/visits">Visits</Link> },
+    {
+      key: 'dashboard',
+      icon: <DashboardOutlined />,
+      label: <Link href="/dashboard">Dashboard</Link>,
+    },
     ...(roles.includes(Roles.ADMIN)
       ? [
-        {
-          key: 'billing',
-          icon: <CreditCardOutlined />,
-          label: 'Billing',
-          children: [
-            {
-              key: 'billing-global',
-              label: <Link href="/admins/billing/global">Global</Link>,
-            },
-            {
-              key: 'billing-organization',
-              label: <Link href="/admins/billing/organization">Organization</Link>,
-            },
-          ],
-        },
-      ]
+          {
+            key: 'staff',
+            icon: <TeamOutlined />,
+            label: <Link href="/admins/staff">Staff</Link>,
+          },
+        ]
       : []),
-    { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
-    ...(roles.includes(Roles.ADMIN) ? [{ key: 'audit', icon: <FileSearchOutlined />, label: <Link href="/dashboard/audit">Audits</Link> }] : []),
+    {
+      key: 'patients',
+      icon: <MedicineBoxOutlined />,
+      label: <Link href="/dashboard/patients">Patients</Link>,
+    },
+    {
+      key: 'records',
+      icon: <FileTextOutlined />,
+      label: 'Medical Records',
+    },
+    {
+      key: 'visits',
+      icon: <SolutionOutlined />,
+      label: <Link href="/dashboard/visits">Visits</Link>,
+    },
+    ...(roles.includes(Roles.ADMIN)
+      ? [
+          {
+            key: 'billing',
+            icon: <CreditCardOutlined />,
+            label: 'Billing',
+            children: [
+              {
+                key: 'billing-global',
+                label: <Link href="/admins/billing/global">Global</Link>,
+              },
+              {
+                key: 'billing-organization',
+                label: (
+                  <Link href="/admins/billing/organization">
+                    Organization
+                  </Link>
+                ),
+              },
+            ],
+          },
+        ]
+      : []),
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: 'Settings',
+    },
+    ...(roles.includes(Roles.ADMIN)
+      ? [
+          {
+            key: 'audit',
+            icon: <FileSearchOutlined />,
+            label: <Link href="/dashboard/audit">Audits</Link>,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -152,7 +213,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             fontSize: 18,
           }}
         >
-          <Avatar shape="square" size={40} style={{ background: '#1677ff' }}>H</Avatar>
+          <Avatar shape="square" size={40} style={{ background: '#1677ff' }}>
+            H
+          </Avatar>
           <span>Hospital Staff</span>
         </div>
 
@@ -165,7 +228,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           items={menuItems}
         />
 
-        <div style={{ position: 'absolute', bottom: 24, width: '100%', textAlign: 'center' }}>
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 24,
+            width: '100%',
+            textAlign: 'center',
+          }}
+        >
           <button
             className="flex items-center justify-center text-red-600 w-full"
             onClick={() => setLogoutModal(true)}
@@ -190,7 +260,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           }}
         >
           <Space size="middle">
-            <Hamburger isOpen={menuOpen} toggle={() => setMenuOpen(!menuOpen)} />
+            <Hamburger
+              isOpen={menuOpen}
+              toggle={() => setMenuOpen(!menuOpen)}
+            />
             <Title level={4} style={{ margin: 0, whiteSpace: 'nowrap' }}>
               Dashboard
             </Title>
