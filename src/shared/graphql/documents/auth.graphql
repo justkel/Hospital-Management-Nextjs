@@ -675,5 +675,54 @@ mutation Logout {
   logout
 }
 
+query VisitDiagnoses($visitId: ID!) {
+  visitDiagnoses(visitId: $visitId) {
+    id
+    visitId
+    diagnosisCode
+    diagnosis
+    notes
+    diagnosedByStaffId
+    createdAt
+    updatedAt
+  }
+}
 
+query VisitDiagnosisById($id: ID!) {
+  visitDiagnosisById(id: $id) {
+    id
+    visitId
+    diagnosisCode
+    diagnosis
+    notes
+    diagnosedByStaffId
+    createdAt
+    updatedAt
+  }
+}
 
+mutation CreateVisitDiagnosis($data: CreateVisitDiagnosisInput!) {
+  createVisitDiagnosis(data: $data) {
+    id
+    visitId
+    diagnosisCode
+    diagnosis
+    notes
+    diagnosedByStaffId
+    createdAt
+    updatedAt
+  }
+}
+
+mutation UpdateVisitDiagnosis($data: UpdateVisitDiagnosisInput!) {
+  updateVisitDiagnosis(data: $data) {
+    id
+    visitId
+    diagnosisCode
+    diagnosis
+    notes
+    diagnosedByStaffId
+    createdAt
+    updatedAt
+  }
+}

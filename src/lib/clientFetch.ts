@@ -64,6 +64,15 @@ export async function clientFetch(
     credentials: 'include',
   });
 
+  if (!res.ok && res.status !== 401) {
+    const json: ErrorResponse = await res
+      .clone()
+      .json()
+      .catch(() => ({}));
+
+    throw new Error(json.error || 'Request failed');
+  }
+
   if (res.status !== 401) return res;
 
   const json: ErrorResponse = await res
