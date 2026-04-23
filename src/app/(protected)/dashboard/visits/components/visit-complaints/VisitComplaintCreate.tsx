@@ -8,18 +8,23 @@ interface Props {
   onCreated: () => void;
 }
 
-export default function VisitComplaintCreate({ visitId, onCreated }: Props) {
+export default function VisitComplaintCreate({
+  visitId,
+  onCreated,
+}: Props) {
   const [complaint, setComplaint] = useState('');
   const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const createComplaint = async () => {
     if (!complaint.trim()) {
-      alert('Complaint cannot be empty');
+      setError('Complaint cannot be empty');
       return;
     }
 
     try {
       setCreating(true);
+      setError(null);
 
       const res = await clientFetch('/api/visit-complaints/create', {
         method: 'POST',
@@ -39,10 +44,11 @@ export default function VisitComplaintCreate({ visitId, onCreated }: Props) {
       }
 
       setComplaint('');
+      setError(null);
       onCreated();
     } catch (err) {
       console.error(err);
-      alert('Failed to create complaint');
+      setError((err as Error).message || 'Failed to create complaint');
     } finally {
       setCreating(false);
     }
@@ -50,10 +56,18 @@ export default function VisitComplaintCreate({ visitId, onCreated }: Props) {
 
   return (
     <div className="w-full space-y-4">
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm">
+          {error}
+        </div>
+      )}
 
       <textarea
         value={complaint}
-        onChange={(e) => setComplaint(e.target.value)}
+        onChange={(e) => {
+          setComplaint(e.target.value);
+          if (error) setError(null);
+        }}
         placeholder="Enter patient's complaint..."
         className="
           w-full
@@ -71,7 +85,6 @@ export default function VisitComplaintCreate({ visitId, onCreated }: Props) {
       />
 
       <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
-
         <button
           onClick={createComplaint}
           disabled={creating || !complaint.trim()}
@@ -93,7 +106,6 @@ export default function VisitComplaintCreate({ visitId, onCreated }: Props) {
         >
           {creating ? 'Saving...' : 'Add Complaint'}
         </button>
-
       </div>
     </div>
   );

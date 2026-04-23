@@ -32,6 +32,7 @@ export default function VisitComplaintBilling({
     enabled: !!visitId,
   });
   const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (chargeExists) {
@@ -42,12 +43,13 @@ export default function VisitComplaintBilling({
 
   const createVisitCharge = async () => {
     if (!chargeCatalogId) {
-      alert('Please select a consultation charge type');
+      setError('Please select a consultation charge type');
       return;
     }
 
     try {
       setCreating(true);
+      setError(null);
 
       const res = await clientFetch('/api/visit-charge/create', {
         method: 'POST',
@@ -70,10 +72,9 @@ export default function VisitComplaintBilling({
       }
 
       await refetch();
-
     } catch (err) {
       console.error(err);
-      alert('Failed to apply consultation charge');
+      setError((err as Error).message || 'Failed to apply consultation charge');
     } finally {
       setCreating(false);
     }
@@ -89,6 +90,12 @@ export default function VisitComplaintBilling({
 
   return (
     <div className="space-y-4 w-full max-w-lg mx-auto px-2 sm:px-4">
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm text-center sm:text-left">
+          {error}
+        </div>
+      )}
+
       {chargeExists && (
         <div className="p-4 rounded-xl bg-yellow-50 text-yellow-700 text-sm text-center sm:text-left">
           Consultation billing has already been applied for this visit.
@@ -101,9 +108,10 @@ export default function VisitComplaintBilling({
             <input
               type="checkbox"
               checked={chargeEnabled}
-              onChange={e => {
+              onChange={(e) => {
                 setChargeEnabled(e.target.checked);
                 setChargeCatalogId('');
+                setError(null);
               }}
               className="w-5 h-5 accent-indigo-600"
             />
@@ -136,7 +144,10 @@ export default function VisitComplaintBilling({
                 <select
                   value={chargeCatalogId}
                   disabled={creating || catalogs?.length === 0}
-                  onChange={e => setChargeCatalogId(e.target.value)}
+                  onChange={(e) => {
+                    setChargeCatalogId(e.target.value);
+                    setError(null);
+                  }}
                   className="
                     w-full sm:w-80
                     px-4 py-3
@@ -152,7 +163,7 @@ export default function VisitComplaintBilling({
                   "
                 >
                   <option value="">Select consultation charge type</option>
-                  {catalogs?.map(cat => (
+                  {catalogs?.map((cat) => (
                     <option key={cat.id} value={cat.id}>
                       {cat.name}
                     </option>
