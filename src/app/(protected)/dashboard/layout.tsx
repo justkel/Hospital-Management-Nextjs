@@ -13,6 +13,7 @@ import {
   FileSearchOutlined,
   SolutionOutlined,
   CreditCardOutlined,
+  ExperimentOutlined,
 } from '@ant-design/icons';
 import { useUserRoles } from '@/lib/auth/useUserRoles';
 import { Roles } from '@/shared/utils/enums/roles';
@@ -138,6 +139,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       key: 'visits',
       icon: <SolutionOutlined />,
       label: <Link href="/dashboard/visits">Visits</Link>,
+    },
+    {
+      key: 'lab-requests',
+      icon: <ExperimentOutlined />,
+      label: <Link href="/dashboard/lab-requests">Lab Requests</Link>,
     },
     ...(roles.includes(Roles.ADMIN)
       ? [
