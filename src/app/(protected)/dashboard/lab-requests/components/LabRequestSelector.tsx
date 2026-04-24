@@ -7,14 +7,23 @@ import {
     CloseOutlined,
     SearchOutlined,
 } from '@ant-design/icons';
+import { clientFetch } from '@/lib/clientFetch';
+import { LabPriority } from '@/shared/graphql/generated/graphql';
 
 export default function LabRequestSelector({
     catalogs,
+    visitId,
 }: any) {
     const [selectedCatalogIds, setSelectedCatalogIds] = useState<string[]>([]);
     const [openDropdown, setOpenDropdown] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const [priority, setPriority] = useState<LabPriority>(
+        LabPriority.Routine
+    );
 
     const noCatalogs = !catalogs || catalogs.length === 0;
 
@@ -58,6 +67,37 @@ export default function LabRequestSelector({
             0
         );
     }, [selectedCatalogs]);
+
+    const handleSubmit = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            setSuccess(null);
+
+            const res = await clientFetch('/api/lab-request/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    visitId,
+                    chargeCatalogIds: selectedCatalogIds,
+                    priority
+                }),
+            });
+
+            const json = await res.json();
+
+            if (!res.ok) {
+                throw new Error(json.error || 'Failed to create lab request');
+            }
+
+            setSuccess('Lab request created successfully.');
+            setSelectedCatalogIds([]);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -231,16 +271,107 @@ export default function LabRequestSelector({
                         </>
                     )}
 
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-800">
+                                Request Priority
+                            </label>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Choose how quickly this lab request should be attended to.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            {Object.values(LabPriority).map(level => {
+                                const active = priority === level;
+
+                                const styles = {
+                                    ROUTINE: active
+                                        ? 'border-blue-500 bg-blue-50 shadow-md'
+                                        : 'border-gray-200 bg-white hover:border-blue-300',
+                                    URGENT: active
+                                        ? 'border-amber-500 bg-amber-50 shadow-md'
+                                        : 'border-gray-200 bg-white hover:border-amber-300',
+                                    STAT: active
+                                        ? 'border-red-500 bg-red-50 shadow-md'
+                                        : 'border-gray-200 bg-white hover:border-red-300',
+                                };
+
+                                const badgeStyles = {
+                                    ROUTINE: active
+                                        ? 'bg-blue-100 text-blue-700'
+                                        : 'bg-gray-100 text-gray-500',
+                                    URGENT: active
+                                        ? 'bg-amber-100 text-amber-700'
+                                        : 'bg-gray-100 text-gray-500',
+                                    STAT: active
+                                        ? 'bg-red-100 text-red-700'
+                                        : 'bg-gray-100 text-gray-500',
+                                };
+
+                                const descriptions = {
+                                    ROUTINE: 'Normal processing',
+                                    URGENT: 'Attend quickly',
+                                    STAT: 'Immediate action',
+                                };
+
+                                return (
+                                    <button
+                                        key={level}
+                                        type="button"
+                                        onClick={() => setPriority(level)}
+                                        className={`
+            w-full rounded-2xl border p-4 text-left transition-all duration-200
+            ${styles[level as keyof typeof styles]}
+          `}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-semibold text-gray-800 text-sm sm:text-base">
+                                                {level}
+                                            </span>
+
+                                            <span
+                                                className={`
+                text-[10px] sm:text-xs font-medium px-2.5 py-1 rounded-full
+                ${badgeStyles[level as keyof typeof badgeStyles]}
+              `}
+                                            >
+                                                {active ? 'Selected' : 'Choose'}
+                                            </span>
+                                        </div>
+
+                                        <p className="text-xs sm:text-sm text-gray-500 mt-2">
+                                            {descriptions[level as keyof typeof descriptions]}
+                                        </p>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {error && (
+                        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                            {error}
+                        </div>
+                    )}
+
+                    {success && (
+                        <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                            {success}
+                        </div>
+                    )}
+
                     <button
-                        disabled={!canProceed}
+                        onClick={handleSubmit}
+                        disabled={!canProceed || loading}
                         className="
-              w-full sm:w-auto px-8 py-4 rounded-2xl bg-green-600
-              text-white! font-semibold hover:bg-green-700
-              disabled:bg-gray-300 disabled:cursor-not-allowed
-              shadow-md transition
-            "
+    w-full sm:w-auto px-8 py-4 rounded-2xl bg-green-600
+    text-white! font-semibold hover:bg-green-700
+    disabled:bg-gray-300 disabled:cursor-not-allowed
+    shadow-md transition
+  "
                     >
-                        Continue
+                        {loading ? 'Creating...' : 'Continue'}
                     </button>
                 </div>
             )}

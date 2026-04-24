@@ -82,6 +82,7 @@ export default function PatientVisitCard({
       {showSelector && openVisit && (
         <LabRequestSelector
           catalogs={catalogs}
+          visitId={openVisit.id}
         />
       )}
     </div>
