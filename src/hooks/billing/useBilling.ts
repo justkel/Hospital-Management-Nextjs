@@ -7,6 +7,8 @@ import { ChargeDomain } from '@/shared/graphql/generated/graphql';
 export interface ChargeCatalogOption {
   id: string;
   name: string;
+  unitPrice: number;
+  currency: string;
 }
 
 interface ChargeCatalog {
@@ -14,6 +16,8 @@ interface ChargeCatalog {
   chargeCatalog: {
     id: string;
     name: string;
+    unitPrice: number;
+    currency: string;
   };
 }
 
@@ -39,6 +43,8 @@ export function useBilling(domain: ChargeDomain) {
         (json.catalogs ?? []).map(c => ({
           id: c.chargeCatalog.id,
           name: c.chargeCatalog.name,
+          unitPrice: Number(c.chargeCatalog.unitPrice),
+          currency: c.chargeCatalog.currency,
         }))
       );
     } catch (err) {
