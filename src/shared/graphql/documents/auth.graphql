@@ -604,6 +604,7 @@ query CatalogsByChargeDomain($chargeDomain: ChargeDomain!) {
       name
       description
       unitPrice
+      currency
     }
   }
 }
