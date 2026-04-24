@@ -1,6 +1,8 @@
+import { clientFetch } from "../clientFetch";
+
 export async function getUserRoles(): Promise<string[]> {
   try {
-    const res = await fetch('/api/auth', {
+    const res = await clientFetch('/api/auth', {
       credentials: 'include',
       cache: 'no-store',
     });
