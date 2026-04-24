@@ -6,10 +6,6 @@ import VisitDiagnosisForm from './VisitDiagnosisForm';
 import VisitDiagnosisList from './VisitDiagnosisList';
 import { useBilling } from '@/hooks/billing/useBilling';
 import { ChargeDomain, VisitDiagnosesQuery } from '@/shared/graphql/generated/graphql';
-import {
-    CreateVisitDiagnosisDocument,
-    UpdateVisitDiagnosisDocument,
-} from '@/shared/graphql/generated/graphql';
 
 interface Props {
     visitId: string;
@@ -82,6 +78,7 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
                     diagnosis: form.diagnosis,
                     diagnosisCode: form.diagnosisCode || null,
                     notes: form.notes || null,
+                    chargeCatalogId: form.chargeEnabled ? form.chargeCatalogId : null,
                 }),
             });
 

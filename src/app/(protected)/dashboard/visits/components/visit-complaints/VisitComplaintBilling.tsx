@@ -62,6 +62,7 @@ export default function VisitComplaintBilling({
           chargeType: VisitChargeType.Fixed,
           chargeDomain: ChargeDomain.Consultation,
           quantity: 1,
+          notes: 'Charge for consultation related to complaint',
         }),
       });
 
