@@ -217,6 +217,12 @@ export type CreateChargeCatalogInput = {
   unitPrice: Scalars['Float']['input'];
 };
 
+export type CreateLabRequestInput = {
+  chargeCatalogIds: Array<Scalars['ID']['input']>;
+  priority?: InputMaybe<LabPriority>;
+  visitId: Scalars['ID']['input'];
+};
+
 export type CreateOrganizationInput = {
   address?: InputMaybe<CreateAddressInput>;
   code?: InputMaybe<Scalars['String']['input']>;
@@ -274,6 +280,7 @@ export type CreateVisitComplaintInput = {
 };
 
 export type CreateVisitDiagnosisInput = {
+  chargeCatalogId?: InputMaybe<Scalars['ID']['input']>;
   diagnosis: Scalars['String']['input'];
   diagnosisCode?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -316,6 +323,50 @@ export type GlobalBillingCatalogueItem = {
   organizationId?: Maybe<Scalars['ID']['output']>;
 };
 
+/** Priority of the lab request */
+export enum LabPriority {
+  Routine = 'ROUTINE',
+  Stat = 'STAT',
+  Urgent = 'URGENT'
+}
+
+export type LabRequest = {
+  __typename?: 'LabRequest';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  organization: Organization;
+  organizationId: Scalars['ID']['output'];
+  priority: LabPriority;
+  requestedByStaffId: Scalars['ID']['output'];
+  status: LabRequestStatus;
+  testNames: Array<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+  visitId: Scalars['ID']['output'];
+};
+
+export type LabRequestPaginationInput = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  priority?: InputMaybe<LabPriority>;
+  status?: InputMaybe<LabRequestStatus>;
+};
+
+export type LabRequestPaginationResult = {
+  __typename?: 'LabRequestPaginationResult';
+  items: Array<LabRequest>;
+  page: Scalars['Int']['output'];
+  pageCount: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
+/** Current status of the lab request */
+export enum LabRequestStatus {
+  Cancelled = 'CANCELLED',
+  Completed = 'COMPLETED',
+  InProgress = 'IN_PROGRESS',
+  Pending = 'PENDING'
+}
+
 export type LoginAuthResponse = {
   __typename?: 'LoginAuthResponse';
   accessToken: Scalars['String']['output'];
@@ -326,9 +377,11 @@ export type LoginAuthResponse = {
 export type Mutation = {
   __typename?: 'Mutation';
   cloneGlobalCategoryToOrganization: BillingCatalogueCategory;
+  completeLabRequest: LabRequest;
   createBillingCategory: BillingCatalogueCategory;
   createBillingItem: GlobalBillingCatalogueItem;
   createChargeCatalog: ChargeCatalog;
+  createLabRequest: LabRequest;
   createOrganization: Organization;
   createPatient: CreatePatientResult;
   createStaff: Staff;
@@ -340,9 +393,11 @@ export type Mutation = {
   logout: Scalars['Boolean']['output'];
   refreshToken: AuthResponse;
   staffLogin: LoginAuthResponse;
+  startLabRequest: LabRequest;
   syncChargeDomainMapping: Array<ChargeDomainCatalogMapping>;
   updateBillingCategory: BillingCatalogueCategory;
   updateChargeCatalog: ChargeCatalog;
+  updateLabRequest: LabRequest;
   updateOrganizationStatus: Organization;
   updatePatient: Patient;
   updatePatientStatus: Patient;
@@ -361,6 +416,11 @@ export type MutationCloneGlobalCategoryToOrganizationArgs = {
 };
 
 
+export type MutationCompleteLabRequestArgs = {
+  labRequestId: Scalars['ID']['input'];
+};
+
+
 export type MutationCreateBillingCategoryArgs = {
   data: CreateBillingCategoryInput;
 };
@@ -373,6 +433,11 @@ export type MutationCreateBillingItemArgs = {
 
 export type MutationCreateChargeCatalogArgs = {
   data: CreateChargeCatalogInput;
+};
+
+
+export type MutationCreateLabRequestArgs = {
+  data: CreateLabRequestInput;
 };
 
 
@@ -421,6 +486,11 @@ export type MutationStaffLoginArgs = {
 };
 
 
+export type MutationStartLabRequestArgs = {
+  labRequestId: Scalars['ID']['input'];
+};
+
+
 export type MutationSyncChargeDomainMappingArgs = {
   data: SyncChargeDomainMappingInput;
 };
@@ -433,6 +503,11 @@ export type MutationUpdateBillingCategoryArgs = {
 
 export type MutationUpdateChargeCatalogArgs = {
   data: UpdateChargeCatalogInput;
+};
+
+
+export type MutationUpdateLabRequestArgs = {
+  data: UpdateLabRequestInput;
 };
 
 
@@ -574,6 +649,9 @@ export type Query = {
   getAuditLogs: Array<AuditLog>;
   globalBillingCategories: Array<BillingCatalogueCategory>;
   health: Scalars['String']['output'];
+  labRequestById: LabRequest;
+  labRequests: LabRequestPaginationResult;
+  labRequestsByVisit: Array<LabRequest>;
   organization: Organization;
   organizationBillingCategories: Array<BillingCatalogueCategory>;
   organizationChargeCatalogs: ChargeCatalogPaginationResult;
@@ -595,6 +673,7 @@ export type Query = {
   visitDiagnosisById: VisitDiagnosis;
   visitVitals: Array<VisitVital>;
   visits: VisitPaginationResult;
+  visitsByPatientUserCode: Array<Visit>;
   whoAmI: WhoAmIDto;
 };
 
@@ -621,6 +700,21 @@ export type QueryGetAuditDistinctValuesArgs = {
 
 export type QueryGetAuditLogByIdArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryLabRequestByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryLabRequestsArgs = {
+  pagination: LabRequestPaginationInput;
+};
+
+
+export type QueryLabRequestsByVisitArgs = {
+  visitId: Scalars['ID']['input'];
 };
 
 
@@ -715,6 +809,11 @@ export type QueryVisitsArgs = {
   pagination: VisitPaginationInput;
 };
 
+
+export type QueryVisitsByPatientUserCodeArgs = {
+  userCode: Scalars['Int']['input'];
+};
+
 export type Staff = {
   __typename?: 'Staff';
   email: Scalars['String']['output'];
@@ -773,6 +872,13 @@ export type UpdateChargeCatalogInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   unitPrice?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type UpdateLabRequestInput = {
+  chargeCatalogIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  labRequestId: Scalars['ID']['input'];
+  priority?: InputMaybe<LabPriority>;
+  testNames?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type UpdatePatientInput = {
@@ -883,6 +989,7 @@ export type VisitCharge = {
 
 export enum VisitChargeStatus {
   Billed = 'BILLED',
+  Cancelled = 'CANCELLED',
   Pending = 'PENDING',
   Waived = 'WAIVED'
 }
@@ -1325,6 +1432,13 @@ export type UpdateVisitDiagnosisMutationVariables = Exact<{
 
 export type UpdateVisitDiagnosisMutation = { __typename?: 'Mutation', updateVisitDiagnosis: { __typename?: 'VisitDiagnosis', id: string, visitId: string, diagnosisCode?: string | null, diagnosis: string, notes?: string | null, diagnosedByStaffId: string, createdAt: string, updatedAt: string } };
 
+export type GetVisitsByPatientUserCodeQueryVariables = Exact<{
+  userCode: Scalars['Int']['input'];
+}>;
+
+
+export type GetVisitsByPatientUserCodeQuery = { __typename?: 'Query', visitsByPatientUserCode: Array<{ __typename?: 'Visit', id: string, status: VisitStatus, visitType: VisitType, visitDateTime: string, patient: { __typename?: 'Patient', id: string, fullName?: string | null, userCode: number, patientNumber: string, email?: string | null, phoneNumber?: string | null, gender: string } }> };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -1378,3 +1492,4 @@ export const VisitDiagnosesDocument = {"kind":"Document","definitions":[{"kind":
 export const VisitDiagnosisByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"VisitDiagnosisById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitDiagnosisById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"diagnosisCode"}},{"kind":"Field","name":{"kind":"Name","value":"diagnosis"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"diagnosedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<VisitDiagnosisByIdQuery, VisitDiagnosisByIdQueryVariables>;
 export const CreateVisitDiagnosisDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVisitDiagnosis"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitDiagnosisInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVisitDiagnosis"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"diagnosisCode"}},{"kind":"Field","name":{"kind":"Name","value":"diagnosis"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"diagnosedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateVisitDiagnosisMutation, CreateVisitDiagnosisMutationVariables>;
 export const UpdateVisitDiagnosisDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitDiagnosis"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitDiagnosisInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitDiagnosis"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"diagnosisCode"}},{"kind":"Field","name":{"kind":"Name","value":"diagnosis"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"diagnosedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<UpdateVisitDiagnosisMutation, UpdateVisitDiagnosisMutationVariables>;
+export const GetVisitsByPatientUserCodeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitsByPatientUserCode"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userCode"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitsByPatientUserCode"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"userCode"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userCode"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"visitType"}},{"kind":"Field","name":{"kind":"Name","value":"visitDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"patient"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"patientNumber"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"gender"}}]}}]}}]}}]} as unknown as DocumentNode<GetVisitsByPatientUserCodeQuery, GetVisitsByPatientUserCodeQueryVariables>;

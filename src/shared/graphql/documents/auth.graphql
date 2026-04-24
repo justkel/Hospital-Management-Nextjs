@@ -726,3 +726,21 @@ mutation UpdateVisitDiagnosis($data: UpdateVisitDiagnosisInput!) {
     updatedAt
   }
 }
+
+query GetVisitsByPatientUserCode($userCode: Int!) {
+  visitsByPatientUserCode(userCode: $userCode) {
+    id
+    status
+    visitType
+    visitDateTime
+    patient {
+      id
+      fullName
+      userCode
+      patientNumber
+      email
+      phoneNumber
+      gender
+    }
+  }
+}
