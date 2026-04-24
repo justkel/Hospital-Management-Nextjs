@@ -745,3 +745,17 @@ query GetVisitsByPatientUserCode($userCode: Int!) {
     }
   }
 }
+
+mutation CreateLabRequest($data: CreateLabRequestInput!) {
+  createLabRequest(data: $data) {
+    id
+    visitId
+    testNames
+    priority
+    status
+    requestedByStaffId
+    organizationId
+    createdAt
+    updatedAt
+  }
+}
