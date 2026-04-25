@@ -53,7 +53,5 @@ export async function POST(req: Request) {
     );
   }
 
-  return NextResponse.json({
-    labRequest: json.data.createLabRequest,
-  });
+  return NextResponse.json(json.data.createLabRequest);
 }
