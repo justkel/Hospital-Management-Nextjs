@@ -776,3 +776,23 @@ mutation CreateLabRequest($data: CreateLabRequestInput!) {
     }
   }
 }
+
+query FindAllLabRequests($pagination: LabRequestPaginationInput!) {
+  labRequests(pagination: $pagination) {
+    items {
+      id
+      testNames
+      priority
+      status
+      createdAt
+      visit {
+        id
+        visitType
+        visitDateTime
+      }
+    }
+    total
+    page
+    pageCount
+  }
+}
