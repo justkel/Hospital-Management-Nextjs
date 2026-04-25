@@ -1,6 +1,7 @@
 'use client';
 
-import { CloseOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { formatDateTime } from '@/utils/formatDateTime';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 export default function DuplicateConfirmationModal({
   duplicates,
@@ -33,7 +34,7 @@ export default function DuplicateConfirmationModal({
             >
               <p className="font-medium text-gray-800">{item.name}</p>
               <p className="text-xs text-gray-500 mt-1">
-                {new Date(item.createdAt).toLocaleString()}
+                {formatDateTime(item.createdAt)}
               </p>
             </div>
           ))}
@@ -49,7 +50,7 @@ export default function DuplicateConfirmationModal({
 
           <button
             onClick={onConfirm}
-            className="px-6 py-3 rounded-2xl bg-green-600 text-white hover:bg-green-700 shadow-md"
+            className="px-6 py-3 rounded-2xl bg-green-600 !text-white hover:bg-green-700 shadow-md"
           >
             Proceed Anyway
           </button>

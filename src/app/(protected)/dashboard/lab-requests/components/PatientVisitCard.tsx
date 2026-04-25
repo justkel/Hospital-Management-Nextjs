@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons';
 import LabRequestSelector from './LabRequestSelector';
 import { VisitStatus } from '@/shared/graphql/generated/graphql';
+import { formatDateTime } from '@/utils/formatDateTime';
 
 export default function PatientVisitCard({
   patient,
@@ -71,7 +72,7 @@ export default function PatientVisitCard({
 
                 <div className="flex items-center gap-2 text-gray-500 text-sm">
                   <CalendarOutlined />
-                  {new Date(v.visitDateTime).toLocaleString()}
+                  {formatDateTime(v.visitDateTime)}
                 </div>
               </div>
             </div>
