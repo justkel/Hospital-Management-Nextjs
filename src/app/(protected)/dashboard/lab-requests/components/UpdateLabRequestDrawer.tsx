@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Drawer } from 'antd';
+import { Drawer, Grid } from 'antd';
 import { clientFetch } from '@/lib/clientFetch';
 import { LabPriority } from '@/shared/graphql/generated/graphql';
 import CatalogDropdown from './CatalogDropdown';
@@ -9,6 +9,9 @@ import SelectedCatalogSummary from './SelectedCatalogSummary';
 import PrioritySelector from './PrioritySelector';
 import DuplicateConfirmationModal from './DuplicateConfirmationModal';
 import { ChargeCatalogOption } from '@/hooks/billing/useBilling';
+import RequestFeedback from './RequestFeedback';
+
+const { useBreakpoint } = Grid;
 
 type LabRequestListItem = {
     id: string;
@@ -29,6 +32,9 @@ export default function UpdateLabRequestDrawer({
     catalogs: ChargeCatalogOption[];
     onUpdated?: () => void;
 }) {
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
+
     const [selectedCatalogIds, setSelectedCatalogIds] = useState<string[]>([]);
     const [openDropdown, setOpenDropdown] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -185,12 +191,23 @@ export default function UpdateLabRequestDrawer({
     return (
         <Drawer
             title="Update Lab Request"
-            placement="right"
+            placement={isMobile ? 'bottom' : 'right'}
             onClose={onClose}
             open={open}
-            size={600}
+            size={isMobile ? 'large' : 'default'}
+            styles={{
+                body: {
+                    padding: isMobile ? 16 : 24,
+                },
+            }}
+            rootClassName={
+                isMobile
+                    ? '[&_.ant-drawer-content]:h-[92vh] [&_.ant-drawer-content]:rounded-t-3xl'
+                    : '[&_.ant-drawer-content]:w-[650px]'
+            }
+            className="md:[&_.ant-drawer-content]:rounded-none"
         >
-            <div className="space-y-6">
+            <div className="space-y-5 sm:space-y-6 pb-6">
                 <CatalogDropdown
                     catalogs={catalogs}
                     selectedCatalogIds={selectedCatalogIds}
@@ -222,62 +239,26 @@ export default function UpdateLabRequestDrawer({
                     />
                 )}
 
-                {previousRequests.length > 0 && (
-                    <div className="rounded-2xl border border-blue-100 bg-blue-50 px-5 py-4 animate-fade-in">
-                        <p className="text-sm font-semibold text-blue-800">
-                            Similar tests were previously requested
-                        </p>
-                        <p className="text-xs text-blue-700 mt-1">
-                            Older requests were found for this visit, but a new request was created.
-                        </p>
-                    </div>
-                )}
+                <RequestFeedback
+                    previousRequests={previousRequests}
+                    error={error}
+                    success={success}
+                />
 
-                {error && (
-                    <div className="rounded-2xl border border-red-100 bg-red-50 px-5 py-4 shadow-sm animate-fade-in">
-                        <div className="flex items-start gap-3">
-                            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-                                <span className="text-red-600 text-sm">✕</span>
-                            </div>
-
-                            <div>
-                                <p className="text-sm font-semibold text-red-800">
-                                    Request Failed
-                                </p>
-                                <p className="text-sm text-red-700 mt-1 leading-relaxed">
-                                    {error}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {success && (
-                    <div className="rounded-2xl border border-green-100 bg-green-50 px-5 py-4 shadow-sm animate-fade-in">
-                        <div className="flex items-start gap-3">
-                            <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                                <span className="text-green-600 text-sm">✓</span>
-                            </div>
-
-                            <div>
-                                <p className="text-sm font-semibold text-green-800">
-                                    Success
-                                </p>
-                                <p className="text-sm text-green-700 mt-1 leading-relaxed">
-                                    {success}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                <button
-                    onClick={handleSubmit}
-                    disabled={loading || !selectedCatalogIds.length}
-                    className="w-full px-8 py-4 rounded-2xl bg-blue-600 !text-white font-semibold hover:bg-blue-700 disabled:bg-gray-300"
-                >
-                    {loading ? 'Updating...' : 'Save Changes'}
-                </button>
+                <div className="sticky bottom-0 bg-white pt-2">
+                    <button
+                        onClick={handleSubmit}
+                        disabled={loading || !selectedCatalogIds.length}
+                        className="
+              w-full px-6 sm:px-8 py-4 rounded-2xl
+              bg-blue-600 !text-white font-semibold
+              hover:bg-blue-700 disabled:bg-gray-300
+              shadow-md transition
+            "
+                    >
+                        {loading ? 'Updating...' : 'Save Changes'}
+                    </button>
+                </div>
             </div>
         </Drawer>
     );
