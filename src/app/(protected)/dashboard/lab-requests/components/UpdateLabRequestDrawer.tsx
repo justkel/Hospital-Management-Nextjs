@@ -11,243 +11,274 @@ import DuplicateConfirmationModal from './DuplicateConfirmationModal';
 import { ChargeCatalogOption } from '@/hooks/billing/useBilling';
 
 type LabRequestListItem = {
-  id: string;
-  testNames?: string[] | null;
-  priority?: LabPriority | null;
+    id: string;
+    testNames?: string[] | null;
+    priority?: LabPriority | null;
 };
 
 export default function UpdateLabRequestDrawer({
-  open,
-  onClose,
-  request,
-  catalogs,
-  onUpdated,
+    open,
+    onClose,
+    request,
+    catalogs,
+    onUpdated,
 }: {
-  open: boolean;
-  onClose: () => void;
-  request: LabRequestListItem | null;
-  catalogs: ChargeCatalogOption[];
-  onUpdated?: () => void;
+    open: boolean;
+    onClose: () => void;
+    request: LabRequestListItem | null;
+    catalogs: ChargeCatalogOption[];
+    onUpdated?: () => void;
 }) {
-  const [selectedCatalogIds, setSelectedCatalogIds] = useState<string[]>([]);
-  const [openDropdown, setOpenDropdown] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
+    const [selectedCatalogIds, setSelectedCatalogIds] = useState<string[]>([]);
+    const [openDropdown, setOpenDropdown] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(false);
 
-  const [priority, setPriority] = useState<LabPriority>(
-    LabPriority.Routine
-  );
-
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-
-  const [duplicates, setDuplicates] = useState<any[]>([]);
-  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
-  const [previousRequests, setPreviousRequests] = useState<any[]>([]);
-
-  const feedbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (request) {
-      const matchedIds =
-        catalogs
-          ?.filter(c => request.testNames?.includes(c.name))
-          .map(c => c.id) || [];
-
-      setSelectedCatalogIds(matchedIds);
-      setPriority(request.priority || LabPriority.Routine);
-    }
-  }, [request, catalogs]);
-
-  const selectedCatalogs = useMemo(() => {
-    return catalogs?.filter(c => selectedCatalogIds.includes(c.id)) || [];
-  }, [catalogs, selectedCatalogIds]);
-
-  const formatPrice = (amount: number, currency?: string) => {
-    if (currency === 'NGN') return `₦${amount.toLocaleString()}`;
-    if (!currency) return amount.toLocaleString();
-    return `${currency} ${amount.toLocaleString()}`;
-  };
-
-  const toggleCatalog = (id: string) => {
-    setSelectedCatalogIds(prev =>
-      prev.includes(id)
-        ? prev.filter(c => c !== id)
-        : [...prev, id]
+    const [priority, setPriority] = useState<LabPriority>(
+        LabPriority.Routine
     );
-  };
 
-  const removeCatalog = (id: string) => {
-    setSelectedCatalogIds(prev => prev.filter(c => c !== id));
-  };
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
 
-  const clearDuplicateState = () => {
-    setDuplicates([]);
-    setShowDuplicateModal(false);
-  };
+    const [duplicates, setDuplicates] = useState<any[]>([]);
+    const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+    const [previousRequests, setPreviousRequests] = useState<any[]>([]);
 
-  const triggerAutoDismiss = () => {
-    if (feedbackTimeoutRef.current) {
-      clearTimeout(feedbackTimeoutRef.current);
-    }
+    const feedbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    feedbackTimeoutRef.current = setTimeout(() => {
-      setError(null);
-      setSuccess(null);
-      setPreviousRequests([]);
-    }, 5000);
-  };
+    useEffect(() => {
+        if (request) {
+            const matchedIds =
+                catalogs
+                    ?.filter(c => request.testNames?.includes(c.name))
+                    .map(c => c.id) || [];
 
-  const submitRequest = async (payload?: any) => {
-    const res = await clientFetch('/api/lab-request/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        labRequestId: request?.id,
-        chargeCatalogIds: selectedCatalogIds,
-        priority,
-        ...payload,
-      }),
-    });
+            setSelectedCatalogIds(matchedIds);
+            setPriority(request.priority || LabPriority.Routine);
+        }
+    }, [request, catalogs]);
 
-    const json = await res.json();
+    const selectedCatalogs = useMemo(() => {
+        return catalogs?.filter(c => selectedCatalogIds.includes(c.id)) || [];
+    }, [catalogs, selectedCatalogIds]);
 
-    if (!res.ok) {
-      throw new Error(json.error || 'Failed to update lab request');
-    }
+    const formatPrice = (amount: number, currency?: string) => {
+        if (currency === 'NGN') return `₦${amount.toLocaleString()}`;
+        if (!currency) return amount.toLocaleString();
+        return `${currency} ${amount.toLocaleString()}`;
+    };
 
-    return json;
-  };
+    const toggleCatalog = (id: string) => {
+        setSelectedCatalogIds(prev =>
+            prev.includes(id)
+                ? prev.filter(c => c !== id)
+                : [...prev, id]
+        );
+    };
 
-  const handleSubmit = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      setSuccess(null);
-      setPreviousRequests([]);
-      clearDuplicateState();
+    const removeCatalog = (id: string) => {
+        setSelectedCatalogIds(prev => prev.filter(c => c !== id));
+    };
 
-      const json = await submitRequest();
+    const clearDuplicateState = () => {
+        setDuplicates([]);
+        setShowDuplicateModal(false);
+    };
 
-      if (!json.success && json.requiresConfirmation) {
-        setDuplicates(json.duplicates || []);
-        setShowDuplicateModal(true);
-        return;
-      }
+    const triggerAutoDismiss = () => {
+        if (feedbackTimeoutRef.current) {
+            clearTimeout(feedbackTimeoutRef.current);
+        }
 
-      if (json.previousRequests?.length) {
-        setPreviousRequests(json.previousRequests);
-      }
+        feedbackTimeoutRef.current = setTimeout(() => {
+            setError(null);
+            setSuccess(null);
+            setPreviousRequests([]);
+        }, 5000);
+    };
 
-      setSuccess('Lab request updated successfully.');
-      triggerAutoDismiss();
+    const submitRequest = async (payload?: any) => {
+        const res = await clientFetch('/api/lab-request/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                labRequestId: request?.id,
+                chargeCatalogIds: selectedCatalogIds,
+                priority,
+                ...payload,
+            }),
+        });
 
-      setTimeout(() => {
-        onUpdated?.();
-      }, 1000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
-      triggerAutoDismiss();
-    } finally {
-      setLoading(false);
-    }
-  };
+        const json = await res.json();
 
-  const handleConfirmDuplicate = async () => {
-    try {
-      setLoading(true);
+        if (!res.ok) {
+            throw new Error(json.error || 'Failed to update lab request');
+        }
 
-      const json = await submitRequest({
-        confirmDuplicate: true,
-        duplicateReason: 'Confirmed by clinician',
-      });
+        return json;
+    };
 
-      clearDuplicateState();
+    const handleSubmit = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            setSuccess(null);
+            setPreviousRequests([]);
+            clearDuplicateState();
 
-      if (json.previousRequests?.length) {
-        setPreviousRequests(json.previousRequests);
-      }
+            const json = await submitRequest();
 
-      setSuccess('Lab request updated successfully.');
-      triggerAutoDismiss();
+            if (!json.success && json.requiresConfirmation) {
+                setDuplicates(json.duplicates || []);
+                setShowDuplicateModal(true);
+                return;
+            }
 
-      setTimeout(() => {
-        onUpdated?.();
-      }, 1000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
-      triggerAutoDismiss();
-    } finally {
-      setLoading(false);
-    }
-  };
+            if (json.previousRequests?.length) {
+                setPreviousRequests(json.previousRequests);
+            }
 
-  return (
-    <Drawer
-      title="Update Lab Request"
-      placement="right"
-      onClose={onClose}
-      open={open}
-      size={600}
-    >
-      <div className="space-y-6">
-        <CatalogDropdown
-          catalogs={catalogs}
-          selectedCatalogIds={selectedCatalogIds}
-          openDropdown={openDropdown}
-          setOpenDropdown={setOpenDropdown}
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          toggleCatalog={toggleCatalog}
-          formatPrice={formatPrice}
-        />
+            setSuccess('Lab request updated successfully.');
+            triggerAutoDismiss();
 
-        <SelectedCatalogSummary
-          selectedCatalogs={selectedCatalogs}
-          selectedCatalogIds={selectedCatalogIds}
-          removeCatalog={removeCatalog}
-          formatPrice={formatPrice}
-        />
+            setTimeout(() => {
+                onUpdated?.();
+            }, 1000);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Something went wrong');
+            triggerAutoDismiss();
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        <PrioritySelector
-          priority={priority}
-          setPriority={setPriority}
-        />
+    const handleConfirmDuplicate = async () => {
+        try {
+            setLoading(true);
 
-        {showDuplicateModal && (
-          <DuplicateConfirmationModal
-            duplicates={duplicates}
-            onCancel={clearDuplicateState}
-            onConfirm={handleConfirmDuplicate}
-          />
-        )}
+            const json = await submitRequest({
+                confirmDuplicate: true,
+                duplicateReason: 'Confirmed by clinician',
+            });
 
-        {previousRequests.length > 0 && (
-          <div className="rounded-2xl border border-blue-100 bg-blue-50 px-5 py-4">
-            Similar previous requests found.
-          </div>
-        )}
+            clearDuplicateState();
 
-        {error && (
-          <div className="rounded-2xl border border-red-100 bg-red-50 px-5 py-4">
-            {error}
-          </div>
-        )}
+            if (json.previousRequests?.length) {
+                setPreviousRequests(json.previousRequests);
+            }
 
-        {success && (
-          <div className="rounded-2xl border border-green-100 bg-green-50 px-5 py-4">
-            {success}
-          </div>
-        )}
+            setSuccess('Lab request updated successfully.');
+            triggerAutoDismiss();
 
-        <button
-          onClick={handleSubmit}
-          disabled={loading || !selectedCatalogIds.length}
-          className="w-full px-8 py-4 rounded-2xl bg-blue-600 !text-white font-semibold hover:bg-blue-700 disabled:bg-gray-300"
+            setTimeout(() => {
+                onUpdated?.();
+            }, 1000);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Something went wrong');
+            triggerAutoDismiss();
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <Drawer
+            title="Update Lab Request"
+            placement="right"
+            onClose={onClose}
+            open={open}
+            size={600}
         >
-          {loading ? 'Updating...' : 'Save Changes'}
-        </button>
-      </div>
-    </Drawer>
-  );
+            <div className="space-y-6">
+                <CatalogDropdown
+                    catalogs={catalogs}
+                    selectedCatalogIds={selectedCatalogIds}
+                    openDropdown={openDropdown}
+                    setOpenDropdown={setOpenDropdown}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    toggleCatalog={toggleCatalog}
+                    formatPrice={formatPrice}
+                />
+
+                <SelectedCatalogSummary
+                    selectedCatalogs={selectedCatalogs}
+                    selectedCatalogIds={selectedCatalogIds}
+                    removeCatalog={removeCatalog}
+                    formatPrice={formatPrice}
+                />
+
+                <PrioritySelector
+                    priority={priority}
+                    setPriority={setPriority}
+                />
+
+                {showDuplicateModal && (
+                    <DuplicateConfirmationModal
+                        duplicates={duplicates}
+                        onCancel={clearDuplicateState}
+                        onConfirm={handleConfirmDuplicate}
+                    />
+                )}
+
+                {previousRequests.length > 0 && (
+                    <div className="rounded-2xl border border-blue-100 bg-blue-50 px-5 py-4 animate-fade-in">
+                        <p className="text-sm font-semibold text-blue-800">
+                            Similar tests were previously requested
+                        </p>
+                        <p className="text-xs text-blue-700 mt-1">
+                            Older requests were found for this visit, but a new request was created.
+                        </p>
+                    </div>
+                )}
+
+                {error && (
+                    <div className="rounded-2xl border border-red-100 bg-red-50 px-5 py-4 shadow-sm animate-fade-in">
+                        <div className="flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                                <span className="text-red-600 text-sm">✕</span>
+                            </div>
+
+                            <div>
+                                <p className="text-sm font-semibold text-red-800">
+                                    Request Failed
+                                </p>
+                                <p className="text-sm text-red-700 mt-1 leading-relaxed">
+                                    {error}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {success && (
+                    <div className="rounded-2xl border border-green-100 bg-green-50 px-5 py-4 shadow-sm animate-fade-in">
+                        <div className="flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                                <span className="text-green-600 text-sm">✓</span>
+                            </div>
+
+                            <div>
+                                <p className="text-sm font-semibold text-green-800">
+                                    Success
+                                </p>
+                                <p className="text-sm text-green-700 mt-1 leading-relaxed">
+                                    {success}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                <button
+                    onClick={handleSubmit}
+                    disabled={loading || !selectedCatalogIds.length}
+                    className="w-full px-8 py-4 rounded-2xl bg-blue-600 !text-white font-semibold hover:bg-blue-700 disabled:bg-gray-300"
+                >
+                    {loading ? 'Updating...' : 'Save Changes'}
+                </button>
+            </div>
+        </Drawer>
+    );
 }

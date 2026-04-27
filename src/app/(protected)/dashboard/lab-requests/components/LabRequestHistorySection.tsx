@@ -29,7 +29,6 @@ export default function LabRequestHistorySection({
   paginated: FindAllLabRequestsQuery['labRequests'];
   catalogs: ChargeCatalogOption[];
 }) {
-  console.log('LabRequestHistorySection catalogs:', catalogs);
   const [list, setList] = useState<LabRequestListItem[]>(paginated.items);
   const [page, setPage] = useState<number>(paginated.page);
   const [total, setTotal] = useState<number>(paginated.total);
