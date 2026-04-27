@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Pagination } from 'antd';
+import Link from 'next/link';
 import { clientFetch } from '@/lib/clientFetch';
 import {
   FindAllLabRequestsQuery,
@@ -9,6 +10,12 @@ import {
   LabRequestStatus,
 } from '@/shared/graphql/generated/graphql';
 import { formatDateTime } from '@/utils/formatDateTime';
+import {
+  EyeOutlined,
+  EditOutlined,
+  DownOutlined,
+  FilterOutlined,
+} from '@ant-design/icons';
 
 type LabRequestListItem =
   FindAllLabRequestsQuery['labRequests']['items'][number];
@@ -57,54 +64,70 @@ export default function LabRequestHistorySection({
 
   return (
     <section className="space-y-6">
-      <div className="border-t border-gray-200 pt-10">
+      <div className="border-t border-gray-200 pt-8 sm:pt-10">
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
           Request History
         </h2>
+        <p className="text-gray-500 mt-1 text-sm sm:text-base">
+          View and manage all submitted lab requests.
+        </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <select
-          value={statusFilter}
-          onChange={e =>
-            setStatusFilter(e.target.value as LabRequestStatus | '')
-          }
-          className="rounded-xl border px-4 py-3 bg-white"
-        >
-          <option value="">All Status</option>
-          {Object.values(LabRequestStatus).map(s => (
-            <option key={s} value={s}>
-              {s.replace(/_/g, ' ')}
-            </option>
-          ))}
-        </select>
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex items-center gap-2 text-gray-700 font-medium">
+          <FilterOutlined />
+          Filters
+        </div>
 
-        <select
-          value={priorityFilter}
-          onChange={e =>
-            setPriorityFilter(e.target.value as LabPriority | '')
-          }
-          className="rounded-xl border px-4 py-3 bg-white"
-        >
-          <option value="">All Priority</option>
-          {Object.values(LabPriority).map(p => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full lg:w-auto">
+          <div className="relative">
+            <select
+              value={statusFilter}
+              onChange={e =>
+                setStatusFilter(e.target.value as LabRequestStatus | '')
+              }
+              className="appearance-none w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 pr-10 shadow-sm focus:ring-2 focus:ring-green-600 focus:outline-none text-sm"
+            >
+              <option value="">All Status</option>
+              {Object.values(LabRequestStatus).map(s => (
+                <option key={s} value={s}>
+                  {s.replace(/_/g, ' ')}
+                </option>
+              ))}
+            </select>
+            <DownOutlined className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none" />
+          </div>
+
+          <div className="relative">
+            <select
+              value={priorityFilter}
+              onChange={e =>
+                setPriorityFilter(e.target.value as LabPriority | '')
+              }
+              className="appearance-none w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 pr-10 shadow-sm focus:ring-2 focus:ring-green-600 focus:outline-none text-sm"
+            >
+              <option value="">All Priority</option>
+              {Object.values(LabPriority).map(p => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+            <DownOutlined className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none" />
+          </div>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="min-w-full">
+          <table className="min-w-[850px] w-full">
             <thead className="bg-gray-50">
-              <tr className="text-left text-sm text-gray-500">
-                <th className="px-6 py-4">Tests</th>
-                <th className="px-6 py-4">Priority</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Requested</th>
-                <th className="px-6 py-4"></th>
+              <tr className="text-left text-xs sm:text-sm text-gray-500">
+                <th className="px-4 sm:px-6 py-4">Tests</th>
+                <th className="px-4 sm:px-6 py-4">Priority</th>
+                <th className="px-4 sm:px-6 py-4">Status</th>
+                <th className="px-4 sm:px-6 py-4">Requested</th>
+                <th className="px-4 sm:px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
 
@@ -112,31 +135,43 @@ export default function LabRequestHistorySection({
               {list.map(item => (
                 <tr
                   key={item.id}
-                  className="hover:bg-gray-50 transition"
+                  className="hover:bg-green-50/40 transition"
                 >
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
-                    {item.testNames?.join(', ')}
+                  <td className="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
+                    <p className="line-clamp-2">
+                      {item.testNames?.join(', ')}
+                    </p>
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-4 sm:px-6 py-4">
                     <PriorityBadge priority={item.priority} />
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-4 sm:px-6 py-4">
                     <StatusBadge status={item.status} />
                   </td>
 
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-4 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
                     {formatDateTime(item.createdAt)}
                   </td>
 
-                  <td className="px-6 py-4 text-right">
-                    <a
-                      href={`/dashboard/lab-requests/${item.id}`}
-                      className="text-green-700 font-medium hover:underline"
-                    >
-                      View
-                    </a>
+                  <td className="px-4 sm:px-6 py-4">
+                    <div className="flex justify-end gap-2">
+                      <Link
+                        href={`/dashboard/lab-requests/${item.id}`}
+                        className="w-10 h-10 rounded-xl !bg-green-50 !hover:bg-green-100 flex items-center justify-center !text-green-700 transition"
+                        title="View Request"
+                      >
+                        <EyeOutlined />
+                      </Link>
+
+                      <button
+                        className="w-10 h-10 rounded-xl !bg-blue-50 !hover:bg-blue-100 flex items-center justify-center !text-blue-700 transition"
+                        title="Edit Request"
+                      >
+                        <EditOutlined />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -151,12 +186,13 @@ export default function LabRequestHistorySection({
         )}
       </div>
 
-      <div className="flex justify-center pt-4">
+      <div className="flex justify-center pt-2 sm:pt-4 overflow-x-auto">
         <Pagination
           current={page}
           pageSize={limit}
           total={total}
           showSizeChanger
+          responsive
           onChange={(p, l) => {
             setLimit(l);
             fetchPage(p, l);
@@ -176,7 +212,11 @@ function StatusBadge({ status }: { status: string }) {
   };
 
   return (
-    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${styles[status]}`}>
+    <span
+      className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+        styles[status]
+      }`}
+    >
       {status.replace(/_/g, ' ')}
     </span>
   );
@@ -190,7 +230,11 @@ function PriorityBadge({ priority }: { priority?: string | null }) {
   };
 
   return (
-    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${styles[priority || 'ROUTINE']}`}>
+    <span
+      className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+        styles[priority || 'ROUTINE']
+      }`}
+    >
       {priority || LabPriority.Routine}
     </span>
   );
