@@ -6,13 +6,14 @@ import {
   GetGlobalBillingCategoriesQuery,
   GetGlobalBillingCategoriesQueryVariables,
 } from '@/shared/graphql/generated/graphql';
-import DashboardLayout from '@/app/(protected)/dashboard/layout';
 
 export default async function GlobalBillingPage() {
-  const data = await graphqlFetch<
-    GetGlobalBillingCategoriesQuery,
-    GetGlobalBillingCategoriesQueryVariables
-  >(GetGlobalBillingCategoriesDocument, {});
+  const [data] = await Promise.all([
+    graphqlFetch<
+      GetGlobalBillingCategoriesQuery,
+      GetGlobalBillingCategoriesQueryVariables
+    >(GetGlobalBillingCategoriesDocument, {}),
+  ]);
 
   if (!data) {
     return <SessionGuard needsRefresh />;
@@ -20,12 +21,9 @@ export default async function GlobalBillingPage() {
 
   return (
     <SessionGuard needsRefresh={false}>
-      <DashboardLayout>
-        <GlobalBillingClient
-          categories={data.globalBillingCategories}
-        />
-      </DashboardLayout>
-
+      <GlobalBillingClient
+        categories={data.globalBillingCategories}
+      />
     </SessionGuard>
   );
 }

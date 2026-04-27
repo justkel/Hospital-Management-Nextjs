@@ -1,4 +1,3 @@
-import DashboardLayout from '@/app/(protected)/dashboard/layout';
 import {
   GetAllStaffDocument,
   GetAllStaffQuery,
@@ -9,23 +8,24 @@ import SessionGuard from '@/components/SessionGuard';
 import StaffManagementClient from './StaffManagementClient';
 
 export default async function StaffPage() {
-  const data = await graphqlFetch<GetAllStaffQuery, GetAllStaffQueryVariables>(
-    GetAllStaffDocument,
-    {
-      page: 1,
-      limit: 25,
-    }
-  );
+  const [data] = await Promise.all([
+    graphqlFetch<GetAllStaffQuery, GetAllStaffQueryVariables>(
+      GetAllStaffDocument,
+      {
+        page: 1,
+        limit: 25,
+      }
+    ),
+  ]);
 
   if (!data) {
     return <SessionGuard needsRefresh />;
   }
 
+
   return (
     <SessionGuard needsRefresh={false}>
-      <DashboardLayout>
-        <StaffManagementClient paginated={data.staffs} />
-      </DashboardLayout>
+      <StaffManagementClient paginated={data.staffs} />
     </SessionGuard>
   );
 }

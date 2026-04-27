@@ -1,5 +1,4 @@
 import SessionGuard from '@/components/SessionGuard';
-import DashboardLayout from '@/app/(protected)/dashboard/layout';
 import ChargeCatalogClient from './ChargeCatalogClient';
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 
@@ -33,12 +32,10 @@ export default async function ChargeCatalogPage() {
 
   return (
     <SessionGuard needsRefresh={false}>
-      <DashboardLayout>
-        <ChargeCatalogClient
-          items={itemsData.organizationChargeItems}
-          initialCatalogs={catalogData.organizationChargeCatalogs}
-        />
-      </DashboardLayout>
+      <ChargeCatalogClient
+        items={itemsData.organizationChargeItems}
+        initialCatalogs={catalogData.organizationChargeCatalogs}
+      />
     </SessionGuard>
   );
 }

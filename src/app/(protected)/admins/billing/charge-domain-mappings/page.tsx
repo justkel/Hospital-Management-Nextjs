@@ -1,5 +1,4 @@
 import SessionGuard from '@/components/SessionGuard';
-import DashboardLayout from '@/app/(protected)/dashboard/layout';
 import ChargeDomainMappingClient from './ChargeDomainMappingClient';
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 
@@ -33,12 +32,10 @@ export default async function ChargeDomainMappingPage() {
 
   return (
     <SessionGuard needsRefresh={false}>
-      <DashboardLayout>
         <ChargeDomainMappingClient
           mappings={mappingData.chargeDomainMappings}
           catalogs={catalogData.organizationChargeCatalogs.items}
         />
-      </DashboardLayout>
     </SessionGuard>
   );
 }

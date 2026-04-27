@@ -6,13 +6,14 @@ import {
   GetOrganizationBillingCategoriesQuery,
   GetOrganizationBillingCategoriesQueryVariables,
 } from '@/shared/graphql/generated/graphql';
-import DashboardLayout from '@/app/(protected)/dashboard/layout';
 
 export default async function OrganizationBillingPage() {
-  const data = await graphqlFetch<
-    GetOrganizationBillingCategoriesQuery,
-    GetOrganizationBillingCategoriesQueryVariables
-  >(GetOrganizationBillingCategoriesDocument, {});
+  const [data] = await Promise.all([
+    graphqlFetch<
+      GetOrganizationBillingCategoriesQuery,
+      GetOrganizationBillingCategoriesQueryVariables
+    >(GetOrganizationBillingCategoriesDocument, {}),
+  ]);
 
   if (!data) {
     return <SessionGuard needsRefresh />;
@@ -20,12 +21,9 @@ export default async function OrganizationBillingPage() {
 
   return (
     <SessionGuard needsRefresh={false}>
-      <DashboardLayout>
         <OrganizationBillingClient
           categories={data.organizationBillingCategories}
         />
-      </DashboardLayout>
-
     </SessionGuard>
   );
 }
