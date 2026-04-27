@@ -111,8 +111,8 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
                   type="button"
                   onClick={() => toggleRole(role)}
                   className={`px-4 py-2 rounded-full text-sm transition ${active
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-100 hover:bg-slate-200'
+                    ? 'bg-indigo-600 !text-white'
+                    : '!bg-slate-100 hover:bg-slate-200'
                     }`}
                 >
                   {role}
@@ -125,7 +125,7 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
         <div className="flex justify-end gap-3 pt-4">
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-xl text-slate-600 hover:bg-slate-100"
+            className="px-5 py-2 rounded-xl !text-slate-600 hover:bg-slate-100"
           >
             Cancel
           </button>
@@ -133,7 +133,7 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
           <button
             disabled={!canSubmit}
             onClick={handleSubmit}
-            className="px-6 py-2 rounded-xl bg-indigo-600 text-white disabled:opacity-40"
+            className="px-6 py-2 rounded-xl bg-indigo-600 !text-white disabled:opacity-40 cursor-pointer"
           >
             {loading ? 'Creating…' : 'Create Staff'}
           </button>
