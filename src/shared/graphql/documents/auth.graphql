@@ -796,3 +796,91 @@ query FindAllLabRequests($pagination: LabRequestPaginationInput!) {
     pageCount
   }
 }
+
+mutation UpdateLabRequest($data: UpdateLabRequestInput!) {
+  updateLabRequest(data: $data) {
+    success
+    requiresConfirmation
+
+    duplicates {
+      chargeCatalogId
+      name
+      createdAt
+    }
+
+    previousRequests {
+      chargeCatalogId
+      name
+      createdAt
+    }
+
+    labRequest {
+      id
+      visitId
+      testNames
+      priority
+      status
+      requestedByStaffId
+      organizationId
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+mutation StartLabRequest($labRequestId: ID!) {
+  startLabRequest(labRequestId: $labRequestId) {
+    id
+    visitId
+    testNames
+    priority
+    status
+    createdAt
+    updatedAt
+  }
+}
+
+mutation CompleteLabRequest($labRequestId: ID!) {
+  completeLabRequest(labRequestId: $labRequestId) {
+    id
+    visitId
+    testNames
+    priority
+    status
+    createdAt
+    updatedAt
+  }
+}
+
+query FindLabRequestsByVisit($visitId: ID!) {
+  labRequestsByVisit(visitId: $visitId) {
+    id
+    visitId
+    testNames
+    priority
+    status
+    requestedByStaffId
+    organizationId
+    createdAt
+    updatedAt
+  }
+}
+
+query FindLabRequestById($id: ID!) {
+  labRequestById(id: $id) {
+    id
+    visitId
+    testNames
+    priority
+    status
+    requestedByStaffId
+    organizationId
+    createdAt
+    updatedAt
+    visit {
+      id
+      visitType
+      visitDateTime
+    }
+  }
+}
