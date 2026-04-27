@@ -16,15 +16,20 @@ import {
   DownOutlined,
   FilterOutlined,
 } from '@ant-design/icons';
+import { ChargeCatalogOption } from '@/hooks/billing/useBilling';
+import UpdateLabRequestDrawer from './UpdateLabRequestDrawer';
 
 type LabRequestListItem =
   FindAllLabRequestsQuery['labRequests']['items'][number];
 
 export default function LabRequestHistorySection({
   paginated,
+  catalogs,
 }: {
   paginated: FindAllLabRequestsQuery['labRequests'];
+  catalogs: ChargeCatalogOption[];
 }) {
+  console.log('LabRequestHistorySection catalogs:', catalogs);
   const [list, setList] = useState<LabRequestListItem[]>(paginated.items);
   const [page, setPage] = useState<number>(paginated.page);
   const [total, setTotal] = useState<number>(paginated.total);
@@ -36,6 +41,11 @@ export default function LabRequestHistorySection({
   const [priorityFilter, setPriorityFilter] = useState<
     LabPriority | ''
   >('');
+
+  const [editingRequest, setEditingRequest] =
+    useState<LabRequestListItem | null>(null);
+
+  const [showEditDrawer, setShowEditDrawer] = useState(false);
 
   async function fetchPage(nextPage: number, nextLimit = limit) {
     const params = new URLSearchParams({
@@ -166,6 +176,10 @@ export default function LabRequestHistorySection({
                       </Link>
 
                       <button
+                        onClick={() => {
+                          setEditingRequest(item);
+                          setShowEditDrawer(true);
+                        }}
                         className="w-10 h-10 rounded-xl !bg-blue-50 !hover:bg-blue-100 flex items-center justify-center !text-blue-700 transition"
                         title="Edit Request"
                       >
@@ -185,6 +199,21 @@ export default function LabRequestHistorySection({
           </div>
         )}
       </div>
+
+      <UpdateLabRequestDrawer
+        open={showEditDrawer}
+        onClose={() => {
+          setShowEditDrawer(false);
+          setEditingRequest(null);
+        }}
+        request={editingRequest}
+        catalogs={catalogs}
+        onUpdated={() => {
+          fetchPage(page);
+          setShowEditDrawer(false);
+          setEditingRequest(null);
+        }}
+      />
 
       <div className="flex justify-center pt-2 sm:pt-4 overflow-x-auto">
         <Pagination
@@ -213,9 +242,8 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-        styles[status]
-      }`}
+      className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${styles[status]
+        }`}
     >
       {status.replace(/_/g, ' ')}
     </span>
@@ -231,9 +259,8 @@ function PriorityBadge({ priority }: { priority?: string | null }) {
 
   return (
     <span
-      className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-        styles[priority || 'ROUTINE']
-      }`}
+      className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${styles[priority || 'ROUTINE']
+        }`}
     >
       {priority || LabPriority.Routine}
     </span>
