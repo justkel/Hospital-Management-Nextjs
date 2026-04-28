@@ -14,7 +14,7 @@ export default function PrioritySelector({
   };
 
   return (
-    <div className="space-y-4 sm:space-y-5">
+    <div className="space-y-4">
       <div className="space-y-1">
         <label className="block text-sm sm:text-base font-semibold text-gray-800">
           Request Priority
@@ -24,7 +24,7 @@ export default function PrioritySelector({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
         {Object.values(LabPriority).map(level => {
           const active = priority === level;
 
@@ -58,27 +58,23 @@ export default function PrioritySelector({
               type="button"
               onClick={() => setPriority(level)}
               className={`
-                w-full min-h-[110px] sm:min-h-[125px]
-                rounded-2xl border
-                p-4 sm:p-5
-                text-left
-                transition-all duration-200
+                w-full rounded-2xl border
+                px-4 py-4 sm:px-5 sm:py-5
+                text-left transition-all duration-200
                 active:scale-[0.98]
                 ${styles[level as keyof typeof styles]}
               `}
             >
-              <div className="flex items-start sm:items-center justify-between gap-2">
-                <span className="font-semibold text-gray-800 text-sm sm:text-base md:text-lg leading-snug">
+              <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2">
+                <span className="font-semibold text-gray-800 text-sm sm:text-base">
                   {level}
                 </span>
 
                 <span
                   className={`
-                    shrink-0
+                    self-start xs:self-auto
                     text-[10px] sm:text-xs font-medium
-                    px-2 py-1 sm:px-2.5
-                    rounded-full
-                    whitespace-nowrap
+                    px-2 py-1 rounded-full whitespace-nowrap
                     ${badgeStyles[level as keyof typeof badgeStyles]}
                   `}
                 >
@@ -86,7 +82,7 @@ export default function PrioritySelector({
                 </span>
               </div>
 
-              <p className="text-xs sm:text-sm text-gray-500 mt-2 sm:mt-3 leading-relaxed">
+              <p className="text-xs sm:text-sm text-gray-500 mt-2 leading-relaxed">
                 {descriptions[level as keyof typeof descriptions]}
               </p>
             </button>
