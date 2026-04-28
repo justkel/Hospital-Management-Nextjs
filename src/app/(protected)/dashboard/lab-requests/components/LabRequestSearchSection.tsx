@@ -16,7 +16,11 @@ import PatientVisitCard from './PatientVisitCard';
 type Visit =
   GetVisitsByPatientUserCodeQuery['visitsByPatientUserCode'][number];
 
-export default function LabRequestSearchSection() {
+export default function LabRequestSearchSection({
+  onCreated,
+}: {
+  onCreated?: () => void;
+}) {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [visits, setVisits] = useState<Visit[]>([]);
@@ -96,6 +100,7 @@ export default function LabRequestSearchSection() {
           patient={patient}
           visits={visits}
           catalogs={catalogs}
+          onCreated={onCreated}
         />
       )}
 

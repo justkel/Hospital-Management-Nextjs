@@ -15,6 +15,7 @@ export default function PatientVisitCard({
   patient,
   visits,
   catalogs,
+  onCreated,
 }: any) {
   const [showSelector, setShowSelector] = useState(false);
   const [visible, setVisible] = useState(true);
@@ -112,6 +113,7 @@ export default function PatientVisitCard({
           key={selectorKey}
           catalogs={catalogs}
           visitId={openVisit.id}
+          onCreated={onCreated}
         />
       )}
     </div>

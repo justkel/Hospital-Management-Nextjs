@@ -14,7 +14,8 @@ import RequestFeedback from './RequestFeedback';
 export default function LabRequestSelector({
   catalogs,
   visitId,
-}: LabRequestSelectorProps) {
+  onCreated,
+}: LabRequestSelectorProps & { onCreated?: () => void }) {
   const [selectedCatalogIds, setSelectedCatalogIds] = useState<string[]>([]);
   const [openDropdown, setOpenDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -132,6 +133,7 @@ export default function LabRequestSelector({
 
       setSuccess('Lab request created successfully.');
       setSelectedCatalogIds([]);
+      onCreated?.();
       triggerAutoDismiss();
     } catch (err) {
       clearDuplicateState();
@@ -163,6 +165,7 @@ export default function LabRequestSelector({
 
       setSuccess('Lab request created successfully.');
       setSelectedCatalogIds([]);
+      onCreated?.();
       triggerAutoDismiss();
     } catch (err) {
       clearDuplicateState();
