@@ -1,5 +1,6 @@
 'use client';
 
+import { FindLabRequestByIdQuery } from '@/shared/graphql/generated/graphql';
 import { formatDateTime } from '@/utils/formatDateTime';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -117,7 +118,14 @@ function Card({
   );
 }
 
-export default function LabRequestInfoSection({ labRequest }: any) {
+type LabRequest =
+  FindLabRequestByIdQuery['labRequestById'];
+
+type Props = {
+  labRequest: LabRequest;
+};
+
+export default function LabRequestInfoSection({ labRequest }: Props) {
   const priority = PRIORITY_CONFIG[labRequest.priority] ?? {
     label: labRequest.priority,
     dot: 'bg-slate-400',

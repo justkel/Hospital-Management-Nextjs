@@ -36,6 +36,7 @@ export default function UpdateLabRequestDrawer({
     const [openDropdown, setOpenDropdown] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showCancelModal, setShowCancelModal] = useState(false);
 
     const [priority, setPriority] = useState<LabPriority>(
         LabPriority.Routine
@@ -125,6 +126,15 @@ export default function UpdateLabRequestDrawer({
     };
 
     const handleSubmit = async () => {
+        if (selectedCatalogIds.length === 0) {
+            setShowCancelModal(true);
+            return;
+        }
+
+        await executeUpdate();
+    };
+
+    const executeUpdate = async (payload?: any) => {
         try {
             setLoading(true);
             setError(null);
@@ -132,7 +142,7 @@ export default function UpdateLabRequestDrawer({
             setPreviousRequests([]);
             clearDuplicateState();
 
-            const json = await submitRequest();
+            const json = await submitRequest(payload);
 
             if (!json.success && json.requiresConfirmation) {
                 setDuplicates(json.duplicates || []);
@@ -156,6 +166,12 @@ export default function UpdateLabRequestDrawer({
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleConfirmCancel = async () => {
+        setShowCancelModal(false);
+
+        await executeUpdate();
     };
 
     const handleConfirmDuplicate = async () => {
@@ -244,10 +260,46 @@ export default function UpdateLabRequestDrawer({
                     success={success}
                 />
 
+                {showCancelModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+                        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+                            <h3 className="text-lg font-semibold text-red-600">
+                                Cancel Lab Request?
+                            </h3>
+
+                            <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+                                You have removed all selected tests.
+                                <br /><br />
+                                Proceeding will <span className="font-semibold text-red-600">permanently cancel this lab request</span>.
+                                <br /><br />
+                                <span className="italic text-gray-500">
+                                    This action cannot be reversed.
+                                </span>
+                            </p>
+
+                            <div className="mt-6 flex justify-end gap-3">
+                                <button
+                                    onClick={() => setShowCancelModal(false)}
+                                    className="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50"
+                                >
+                                    Go Back
+                                </button>
+
+                                <button
+                                    onClick={handleConfirmCancel}
+                                    className="px-4 py-2 rounded-xl bg-red-600 !text-white hover:bg-red-700 cursor-pointer"
+                                >
+                                    Yes, Cancel Request
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="sticky bottom-0 bg-white pt-2">
                     <button
                         onClick={handleSubmit}
-                        disabled={loading || !selectedCatalogIds.length}
+                        disabled={loading}
                         className="
               w-full px-6 sm:px-8 py-4 rounded-2xl
               bg-blue-600 !text-white font-semibold
