@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { clientFetch } from '@/lib/clientFetch';
 import { LabRequestStatus, LabResult } from '@/shared/graphql/generated/graphql';
 import ResultCard from './ResultCard';
+import CompleteLabRequestPanel from './CompleteLabRequestPanel';
 
 type LabTest = {
   chargeCatalogId: string;
@@ -257,9 +258,13 @@ export default function LabResultManager({
       )}
 
       {remainingTests.length === 0 && (
-        <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-xl text-sm font-medium text-center">
-          All lab results completed ✔
-        </div>
+        <>
+          <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-xl text-sm font-medium text-center">
+            All lab results completed ✔
+          </div>
+
+          <CompleteLabRequestPanel labRequestId={labRequestId} />
+        </>
       )}
 
       <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
