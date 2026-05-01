@@ -935,3 +935,22 @@ query LabResultsByLabRequest($labRequestId: ID!) {
     }
   }
 }
+
+mutation UpdateLabResult($data: UpdateLabResultInput!) {
+  updateLabResult(data: $data) {
+    id
+    labRequestId
+    testName
+    chargeCatalogId
+    performedByStaffId
+
+    items {
+      id
+      parameter
+      value
+      unit
+      referenceRange
+      interpretation
+    }
+  }
+}

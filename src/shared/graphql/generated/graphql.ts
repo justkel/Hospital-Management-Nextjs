@@ -459,6 +459,7 @@ export type Mutation = {
   updateBillingCategory: BillingCatalogueCategory;
   updateChargeCatalog: ChargeCatalog;
   updateLabRequest: CreateLabRequestResponse;
+  updateLabResult: LabResult;
   updateOrganizationStatus: Organization;
   updatePatient: Patient;
   updatePatientStatus: Patient;
@@ -574,6 +575,11 @@ export type MutationUpdateChargeCatalogArgs = {
 
 export type MutationUpdateLabRequestArgs = {
   data: UpdateLabRequestInput;
+};
+
+
+export type MutationUpdateLabResultArgs = {
+  data: UpdateLabResultInput;
 };
 
 
@@ -952,6 +958,19 @@ export type UpdateLabRequestInput = {
   duplicateReason?: InputMaybe<Scalars['String']['input']>;
   labRequestId: Scalars['ID']['input'];
   priority?: InputMaybe<LabPriority>;
+};
+
+export type UpdateLabResultInput = {
+  items: Array<UpdateLabResultItemInput>;
+  labResultId: Scalars['ID']['input'];
+};
+
+export type UpdateLabResultItemInput = {
+  interpretation?: InputMaybe<Scalars['String']['input']>;
+  parameter: Scalars['String']['input'];
+  referenceRange?: InputMaybe<Scalars['String']['input']>;
+  unit?: InputMaybe<Scalars['String']['input']>;
+  value: Scalars['String']['input'];
 };
 
 export type UpdatePatientInput = {
@@ -1575,6 +1594,13 @@ export type LabResultsByLabRequestQueryVariables = Exact<{
 
 export type LabResultsByLabRequestQuery = { __typename?: 'Query', labResultsByLabRequest: Array<{ __typename?: 'LabResult', id: string, labRequestId: string, testName: string, chargeCatalogId: string, performedByStaffId: string, items?: Array<{ __typename?: 'LabResultItem', id: string, parameter: string, value: string, unit?: string | null, referenceRange?: string | null, interpretation?: string | null }> | null }> };
 
+export type UpdateLabResultMutationVariables = Exact<{
+  data: UpdateLabResultInput;
+}>;
+
+
+export type UpdateLabResultMutation = { __typename?: 'Mutation', updateLabResult: { __typename?: 'LabResult', id: string, labRequestId: string, testName: string, chargeCatalogId: string, performedByStaffId: string, items?: Array<{ __typename?: 'LabResultItem', id: string, parameter: string, value: string, unit?: string | null, referenceRange?: string | null, interpretation?: string | null }> | null } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -1638,3 +1664,4 @@ export const FindLabRequestsByVisitDocument = {"kind":"Document","definitions":[
 export const FindLabRequestByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindLabRequestById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"labRequestById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"tests"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"testName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"requestedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"visit"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitType"}},{"kind":"Field","name":{"kind":"Name","value":"visitDateTime"}}]}}]}}]}}]} as unknown as DocumentNode<FindLabRequestByIdQuery, FindLabRequestByIdQueryVariables>;
 export const CreateLabResultDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateLabResult"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateLabResultInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createLabResult"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"labRequestId"}},{"kind":"Field","name":{"kind":"Name","value":"testName"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"performedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"parameter"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"referenceRange"}},{"kind":"Field","name":{"kind":"Name","value":"interpretation"}}]}}]}}]}}]} as unknown as DocumentNode<CreateLabResultMutation, CreateLabResultMutationVariables>;
 export const LabResultsByLabRequestDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LabResultsByLabRequest"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"labRequestId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"labResultsByLabRequest"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"labRequestId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"labRequestId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"labRequestId"}},{"kind":"Field","name":{"kind":"Name","value":"testName"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"performedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"parameter"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"referenceRange"}},{"kind":"Field","name":{"kind":"Name","value":"interpretation"}}]}}]}}]}}]} as unknown as DocumentNode<LabResultsByLabRequestQuery, LabResultsByLabRequestQueryVariables>;
+export const UpdateLabResultDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateLabResult"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateLabResultInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateLabResult"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"labRequestId"}},{"kind":"Field","name":{"kind":"Name","value":"testName"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"performedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"parameter"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"referenceRange"}},{"kind":"Field","name":{"kind":"Name","value":"interpretation"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateLabResultMutation, UpdateLabResultMutationVariables>;
