@@ -96,11 +96,11 @@ export default function StartLabRequestAction({
           onClick={handleStart}
           disabled={!isStartable || loading}
           className={`
-            w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-semibold transition
+            w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer
             ${
               isStartable
-                ? 'bg-green-600 text-white hover:bg-green-700'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                ? 'bg-green-600 !text-white hover:bg-green-700'
+                : 'bg-gray-200 !text-gray-400 cursor-not-allowed'
             }
           `}
         >
