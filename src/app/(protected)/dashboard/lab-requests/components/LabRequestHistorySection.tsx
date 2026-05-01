@@ -141,53 +141,72 @@ export default function LabRequestHistorySection({
             </thead>
 
             <tbody className="divide-y divide-gray-100">
-              {list.map(item => (
-                <tr
-                  key={item.id}
-                  className="hover:bg-green-50/40 transition"
-                >
-                  <td className="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
-                    <p className="line-clamp-2">
-                      {item.tests?.map(t => t.testName).join(', ')}
-                    </p>
-                  </td>
+              {list.map(item => {
+                const isEditable = item.status === LabRequestStatus.Pending;
 
-                  <td className="px-4 sm:px-6 py-4">
-                    <PriorityBadge priority={item.priority} />
-                  </td>
+                return (
+                  <tr
+                    key={item.id}
+                    className="hover:bg-green-50/40 transition"
+                  >
+                    <td className="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
+                      <p className="line-clamp-2">
+                        {item.tests?.length
+                          ? item.tests.map(t => t.testName).join(', ')
+                          : 'N/A'}
+                      </p>
+                    </td>
 
-                  <td className="px-4 sm:px-6 py-4">
-                    <StatusBadge status={item.status} />
-                  </td>
+                    <td className="px-4 sm:px-6 py-4">
+                      <PriorityBadge priority={item.priority} />
+                    </td>
 
-                  <td className="px-4 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
-                    {formatDateTime(item.createdAt)}
-                  </td>
+                    <td className="px-4 sm:px-6 py-4">
+                      <StatusBadge status={item.status} />
+                    </td>
 
-                  <td className="px-4 sm:px-6 py-4">
-                    <div className="flex justify-end gap-2">
-                      <Link
-                        href={`/dashboard/lab-requests/${item.id}`}
-                        className="w-10 h-10 rounded-xl !bg-green-50 !hover:bg-green-100 flex items-center justify-center !text-green-700 transition"
-                        title="View Request"
-                      >
-                        <EyeOutlined />
-                      </Link>
+                    <td className="px-4 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
+                      {formatDateTime(item.createdAt)}
+                    </td>
 
-                      <button
-                        onClick={() => {
-                          setEditingRequest(item);
-                          setShowEditDrawer(true);
-                        }}
-                        className="w-10 h-10 rounded-xl !bg-blue-50 !hover:bg-blue-100 flex items-center justify-center !text-blue-700 transition"
-                        title="Edit Request"
-                      >
-                        <EditOutlined />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    <td className="px-4 sm:px-6 py-4">
+                      <div className="flex justify-end gap-2">
+                        <Link
+                          href={`/dashboard/lab-requests/${item.id}`}
+                          className="w-10 h-10 rounded-xl !bg-green-50 !hover:bg-green-100 flex items-center justify-center !text-green-700 transition"
+                          title="View Request"
+                        >
+                          <EyeOutlined />
+                        </Link>
+
+                        <button
+                          onClick={() => {
+                            if (!isEditable) return;
+
+                            setEditingRequest(item);
+                            setShowEditDrawer(true);
+                          }}
+                          disabled={!isEditable}
+                          className={`
+                w-10 h-10 rounded-xl flex items-center justify-center transition
+                ${isEditable
+                              ? '!bg-blue-50 hover:!bg-blue-100 !text-blue-700'
+                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            }
+              `}
+                          title={
+                            isEditable
+                              ? 'Edit Request'
+                              : 'Only pending requests can be edited'
+                          }
+                        >
+                          <EditOutlined />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
