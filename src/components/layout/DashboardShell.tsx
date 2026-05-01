@@ -304,7 +304,10 @@ export default function DashboardShell({
                             </button>
                         )}
 
-                        <Title level={4} style={{ margin: 0, whiteSpace: 'nowrap' }}>
+                        <Title
+                            level={4}
+                            className="hidden sm:block !m-0 whitespace-nowrap"
+                        >
                             Dashboard
                         </Title>
                     </Space>
