@@ -9,7 +9,7 @@ import SessionGuard from '@/components/SessionGuard';
 import CollapsibleSection from '../../visits/components/CollapsibleSection';
 import LabRequestInfoSection from '../components/LabRequestInfoSection';
 import StartLabRequestAction from '../components/StartLabRequestAction';
-import LabResultWizard from '../components/LabResultWizard';
+import LabResultManager from '../components/LabResultManager';
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -40,7 +40,7 @@ export default async function LabRequestDetailPage({ params }: Props) {
                         labRequestId={labRequest.id}
                         status={labRequest.status}
                     />
-                    <LabResultWizard
+                    <LabResultManager
                         labRequestId={labRequest.id}
                         status={labRequest.status}
                         tests={labRequest.tests}
