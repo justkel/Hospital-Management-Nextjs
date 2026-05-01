@@ -766,7 +766,10 @@ mutation CreateLabRequest($data: CreateLabRequestInput!) {
     labRequest {
       id
       visitId
-      testNames
+      tests {
+        chargeCatalogId
+        testName
+      }
       priority
       status
       requestedByStaffId
@@ -781,9 +784,12 @@ query FindAllLabRequests($pagination: LabRequestPaginationInput!) {
   labRequests(pagination: $pagination) {
     items {
       id
-      testNames
       priority
       status
+      tests {
+        chargeCatalogId
+        testName
+      }
       createdAt
       visit {
         id
@@ -817,9 +823,12 @@ mutation UpdateLabRequest($data: UpdateLabRequestInput!) {
     labRequest {
       id
       visitId
-      testNames
       priority
       status
+      tests {
+        chargeCatalogId
+        testName
+      }
       requestedByStaffId
       organizationId
       createdAt
@@ -832,7 +841,6 @@ mutation StartLabRequest($labRequestId: ID!) {
   startLabRequest(labRequestId: $labRequestId) {
     id
     visitId
-    testNames
     priority
     status
     createdAt
@@ -844,7 +852,6 @@ mutation CompleteLabRequest($labRequestId: ID!) {
   completeLabRequest(labRequestId: $labRequestId) {
     id
     visitId
-    testNames
     priority
     status
     createdAt
@@ -856,9 +863,12 @@ query FindLabRequestsByVisit($visitId: ID!) {
   labRequestsByVisit(visitId: $visitId) {
     id
     visitId
-    testNames
     priority
     status
+    tests {
+      chargeCatalogId
+      testName
+    }
     requestedByStaffId
     organizationId
     createdAt
@@ -870,9 +880,12 @@ query FindLabRequestById($id: ID!) {
   labRequestById(id: $id) {
     id
     visitId
-    testNames
     priority
     status
+    tests {
+      chargeCatalogId
+      testName
+    }
     requestedByStaffId
     organizationId
     createdAt
