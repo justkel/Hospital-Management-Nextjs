@@ -897,3 +897,41 @@ query FindLabRequestById($id: ID!) {
     }
   }
 }
+
+mutation CreateLabResult($data: CreateLabResultInput!) {
+  createLabResult(data: $data) {
+    id
+    labRequestId
+    testName
+    chargeCatalogId
+    performedByStaffId
+
+    items {
+      id
+      parameter
+      value
+      unit
+      referenceRange
+      interpretation
+    }
+  }
+}
+
+query LabResultsByLabRequest($labRequestId: ID!) {
+  labResultsByLabRequest(labRequestId: $labRequestId) {
+    id
+    labRequestId
+    testName
+    chargeCatalogId
+    performedByStaffId
+
+    items {
+      id
+      parameter
+      value
+      unit
+      referenceRange
+      interpretation
+    }
+  }
+}
