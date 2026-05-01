@@ -1,101 +1,175 @@
 'use client';
 
-import { clientFetch } from "@/lib/clientFetch";
-import { LabResult } from "@/shared/graphql/generated/graphql";
-import { useState } from "react";
+import { useState } from 'react';
+import { clientFetch } from '@/lib/clientFetch';
+import { LabResult } from '@/shared/graphql/generated/graphql';
+import { CloseOutlined, EditOutlined } from '@ant-design/icons';
+
+type Item = {
+    id?: string;
+    parameter: string;
+    value: string;
+    unit?: string;
+    referenceRange?: string;
+    interpretation?: string;
+};
 
 export default function ResultCard({
-  result,
-  onUpdated,
+    result,
+    onUpdated,
 }: {
-  result: LabResult;
-  onUpdated: () => void;
+    result: LabResult;
+    onUpdated: () => void;
 }) {
-  const [editing, setEditing] = useState(false);
-  const [items, setItems] = useState(result.items ?? []);
-  const [loading, setLoading] = useState(false);
+    const [editing, setEditing] = useState(false);
+    const [items, setItems] = useState<Item[]>(
+        (result.items ?? []).map(i => ({
+            id: i.id,
+            parameter: i.parameter,
+            value: i.value,
+            unit: i.unit ?? undefined,
+            referenceRange: i.referenceRange ?? undefined,
+            interpretation: i.interpretation ?? undefined,
+        }))
+    );
+    const [loading, setLoading] = useState(false);
 
-  const updateItem = (i: number, key: string, value: string) => {
-    const copy = [...items];
-    copy[i] = { ...copy[i], [key]: value };
-    setItems(copy);
-  };
+    const updateItem = (i: number, key: keyof Item, value: string) => {
+        const copy = [...items];
+        copy[i] = { ...copy[i], [key]: value };
+        setItems(copy);
+    };
 
-  const save = async () => {
-    setLoading(true);
+    const save = async () => {
+        setLoading(true);
 
-    await clientFetch('/api/lab-result/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        labResultId: result.id,
-        items: items.map(i => ({
-          parameter: i.parameter,
-          value: i.value,
-          unit: i.unit || undefined,
-          referenceRange: i.referenceRange || undefined,
-          interpretation: i.interpretation || undefined,
-        })),
-      }),
-    });
+        await clientFetch('/api/lab-result/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                labResultId: result.id,
+                items: items.map(i => ({
+                    parameter: i.parameter,
+                    value: i.value,
+                    unit: i.unit || undefined,
+                    referenceRange: i.referenceRange || undefined,
+                    interpretation: i.interpretation || undefined,
+                })),
+            }),
+        });
 
-    setEditing(false);
-    onUpdated();
-    setLoading(false);
-  };
+        setLoading(false);
+        setEditing(false);
+        onUpdated();
+    };
 
-  if (!items.length) return null;
+    if (!items.length) return null;
 
-  return (
-    <div className="bg-white border rounded-2xl p-4 shadow-sm space-y-3">
-      <div className="flex justify-between items-center">
-        <h4 className="font-semibold text-sm">{result.testName}</h4>
+    const input =
+        'w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/30 outline-none';
 
-        <button
-          onClick={() => setEditing(!editing)}
-          className="text-xs text-blue-600"
-        >
-          {editing ? 'Cancel' : 'Edit'}
-        </button>
-      </div>
+    return (
+        <div className="bg-white border rounded-2xl p-4 shadow-sm space-y-4">
+            <div className="flex justify-between items-center">
+                <h4 className="font-semibold text-slate-800 text-sm">
+                    {result.testName}
+                </h4>
 
-      {items.map((item, i) => (
-        <div key={item.id} className="text-sm space-y-1">
-          {editing ? (
-            <>
-              <input
-                value={item.parameter}
-                onChange={e =>
-                  updateItem(i, 'parameter', e.target.value)
-                }
-                className="w-full border p-2 rounded"
-              />
-              <input
-                value={item.value}
-                onChange={e =>
-                  updateItem(i, 'value', e.target.value)
-                }
-                className="w-full border p-2 rounded"
-              />
-            </>
-          ) : (
-            <>
-              <div>{item.parameter}</div>
-              <div className="font-medium">{item.value}</div>
-            </>
-          )}
+                <button
+                    onClick={() => setEditing(v => !v)}
+                    className="text-xs flex items-center gap-1 text-blue-600 hover:text-blue-700 transition cursor-pointer"
+                >
+                    {editing ? (
+                        <>
+                            <CloseOutlined />
+                            Cancel
+                        </>
+                    ) : (
+                        <>
+                            <EditOutlined />
+                            Edit
+                        </>
+                    )}
+                </button>
+            </div>
+
+            <div className="space-y-4">
+                {items.map((item, i) => (
+                    <div
+                        key={item.id ?? i}
+                        className="border rounded-xl p-3 space-y-2 bg-slate-50"
+                    >
+                        {editing ? (
+                            <div className="grid sm:grid-cols-2 gap-2">
+                                <input
+                                    value={item.parameter}
+                                    onChange={e => updateItem(i, 'parameter', e.target.value)}
+                                    className={input}
+                                    placeholder="Parameter"
+                                />
+                                <input
+                                    value={item.value}
+                                    onChange={e => updateItem(i, 'value', e.target.value)}
+                                    className={input}
+                                    placeholder="Value"
+                                />
+                                <input
+                                    value={item.unit || ''}
+                                    onChange={e => updateItem(i, 'unit', e.target.value)}
+                                    className={input}
+                                    placeholder="Unit"
+                                />
+                                <input
+                                    value={item.referenceRange || ''}
+                                    onChange={e =>
+                                        updateItem(i, 'referenceRange', e.target.value)
+                                    }
+                                    className={input}
+                                    placeholder="Reference Range"
+                                />
+                                <input
+                                    value={item.interpretation || ''}
+                                    onChange={e =>
+                                        updateItem(i, 'interpretation', e.target.value)
+                                    }
+                                    className="sm:col-span-2 w-full border rounded-xl px-3 py-2 text-sm"
+                                    placeholder="Interpretation"
+                                />
+                            </div>
+                        ) : (
+                            <div className="text-sm space-y-1">
+                                <div className="text-slate-500">{item.parameter}</div>
+                                <div className="font-semibold text-slate-800">
+                                    {item.value}{' '}
+                                    <span className="text-xs text-slate-500">
+                                        {item.unit}
+                                    </span>
+                                </div>
+                                {item.referenceRange && (
+                                    <div className="text-xs text-slate-500">
+                                        Ref: {item.referenceRange}
+                                    </div>
+                                )}
+                                {item.interpretation && (
+                                    <div className="text-xs text-slate-600 italic">
+                                        {item.interpretation}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            {editing && (
+                <button
+                    onClick={save}
+                    disabled={loading}
+                    className="w-full bg-green-600 !text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-green-700 disabled:opacity-50 cursor-pointer"
+                >
+                    {loading ? 'Saving...' : 'Save Changes'}
+                </button>
+            )}
         </div>
-      ))}
-
-      {editing && (
-        <button
-          onClick={save}
-          disabled={loading}
-          className="text-sm bg-green-600 text-white px-4 py-2 rounded-lg"
-        >
-          {loading ? 'Saving...' : 'Save Changes'}
-        </button>
-      )}
-    </div>
-  );
+    );
 }
