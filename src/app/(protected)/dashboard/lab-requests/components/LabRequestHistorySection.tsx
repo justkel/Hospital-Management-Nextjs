@@ -148,7 +148,7 @@ export default function LabRequestHistorySection({
                 >
                   <td className="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
                     <p className="line-clamp-2">
-                      {item.testNames?.join(', ')}
+                      {item.tests?.map(t => t.testName).join(', ')}
                     </p>
                   </td>
 

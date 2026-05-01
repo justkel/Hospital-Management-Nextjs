@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Drawer, Grid } from 'antd';
 import { clientFetch } from '@/lib/clientFetch';
-import { LabPriority } from '@/shared/graphql/generated/graphql';
+import { FindAllLabRequestsQuery, LabPriority } from '@/shared/graphql/generated/graphql';
 import CatalogDropdown from './CatalogDropdown';
 import SelectedCatalogSummary from './SelectedCatalogSummary';
 import PrioritySelector from './PrioritySelector';
@@ -13,11 +13,8 @@ import RequestFeedback from './RequestFeedback';
 
 const { useBreakpoint } = Grid;
 
-type LabRequestListItem = {
-    id: string;
-    testNames?: string[] | null;
-    priority?: LabPriority | null;
-};
+type LabRequestListItem =
+    FindAllLabRequestsQuery['labRequests']['items'][number];
 
 export default function UpdateLabRequestDrawer({
     open,
@@ -57,7 +54,9 @@ export default function UpdateLabRequestDrawer({
         if (request) {
             const matchedIds =
                 catalogs
-                    ?.filter(c => request.testNames?.includes(c.name))
+                    ?.filter(c =>
+                        request.tests?.some(t => t.chargeCatalogId === c.id)
+                    )
                     .map(c => c.id) || [];
 
             setSelectedCatalogIds(matchedIds);
