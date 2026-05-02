@@ -894,6 +894,12 @@ query FindLabRequestById($id: ID!) {
       id
       visitType
       visitDateTime
+      patient {
+        id
+        fullName
+        dateOfBirth
+        gender
+      }
     }
   }
 }
