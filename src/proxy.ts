@@ -13,18 +13,25 @@ interface JwtPayload {
 }
 
 const routeRoles: Record<string, Roles[]> = {
-  '/dashboard/admins': [...Object.values(Roles)],
-  '/dashboard/doctor': [Roles.DOCTOR, Roles.ADMIN],
+  // Clinical access
+  '/dashboard/patients': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
+  '/dashboard/visits': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
+
+  // Admin only
+  '/dashboard/billing': [Roles.ADMIN],
+  '/dashboard/audit': [Roles.ADMIN],
   '/admins': [Roles.ADMIN],
 };
 
 export function proxy(req: NextRequest) {
   const accessToken = req.cookies.get('access_token')?.value;
 
-  const isAuthRoute = req.nextUrl.pathname.startsWith('/login');
+  const pathname = req.nextUrl.pathname;
+
+  const isAuthRoute = pathname.startsWith('/login');
   const isProtected =
-    req.nextUrl.pathname.startsWith('/dashboard') ||
-    req.nextUrl.pathname.startsWith('/admins');
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/admins');
 
   if (isProtected && !accessToken) {
     return NextResponse.redirect(new URL('/login', req.url));
@@ -38,13 +45,13 @@ export function proxy(req: NextRequest) {
     try {
       const decoded: JwtPayload = jwtDecode(accessToken);
 
-      for (const [path, allowedRoles] of Object.entries(routeRoles)) {
-        if (req.nextUrl.pathname.startsWith(path)) {
+      for (const [route, allowedRoles] of Object.entries(routeRoles)) {
+        if (pathname.startsWith(route)) {
           const hasAccess = decoded.roles.some((role) =>
             allowedRoles.includes(role as Roles)
           );
           if (!hasAccess) {
-            return NextResponse.redirect(new URL('/dashboard', req.url));
+            return NextResponse.redirect(new URL('/forbidden', req.url));
           }
         }
       }
