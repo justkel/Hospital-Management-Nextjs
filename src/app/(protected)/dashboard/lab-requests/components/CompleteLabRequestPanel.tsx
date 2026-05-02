@@ -3,19 +3,27 @@
 import { useState } from 'react';
 import { clientFetch } from '@/lib/clientFetch';
 import { CheckCircleFilled } from '@ant-design/icons';
+import { useRouter } from 'next/navigation';
+import { LabRequestStatus } from '@/shared/graphql/generated/graphql';
 
 type Props = {
     labRequestId: string;
+    status: LabRequestStatus;
     onCompleted?: () => void;
 };
 
 export default function CompleteLabRequestPanel({
     labRequestId,
     onCompleted,
+    status
 }: Props) {
     const [showModal, setShowModal] = useState(false);
     const [completing, setCompleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const isCompleted = 
+        status === LabRequestStatus.Completed ||
+        status === LabRequestStatus.Cancelled;
+    const router = useRouter();
 
     const completeLabRequest = async () => {
         try {
@@ -36,6 +44,7 @@ export default function CompleteLabRequestPanel({
 
             setShowModal(false);
             onCompleted?.();
+            router.refresh();
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Completion failed');
         } finally {
@@ -55,13 +64,20 @@ export default function CompleteLabRequestPanel({
                     </p>
                 </div>
 
-                <button
-                    onClick={() => setShowModal(true)}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-600 !text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-slate-800 transition cursor-pointer"
-                >
-                    <CheckCircleFilled className="text-white text-base" />
-                    Complete Request
-                </button>
+                {isCompleted ? (
+                    <div className="w-full sm:w-auto flex items-center gap-2 px-4 py-2 rounded-xl bg-green-100 text-green-700 font-semibold text-sm border border-green-200">
+                        <CheckCircleFilled className="text-green-600 text-base" />
+                        Request Completed
+                    </div>
+                ) : (
+                    <button
+                        onClick={() => setShowModal(true)}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-600 !text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-slate-800 transition cursor-pointer"
+                    >
+                        <CheckCircleFilled className="text-white text-base" />
+                        Complete Request
+                    </button>
+                )}
             </div>
 
             {showModal && (
