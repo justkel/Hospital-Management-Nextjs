@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface Props {
   needsRefresh: boolean;
@@ -8,8 +8,12 @@ interface Props {
 }
 
 export default function SessionGuard({ needsRefresh, children }: Props) {
+  const hasRefreshed = useRef(false);
+
   useEffect(() => {
-    if (!needsRefresh) return;
+    if (!needsRefresh || hasRefreshed.current) return;
+
+    hasRefreshed.current = true;
 
     const refresh = async () => {
       try {
@@ -25,15 +29,13 @@ export default function SessionGuard({ needsRefresh, children }: Props) {
           return;
         }
 
-        setTimeout(() => {
-          window.location.reload();
-        }, 200);
+        window.location.reload();
       } catch{
-          await fetch('/api/logout', {
-            method: 'POST',
-            credentials: 'include',
-          });
-          window.location.href = '/login';
+        await fetch('/api/logout', {
+          method: 'POST',
+          credentials: 'include',
+        });
+        window.location.href = '/login';
       }
     };
 
