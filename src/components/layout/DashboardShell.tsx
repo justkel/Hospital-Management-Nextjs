@@ -57,6 +57,11 @@ export default function DashboardShell({
     const [logoutModal, setLogoutModal] = useState(false);
     const router = useRouter();
 
+    const hasClinicalAccess =
+        roles.includes(Roles.ADMIN) ||
+        roles.includes(Roles.DOCTOR) ||
+        roles.includes(Roles.NURSE);
+
     const handleLogout = async () => {
         try {
             const res = await fetch('/api/logout', {
@@ -130,21 +135,33 @@ export default function DashboardShell({
                 },
             ]
             : []),
-        {
-            key: 'patients',
-            icon: <MedicineBoxOutlined />,
-            label: <Link href="/dashboard/patients">Patients</Link>,
-        },
+
+        ...(hasClinicalAccess
+            ? [
+                {
+                    key: 'patients',
+                    icon: <MedicineBoxOutlined />,
+                    label: <Link href="/dashboard/patients">Patients</Link>,
+                },
+            ]
+            : []),
+
         {
             key: 'records',
             icon: <FileTextOutlined />,
             label: 'Medical Records',
         },
-        {
-            key: 'visits',
-            icon: <SolutionOutlined />,
-            label: <Link href="/dashboard/visits">Visits</Link>,
-        },
+
+        ...(hasClinicalAccess
+            ? [
+                {
+                    key: 'visits',
+                    icon: <SolutionOutlined />,
+                    label: <Link href="/dashboard/visits">Visits</Link>,
+                },
+            ]
+            : []),
+
         {
             key: 'lab-requests',
             icon: <ExperimentOutlined />,
