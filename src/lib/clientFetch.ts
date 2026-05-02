@@ -32,7 +32,7 @@ async function refreshSession(): Promise<boolean> {
 
   refreshing = true;
 
-  refreshPromise = fetch('/api/refresh', {
+  refreshPromise = fetch('/api/refresh-test', {
     method: 'POST',
     credentials: 'include',
   })
