@@ -32,7 +32,7 @@ export default function LabResultManager({
   status,
   tests,
 }: Props) {
-  const isLocked = status === LabRequestStatus.Pending;
+  const isLocked = status === LabRequestStatus.Pending || status === LabRequestStatus.Cancelled;
 
   const [results, setResults] = useState<LabResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -260,10 +260,13 @@ export default function LabResultManager({
       {remainingTests.length === 0 && (
         <>
           <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-xl text-sm font-medium text-center">
-            All lab results completed ✔
+            Data entry done ✔
           </div>
 
-          <CompleteLabRequestPanel labRequestId={labRequestId} />
+          <CompleteLabRequestPanel
+            labRequestId={labRequestId}
+            status={status}
+          />
         </>
       )}
 
@@ -273,6 +276,7 @@ export default function LabResultManager({
             key={result.id}
             result={result}
             onUpdated={fetchResults}
+            status={status}
           />
         ))}
       </div>

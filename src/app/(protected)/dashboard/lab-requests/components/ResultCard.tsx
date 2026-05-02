@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { clientFetch } from '@/lib/clientFetch';
-import { LabResult } from '@/shared/graphql/generated/graphql';
+import { LabRequestStatus, LabResult } from '@/shared/graphql/generated/graphql';
 import { CloseOutlined, EditOutlined } from '@ant-design/icons';
 
 type Item = {
@@ -17,10 +17,16 @@ type Item = {
 export default function ResultCard({
     result,
     onUpdated,
+    status,
 }: {
     result: LabResult;
     onUpdated: () => void;
+    status: LabRequestStatus;
 }) {
+    const isLocked =
+        status === LabRequestStatus.Completed ||
+        status === LabRequestStatus.Cancelled;
+
     const [editing, setEditing] = useState(false);
     const [items, setItems] = useState<Item[]>(
         (result.items ?? []).map(i => ({
@@ -35,12 +41,16 @@ export default function ResultCard({
     const [loading, setLoading] = useState(false);
 
     const updateItem = (i: number, key: keyof Item, value: string) => {
+        if (isLocked) return;
+
         const copy = [...items];
         copy[i] = { ...copy[i], [key]: value };
         setItems(copy);
     };
 
     const save = async () => {
+        if (isLocked) return;
+
         setLoading(true);
 
         await clientFetch('/api/lab-result/update', {
@@ -69,28 +79,36 @@ export default function ResultCard({
         'w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/30 outline-none';
 
     return (
-        <div className="bg-white border rounded-2xl p-4 shadow-sm space-y-4">
+        <div className="bg-white border rounded-2xl p-4 shadow-sm space-y-4 opacity-100">
             <div className="flex justify-between items-center">
                 <h4 className="font-semibold text-slate-800 text-sm">
                     {result.testName}
                 </h4>
 
-                <button
-                    onClick={() => setEditing(v => !v)}
-                    className="text-xs flex items-center gap-1 text-blue-600 hover:text-blue-700 transition cursor-pointer"
-                >
-                    {editing ? (
-                        <>
-                            <CloseOutlined />
-                            Cancel
-                        </>
-                    ) : (
-                        <>
-                            <EditOutlined />
-                            Edit
-                        </>
-                    )}
-                </button>
+                {!isLocked && (
+                    <button
+                        onClick={() => setEditing(v => !v)}
+                        className="text-xs flex items-center gap-1 text-blue-600 hover:text-blue-700 transition cursor-pointer"
+                    >
+                        {editing ? (
+                            <>
+                                <CloseOutlined />
+                                Cancel
+                            </>
+                        ) : (
+                            <>
+                                <EditOutlined />
+                                Edit
+                            </>
+                        )}
+                    </button>
+                )}
+
+                {isLocked && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">
+                        Read-only
+                    </span>
+                )}
             </div>
 
             <div className="space-y-4">
@@ -99,23 +117,29 @@ export default function ResultCard({
                         key={item.id ?? i}
                         className="border rounded-xl p-3 space-y-2 bg-slate-50"
                     >
-                        {editing ? (
+                        {editing && !isLocked ? (
                             <div className="grid sm:grid-cols-2 gap-2">
                                 <input
                                     value={item.parameter}
-                                    onChange={e => updateItem(i, 'parameter', e.target.value)}
+                                    onChange={e =>
+                                        updateItem(i, 'parameter', e.target.value)
+                                    }
                                     className={input}
                                     placeholder="Parameter"
                                 />
                                 <input
                                     value={item.value}
-                                    onChange={e => updateItem(i, 'value', e.target.value)}
+                                    onChange={e =>
+                                        updateItem(i, 'value', e.target.value)
+                                    }
                                     className={input}
                                     placeholder="Value"
                                 />
                                 <input
                                     value={item.unit || ''}
-                                    onChange={e => updateItem(i, 'unit', e.target.value)}
+                                    onChange={e =>
+                                        updateItem(i, 'unit', e.target.value)
+                                    }
                                     className={input}
                                     placeholder="Unit"
                                 />
@@ -161,7 +185,7 @@ export default function ResultCard({
                 ))}
             </div>
 
-            {editing && (
+            {editing && !isLocked && (
                 <button
                     onClick={save}
                     disabled={loading}
