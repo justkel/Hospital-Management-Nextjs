@@ -2,6 +2,7 @@ import { print } from 'graphql';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { cookies } from 'next/headers';
 import { AUTH_ERROR_CODES } from '@/lib/handle-graphql-error';
+import { notFound } from 'next/navigation';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
@@ -44,10 +45,22 @@ export async function graphqlFetch<TData, TVariables>(
     )
   );
 
+  const isNotFound = json.errors.some((e: any) => {
+    return (
+      e.extensions?.code === 'NOT_FOUND' ||
+      e.extensions?.originalError?.statusCode === 404 ||
+      e.message?.toLowerCase().includes('not found')
+    );
+  });
+
   if (unauthenticated) {
     // let client handle refresh
     console.log('Access token expired → returning null to server');
     return null;
+  }
+
+  if (isNotFound) {
+    notFound();
   }
 
   throw new Error(json.errors[0].message);
