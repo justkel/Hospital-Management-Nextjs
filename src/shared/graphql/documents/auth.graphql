@@ -901,6 +901,19 @@ query FindLabRequestById($id: ID!) {
         gender
       }
     }
+    organization {
+        id
+        name
+        email
+        phoneNumber
+        website
+        address {
+          addressLine1
+          city
+          state
+          country
+        }
+    }
   }
 }
 

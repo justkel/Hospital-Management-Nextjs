@@ -312,7 +312,7 @@ function Input({
             <label className="text-sm font-medium">{label}</label>
             <input
                 type={type}
-                value={undefined}  // uncontrolled is fine, but add defaultValue
+                value={undefined}
                 defaultValue="" 
                 placeholder={type === 'date' ? 'DD/MM/YYYY' : ''}
                 disabled={disabled}
