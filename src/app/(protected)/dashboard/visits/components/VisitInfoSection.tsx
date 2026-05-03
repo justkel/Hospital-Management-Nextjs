@@ -18,7 +18,7 @@ function Info({ label, value }: any) {
 
 export default function VisitInfoSection({ visit }: any) {
   return (
-    <CollapsibleSection title="Visit Information">
+    <CollapsibleSection title="Visit Information" defaultOpen={false}>
       <div className="grid sm:grid-cols-2 gap-6 text-sm">
 
         <Info label="Visit Type" value={visit.visitType} />
