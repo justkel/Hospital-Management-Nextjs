@@ -9,6 +9,8 @@ import {
     FileText,
     CheckCircle2,
 } from 'lucide-react';
+import { useHasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 interface PrescriptionFormValues {
     drug: string;
@@ -79,6 +81,8 @@ export default function VisitPrescriptionForm({
     const inputClass =
         'w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition';
 
+    const canEditDrug = useHasRoles([Roles.ADMIN]);
+
     return (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
             <div className="flex items-center gap-2">
@@ -94,8 +98,11 @@ export default function VisitPrescriptionForm({
                     <label className="text-xs text-gray-500">Drug *</label>
                     <input
                         placeholder="e.g. Paracetamol"
-                        className={inputClass}
+                        className={`${inputClass} ${!canEditDrug ? 'bg-gray-100 cursor-not-allowed' : ''
+                            }`}
                         value={form.drug}
+                        disabled={!canEditDrug}
+                        readOnly={!canEditDrug}
                         onChange={e =>
                             setForm(prev => ({ ...prev, drug: e.target.value }))
                         }
