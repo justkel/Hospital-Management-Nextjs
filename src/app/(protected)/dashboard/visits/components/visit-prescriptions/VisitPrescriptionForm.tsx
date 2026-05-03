@@ -1,6 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import {
+  Pill,
+  Calendar,
+  Clock,
+  Activity,
+  FileText,
+  CheckCircle2,
+} from 'lucide-react';
 
 interface PrescriptionFormValues {
   drug: string;
@@ -34,9 +42,28 @@ export default function VisitPrescriptionForm({
 }: Props) {
   const [error, setError] = useState<string | null>(null);
 
+  const hasStart = !!form.startDate;
+  const hasEnd = !!form.endDate;
+
+  const validationError = useMemo(() => {
+    if (!form.drug.trim()) return 'Drug name is required';
+
+    if (hasEnd && !hasStart) {
+      return 'Start date is required if end date is set';
+    }
+
+    if (hasStart && hasEnd) {
+      if (new Date(form.startDate) > new Date(form.endDate)) {
+        return 'Start date cannot be after end date';
+      }
+    }
+
+    return null;
+  }, [form, hasStart, hasEnd]);
+
   const handleSubmit = async () => {
-    if (!form.drug.trim()) {
-      setError('Drug name is required.');
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -44,63 +71,104 @@ export default function VisitPrescriptionForm({
 
     if (isEditing) {
       onUpdate();
-      return;
+    } else {
+      await onCreate();
     }
-
-    await onCreate();
   };
 
+  const inputClass =
+    'w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition';
+
   return (
-    <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
+      <div className="flex items-center gap-2">
+        <Pill size={18} className="text-indigo-600" />
+        <h3 className="font-semibold text-gray-900 text-lg">
+          {isEditing ? 'Edit Prescription' : 'New Prescription'}
+        </h3>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-        <input
-          placeholder="Drug name (e.g. Paracetamol)"
-          className="input"
-          value={form.drug}
-          onChange={e => setForm(prev => ({ ...prev, drug: e.target.value }))}
-        />
+        <div className="space-y-1">
+          <label className="text-xs text-gray-500">Drug *</label>
+          <input
+            placeholder="e.g. Paracetamol"
+            className={inputClass}
+            value={form.drug}
+            onChange={e =>
+              setForm(prev => ({ ...prev, drug: e.target.value }))
+            }
+          />
+        </div>
 
-        <input
-          placeholder="Dose (e.g. 500mg)"
-          className="input"
-          value={form.dose}
-          onChange={e => setForm(prev => ({ ...prev, dose: e.target.value }))}
-        />
+        <div className="space-y-1">
+          <label className="text-xs text-gray-500">Dose</label>
+          <input
+            placeholder="e.g. 500mg"
+            className={inputClass}
+            value={form.dose}
+            onChange={e =>
+              setForm(prev => ({ ...prev, dose: e.target.value }))
+            }
+          />
+        </div>
 
-        <input
-          placeholder="Route (e.g. Oral, IV)"
-          className="input"
-          value={form.route}
-          onChange={e => setForm(prev => ({ ...prev, route: e.target.value }))}
-        />
+        <div className="space-y-1">
+          <label className="text-xs text-gray-500 flex items-center gap-1">
+            <Activity size={14} /> Route
+          </label>
+          <input
+            placeholder="Oral, IV, IM..."
+            className={inputClass}
+            value={form.route}
+            onChange={e =>
+              setForm(prev => ({ ...prev, route: e.target.value }))
+            }
+          />
+        </div>
 
-        <input
-          placeholder="Frequency (e.g. 3 times daily)"
-          className="input"
-          value={form.frequency}
-          onChange={e =>
-            setForm(prev => ({ ...prev, frequency: e.target.value }))
-          }
-        />
+        <div className="space-y-1">
+          <label className="text-xs text-gray-500 flex items-center gap-1">
+            <Clock size={14} /> Frequency
+          </label>
+          <input
+            placeholder="e.g. 3 times daily"
+            className={inputClass}
+            value={form.frequency}
+            onChange={e =>
+              setForm(prev => ({ ...prev, frequency: e.target.value }))
+            }
+          />
+        </div>
 
-        <input
-          type="date"
-          className="input"
-          value={form.startDate}
-          onChange={e =>
-            setForm(prev => ({ ...prev, startDate: e.target.value }))
-          }
-        />
+        <div className="space-y-1">
+          <label className="text-xs text-gray-500 flex items-center gap-1">
+            <Calendar size={14} /> Start Date
+          </label>
+          <input
+            type="date"
+            className={inputClass}
+            value={form.startDate}
+            onChange={e =>
+              setForm(prev => ({ ...prev, startDate: e.target.value }))
+            }
+          />
+        </div>
 
-        <input
-          type="date"
-          className="input"
-          value={form.endDate}
-          onChange={e =>
-            setForm(prev => ({ ...prev, endDate: e.target.value }))
-          }
-        />
+        <div className="space-y-1">
+          <label className="text-xs text-gray-500 flex items-center gap-1">
+            <Calendar size={14} /> End Date
+          </label>
+          <input
+            type="date"
+            className={inputClass}
+            value={form.endDate}
+            onChange={e =>
+              setForm(prev => ({ ...prev, endDate: e.target.value }))
+            }
+          />
+        </div>
       </div>
 
       <label className="flex items-center gap-3 cursor-pointer">
@@ -120,26 +188,39 @@ export default function VisitPrescriptionForm({
         </span>
       </label>
 
-      <textarea
-        placeholder="Prescription notes..."
-        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none min-h-[90px]"
-        value={form.notes}
-        onChange={e => setForm(prev => ({ ...prev, notes: e.target.value }))}
-      />
+      <div className="space-y-1">
+        <label className="text-xs text-gray-500 flex items-center gap-1">
+          <FileText size={14} /> Notes
+        </label>
+        <textarea
+          placeholder="Additional instructions, cautions, or notes..."
+          className={`${inputClass} min-h-[100px]`}
+          value={form.notes}
+          onChange={e =>
+            setForm(prev => ({ ...prev, notes: e.target.value }))
+          }
+        />
+      </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="text-sm text-red-600 font-medium">{error}</p>
+      )}
 
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4 pt-2">
         <button
           disabled={submitting}
           onClick={handleSubmit}
-          className="btn-primary"
+          className="flex items-center gap-2 bg-indigo-600 !text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition disabled:opacity-50 cursor-pointer"
         >
-          {isEditing ? 'Update Prescription' : 'Add Prescription'}
+          <CheckCircle2 size={16} />
+          {isEditing ? 'Update' : 'Add'}
         </button>
 
         {isEditing && (
-          <button onClick={onCancel} className="btn-secondary">
+          <button
+            onClick={onCancel}
+            className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer"
+          >
             Cancel
           </button>
         )}
