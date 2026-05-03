@@ -318,6 +318,18 @@ export type CreateVisitInput = {
   visitType: VisitType;
 };
 
+export type CreateVisitPrescriptionInput = {
+  dose?: InputMaybe<Scalars['String']['input']>;
+  drug: Scalars['String']['input'];
+  endDate?: InputMaybe<Scalars['String']['input']>;
+  frequency?: InputMaybe<Scalars['String']['input']>;
+  isProvidedInHouse?: InputMaybe<Scalars['Boolean']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  route?: InputMaybe<Scalars['String']['input']>;
+  startDate?: InputMaybe<Scalars['String']['input']>;
+  visitId: Scalars['ID']['input'];
+};
+
 export type CreateVisitVitalInput = {
   bloodPressure?: InputMaybe<Scalars['String']['input']>;
   chargeCatalogId?: InputMaybe<Scalars['ID']['input']>;
@@ -450,6 +462,7 @@ export type Mutation = {
   createVisitCharge: VisitCharge;
   createVisitComplaint: VisitComplaint;
   createVisitDiagnosis: VisitDiagnosis;
+  createVisitPrescription: VisitPrescription;
   createVisitVital: VisitVital;
   logout: Scalars['Boolean']['output'];
   refreshToken: AuthResponse;
@@ -469,6 +482,7 @@ export type Mutation = {
   updateStaffStatus: Staff;
   updateVisitComplaint: VisitComplaint;
   updateVisitDiagnosis: VisitDiagnosis;
+  updateVisitPrescription: VisitPrescription;
   updateVisitVital: VisitVital;
 };
 
@@ -540,6 +554,11 @@ export type MutationCreateVisitComplaintArgs = {
 
 export type MutationCreateVisitDiagnosisArgs = {
   data: CreateVisitDiagnosisInput;
+};
+
+
+export type MutationCreateVisitPrescriptionArgs = {
+  data: CreateVisitPrescriptionInput;
 };
 
 
@@ -626,6 +645,11 @@ export type MutationUpdateVisitComplaintArgs = {
 
 export type MutationUpdateVisitDiagnosisArgs = {
   data: UpdateVisitDiagnosisInput;
+};
+
+
+export type MutationUpdateVisitPrescriptionArgs = {
+  data: UpdateVisitPrescriptionInput;
 };
 
 
@@ -744,6 +768,7 @@ export type Query = {
   visitComplaints: Array<VisitComplaint>;
   visitDiagnoses: Array<VisitDiagnosis>;
   visitDiagnosisById: VisitDiagnosis;
+  visitPrescriptions: Array<VisitPrescription>;
   visitVitals: Array<VisitVital>;
   visits: VisitPaginationResult;
   visitsByPatientUserCode: Array<Visit>;
@@ -875,6 +900,11 @@ export type QueryVisitDiagnosesArgs = {
 
 export type QueryVisitDiagnosisByIdArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitPrescriptionsArgs = {
+  visitId: Scalars['ID']['input'];
 };
 
 
@@ -1023,6 +1053,18 @@ export type UpdateVisitDiagnosisInput = {
   notes?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateVisitPrescriptionInput = {
+  dose?: InputMaybe<Scalars['String']['input']>;
+  drug?: InputMaybe<Scalars['String']['input']>;
+  endDate?: InputMaybe<Scalars['String']['input']>;
+  frequency?: InputMaybe<Scalars['String']['input']>;
+  isProvidedInHouse?: InputMaybe<Scalars['Boolean']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  prescriptionId: Scalars['ID']['input'];
+  route?: InputMaybe<Scalars['String']['input']>;
+  startDate?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdateVisitVitalInput = {
   bloodPressure?: InputMaybe<Scalars['String']['input']>;
   heartRate?: InputMaybe<Scalars['Int']['input']>;
@@ -1127,6 +1169,23 @@ export type VisitPaginationResult = {
   page: Scalars['Int']['output'];
   pageCount: Scalars['Int']['output'];
   total: Scalars['Int']['output'];
+};
+
+export type VisitPrescription = {
+  __typename?: 'VisitPrescription';
+  createdAt: Scalars['DateTime']['output'];
+  dose?: Maybe<Scalars['String']['output']>;
+  drug: Scalars['String']['output'];
+  endDate?: Maybe<Scalars['String']['output']>;
+  frequency?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isProvidedInHouse: Scalars['Boolean']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
+  prescribingDoctorId: Scalars['ID']['output'];
+  route?: Maybe<Scalars['String']['output']>;
+  startDate?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+  visitId: Scalars['ID']['output'];
 };
 
 /** Current status of a visit */
@@ -1578,7 +1637,7 @@ export type FindLabRequestByIdQueryVariables = Exact<{
 }>;
 
 
-export type FindLabRequestByIdQuery = { __typename?: 'Query', labRequestById: { __typename?: 'LabRequest', id: string, visitId: string, priority: LabPriority, status: LabRequestStatus, requestedByStaffId: string, organizationId: string, createdAt: string, updatedAt: string, tests: Array<{ __typename?: 'LabRequestTest', chargeCatalogId: string, testName: string }>, visit: { __typename?: 'Visit', id: string, visitType: VisitType, visitDateTime: string, patient: { __typename?: 'Patient', id: string, fullName?: string | null, dateOfBirth?: string | null, gender: string } } } };
+export type FindLabRequestByIdQuery = { __typename?: 'Query', labRequestById: { __typename?: 'LabRequest', id: string, visitId: string, priority: LabPriority, status: LabRequestStatus, requestedByStaffId: string, organizationId: string, createdAt: string, updatedAt: string, tests: Array<{ __typename?: 'LabRequestTest', chargeCatalogId: string, testName: string }>, visit: { __typename?: 'Visit', id: string, visitType: VisitType, visitDateTime: string, patient: { __typename?: 'Patient', id: string, fullName?: string | null, dateOfBirth?: string | null, gender: string }, organization: { __typename?: 'Organization', id: string, name: string, email?: string | null, phoneNumber?: string | null, website?: string | null, address?: { __typename?: 'Address', addressLine1: string, city: string, state: string, country: string } | null } } } };
 
 export type CreateLabResultMutationVariables = Exact<{
   data: CreateLabResultInput;
@@ -1600,6 +1659,27 @@ export type UpdateLabResultMutationVariables = Exact<{
 
 
 export type UpdateLabResultMutation = { __typename?: 'Mutation', updateLabResult: { __typename?: 'LabResult', id: string, labRequestId: string, testName: string, chargeCatalogId: string, performedByStaffId: string, items?: Array<{ __typename?: 'LabResultItem', id: string, parameter: string, value: string, unit?: string | null, referenceRange?: string | null, interpretation?: string | null }> | null } };
+
+export type FindVisitPrescriptionsQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type FindVisitPrescriptionsQuery = { __typename?: 'Query', visitPrescriptions: Array<{ __typename?: 'VisitPrescription', id: string, visitId: string, drug: string, dose?: string | null, route?: string | null, frequency?: string | null, isProvidedInHouse: boolean, startDate?: string | null, endDate?: string | null, notes?: string | null, prescribingDoctorId: string, createdAt: string, updatedAt: string }> };
+
+export type CreateVisitPrescriptionMutationVariables = Exact<{
+  data: CreateVisitPrescriptionInput;
+}>;
+
+
+export type CreateVisitPrescriptionMutation = { __typename?: 'Mutation', createVisitPrescription: { __typename?: 'VisitPrescription', id: string, visitId: string, drug: string, dose?: string | null, route?: string | null, frequency?: string | null, isProvidedInHouse: boolean, startDate?: string | null, endDate?: string | null, notes?: string | null, prescribingDoctorId: string, createdAt: string, updatedAt: string } };
+
+export type UpdateVisitPrescriptionMutationVariables = Exact<{
+  data: UpdateVisitPrescriptionInput;
+}>;
+
+
+export type UpdateVisitPrescriptionMutation = { __typename?: 'Mutation', updateVisitPrescription: { __typename?: 'VisitPrescription', id: string, visitId: string, drug: string, dose?: string | null, route?: string | null, frequency?: string | null, isProvidedInHouse: boolean, startDate?: string | null, endDate?: string | null, notes?: string | null, prescribingDoctorId: string, createdAt: string, updatedAt: string } };
 
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
@@ -1661,7 +1741,10 @@ export const UpdateLabRequestDocument = {"kind":"Document","definitions":[{"kind
 export const StartLabRequestDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StartLabRequest"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"labRequestId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"startLabRequest"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"labRequestId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"labRequestId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<StartLabRequestMutation, StartLabRequestMutationVariables>;
 export const CompleteLabRequestDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CompleteLabRequest"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"labRequestId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"completeLabRequest"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"labRequestId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"labRequestId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CompleteLabRequestMutation, CompleteLabRequestMutationVariables>;
 export const FindLabRequestsByVisitDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindLabRequestsByVisit"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"labRequestsByVisit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"tests"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"testName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"requestedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<FindLabRequestsByVisitQuery, FindLabRequestsByVisitQueryVariables>;
-export const FindLabRequestByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindLabRequestById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"labRequestById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"tests"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"testName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"requestedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"visit"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitType"}},{"kind":"Field","name":{"kind":"Name","value":"visitDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"patient"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"dateOfBirth"}},{"kind":"Field","name":{"kind":"Name","value":"gender"}}]}}]}}]}}]}}]} as unknown as DocumentNode<FindLabRequestByIdQuery, FindLabRequestByIdQueryVariables>;
+export const FindLabRequestByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindLabRequestById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"labRequestById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"tests"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"testName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"requestedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"visit"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitType"}},{"kind":"Field","name":{"kind":"Name","value":"visitDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"patient"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"dateOfBirth"}},{"kind":"Field","name":{"kind":"Name","value":"gender"}}]}},{"kind":"Field","name":{"kind":"Name","value":"organization"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"website"}},{"kind":"Field","name":{"kind":"Name","value":"address"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addressLine1"}},{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"country"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<FindLabRequestByIdQuery, FindLabRequestByIdQueryVariables>;
 export const CreateLabResultDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateLabResult"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateLabResultInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createLabResult"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"labRequestId"}},{"kind":"Field","name":{"kind":"Name","value":"testName"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"performedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"parameter"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"referenceRange"}},{"kind":"Field","name":{"kind":"Name","value":"interpretation"}}]}}]}}]}}]} as unknown as DocumentNode<CreateLabResultMutation, CreateLabResultMutationVariables>;
 export const LabResultsByLabRequestDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LabResultsByLabRequest"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"labRequestId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"labResultsByLabRequest"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"labRequestId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"labRequestId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"labRequestId"}},{"kind":"Field","name":{"kind":"Name","value":"testName"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"performedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"parameter"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"referenceRange"}},{"kind":"Field","name":{"kind":"Name","value":"interpretation"}}]}}]}}]}}]} as unknown as DocumentNode<LabResultsByLabRequestQuery, LabResultsByLabRequestQueryVariables>;
 export const UpdateLabResultDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateLabResult"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateLabResultInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateLabResult"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"labRequestId"}},{"kind":"Field","name":{"kind":"Name","value":"testName"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"performedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"parameter"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"referenceRange"}},{"kind":"Field","name":{"kind":"Name","value":"interpretation"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateLabResultMutation, UpdateLabResultMutationVariables>;
+export const FindVisitPrescriptionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindVisitPrescriptions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitPrescriptions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"drug"}},{"kind":"Field","name":{"kind":"Name","value":"dose"}},{"kind":"Field","name":{"kind":"Name","value":"route"}},{"kind":"Field","name":{"kind":"Name","value":"frequency"}},{"kind":"Field","name":{"kind":"Name","value":"isProvidedInHouse"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"prescribingDoctorId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<FindVisitPrescriptionsQuery, FindVisitPrescriptionsQueryVariables>;
+export const CreateVisitPrescriptionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVisitPrescription"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitPrescriptionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVisitPrescription"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"drug"}},{"kind":"Field","name":{"kind":"Name","value":"dose"}},{"kind":"Field","name":{"kind":"Name","value":"route"}},{"kind":"Field","name":{"kind":"Name","value":"frequency"}},{"kind":"Field","name":{"kind":"Name","value":"isProvidedInHouse"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"prescribingDoctorId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateVisitPrescriptionMutation, CreateVisitPrescriptionMutationVariables>;
+export const UpdateVisitPrescriptionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitPrescription"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitPrescriptionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitPrescription"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"drug"}},{"kind":"Field","name":{"kind":"Name","value":"dose"}},{"kind":"Field","name":{"kind":"Name","value":"route"}},{"kind":"Field","name":{"kind":"Name","value":"frequency"}},{"kind":"Field","name":{"kind":"Name","value":"isProvidedInHouse"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"prescribingDoctorId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<UpdateVisitPrescriptionMutation, UpdateVisitPrescriptionMutationVariables>;

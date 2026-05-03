@@ -960,3 +960,69 @@ mutation UpdateLabResult($data: UpdateLabResultInput!) {
     }
   }
 }
+
+query FindVisitPrescriptions($visitId: ID!) {
+  visitPrescriptions(visitId: $visitId) {
+    id
+    visitId
+
+    drug
+    dose
+    route
+    frequency
+    isProvidedInHouse
+
+    startDate
+    endDate
+    notes
+
+    prescribingDoctorId
+
+    createdAt
+    updatedAt
+  }
+}
+
+mutation CreateVisitPrescription($data: CreateVisitPrescriptionInput!) {
+  createVisitPrescription(data: $data) {
+    id
+    visitId
+
+    drug
+    dose
+    route
+    frequency
+    isProvidedInHouse
+
+    startDate
+    endDate
+    notes
+
+    prescribingDoctorId
+
+    createdAt
+    updatedAt
+  }
+}
+
+mutation UpdateVisitPrescription($data: UpdateVisitPrescriptionInput!) {
+  updateVisitPrescription(data: $data) {
+    id
+    visitId
+
+    drug
+    dose
+    route
+    frequency
+    isProvidedInHouse
+
+    startDate
+    endDate
+    notes
+
+    prescribingDoctorId
+
+    createdAt
+    updatedAt
+  }
+}
