@@ -48,10 +48,10 @@ function Hamburger({ isOpen, toggle }: { isOpen: boolean; toggle: () => void }) 
 
 export default function DashboardShell({
     children,
-    roles = [],
+    roles = [] as Roles[],
 }: {
     children: ReactNode;
-    roles?: string[];
+    roles?: Roles[];
 }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const [logoutModal, setLogoutModal] = useState(false);

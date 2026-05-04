@@ -6,6 +6,8 @@ import {
   WhoAmIQueryVariables,
 } from '@/shared/graphql/generated/graphql';
 import { graphqlFetch } from '@/shared/graphql/fetcher';
+import { RoleProvider } from '@/providers/RoleContext';
+import { Roles } from '@/shared/utils/enums/roles';
 
 export default async function Layout({
   children,
@@ -17,13 +19,17 @@ export default async function Layout({
     {}
   );
 
-  const roles = Array.isArray(data?.whoAmI?.roles)
-    ? data.whoAmI.roles
+  const roles: Roles[] = Array.isArray(data?.whoAmI?.roles)
+    ? (data.whoAmI.roles.filter(
+      (r): r is Roles => Object.values(Roles).includes(r as Roles)
+    ) as Roles[])
     : [];
 
   return (
-    <DashboardShell roles={roles}>
-      {children}
-    </DashboardShell>
+    <RoleProvider roles={roles}>
+      <DashboardShell roles={roles}>
+        {children}
+      </DashboardShell>
+    </RoleProvider>
   );
 }
