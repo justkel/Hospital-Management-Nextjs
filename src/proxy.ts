@@ -16,6 +16,7 @@ const routeRoles: Record<string, Roles[]> = {
   // Clinical access
   '/dashboard/patients': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
   '/dashboard/visits': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
+  '/dashboard/lab-requests': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.LAB_TECH],
 
   // Admin only
   '/dashboard/billing': [Roles.ADMIN],
