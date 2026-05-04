@@ -81,7 +81,7 @@ export default function VisitPrescriptionForm({
     const inputClass =
         'w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition';
 
-    const canEditDrug = useHasRoles([Roles.ADMIN]);
+    const canEditDrug = useHasRoles([Roles.ADMIN, Roles.DOCTOR]);
 
     return (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">

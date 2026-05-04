@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { clientFetch } from '@/lib/clientFetch';
 import VisitPrescriptionForm from './VisitPrescriptionForm';
-import VisitPrescriptionsList, {
-    VisitPrescription,
-} from './VisitPrescriptionsList';
+import VisitPrescriptionsList from './VisitPrescriptionsList';
+import { VisitPrescription } from '@/shared/graphql/generated/graphql';
+import PrescriptionPrint from './components/PrescriptionPrint';
 
 interface Props {
     visitId: string;
@@ -139,6 +139,12 @@ export default function VisitPrescriptionsSection({ visitId }: Props) {
                 loading={loading}
                 onEdit={handleEdit}
             />
+
+            <div className="pt-4 flex justify-end">
+                <div className="flex items-center gap-3">
+                    <PrescriptionPrint prescriptions={prescriptions} />
+                </div>
+            </div>
         </div>
     );
 }

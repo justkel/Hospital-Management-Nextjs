@@ -1,18 +1,7 @@
 'use client';
 
 import { CalendarDays, Pencil } from 'lucide-react';
-
-export interface VisitPrescription {
-    id: string;
-    drug: string;
-    dose?: string;
-    route?: string;
-    frequency?: string;
-    isProvidedInHouse: boolean;
-    startDate?: string;
-    endDate?: string;
-    notes?: string;
-}
+import { VisitPrescription } from '@/shared/graphql/generated/graphql';
 
 interface Props {
     prescriptions: VisitPrescription[];
@@ -70,8 +59,8 @@ export default function VisitPrescriptionsList({
                         <div className="flex flex-col items-end gap-2">
                             <span
                                 className={`text-xs px-2 py-1 rounded-full font-medium ${p.isProvidedInHouse
-                                        ? 'bg-green-100 text-green-700'
-                                        : 'bg-gray-100 text-gray-500'
+                                    ? 'bg-green-100 text-green-700'
+                                    : 'bg-gray-100 text-gray-500'
                                     }`}
                             >
                                 {p.isProvidedInHouse ? 'In-house' : 'External'}
