@@ -11,6 +11,8 @@ import LabRequestInfoSection from '../components/LabRequestInfoSection';
 import StartLabRequestAction from '../components/StartLabRequestAction';
 import LabResultManager from '../components/LabResultManager';
 import PrintLabResultButton from '../components/PrintLabResultButton';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -41,10 +43,13 @@ export default async function LabRequestDetailPage({ params }: Props) {
                     <CollapsibleSection title="Request Information">
                         <LabRequestInfoSection labRequest={labRequest} />
                     </CollapsibleSection>
-                    <StartLabRequestAction
-                        labRequestId={labRequest.id}
-                        status={labRequest.status}
-                    />
+                    <HasRoles roles={[Roles.LAB_TECH]}>
+                        <StartLabRequestAction
+                            labRequestId={labRequest.id}
+                            status={labRequest.status}
+                        />
+                    </HasRoles>
+
                     <LabResultManager
                         labRequestId={labRequest.id}
                         status={labRequest.status}

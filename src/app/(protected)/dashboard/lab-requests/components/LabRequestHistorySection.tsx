@@ -18,6 +18,8 @@ import {
 } from '@ant-design/icons';
 import { ChargeCatalogOption } from '@/hooks/billing/useBilling';
 import UpdateLabRequestDrawer from './UpdateLabRequestDrawer';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 type LabRequestListItem =
   FindAllLabRequestsQuery['labRequests']['items'][number];
@@ -171,37 +173,39 @@ export default function LabRequestHistorySection({
 
                     <td className="px-4 sm:px-6 py-4">
                       <div className="flex justify-end gap-2">
-                        <Link
-                          href={`/dashboard/lab-requests/${item.id}`}
-                          className="w-10 h-10 rounded-xl !bg-green-50 !hover:bg-green-100 flex items-center justify-center !text-green-700 transition"
-                          title="View Request"
-                        >
-                          <EyeOutlined />
-                        </Link>
+                          <Link
+                            href={`/dashboard/lab-requests/${item.id}`}
+                            className="w-10 h-10 rounded-xl !bg-green-50 !hover:bg-green-100 flex items-center justify-center !text-green-700 transition"
+                            title="View Request"
+                          >
+                            <EyeOutlined />
+                          </Link>
 
-                        <button
-                          onClick={() => {
-                            if (!isEditable) return;
+                        <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+                          <button
+                            onClick={() => {
+                              if (!isEditable) return;
 
-                            setEditingRequest(item);
-                            setShowEditDrawer(true);
-                          }}
-                          disabled={!isEditable}
-                          className={`
+                              setEditingRequest(item);
+                              setShowEditDrawer(true);
+                            }}
+                            disabled={!isEditable}
+                            className={`
                 w-10 h-10 rounded-xl flex items-center justify-center transition
                 ${isEditable
-                              ? '!bg-blue-50 hover:!bg-blue-100 !text-blue-700'
-                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            }
+                                ? '!bg-blue-50 hover:!bg-blue-100 !text-blue-700'
+                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              }
               `}
-                          title={
-                            isEditable
-                              ? 'Edit Request'
-                              : 'Only pending requests can be edited'
-                          }
-                        >
-                          <EditOutlined />
-                        </button>
+                            title={
+                              isEditable
+                                ? 'Edit Request'
+                                : 'Only pending requests can be edited'
+                            }
+                          >
+                            <EditOutlined />
+                          </button>
+                        </HasRoles>
                       </div>
                     </td>
                   </tr>
