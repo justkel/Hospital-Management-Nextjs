@@ -901,7 +901,7 @@ query FindLabRequestById($id: ID!) {
         gender
       }
     }
-    organization {
+      organization {
         id
         name
         email
@@ -913,8 +913,8 @@ query FindLabRequestById($id: ID!) {
           state
           country
         }
+      }
     }
-  }
 }
 
 mutation CreateLabResult($data: CreateLabResultInput!) {
@@ -990,6 +990,39 @@ query FindVisitPrescriptions($visitId: ID!) {
     notes
 
     prescribingDoctorId
+
+    prescribingDoctor {
+      id
+      fullName
+    }
+
+    visit {
+      id
+      visitType
+      visitDateTime
+
+      patient {
+        id
+        fullName
+        dateOfBirth
+        gender
+      }
+
+      organization {
+        id
+        name
+        email
+        phoneNumber
+        website
+
+        address {
+          addressLine1
+          city
+          state
+          country
+        }
+      }
+    }
 
     createdAt
     updatedAt
