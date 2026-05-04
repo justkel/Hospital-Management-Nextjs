@@ -43,7 +43,7 @@ export default async function VisitDetailPage({ params }: Props) {
 
           <VisitHeaderCard visit={visit} />
 
-          <CollapsibleSection title="Visit Records">
+          <CollapsibleSection title="Visit Records" defaultOpen={false}>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
