@@ -14,6 +14,7 @@ import {
     SolutionOutlined,
     CreditCardOutlined,
     ExperimentOutlined,
+    ApartmentOutlined,
     ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { Roles } from '@/shared/utils/enums/roles';
@@ -61,6 +62,10 @@ export default function DashboardShell({
         roles.includes(Roles.ADMIN) ||
         roles.includes(Roles.DOCTOR) ||
         roles.includes(Roles.NURSE);
+
+    const hasWardAccess =
+        roles.includes(Roles.ADMIN) ||
+        roles.includes(Roles.NURSE);    
 
     const handleLogout = async () => {
         try {
@@ -161,6 +166,16 @@ export default function DashboardShell({
                 },
             ]
             : []),
+
+        ...(hasWardAccess
+            ? [
+                {
+                    key: 'wards',
+                    icon: <ApartmentOutlined />,
+                    label: <Link href="/dashboard/wards">Wards</Link>,
+                },
+            ]
+            : []),    
 
         {
             key: 'lab-requests',
