@@ -343,6 +343,15 @@ export type CreateVisitVitalInput = {
   weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type CreateWardInput = {
+  class: WardClass;
+  code?: InputMaybe<Scalars['String']['input']>;
+  department?: InputMaybe<WardDepartment>;
+  floor?: InputMaybe<Scalars['Int']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
 export type DuplicatePatientMatch = {
   __typename?: 'DuplicatePatientMatch';
   confidence: Scalars['Float']['output'];
@@ -464,6 +473,7 @@ export type Mutation = {
   createVisitDiagnosis: VisitDiagnosis;
   createVisitPrescription: VisitPrescription;
   createVisitVital: VisitVital;
+  createWard: Ward;
   logout: Scalars['Boolean']['output'];
   refreshToken: AuthResponse;
   staffLogin: LoginAuthResponse;
@@ -484,6 +494,7 @@ export type Mutation = {
   updateVisitDiagnosis: VisitDiagnosis;
   updateVisitPrescription: VisitPrescription;
   updateVisitVital: VisitVital;
+  updateWard: Ward;
 };
 
 
@@ -564,6 +575,11 @@ export type MutationCreateVisitPrescriptionArgs = {
 
 export type MutationCreateVisitVitalArgs = {
   data: CreateVisitVitalInput;
+};
+
+
+export type MutationCreateWardArgs = {
+  data: CreateWardInput;
 };
 
 
@@ -655,6 +671,11 @@ export type MutationUpdateVisitPrescriptionArgs = {
 
 export type MutationUpdateVisitVitalArgs = {
   data: UpdateVisitVitalInput;
+};
+
+
+export type MutationUpdateWardArgs = {
+  data: UpdateWardInput;
 };
 
 export type Organization = {
@@ -772,6 +793,8 @@ export type Query = {
   visitVitals: Array<VisitVital>;
   visits: VisitPaginationResult;
   visitsByPatientUserCode: Array<Visit>;
+  wardById: Ward;
+  wards: WardPaginationResult;
   whoAmI: WhoAmIDto;
 };
 
@@ -920,6 +943,16 @@ export type QueryVisitsArgs = {
 
 export type QueryVisitsByPatientUserCodeArgs = {
   userCode: Scalars['Int']['input'];
+};
+
+
+export type QueryWardByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryWardsArgs = {
+  pagination: WardPaginationInput;
 };
 
 export type Staff = {
@@ -1077,6 +1110,16 @@ export type UpdateVisitVitalInput = {
   weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type UpdateWardInput = {
+  class?: InputMaybe<WardClass>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  department?: InputMaybe<WardDepartment>;
+  floor?: InputMaybe<Scalars['Int']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  wardId: Scalars['ID']['input'];
+};
+
 /** Type of user */
 export enum UserType {
   Admin = 'ADMIN',
@@ -1225,6 +1268,51 @@ export type VisitVital = {
   temperature?: Maybe<Scalars['Float']['output']>;
   visitId: Scalars['ID']['output'];
   weight?: Maybe<Scalars['Float']['output']>;
+};
+
+export type Ward = {
+  __typename?: 'Ward';
+  code?: Maybe<Scalars['String']['output']>;
+  department: WardDepartment;
+  floor?: Maybe<Scalars['Float']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  organization: Organization;
+  organizationId: Scalars['ID']['output'];
+  wardClass: WardClass;
+};
+
+export enum WardClass {
+  Isolation = 'ISOLATION',
+  Premium = 'PREMIUM',
+  Standard = 'STANDARD',
+  Vip = 'VIP'
+}
+
+/** Department type for a ward */
+export enum WardDepartment {
+  General = 'GENERAL',
+  Icu = 'ICU',
+  Obstetrics = 'OBSTETRICS',
+  Pediatrics = 'PEDIATRICS',
+  Surgery = 'SURGERY'
+}
+
+export type WardPaginationInput = {
+  department?: InputMaybe<WardDepartment>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  wardClass?: InputMaybe<WardClass>;
+};
+
+export type WardPaginationResult = {
+  __typename?: 'WardPaginationResult';
+  items: Array<Ward>;
+  page: Scalars['Int']['output'];
+  pageCount: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
 };
 
 export type WhoAmIDto = {
@@ -1683,6 +1771,34 @@ export type UpdateVisitPrescriptionMutationVariables = Exact<{
 
 export type UpdateVisitPrescriptionMutation = { __typename?: 'Mutation', updateVisitPrescription: { __typename?: 'VisitPrescription', id: string, visitId: string, drug: string, dose?: string | null, route?: string | null, frequency?: string | null, isProvidedInHouse: boolean, startDate?: string | null, endDate?: string | null, notes?: string | null, prescribingDoctorId: string, createdAt: string, updatedAt: string } };
 
+export type GetWardsQueryVariables = Exact<{
+  pagination: WardPaginationInput;
+}>;
+
+
+export type GetWardsQuery = { __typename?: 'Query', wards: { __typename?: 'WardPaginationResult', total: number, page: number, pageCount: number, items: Array<{ __typename?: 'Ward', id: string, name: string, code?: string | null, floor?: number | null, department: WardDepartment, wardClass: WardClass, organizationId: string, isActive: boolean }> } };
+
+export type GetWardByIdQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetWardByIdQuery = { __typename?: 'Query', wardById: { __typename?: 'Ward', id: string, name: string, code?: string | null, floor?: number | null, department: WardDepartment, wardClass: WardClass, organizationId: string, isActive: boolean } };
+
+export type CreateWardMutationVariables = Exact<{
+  data: CreateWardInput;
+}>;
+
+
+export type CreateWardMutation = { __typename?: 'Mutation', createWard: { __typename?: 'Ward', id: string, name: string, code?: string | null, floor?: number | null, department: WardDepartment, wardClass: WardClass, organizationId: string, isActive: boolean } };
+
+export type UpdateWardMutationVariables = Exact<{
+  data: UpdateWardInput;
+}>;
+
+
+export type UpdateWardMutation = { __typename?: 'Mutation', updateWard: { __typename?: 'Ward', id: string, name: string, code?: string | null, floor?: number | null, department: WardDepartment, wardClass: WardClass, organizationId: string, isActive: boolean } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -1750,3 +1866,7 @@ export const UpdateLabResultDocument = {"kind":"Document","definitions":[{"kind"
 export const FindVisitPrescriptionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindVisitPrescriptions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitPrescriptions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"drug"}},{"kind":"Field","name":{"kind":"Name","value":"dose"}},{"kind":"Field","name":{"kind":"Name","value":"route"}},{"kind":"Field","name":{"kind":"Name","value":"frequency"}},{"kind":"Field","name":{"kind":"Name","value":"isProvidedInHouse"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"prescribingDoctorId"}},{"kind":"Field","name":{"kind":"Name","value":"prescribingDoctor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"visit"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitType"}},{"kind":"Field","name":{"kind":"Name","value":"visitDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"patient"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"dateOfBirth"}},{"kind":"Field","name":{"kind":"Name","value":"gender"}}]}},{"kind":"Field","name":{"kind":"Name","value":"organization"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"website"}},{"kind":"Field","name":{"kind":"Name","value":"address"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addressLine1"}},{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"country"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<FindVisitPrescriptionsQuery, FindVisitPrescriptionsQueryVariables>;
 export const CreateVisitPrescriptionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVisitPrescription"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitPrescriptionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVisitPrescription"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"drug"}},{"kind":"Field","name":{"kind":"Name","value":"dose"}},{"kind":"Field","name":{"kind":"Name","value":"route"}},{"kind":"Field","name":{"kind":"Name","value":"frequency"}},{"kind":"Field","name":{"kind":"Name","value":"isProvidedInHouse"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"prescribingDoctorId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateVisitPrescriptionMutation, CreateVisitPrescriptionMutationVariables>;
 export const UpdateVisitPrescriptionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitPrescription"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitPrescriptionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitPrescription"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"drug"}},{"kind":"Field","name":{"kind":"Name","value":"dose"}},{"kind":"Field","name":{"kind":"Name","value":"route"}},{"kind":"Field","name":{"kind":"Name","value":"frequency"}},{"kind":"Field","name":{"kind":"Name","value":"isProvidedInHouse"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"prescribingDoctorId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<UpdateVisitPrescriptionMutation, UpdateVisitPrescriptionMutationVariables>;
+export const GetWardsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWards"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"WardPaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"wards"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"wardClass"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pageCount"}}]}}]}}]} as unknown as DocumentNode<GetWardsQuery, GetWardsQueryVariables>;
+export const GetWardByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWardById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"wardById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"wardClass"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]} as unknown as DocumentNode<GetWardByIdQuery, GetWardByIdQueryVariables>;
+export const CreateWardDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateWard"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateWardInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createWard"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"wardClass"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]} as unknown as DocumentNode<CreateWardMutation, CreateWardMutationVariables>;
+export const UpdateWardDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateWard"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateWardInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateWard"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"wardClass"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]} as unknown as DocumentNode<UpdateWardMutation, UpdateWardMutationVariables>;

@@ -1072,3 +1072,73 @@ mutation UpdateVisitPrescription($data: UpdateVisitPrescriptionInput!) {
     updatedAt
   }
 }
+
+query GetWards($pagination: WardPaginationInput!) {
+  wards(pagination: $pagination) {
+    items {
+      id
+      name
+      code
+      floor
+
+      department
+      wardClass
+
+      organizationId
+
+      isActive
+    }
+
+    total
+    page
+    pageCount
+  }
+}
+
+query GetWardById($id: ID!) {
+  wardById(id: $id) {
+    id
+    name
+    code
+    floor
+
+    department
+    wardClass
+
+    organizationId
+
+    isActive
+  }
+}
+
+mutation CreateWard($data: CreateWardInput!) {
+  createWard(data: $data) {
+    id
+    name
+    code
+    floor
+
+    department
+    wardClass
+
+    organizationId
+
+    isActive
+  }
+}
+
+mutation UpdateWard($data: UpdateWardInput!) {
+  updateWard(data: $data) {
+    id
+    name
+    code
+    floor
+
+    department
+    wardClass
+
+    organizationId
+
+    isActive
+  }
+}
