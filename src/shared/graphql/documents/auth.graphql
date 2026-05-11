@@ -1331,3 +1331,66 @@ mutation UpdateWardIncident(
     }
   }
 }
+
+query GetBeds(
+  $pagination: BedPaginationInput!
+) {
+  beds(pagination: $pagination) {
+    items {
+      id
+
+      wardId
+      organizationId
+
+      name
+      bedCode
+
+      class
+      status
+
+      isActive
+    }
+
+    total
+    page
+    pageCount
+  }
+}
+
+mutation CreateBed(
+  $data: CreateBedInput!
+) {
+  createBed(data: $data) {
+    id
+
+    wardId
+    organizationId
+
+    name
+    bedCode
+
+    class
+    status
+
+    isActive
+  }
+}
+
+mutation UpdateBed(
+  $data: UpdateBedInput!
+) {
+  updateBed(data: $data) {
+    id
+
+    wardId
+    organizationId
+
+    name
+    bedCode
+
+    class
+    status
+
+    isActive
+  }
+}

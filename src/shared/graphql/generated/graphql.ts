@@ -90,6 +90,55 @@ export type AuthResponse = {
   refreshToken?: Maybe<Scalars['String']['output']>;
 };
 
+export type Bed = {
+  __typename?: 'Bed';
+  bedCode: Scalars['String']['output'];
+  class: BedClass;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  organizationId: Scalars['ID']['output'];
+  status: BedStatus;
+  wardId: Scalars['ID']['output'];
+};
+
+/** Classification of bed for billing and accommodation */
+export enum BedClass {
+  Isolation = 'ISOLATION',
+  Premium = 'PREMIUM',
+  Standard = 'STANDARD',
+  Vip = 'VIP'
+}
+
+export type BedPaginationInput = {
+  class?: InputMaybe<BedClass>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  status?: InputMaybe<BedStatus>;
+  wardId: Scalars['ID']['input'];
+};
+
+export type BedPaginationResult = {
+  __typename?: 'BedPaginationResult';
+  items: Array<Bed>;
+  page: Scalars['Int']['output'];
+  pageCount: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
+/** Current structural status of a bed */
+export enum BedStatus {
+  Available = 'AVAILABLE',
+  Blocked = 'BLOCKED',
+  Cleaning = 'CLEANING',
+  Decommissioned = 'DECOMMISSIONED',
+  Isolation = 'ISOLATION',
+  Maintenance = 'MAINTENANCE',
+  Occupied = 'OCCUPIED',
+  Reserved = 'RESERVED'
+}
+
 export type BillingCatalogueCategory = {
   __typename?: 'BillingCatalogueCategory';
   code: Scalars['String']['output'];
@@ -191,6 +240,14 @@ export type CreateAddressInput = {
   city: Scalars['String']['input'];
   country: Scalars['String']['input'];
   state: Scalars['String']['input'];
+};
+
+export type CreateBedInput = {
+  class: BedClass;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  status?: InputMaybe<BedStatus>;
+  wardId: Scalars['ID']['input'];
 };
 
 export type CreateBillingCategoryInput = {
@@ -466,6 +523,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   cloneGlobalCategoryToOrganization: BillingCatalogueCategory;
   completeLabRequest: LabRequest;
+  createBed: Bed;
   createBillingCategory: BillingCatalogueCategory;
   createBillingItem: GlobalBillingCatalogueItem;
   createChargeCatalog: ChargeCatalog;
@@ -487,6 +545,7 @@ export type Mutation = {
   staffLogin: LoginAuthResponse;
   startLabRequest: LabRequest;
   syncChargeDomainMapping: Array<ChargeDomainCatalogMapping>;
+  updateBed: Bed;
   updateBillingCategory: BillingCatalogueCategory;
   updateChargeCatalog: ChargeCatalog;
   updateLabRequest: CreateLabRequestResponse;
@@ -514,6 +573,11 @@ export type MutationCloneGlobalCategoryToOrganizationArgs = {
 
 export type MutationCompleteLabRequestArgs = {
   labRequestId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateBedArgs = {
+  data: CreateBedInput;
 };
 
 
@@ -609,6 +673,11 @@ export type MutationStartLabRequestArgs = {
 
 export type MutationSyncChargeDomainMappingArgs = {
   data: SyncChargeDomainMappingInput;
+};
+
+
+export type MutationUpdateBedArgs = {
+  data: UpdateBedInput;
 };
 
 
@@ -777,6 +846,7 @@ export enum PatientStatus {
 export type Query = {
   __typename?: 'Query';
   auditLogs: AuditPaginationResult;
+  beds: BedPaginationResult;
   billingCategoryById: BillingCatalogueCategory;
   catalogsByChargeDomain: Array<ChargeDomainCatalogMapping>;
   chargeDomainMappings: Array<ChargeDomainCatalogMapping>;
@@ -823,6 +893,11 @@ export type Query = {
 
 export type QueryAuditLogsArgs = {
   pagination: AuditPaginationInput;
+};
+
+
+export type QueryBedsArgs = {
+  pagination: BedPaginationInput;
 };
 
 
@@ -1035,6 +1110,14 @@ export type SyncChargeDomainMappingInput = {
   chargeDomain: ChargeDomain;
 };
 
+export type UpdateBedInput = {
+  bedId: Scalars['ID']['input'];
+  class?: InputMaybe<BedClass>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<BedStatus>;
+};
+
 export type UpdateBillingCategoryInput = {
   categoryId: Scalars['ID']['input'];
   code?: InputMaybe<Scalars['String']['input']>;
@@ -1087,7 +1170,6 @@ export type UpdatePatientInput = {
 
 export type UpdatePatientStatusInput = {
   id: Scalars['String']['input'];
-  organizationId: Scalars['String']['input'];
   status: PatientStatus;
 };
 
@@ -1388,6 +1470,7 @@ export enum WardIncidentSeverity {
 
 export enum WardIncidentStatus {
   Active = 'ACTIVE',
+  Escalated = 'ESCALATED',
   Resolved = 'RESOLVED'
 }
 
@@ -1936,6 +2019,27 @@ export type UpdateWardIncidentMutationVariables = Exact<{
 
 export type UpdateWardIncidentMutation = { __typename?: 'Mutation', updateWardIncident: { __typename?: 'WardIncident', id: string, wardId: string, organizationId: string, reportedByStaffId: string, type: WardIncidentType, severity: WardIncidentSeverity, status: WardIncidentStatus, reportedAt: string, resolvedAt?: string | null, notes?: string | null, ward: { __typename?: 'Ward', id: string, name: string, code?: string | null }, reportedBy: { __typename?: 'Staff', id: string, fullName: string, userCode: number } } };
 
+export type GetBedsQueryVariables = Exact<{
+  pagination: BedPaginationInput;
+}>;
+
+
+export type GetBedsQuery = { __typename?: 'Query', beds: { __typename?: 'BedPaginationResult', total: number, page: number, pageCount: number, items: Array<{ __typename?: 'Bed', id: string, wardId: string, organizationId: string, name: string, bedCode: string, class: BedClass, status: BedStatus, isActive: boolean }> } };
+
+export type CreateBedMutationVariables = Exact<{
+  data: CreateBedInput;
+}>;
+
+
+export type CreateBedMutation = { __typename?: 'Mutation', createBed: { __typename?: 'Bed', id: string, wardId: string, organizationId: string, name: string, bedCode: string, class: BedClass, status: BedStatus, isActive: boolean } };
+
+export type UpdateBedMutationVariables = Exact<{
+  data: UpdateBedInput;
+}>;
+
+
+export type UpdateBedMutation = { __typename?: 'Mutation', updateBed: { __typename?: 'Bed', id: string, wardId: string, organizationId: string, name: string, bedCode: string, class: BedClass, status: BedStatus, isActive: boolean } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -2012,3 +2116,6 @@ export const GetWardIncidentsByWardDocument = {"kind":"Document","definitions":[
 export const GetWardIncidentByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWardIncidentById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"wardIncidentById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"reportedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reportedAt"}},{"kind":"Field","name":{"kind":"Name","value":"resolvedAt"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"ward"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"wardClass"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reportedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}}]}}]}}]}}]} as unknown as DocumentNode<GetWardIncidentByIdQuery, GetWardIncidentByIdQueryVariables>;
 export const CreateWardIncidentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateWardIncident"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateWardIncidentInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createWardIncident"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"reportedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reportedAt"}},{"kind":"Field","name":{"kind":"Name","value":"resolvedAt"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"ward"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reportedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}}]}}]}}]}}]} as unknown as DocumentNode<CreateWardIncidentMutation, CreateWardIncidentMutationVariables>;
 export const UpdateWardIncidentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateWardIncident"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateWardIncidentInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateWardIncident"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"reportedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reportedAt"}},{"kind":"Field","name":{"kind":"Name","value":"resolvedAt"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"ward"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reportedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateWardIncidentMutation, UpdateWardIncidentMutationVariables>;
+export const GetBedsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetBeds"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"BedPaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"beds"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pageCount"}}]}}]}}]} as unknown as DocumentNode<GetBedsQuery, GetBedsQueryVariables>;
+export const CreateBedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateBed"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateBedInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createBed"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]} as unknown as DocumentNode<CreateBedMutation, CreateBedMutationVariables>;
+export const UpdateBedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateBed"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateBedInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateBed"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]} as unknown as DocumentNode<UpdateBedMutation, UpdateBedMutationVariables>;
