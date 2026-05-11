@@ -11,6 +11,7 @@ import {
     WardIncidentType,
     GetWardIncidentsByWardQuery,
 } from '@/shared/graphql/generated/graphql';
+import { formatDateTime } from '@/utils/formatDateTime';
 
 type WardIncidentItem =
     GetWardIncidentsByWardQuery['wardIncidentsByWard']['items'][number];
@@ -76,7 +77,6 @@ export default function WardIncidentsSection({
 
     return (
         <section className="space-y-6">
-            {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
@@ -175,7 +175,7 @@ export default function WardIncidentsSection({
 
                                     <td className="px-6 py-4 text-gray-700">
                                         {item.reportedAt
-                                            ? new Date(item.reportedAt).toLocaleString()
+                                            ? formatDateTime(item.reportedAt)
                                             : '—'}
                                     </td>
 

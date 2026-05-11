@@ -241,9 +241,9 @@ function SeverityBadge({ value }: { value: string }) {
 
 function StatusBadge({ value }: { value: string }) {
     const map: Record<string, string> = {
-        ACTIVE: 'bg-red-100 text-red-700',
+        ESCALATED: 'bg-red-100 text-red-700',
         RESOLVED: 'bg-green-100 text-green-700',
-        CLOSED: 'bg-slate-100 text-slate-700',
+        ACTIVE: 'bg-blue-100 text-black',
     };
 
     return (
