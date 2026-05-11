@@ -343,6 +343,13 @@ export type CreateVisitVitalInput = {
   weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type CreateWardIncidentInput = {
+  notes?: InputMaybe<Scalars['String']['input']>;
+  severity: WardIncidentSeverity;
+  type: WardIncidentType;
+  wardId: Scalars['ID']['input'];
+};
+
 export type CreateWardInput = {
   class: WardClass;
   code?: InputMaybe<Scalars['String']['input']>;
@@ -474,6 +481,7 @@ export type Mutation = {
   createVisitPrescription: VisitPrescription;
   createVisitVital: VisitVital;
   createWard: Ward;
+  createWardIncident: WardIncident;
   logout: Scalars['Boolean']['output'];
   refreshToken: AuthResponse;
   staffLogin: LoginAuthResponse;
@@ -495,6 +503,7 @@ export type Mutation = {
   updateVisitPrescription: VisitPrescription;
   updateVisitVital: VisitVital;
   updateWard: Ward;
+  updateWardIncident: WardIncident;
 };
 
 
@@ -580,6 +589,11 @@ export type MutationCreateVisitVitalArgs = {
 
 export type MutationCreateWardArgs = {
   data: CreateWardInput;
+};
+
+
+export type MutationCreateWardIncidentArgs = {
+  data: CreateWardIncidentInput;
 };
 
 
@@ -676,6 +690,11 @@ export type MutationUpdateVisitVitalArgs = {
 
 export type MutationUpdateWardArgs = {
   data: UpdateWardInput;
+};
+
+
+export type MutationUpdateWardIncidentArgs = {
+  data: UpdateWardIncidentInput;
 };
 
 export type Organization = {
@@ -794,6 +813,9 @@ export type Query = {
   visits: VisitPaginationResult;
   visitsByPatientUserCode: Array<Visit>;
   wardById: Ward;
+  wardIncidentById: WardIncident;
+  wardIncidents: WardIncidentPaginationResult;
+  wardIncidentsByWard: WardIncidentPaginationResult;
   wards: WardPaginationResult;
   whoAmI: WhoAmIDto;
 };
@@ -948,6 +970,22 @@ export type QueryVisitsByPatientUserCodeArgs = {
 
 export type QueryWardByIdArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryWardIncidentByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryWardIncidentsArgs = {
+  pagination: WardIncidentPaginationInput;
+};
+
+
+export type QueryWardIncidentsByWardArgs = {
+  pagination: WardIncidentPaginationInput;
+  wardId: Scalars['ID']['input'];
 };
 
 
@@ -1108,6 +1146,15 @@ export type UpdateVisitVitalInput = {
   temperature?: InputMaybe<Scalars['Float']['input']>;
   vitalId: Scalars['ID']['input'];
   weight?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type UpdateWardIncidentInput = {
+  incidentId: Scalars['ID']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  resolvedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  severity?: InputMaybe<WardIncidentSeverity>;
+  status?: InputMaybe<WardIncidentStatus>;
+  type?: InputMaybe<WardIncidentType>;
 };
 
 export type UpdateWardInput = {
@@ -1297,6 +1344,60 @@ export enum WardDepartment {
   Obstetrics = 'OBSTETRICS',
   Pediatrics = 'PEDIATRICS',
   Surgery = 'SURGERY'
+}
+
+export type WardIncident = {
+  __typename?: 'WardIncident';
+  id: Scalars['ID']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
+  organization: Organization;
+  organizationId: Scalars['String']['output'];
+  reportedAt: Scalars['DateTime']['output'];
+  reportedBy: Staff;
+  reportedByStaffId: Scalars['String']['output'];
+  resolvedAt?: Maybe<Scalars['DateTime']['output']>;
+  severity: WardIncidentSeverity;
+  status: WardIncidentStatus;
+  type: WardIncidentType;
+  ward: Ward;
+  wardId: Scalars['String']['output'];
+};
+
+export type WardIncidentPaginationInput = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  severity?: InputMaybe<WardIncidentSeverity>;
+  status?: InputMaybe<WardIncidentStatus>;
+  type?: InputMaybe<WardIncidentType>;
+  wardId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type WardIncidentPaginationResult = {
+  __typename?: 'WardIncidentPaginationResult';
+  items: Array<WardIncident>;
+  page: Scalars['Int']['output'];
+  pageCount: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export enum WardIncidentSeverity {
+  High = 'HIGH',
+  Low = 'LOW',
+  Medium = 'MEDIUM'
+}
+
+export enum WardIncidentStatus {
+  Active = 'ACTIVE',
+  Resolved = 'RESOLVED'
+}
+
+export enum WardIncidentType {
+  EquipmentFailure = 'EQUIPMENT_FAILURE',
+  FireOutbreak = 'FIRE_OUTBREAK',
+  GasLeak = 'GAS_LEAK',
+  PowerFailure = 'POWER_FAILURE',
+  SecurityBreach = 'SECURITY_BREACH',
+  WaterLeak = 'WATER_LEAK'
 }
 
 export type WardPaginationInput = {
@@ -1799,6 +1900,42 @@ export type UpdateWardMutationVariables = Exact<{
 
 export type UpdateWardMutation = { __typename?: 'Mutation', updateWard: { __typename?: 'Ward', id: string, name: string, code?: string | null, floor?: number | null, department: WardDepartment, wardClass: WardClass, organizationId: string, isActive: boolean } };
 
+export type GetWardIncidentsQueryVariables = Exact<{
+  pagination: WardIncidentPaginationInput;
+}>;
+
+
+export type GetWardIncidentsQuery = { __typename?: 'Query', wardIncidents: { __typename?: 'WardIncidentPaginationResult', total: number, page: number, pageCount: number, items: Array<{ __typename?: 'WardIncident', id: string, wardId: string, organizationId: string, reportedByStaffId: string, type: WardIncidentType, severity: WardIncidentSeverity, status: WardIncidentStatus, reportedAt: string, resolvedAt?: string | null, notes?: string | null, ward: { __typename?: 'Ward', id: string, name: string, code?: string | null, department: WardDepartment, wardClass: WardClass }, reportedBy: { __typename?: 'Staff', id: string, userCode: number, fullName: string } }> } };
+
+export type GetWardIncidentsByWardQueryVariables = Exact<{
+  wardId: Scalars['ID']['input'];
+  pagination: WardIncidentPaginationInput;
+}>;
+
+
+export type GetWardIncidentsByWardQuery = { __typename?: 'Query', wardIncidentsByWard: { __typename?: 'WardIncidentPaginationResult', total: number, page: number, pageCount: number, items: Array<{ __typename?: 'WardIncident', id: string, wardId: string, organizationId: string, reportedByStaffId: string, type: WardIncidentType, severity: WardIncidentSeverity, status: WardIncidentStatus, reportedAt: string, resolvedAt?: string | null, notes?: string | null, ward: { __typename?: 'Ward', id: string, name: string, code?: string | null, department: WardDepartment, wardClass: WardClass }, reportedBy: { __typename?: 'Staff', id: string, userCode: number, fullName: string } }> } };
+
+export type GetWardIncidentByIdQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetWardIncidentByIdQuery = { __typename?: 'Query', wardIncidentById: { __typename?: 'WardIncident', id: string, wardId: string, organizationId: string, reportedByStaffId: string, type: WardIncidentType, severity: WardIncidentSeverity, status: WardIncidentStatus, reportedAt: string, resolvedAt?: string | null, notes?: string | null, ward: { __typename?: 'Ward', id: string, name: string, code?: string | null, floor?: number | null, department: WardDepartment, wardClass: WardClass, isActive: boolean }, reportedBy: { __typename?: 'Staff', id: string, fullName: string, userCode: number } } };
+
+export type CreateWardIncidentMutationVariables = Exact<{
+  data: CreateWardIncidentInput;
+}>;
+
+
+export type CreateWardIncidentMutation = { __typename?: 'Mutation', createWardIncident: { __typename?: 'WardIncident', id: string, wardId: string, organizationId: string, reportedByStaffId: string, type: WardIncidentType, severity: WardIncidentSeverity, status: WardIncidentStatus, reportedAt: string, resolvedAt?: string | null, notes?: string | null, ward: { __typename?: 'Ward', id: string, name: string, code?: string | null }, reportedBy: { __typename?: 'Staff', id: string, fullName: string, userCode: number } } };
+
+export type UpdateWardIncidentMutationVariables = Exact<{
+  data: UpdateWardIncidentInput;
+}>;
+
+
+export type UpdateWardIncidentMutation = { __typename?: 'Mutation', updateWardIncident: { __typename?: 'WardIncident', id: string, wardId: string, organizationId: string, reportedByStaffId: string, type: WardIncidentType, severity: WardIncidentSeverity, status: WardIncidentStatus, reportedAt: string, resolvedAt?: string | null, notes?: string | null, ward: { __typename?: 'Ward', id: string, name: string, code?: string | null }, reportedBy: { __typename?: 'Staff', id: string, fullName: string, userCode: number } } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -1870,3 +2007,8 @@ export const GetWardsDocument = {"kind":"Document","definitions":[{"kind":"Opera
 export const GetWardByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWardById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"wardById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"wardClass"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]} as unknown as DocumentNode<GetWardByIdQuery, GetWardByIdQueryVariables>;
 export const CreateWardDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateWard"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateWardInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createWard"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"wardClass"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]} as unknown as DocumentNode<CreateWardMutation, CreateWardMutationVariables>;
 export const UpdateWardDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateWard"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateWardInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateWard"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"wardClass"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]} as unknown as DocumentNode<UpdateWardMutation, UpdateWardMutationVariables>;
+export const GetWardIncidentsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWardIncidents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"WardIncidentPaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"wardIncidents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"reportedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reportedAt"}},{"kind":"Field","name":{"kind":"Name","value":"resolvedAt"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"ward"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"wardClass"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reportedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pageCount"}}]}}]}}]} as unknown as DocumentNode<GetWardIncidentsQuery, GetWardIncidentsQueryVariables>;
+export const GetWardIncidentsByWardDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWardIncidentsByWard"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"wardId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"WardIncidentPaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"wardIncidentsByWard"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"wardId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"wardId"}}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"reportedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reportedAt"}},{"kind":"Field","name":{"kind":"Name","value":"resolvedAt"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"ward"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"wardClass"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reportedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pageCount"}}]}}]}}]} as unknown as DocumentNode<GetWardIncidentsByWardQuery, GetWardIncidentsByWardQueryVariables>;
+export const GetWardIncidentByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWardIncidentById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"wardIncidentById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"reportedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reportedAt"}},{"kind":"Field","name":{"kind":"Name","value":"resolvedAt"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"ward"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"wardClass"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reportedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}}]}}]}}]}}]} as unknown as DocumentNode<GetWardIncidentByIdQuery, GetWardIncidentByIdQueryVariables>;
+export const CreateWardIncidentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateWardIncident"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateWardIncidentInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createWardIncident"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"reportedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reportedAt"}},{"kind":"Field","name":{"kind":"Name","value":"resolvedAt"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"ward"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reportedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}}]}}]}}]}}]} as unknown as DocumentNode<CreateWardIncidentMutation, CreateWardIncidentMutationVariables>;
+export const UpdateWardIncidentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateWardIncident"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateWardIncidentInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateWardIncident"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"reportedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reportedAt"}},{"kind":"Field","name":{"kind":"Name","value":"resolvedAt"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"ward"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reportedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateWardIncidentMutation, UpdateWardIncidentMutationVariables>;

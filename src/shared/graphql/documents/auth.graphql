@@ -1142,3 +1142,192 @@ mutation UpdateWard($data: UpdateWardInput!) {
     isActive
   }
 }
+
+query GetWardIncidents(
+  $pagination: WardIncidentPaginationInput!
+) {
+  wardIncidents(
+    pagination: $pagination
+  ) {
+    items {
+      id
+
+      wardId
+      organizationId
+      reportedByStaffId
+
+      type
+      severity
+      status
+
+      reportedAt
+      resolvedAt
+
+      notes
+
+      ward {
+        id
+        name
+        code
+        department
+        wardClass
+      }
+
+      reportedBy {
+        id
+        userCode
+        fullName
+      }
+    }
+
+    total
+    page
+    pageCount
+  }
+}
+
+query GetWardIncidentsByWard(
+  $wardId: ID!
+  $pagination: WardIncidentPaginationInput!
+) {
+  wardIncidentsByWard(
+    wardId: $wardId
+    pagination: $pagination
+  ) {
+    items {
+      id
+
+      wardId
+      organizationId
+      reportedByStaffId
+
+      type
+      severity
+      status
+
+      reportedAt
+      resolvedAt
+
+      notes
+
+      ward {
+        id
+        name
+        code
+        department
+        wardClass
+      }
+
+      reportedBy {
+        id
+        userCode
+        fullName
+      }
+    }
+
+    total
+    page
+    pageCount
+  }
+}
+
+query GetWardIncidentById($id: ID!) {
+  wardIncidentById(id: $id) {
+    id
+
+    wardId
+    organizationId
+    reportedByStaffId
+
+    type
+    severity
+    status
+
+    reportedAt
+    resolvedAt
+
+    notes
+
+    ward {
+      id
+      name
+      code
+      floor
+      department
+      wardClass
+      isActive
+    }
+
+    reportedBy {
+      id
+      fullName
+      userCode
+    }
+  }
+}
+
+mutation CreateWardIncident(
+  $data: CreateWardIncidentInput!
+) {
+  createWardIncident(data: $data) {
+    id
+
+    wardId
+    organizationId
+    reportedByStaffId
+
+    type
+    severity
+    status
+
+    reportedAt
+    resolvedAt
+
+    notes
+
+    ward {
+      id
+      name
+      code
+    }
+
+    reportedBy {
+      id
+      fullName
+      userCode
+    }
+  }
+}
+
+mutation UpdateWardIncident(
+  $data: UpdateWardIncidentInput!
+) {
+  updateWardIncident(data: $data) {
+    id
+
+    wardId
+    organizationId
+    reportedByStaffId
+
+    type
+    severity
+    status
+
+    reportedAt
+    resolvedAt
+
+    notes
+
+    ward {
+      id
+      name
+      code
+    }
+
+    reportedBy {
+      id
+      fullName
+      userCode
+    }
+  }
+}
