@@ -8,7 +8,14 @@ import {
     ClipboardList,
     FileText,
     Activity,
+    User2,
+    BadgeCheck,
+    Pencil,
 } from 'lucide-react';
+
+import { useState } from 'react';
+
+import UpdateWardIncidentDrawer from './UpdateWardIncidentDrawer';
 
 import { GetWardIncidentByIdQuery } from '@/shared/graphql/generated/graphql';
 import { formatDateTime } from '@/utils/formatDateTime';
@@ -20,6 +27,7 @@ export default function WardIncidentInfoSection({
 }: {
     incident: Incident;
 }) {
+    const [editOpen, setEditOpen] = useState(false);
     const severityColor = getSeverityStyle(incident.severity);
     const statusColor = getStatusStyle(incident.status);
 
@@ -47,6 +55,14 @@ export default function WardIncidentInfoSection({
                                 </span>
                             </div>
                         </div>
+
+                        <button
+                            onClick={() => setEditOpen(true)}
+                            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium !text-white transition hover:bg-slate-800"
+                        >
+                            <Pencil className="h-4 w-4" />
+                            Edit Incident
+                        </button>
                     </div>
                 </div>
             </div>
@@ -68,6 +84,18 @@ export default function WardIncidentInfoSection({
                     icon={ClipboardList}
                     label="Department"
                     value={incident.ward?.department?.replace(/_/g, ' ')}
+                />
+
+                <Row
+                    icon={User2}
+                    label="Reported By"
+                    value={incident.reportedBy?.fullName}
+                />
+
+                <Row
+                    icon={BadgeCheck}
+                    label="Staff Code"
+                    value={incident.reportedBy?.userCode}
                 />
 
                 <Row
@@ -112,6 +140,17 @@ export default function WardIncidentInfoSection({
                 <Row icon={Activity} label="Status Flow" value={incident.status} />
                 <Row icon={ShieldAlert} label="Severity Level" value={incident.severity} />
             </Card>
+
+            <UpdateWardIncidentDrawer
+                open={editOpen}
+                incident={incident}
+                onClose={() => setEditOpen(false)}
+                onUpdated={() => {
+                    setEditOpen(false);
+
+                    window.location.reload();
+                }}
+            />
         </div>
     );
 }

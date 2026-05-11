@@ -22,12 +22,12 @@ export default function UpdateWardIncidentDrawer({
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (!incident) return;
+        if (!open || !incident) return;
 
         setNotes(incident.notes ?? '');
         setSeverity(incident.severity ?? '');
         setStatus(incident.status ?? '');
-    }, [incident]);
+    }, [open, incident?.id]);
 
     function reset() {
         setNotes('');

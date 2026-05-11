@@ -12,6 +12,9 @@ import {
     GetWardIncidentsByWardQuery,
 } from '@/shared/graphql/generated/graphql';
 import { formatDateTime } from '@/utils/formatDateTime';
+import { EyeOutlined } from '@ant-design/icons';
+
+import Link from 'next/link';
 
 type WardIncidentItem =
     GetWardIncidentsByWardQuery['wardIncidentsByWard']['items'][number];
@@ -139,6 +142,10 @@ export default function WardIncidentsSection({
                                 <th className="px-6 py-4">Reported At</th>
                                 <th className="px-6 py-4">Resolved At</th>
                                 <th className="px-6 py-4">Notes</th>
+
+                                <th className="px-6 py-4 text-right">
+                                    Action
+                                </th>
                             </tr>
                         </thead>
 
@@ -161,8 +168,8 @@ export default function WardIncidentsSection({
                                     <td className="px-6 py-4">
                                         <span
                                             className={`px-3 py-1 rounded-full text-xs font-semibold ${item.status === 'RESOLVED'
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-yellow-100 text-yellow-700'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-yellow-100 text-yellow-700'
                                                 }`}
                                         >
                                             {item.status}
@@ -181,12 +188,23 @@ export default function WardIncidentsSection({
 
                                     <td className="px-6 py-4 text-gray-700">
                                         {item.resolvedAt
-                                            ? new Date(item.resolvedAt).toLocaleString()
+                                            ? formatDateTime(item.resolvedAt)
                                             : '—'}
                                     </td>
 
                                     <td className="px-6 py-4 text-gray-600 max-w-[300px] truncate">
                                         {item.notes || '—'}
+                                    </td>
+
+                                    <td className="px-6 py-4">
+                                        <div className="flex justify-end">
+                                            <Link
+                                                href={`/dashboard/ward-incidents/${item.id}`}
+                                                className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
+                                            >
+                                                <EyeOutlined />
+                                            </Link>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
