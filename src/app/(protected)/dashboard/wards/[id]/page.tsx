@@ -17,6 +17,7 @@ import {
     GetWardIncidentsByWardQuery,
     GetWardIncidentsByWardQueryVariables,
 } from '@/shared/graphql/generated/graphql';
+import WardBedsSection from '../components/WardBedsSection';
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -65,6 +66,10 @@ export default async function WardDetailPage({
                             paginated={incidentsData.wardIncidentsByWard}
                         />
                     )}
+
+                    <CollapsibleSection title="Ward Beds Layout">
+                        <WardBedsSection wardId={id} />
+                    </CollapsibleSection>
                 </div>
             </div>
         </SessionGuard>
