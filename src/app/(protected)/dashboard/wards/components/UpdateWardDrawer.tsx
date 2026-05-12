@@ -88,7 +88,7 @@ export default function UpdateWardDrawer({
 
           department: form.department,
 
-          class: form.wardClass,
+          wardClass: form.wardClass,
 
           isActive: form.isActive,
         }),

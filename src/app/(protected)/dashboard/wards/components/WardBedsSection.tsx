@@ -286,7 +286,7 @@ export default function WardBedsSection({
                             onClick={() =>
                                 setCreateOpen(true)
                             }
-                            className="mt-8 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 px-6 py-3 font-semibold text-white shadow-lg shadow-blue-200 transition hover:scale-[1.02]"
+                            className="mt-8 rounded-2xl bg-blue-700 px-6 py-3 font-semibold !text-white shadow-lg shadow-blue-200 transition hover:scale-[1.02]"
                         >
                             Create First Beds
                         </button>

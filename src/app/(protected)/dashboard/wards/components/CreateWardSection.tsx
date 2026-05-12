@@ -41,7 +41,7 @@ export default function CreateWardSection({
                     code: form.code || undefined,
                     floor: form.floor ? Number(form.floor) : undefined,
                     department: form.department,
-                    class: form.wardClass,
+                    wardClass: form.wardClass,
                 }),
             });
 

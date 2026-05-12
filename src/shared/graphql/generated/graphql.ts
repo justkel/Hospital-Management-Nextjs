@@ -408,12 +408,12 @@ export type CreateWardIncidentInput = {
 };
 
 export type CreateWardInput = {
-  class: WardClass;
   code?: InputMaybe<Scalars['String']['input']>;
   department?: InputMaybe<WardDepartment>;
   floor?: InputMaybe<Scalars['Int']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
+  wardClass: WardClass;
 };
 
 export type DuplicatePatientMatch = {
@@ -1240,12 +1240,12 @@ export type UpdateWardIncidentInput = {
 };
 
 export type UpdateWardInput = {
-  class?: InputMaybe<WardClass>;
   code?: InputMaybe<Scalars['String']['input']>;
   department?: InputMaybe<WardDepartment>;
   floor?: InputMaybe<Scalars['Int']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  wardClass?: InputMaybe<WardClass>;
   wardId: Scalars['ID']['input'];
 };
 
