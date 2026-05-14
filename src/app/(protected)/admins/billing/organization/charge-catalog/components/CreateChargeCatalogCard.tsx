@@ -80,8 +80,22 @@ export default function CreateChargeCatalogCard({
     if (!selectedItem) newErrors.item = 'Please select a charge item';
     if (!form.name.trim()) newErrors.name = 'Name is required';
     if (!form.code.trim()) newErrors.code = 'Code is required';
-    if (!form.unitPrice || form.unitPrice <= 0)
-      newErrors.unitPrice = 'Unit price must be greater than 0';
+
+    const price = form.unitPrice;
+    if (price === undefined || price === null || Number.isNaN(price)) {
+      newErrors.unitPrice = 'Unit price is required';
+    } else {
+      const isManual = form.billingType === BillingType.Manual;
+
+      if (!isManual && price <= 0) {
+        newErrors.unitPrice =
+          'Unit price must be greater than 0 for this billing type';
+      }
+
+      if (isManual && price < 0) {
+        newErrors.unitPrice = 'Unit price cannot be negative';
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -91,36 +105,36 @@ export default function CreateChargeCatalogCard({
     if (!validate()) return;
 
     try {
-        setLoading(true);
-        setServerError(null);
+      setLoading(true);
+      setServerError(null);
 
-        await onCreate(form);
-        setSuccess(true);
+      await onCreate(form);
+      setSuccess(true);
 
-        setForm({
-            catalogueItemId: '',
-            categoryId: '',
-            name: '',
-            code: '',
-            description: '',
-            unitPrice: 0,
-            billingType: BillingType.Fixed,
-            currency: 'NGN',
-        });
+      setForm({
+        catalogueItemId: '',
+        categoryId: '',
+        name: '',
+        code: '',
+        description: '',
+        unitPrice: 0,
+        billingType: BillingType.Fixed,
+        currency: 'NGN',
+      });
 
-        setSelectedItem(null);
-        setSearch('');
+      setSelectedItem(null);
+      setSearch('');
 
-        setTimeout(() => setSuccess(false), 2000);
+      setTimeout(() => setSuccess(false), 2000);
 
     } catch (err: unknown) {
-        if (err instanceof Error) {
-            setServerError(err.message);
-        } else {
-            setServerError('Something went wrong');
-        }
+      if (err instanceof Error) {
+        setServerError(err.message);
+      } else {
+        setServerError('Something went wrong');
+      }
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   }
 
@@ -292,22 +306,21 @@ export default function CreateChargeCatalogCard({
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 md:static md:border-none md:p-0 md:mt-8">
         {serverError && (
-            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 mb-4 text-sm text-red-700">
-                {serverError}
-            </div>
+          <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 mb-4 text-sm text-red-700">
+            {serverError}
+          </div>
         )}
 
         <button
           disabled={isDisabled}
           onClick={handleSubmit}
           className={`w-full rounded-xl py-3 text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer
-          ${
-            isDisabled
+          ${isDisabled
               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
               : success
-              ? 'bg-green-600 text-white!'
-              : 'bg-blue-700 text-white! hover:bg-blue-800 active:scale-[0.98]'
-          }`}
+                ? 'bg-green-600 text-white!'
+                : 'bg-blue-700 text-white! hover:bg-blue-800 active:scale-[0.98]'
+            }`}
         >
           {loading && (
             <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
