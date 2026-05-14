@@ -1394,3 +1394,172 @@ mutation UpdateBed(
     isActive
   }
 }
+
+query GetVisitProcedures(
+  $pagination: VisitProcedurePaginationInput!
+) {
+  visitProcedures(pagination: $pagination) {
+    items {
+      id
+
+      visitId
+      customProcedureName
+      customProcedureCode
+
+      status
+      priority
+      outcome
+
+      orderedAt
+      startedAt
+      completedAt
+      cancelledAt
+
+      estimatedDuration
+      theatreBookingId
+
+      cancellationReason
+      notes
+
+      visit {
+        id
+      }
+
+      orderedBy {
+        id
+        fullName
+      }
+
+      procedureCatalog {
+        id
+        name
+        code
+      }
+
+      bedAllocation {
+        id
+        bedId
+      }
+    }
+
+    total
+    page
+    pageCount
+  }
+}
+
+query GetVisitProceduresByVisit(
+  $visitId: ID!
+) {
+  visitProceduresByVisit(visitId: $visitId) {
+    id
+    customProcedureName
+    customProcedureCode
+
+    status
+    priority
+    outcome
+
+    orderedAt
+    startedAt
+    completedAt
+    cancelledAt
+
+    estimatedDuration
+    theatreBookingId
+
+    cancellationReason
+    notes
+
+    orderedBy {
+      id
+      fullName
+    }
+    procedureCatalog {
+      id
+      name
+      code
+    }
+
+    bedAllocation {
+      id
+    }
+  }
+}
+
+query GetVisitProcedureById(
+  $id: ID!
+) {
+  visitProcedureById(id: $id) {
+    id
+
+    customProcedureName
+    customProcedureCode
+
+    status
+    priority
+    outcome
+
+    orderedAt
+    startedAt
+    completedAt
+    cancelledAt
+
+    estimatedDuration
+    theatreBookingId
+
+    cancellationReason
+    notes
+
+    orderedBy {
+      id
+      fullName
+    }
+
+    procedureCatalog {
+      id
+      name
+      code
+    }
+
+    bedAllocation {
+      id
+    }
+  }
+}
+
+mutation CreateVisitProcedure(
+  $data: CreateVisitProcedureInput!
+) {
+  createVisitProcedure(data: $data) {
+    success
+
+    procedure {
+      id
+      customProcedureName
+      customProcedureCode
+
+      status
+      priority
+
+      procedureCatalog {
+        id
+        name
+      }
+    }
+  }
+}
+
+mutation UpdateVisitProcedure(
+  $data: UpdateVisitProcedureInput!
+) {
+  updateVisitProcedure(data: $data) {
+    id
+    customProcedureName
+    customProcedureCode
+
+    status
+    priority
+    outcome
+  }
+}

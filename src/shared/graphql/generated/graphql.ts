@@ -219,6 +219,7 @@ export enum ChargeDomain {
   Pharmacy = 'PHARMACY',
   Physiotherapy = 'PHYSIOTHERAPY',
   Procedure = 'PROCEDURE',
+  ProcedureSupport = 'PROCEDURE_SUPPORT',
   Radiology = 'RADIOLOGY',
   Registration = 'REGISTRATION',
   Surgery = 'SURGERY',
@@ -387,6 +388,26 @@ export type CreateVisitPrescriptionInput = {
   visitId: Scalars['ID']['input'];
 };
 
+export type CreateVisitProcedureInput = {
+  _validation?: InputMaybe<Scalars['Boolean']['input']>;
+  bedAllocationId?: InputMaybe<Scalars['ID']['input']>;
+  customProcedureCode?: InputMaybe<Scalars['String']['input']>;
+  customProcedureName?: InputMaybe<Scalars['String']['input']>;
+  estimatedDuration?: InputMaybe<Scalars['Float']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  performedByStaffId?: InputMaybe<Scalars['ID']['input']>;
+  priority?: InputMaybe<VisitProcedurePriority>;
+  procedureCatalogId?: InputMaybe<Scalars['ID']['input']>;
+  theatreBookingId?: InputMaybe<Scalars['String']['input']>;
+  visitId: Scalars['ID']['input'];
+};
+
+export type CreateVisitProcedureResponse = {
+  __typename?: 'CreateVisitProcedureResponse';
+  procedure?: Maybe<VisitProcedure>;
+  success: Scalars['Boolean']['output'];
+};
+
 export type CreateVisitVitalInput = {
   bloodPressure?: InputMaybe<Scalars['String']['input']>;
   chargeCatalogId?: InputMaybe<Scalars['ID']['input']>;
@@ -537,6 +558,7 @@ export type Mutation = {
   createVisitComplaint: VisitComplaint;
   createVisitDiagnosis: VisitDiagnosis;
   createVisitPrescription: VisitPrescription;
+  createVisitProcedure: CreateVisitProcedureResponse;
   createVisitVital: VisitVital;
   createWard: Ward;
   createWardIncident: WardIncident;
@@ -560,6 +582,7 @@ export type Mutation = {
   updateVisitComplaint: VisitComplaint;
   updateVisitDiagnosis: VisitDiagnosis;
   updateVisitPrescription: VisitPrescription;
+  updateVisitProcedure: VisitProcedure;
   updateVisitVital: VisitVital;
   updateWard: Ward;
   updateWardIncident: WardIncident;
@@ -643,6 +666,11 @@ export type MutationCreateVisitDiagnosisArgs = {
 
 export type MutationCreateVisitPrescriptionArgs = {
   data: CreateVisitPrescriptionInput;
+};
+
+
+export type MutationCreateVisitProcedureArgs = {
+  data: CreateVisitProcedureInput;
 };
 
 
@@ -749,6 +777,11 @@ export type MutationUpdateVisitDiagnosisArgs = {
 
 export type MutationUpdateVisitPrescriptionArgs = {
   data: UpdateVisitPrescriptionInput;
+};
+
+
+export type MutationUpdateVisitProcedureArgs = {
+  data: UpdateVisitProcedureInput;
 };
 
 
@@ -879,6 +912,9 @@ export type Query = {
   visitDiagnoses: Array<VisitDiagnosis>;
   visitDiagnosisById: VisitDiagnosis;
   visitPrescriptions: Array<VisitPrescription>;
+  visitProcedureById: VisitProcedure;
+  visitProcedures: VisitProcedurePaginationResult;
+  visitProceduresByVisit: Array<VisitProcedure>;
   visitVitals: Array<VisitVital>;
   visits: VisitPaginationResult;
   visitsByPatientUserCode: Array<Visit>;
@@ -1024,6 +1060,21 @@ export type QueryVisitDiagnosisByIdArgs = {
 
 
 export type QueryVisitPrescriptionsArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitProcedureByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitProceduresArgs = {
+  pagination: VisitProcedurePaginationInput;
+};
+
+
+export type QueryVisitProceduresByVisitArgs = {
   visitId: Scalars['ID']['input'];
 };
 
@@ -1218,6 +1269,26 @@ export type UpdateVisitPrescriptionInput = {
   startDate?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateVisitProcedureInput = {
+  _validation?: InputMaybe<Scalars['Boolean']['input']>;
+  bedAllocationId?: InputMaybe<Scalars['ID']['input']>;
+  cancellationReason?: InputMaybe<Scalars['String']['input']>;
+  cancelledAt?: InputMaybe<Scalars['DateTime']['input']>;
+  completedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  customProcedureCode?: InputMaybe<Scalars['String']['input']>;
+  customProcedureName?: InputMaybe<Scalars['String']['input']>;
+  estimatedDuration?: InputMaybe<Scalars['Float']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  outcome?: InputMaybe<VisitProcedureOutcome>;
+  performedByStaffId?: InputMaybe<Scalars['ID']['input']>;
+  priority?: InputMaybe<VisitProcedurePriority>;
+  procedureCatalogId?: InputMaybe<Scalars['ID']['input']>;
+  startedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  status?: InputMaybe<VisitProcedureStatus>;
+  theatreBookingId?: InputMaybe<Scalars['String']['input']>;
+  visitProcedureId: Scalars['ID']['input'];
+};
+
 export type UpdateVisitVitalInput = {
   bloodPressure?: InputMaybe<Scalars['String']['input']>;
   heartRate?: InputMaybe<Scalars['Int']['input']>;
@@ -1269,6 +1340,28 @@ export type Visit = {
   visitDateTime: Scalars['DateTime']['output'];
   visitType: VisitType;
 };
+
+export type VisitBedAllocation = {
+  __typename?: 'VisitBedAllocation';
+  allocatedAt: Scalars['DateTime']['output'];
+  allocatedByStaffId: Scalars['ID']['output'];
+  bedId: Scalars['ID']['output'];
+  id: Scalars['ID']['output'];
+  organizationId: Scalars['ID']['output'];
+  reason?: Maybe<Scalars['String']['output']>;
+  releasedAt?: Maybe<Scalars['DateTime']['output']>;
+  releasedByStaffId?: Maybe<Scalars['ID']['output']>;
+  status: VisitBedAllocationStatus;
+  visitId: Scalars['ID']['output'];
+};
+
+/** Current allocation status of a bed for a visit */
+export enum VisitBedAllocationStatus {
+  Occupied = 'OCCUPIED',
+  Released = 'RELEASED',
+  Reserved = 'RESERVED',
+  Transferred = 'TRANSFERRED'
+}
 
 export type VisitCharge = {
   __typename?: 'VisitCharge';
@@ -1361,6 +1454,68 @@ export type VisitPrescription = {
   visit: Visit;
   visitId: Scalars['ID']['output'];
 };
+
+export type VisitProcedure = {
+  __typename?: 'VisitProcedure';
+  bedAllocation?: Maybe<VisitBedAllocation>;
+  cancellationReason?: Maybe<Scalars['String']['output']>;
+  cancelledAt?: Maybe<Scalars['DateTime']['output']>;
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  customProcedureCode?: Maybe<Scalars['String']['output']>;
+  customProcedureName?: Maybe<Scalars['String']['output']>;
+  estimatedDuration?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
+  orderedAt: Scalars['DateTime']['output'];
+  orderedBy: Staff;
+  outcome?: Maybe<VisitProcedureOutcome>;
+  performedBy: Staff;
+  priority?: Maybe<VisitProcedurePriority>;
+  procedureCatalog?: Maybe<ChargeCatalog>;
+  startedAt?: Maybe<Scalars['DateTime']['output']>;
+  status: VisitProcedureStatus;
+  theatreBookingId?: Maybe<Scalars['String']['output']>;
+  visit: Visit;
+  visitId: Scalars['ID']['output'];
+};
+
+export enum VisitProcedureOutcome {
+  Complication = 'COMPLICATION',
+  Failed = 'FAILED',
+  Partial = 'PARTIAL',
+  Success = 'SUCCESS'
+}
+
+export type VisitProcedurePaginationInput = {
+  limit: Scalars['Float']['input'];
+  page: Scalars['Float']['input'];
+  performedByStaffId?: InputMaybe<Scalars['ID']['input']>;
+  priority?: InputMaybe<VisitProcedurePriority>;
+  status?: InputMaybe<VisitProcedureStatus>;
+  visitId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type VisitProcedurePaginationResult = {
+  __typename?: 'VisitProcedurePaginationResult';
+  items: Array<VisitProcedure>;
+  page: Scalars['Int']['output'];
+  pageCount: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export enum VisitProcedurePriority {
+  High = 'HIGH',
+  Low = 'LOW',
+  Normal = 'NORMAL',
+  Urgent = 'URGENT'
+}
+
+export enum VisitProcedureStatus {
+  Cancelled = 'CANCELLED',
+  Completed = 'COMPLETED',
+  InProgress = 'IN_PROGRESS',
+  Pending = 'PENDING'
+}
 
 /** Current status of a visit */
 export enum VisitStatus {
@@ -2040,6 +2195,41 @@ export type UpdateBedMutationVariables = Exact<{
 
 export type UpdateBedMutation = { __typename?: 'Mutation', updateBed: { __typename?: 'Bed', id: string, wardId: string, organizationId: string, name: string, bedCode: string, class: BedClass, status: BedStatus, isActive: boolean } };
 
+export type GetVisitProceduresQueryVariables = Exact<{
+  pagination: VisitProcedurePaginationInput;
+}>;
+
+
+export type GetVisitProceduresQuery = { __typename?: 'Query', visitProcedures: { __typename?: 'VisitProcedurePaginationResult', total: number, page: number, pageCount: number, items: Array<{ __typename?: 'VisitProcedure', id: string, visitId: string, customProcedureName?: string | null, customProcedureCode?: string | null, status: VisitProcedureStatus, priority?: VisitProcedurePriority | null, outcome?: VisitProcedureOutcome | null, orderedAt: string, startedAt?: string | null, completedAt?: string | null, cancelledAt?: string | null, estimatedDuration?: number | null, theatreBookingId?: string | null, cancellationReason?: string | null, notes?: string | null, visit: { __typename?: 'Visit', id: string }, orderedBy: { __typename?: 'Staff', id: string, fullName: string }, procedureCatalog?: { __typename?: 'ChargeCatalog', id: string, name: string, code: string } | null, bedAllocation?: { __typename?: 'VisitBedAllocation', id: string, bedId: string } | null }> } };
+
+export type GetVisitProceduresByVisitQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitProceduresByVisitQuery = { __typename?: 'Query', visitProceduresByVisit: Array<{ __typename?: 'VisitProcedure', id: string, customProcedureName?: string | null, customProcedureCode?: string | null, status: VisitProcedureStatus, priority?: VisitProcedurePriority | null, outcome?: VisitProcedureOutcome | null, orderedAt: string, startedAt?: string | null, completedAt?: string | null, cancelledAt?: string | null, estimatedDuration?: number | null, theatreBookingId?: string | null, cancellationReason?: string | null, notes?: string | null, orderedBy: { __typename?: 'Staff', id: string, fullName: string }, procedureCatalog?: { __typename?: 'ChargeCatalog', id: string, name: string, code: string } | null, bedAllocation?: { __typename?: 'VisitBedAllocation', id: string } | null }> };
+
+export type GetVisitProcedureByIdQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitProcedureByIdQuery = { __typename?: 'Query', visitProcedureById: { __typename?: 'VisitProcedure', id: string, customProcedureName?: string | null, customProcedureCode?: string | null, status: VisitProcedureStatus, priority?: VisitProcedurePriority | null, outcome?: VisitProcedureOutcome | null, orderedAt: string, startedAt?: string | null, completedAt?: string | null, cancelledAt?: string | null, estimatedDuration?: number | null, theatreBookingId?: string | null, cancellationReason?: string | null, notes?: string | null, orderedBy: { __typename?: 'Staff', id: string, fullName: string }, procedureCatalog?: { __typename?: 'ChargeCatalog', id: string, name: string, code: string } | null, bedAllocation?: { __typename?: 'VisitBedAllocation', id: string } | null } };
+
+export type CreateVisitProcedureMutationVariables = Exact<{
+  data: CreateVisitProcedureInput;
+}>;
+
+
+export type CreateVisitProcedureMutation = { __typename?: 'Mutation', createVisitProcedure: { __typename?: 'CreateVisitProcedureResponse', success: boolean, procedure?: { __typename?: 'VisitProcedure', id: string, customProcedureName?: string | null, customProcedureCode?: string | null, status: VisitProcedureStatus, priority?: VisitProcedurePriority | null, procedureCatalog?: { __typename?: 'ChargeCatalog', id: string, name: string } | null } | null } };
+
+export type UpdateVisitProcedureMutationVariables = Exact<{
+  data: UpdateVisitProcedureInput;
+}>;
+
+
+export type UpdateVisitProcedureMutation = { __typename?: 'Mutation', updateVisitProcedure: { __typename?: 'VisitProcedure', id: string, customProcedureName?: string | null, customProcedureCode?: string | null, status: VisitProcedureStatus, priority?: VisitProcedurePriority | null, outcome?: VisitProcedureOutcome | null } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -2119,3 +2309,8 @@ export const UpdateWardIncidentDocument = {"kind":"Document","definitions":[{"ki
 export const GetBedsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetBeds"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"BedPaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"beds"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pageCount"}}]}}]}}]} as unknown as DocumentNode<GetBedsQuery, GetBedsQueryVariables>;
 export const CreateBedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateBed"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateBedInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createBed"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]} as unknown as DocumentNode<CreateBedMutation, CreateBedMutationVariables>;
 export const UpdateBedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateBed"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateBedInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateBed"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]} as unknown as DocumentNode<UpdateBedMutation, UpdateBedMutationVariables>;
+export const GetVisitProceduresDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitProcedures"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"VisitProcedurePaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitProcedures"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"customProcedureName"}},{"kind":"Field","name":{"kind":"Name","value":"customProcedureCode"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"outcome"}},{"kind":"Field","name":{"kind":"Name","value":"orderedAt"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"cancelledAt"}},{"kind":"Field","name":{"kind":"Name","value":"estimatedDuration"}},{"kind":"Field","name":{"kind":"Name","value":"theatreBookingId"}},{"kind":"Field","name":{"kind":"Name","value":"cancellationReason"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"visit"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"orderedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"procedureCatalog"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}}]}},{"kind":"Field","name":{"kind":"Name","value":"bedAllocation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"bedId"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pageCount"}}]}}]}}]} as unknown as DocumentNode<GetVisitProceduresQuery, GetVisitProceduresQueryVariables>;
+export const GetVisitProceduresByVisitDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitProceduresByVisit"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitProceduresByVisit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"customProcedureName"}},{"kind":"Field","name":{"kind":"Name","value":"customProcedureCode"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"outcome"}},{"kind":"Field","name":{"kind":"Name","value":"orderedAt"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"cancelledAt"}},{"kind":"Field","name":{"kind":"Name","value":"estimatedDuration"}},{"kind":"Field","name":{"kind":"Name","value":"theatreBookingId"}},{"kind":"Field","name":{"kind":"Name","value":"cancellationReason"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"orderedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"procedureCatalog"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}}]}},{"kind":"Field","name":{"kind":"Name","value":"bedAllocation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<GetVisitProceduresByVisitQuery, GetVisitProceduresByVisitQueryVariables>;
+export const GetVisitProcedureByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitProcedureById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitProcedureById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"customProcedureName"}},{"kind":"Field","name":{"kind":"Name","value":"customProcedureCode"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"outcome"}},{"kind":"Field","name":{"kind":"Name","value":"orderedAt"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"cancelledAt"}},{"kind":"Field","name":{"kind":"Name","value":"estimatedDuration"}},{"kind":"Field","name":{"kind":"Name","value":"theatreBookingId"}},{"kind":"Field","name":{"kind":"Name","value":"cancellationReason"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"orderedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"procedureCatalog"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}}]}},{"kind":"Field","name":{"kind":"Name","value":"bedAllocation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<GetVisitProcedureByIdQuery, GetVisitProcedureByIdQueryVariables>;
+export const CreateVisitProcedureDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVisitProcedure"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitProcedureInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVisitProcedure"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"procedure"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"customProcedureName"}},{"kind":"Field","name":{"kind":"Name","value":"customProcedureCode"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"procedureCatalog"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateVisitProcedureMutation, CreateVisitProcedureMutationVariables>;
+export const UpdateVisitProcedureDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitProcedure"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitProcedureInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitProcedure"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"customProcedureName"}},{"kind":"Field","name":{"kind":"Name","value":"customProcedureCode"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"outcome"}}]}}]}}]} as unknown as DocumentNode<UpdateVisitProcedureMutation, UpdateVisitProcedureMutationVariables>;
