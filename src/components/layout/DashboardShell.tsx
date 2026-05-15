@@ -16,6 +16,7 @@ import {
     ExperimentOutlined,
     ApartmentOutlined,
     ArrowLeftOutlined,
+    NodeIndexOutlined,
 } from '@ant-design/icons';
 import { Roles } from '@/shared/utils/enums/roles';
 import Link from 'next/link';
@@ -65,7 +66,7 @@ export default function DashboardShell({
 
     const hasWardAccess =
         roles.includes(Roles.ADMIN) ||
-        roles.includes(Roles.NURSE);    
+        roles.includes(Roles.NURSE);
 
     const handleLogout = async () => {
         try {
@@ -86,9 +87,16 @@ export default function DashboardShell({
         if (pathname.startsWith('/admins/staff')) return 'staff';
         if (pathname.startsWith('/dashboard/patients')) return 'patients';
         if (pathname.startsWith('/dashboard/visits')) return 'visits';
+        if (pathname.startsWith('/dashboard/visit-procedures'))
+            return 'visit-procedures';
+        if (pathname.startsWith('/dashboard/wards')) return 'wards';
+        if (pathname.startsWith('/dashboard/lab-requests'))
+            return 'lab-requests';
         if (pathname.startsWith('/records')) return 'records';
-        if (pathname.startsWith('/admins/billing/global')) return 'billing-global';
-        if (pathname.startsWith('/admins/billing/organization')) return 'billing-organization';
+        if (pathname.startsWith('/admins/billing/global'))
+            return 'billing-global';
+        if (pathname.startsWith('/admins/billing/organization'))
+            return 'billing-organization';
         if (pathname.startsWith('/settings')) return 'settings';
         if (pathname.startsWith('/audit')) return 'audit';
         if (pathname.startsWith('/dashboard')) return 'dashboard';
@@ -175,7 +183,21 @@ export default function DashboardShell({
                     label: <Link href="/dashboard/wards">Wards</Link>,
                 },
             ]
-            : []),    
+            : []),
+
+        ...(hasClinicalAccess
+            ? [
+                {
+                    key: 'visit-procedures',
+                    icon: <NodeIndexOutlined />,
+                    label: (
+                        <Link href="/dashboard/visit-procedures">
+                            Procedures
+                        </Link>
+                    ),
+                },
+            ]
+            : []),
 
         {
             key: 'lab-requests',
