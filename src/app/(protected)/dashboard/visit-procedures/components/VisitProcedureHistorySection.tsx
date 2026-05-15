@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons';
 
 import {
+    ChargeDomain,
   GetVisitProceduresQuery,
   VisitProcedurePriority,
   VisitProcedureStatus,
@@ -20,6 +21,7 @@ import { clientFetch } from '@/lib/clientFetch';
 import { formatDateTime } from '@/utils/formatDateTime';
 
 import UpdateVisitProcedureDrawer from './UpdateVisitProcedureDrawer';
+import { useBilling } from '@/hooks/billing/useBilling';
 
 type ProcedureItem =
   GetVisitProceduresQuery['visitProcedures']['items'][number];
@@ -35,6 +37,7 @@ export default function VisitProcedureHistorySection({
   const [page, setPage] = useState<number>(paginated.page);
   const [total, setTotal] = useState<number>(paginated.total);
   const [limit, setLimit] = useState<number>(20);
+  const { catalogs } = useBilling(ChargeDomain.Procedure);
 
   const [statusFilter, setStatusFilter] = useState<
     VisitProcedureStatus | ''
@@ -291,6 +294,7 @@ export default function VisitProcedureHistorySection({
           setEditingProcedure(null);
           onUpdated?.();
         }}
+        catalogs={catalogs ?? []}
       />
 
       <div className="flex justify-center overflow-x-auto py-2">

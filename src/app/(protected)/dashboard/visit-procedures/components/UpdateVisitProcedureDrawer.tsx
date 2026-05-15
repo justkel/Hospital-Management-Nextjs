@@ -1,16 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Drawer, Grid } from 'antd';
+import { useEffect, useMemo, useState } from 'react';
+import { Drawer, Grid, Select } from 'antd';
+import Link from 'next/link';
 
 import {
     GetVisitProceduresQuery,
+    UpdateVisitProcedureInput,
     VisitProcedurePriority,
     VisitProcedureStatus,
 } from '@/shared/graphql/generated/graphql';
 
 import { clientFetch } from '@/lib/clientFetch';
-import Link from 'next/link';
+import { ChargeCatalogOption } from '../../visits/components/vitals/VisitVitalsSection';
 
 const { useBreakpoint } = Grid;
 
@@ -21,11 +23,13 @@ export default function UpdateVisitProcedureDrawer({
     open,
     onClose,
     procedure,
+    catalogs = [],
     onUpdated,
 }: {
     open: boolean;
     onClose: () => void;
     procedure: ProcedureItem | null;
+    catalogs: ChargeCatalogOption[];
     onUpdated?: () => void;
 }) {
     const screens = useBreakpoint();
@@ -33,17 +37,12 @@ export default function UpdateVisitProcedureDrawer({
 
     const [loading, setLoading] = useState(false);
 
-    const [status, setStatus] = useState<VisitProcedureStatus>(
-        VisitProcedureStatus.Pending
-    );
-
-    const [priority, setPriority] = useState<VisitProcedurePriority>(
-        VisitProcedurePriority.Normal
-    );
-
-    const [notes, setNotes] = useState('');
-    const [cancellationReason, setCancellationReason] = useState('');
-    const [estimatedDuration, setEstimatedDuration] = useState('');
+    const [form, setForm] =
+        useState<UpdateVisitProcedureInput>({
+            visitProcedureId: '',
+            priority: VisitProcedurePriority.Normal,
+            _validation: true,
+        });
 
     const [success, setSuccess] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -51,16 +50,105 @@ export default function UpdateVisitProcedureDrawer({
     useEffect(() => {
         if (!procedure) return;
 
-        setStatus(procedure.status as VisitProcedureStatus);
-        setPriority(procedure.priority as VisitProcedurePriority);
-        setNotes(procedure.notes || '');
-        setCancellationReason(procedure.cancellationReason || '');
-        setEstimatedDuration(
-            procedure.estimatedDuration
-                ? String(procedure.estimatedDuration)
-                : ''
-        );
+        setForm({
+            visitProcedureId: procedure.id,
+
+            status:
+                (procedure.status as VisitProcedureStatus) ??
+                VisitProcedureStatus.Pending,
+
+            priority:
+                (procedure.priority as VisitProcedurePriority) ??
+                VisitProcedurePriority.Normal,
+
+            notes: procedure.notes || undefined,
+
+            estimatedDuration:
+                procedure.estimatedDuration || undefined,
+
+            customProcedureCode:
+                procedure.customProcedureCode || undefined,
+
+            customProcedureName:
+                procedure.customProcedureName || undefined,
+
+            procedureCatalogId:
+                procedure.procedureCatalog?.id || undefined,
+
+            bedAllocationId:
+                procedure.bedAllocation?.id || undefined,
+
+            _validation: true,
+        });
+
+        setError(null);
+        setSuccess(null);
     }, [procedure]);
+
+    const hasCustom =
+        !!form.customProcedureName?.trim() ||
+        !!form.customProcedureCode?.trim();
+
+    const hasCatalog = !!form.procedureCatalogId;
+
+    const disableCustom = hasCatalog;
+    const disableCatalog = hasCustom;
+
+    const canSubmit = useMemo(() => {
+        if (
+            !form.procedureCatalogId &&
+            !form.customProcedureName?.trim()
+        ) {
+            return false;
+        }
+
+        return true;
+    }, [form]);
+
+    const setCatalog = (value?: string) => {
+        const normalized =
+            value && value.trim().length > 0
+                ? value
+                : undefined;
+
+        if (normalized) {
+            setForm(prev => ({
+                ...prev,
+                procedureCatalogId: normalized,
+                customProcedureName: undefined,
+                customProcedureCode: undefined,
+            }));
+        } else {
+            setForm(prev => ({
+                ...prev,
+                procedureCatalogId: undefined,
+            }));
+        }
+    };
+
+    const setCustomField = (
+        field:
+            | 'customProcedureName'
+            | 'customProcedureCode',
+        value: string
+    ) => {
+        setForm(prev => {
+            const updated = {
+                ...prev,
+                [field]: value || undefined,
+            };
+
+            const hasAnyCustom =
+                updated.customProcedureName?.trim() ||
+                updated.customProcedureCode?.trim();
+
+            if (hasAnyCustom) {
+                updated.procedureCatalogId = undefined;
+            }
+
+            return updated;
+        });
+    };
 
     async function handleSubmit() {
         if (!procedure) return;
@@ -70,46 +158,65 @@ export default function UpdateVisitProcedureDrawer({
             setError(null);
             setSuccess(null);
 
-            const payload: any = {
-                visitProcedureId: procedure.id,
-                status,
-                priority,
-                notes,
-                cancellationReason,
-                estimatedDuration: estimatedDuration
-                    ? Number(estimatedDuration)
-                    : undefined,
+            const payload: UpdateVisitProcedureInput = {
+                ...form,
+
+                estimatedDuration:
+                    form.estimatedDuration || undefined,
+
+                notes: form.notes?.trim() || undefined,
+
+                procedureCatalogId:
+                    form.procedureCatalogId?.trim()
+                        ? form.procedureCatalogId
+                        : undefined,
+
+                customProcedureName:
+                    form.customProcedureName?.trim() ||
+                    undefined,
+
+                customProcedureCode:
+                    form.customProcedureCode?.trim() ||
+                    undefined,
+
+                startedAt:
+                    form.status ===
+                        VisitProcedureStatus.InProgress &&
+                        !procedure.startedAt
+                        ? new Date().toISOString()
+                        : undefined,
+
+                completedAt:
+                    form.status ===
+                        VisitProcedureStatus.Completed &&
+                        !procedure.completedAt
+                        ? new Date().toISOString()
+                        : undefined,
             };
 
-            if (status === VisitProcedureStatus.InProgress) {
-                payload.startedAt = new Date().toISOString();
-            }
-
-            if (status === VisitProcedureStatus.Completed) {
-                payload.completedAt = new Date().toISOString();
-            }
-
-            if (status === VisitProcedureStatus.Cancelled) {
-                payload.cancelledAt = new Date().toISOString();
-            }
-
-            const res = await clientFetch('/api/visit-procedure/update', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
+            const res = await clientFetch(
+                '/api/visit-procedure/update',
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
 
             const json = await res.json();
 
             if (!res.ok) {
                 throw new Error(
-                    json.error || 'Failed to update procedure'
+                    json.error ||
+                    'Failed to update procedure'
                 );
             }
 
-            setSuccess('Procedure updated successfully.');
+            setSuccess(
+                'Procedure updated successfully.'
+            );
 
             setTimeout(() => {
                 onUpdated?.();
@@ -141,7 +248,7 @@ export default function UpdateVisitProcedureDrawer({
             rootClassName={
                 isMobile
                     ? '[&_.ant-drawer-content]:h-[95vh] [&_.ant-drawer-content]:rounded-t-[2rem]'
-                    : '[&_.ant-drawer-content]:w-[680px]'
+                    : '[&_.ant-drawer-content]:w-[720px]'
             }
             styles={{
                 body: {
@@ -162,6 +269,7 @@ export default function UpdateVisitProcedureDrawer({
                     </h3>
 
                     <div className="mt-4 flex flex-wrap gap-3 text-sm text-blue-100">
+
                         <Link
                             href={`/dashboard/visits/${procedure?.visitId}`}
                             className="
@@ -172,40 +280,52 @@ export default function UpdateVisitProcedureDrawer({
                                 text-sm font-medium text-white
                                 hover:bg-white/20
                                 transition-all duration-200
-                                hover:scale-[1.02]
                             "
                         >
                             <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
 
-                            <span>
-                                Open Visit
-                            </span>
+                            <span>Open Visit</span>
                         </Link>
 
                         {procedure?.orderedBy?.fullName && (
                             <span>
-                                Ordered By: {procedure.orderedBy.fullName}
+                                Ordered By:{' '}
+                                {procedure.orderedBy.fullName}
                             </span>
                         )}
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-gray-700">
                             Procedure Status
                         </label>
 
                         <select
-                            value={status}
+                            value={form.status ?? ''}
                             onChange={e =>
-                                setStatus(e.target.value as VisitProcedureStatus)
+                                setForm(prev => ({
+                                    ...prev,
+                                    status:
+                                        e.target
+                                            .value as VisitProcedureStatus,
+                                }))
                             }
                             className="w-full h-12 rounded-2xl border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                            {Object.values(VisitProcedureStatus).map(item => (
-                                <option key={item} value={item}>
-                                    {item.replace(/_/g, ' ')}
+                            {Object.values(
+                                VisitProcedureStatus
+                            ).map(item => (
+                                <option
+                                    key={item}
+                                    value={item}
+                                >
+                                    {item.replace(
+                                        /_/g,
+                                        ' '
+                                    )}
                                 </option>
                             ))}
                         </select>
@@ -217,14 +337,24 @@ export default function UpdateVisitProcedureDrawer({
                         </label>
 
                         <select
-                            value={priority}
+                            value={form.priority ?? ''}
                             onChange={e =>
-                                setPriority(e.target.value as VisitProcedurePriority)
+                                setForm(prev => ({
+                                    ...prev,
+                                    priority:
+                                        e.target
+                                            .value as VisitProcedurePriority,
+                                }))
                             }
                             className="w-full h-12 rounded-2xl border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                            {Object.values(VisitProcedurePriority).map(item => (
-                                <option key={item} value={item}>
+                            {Object.values(
+                                VisitProcedurePriority
+                            ).map(item => (
+                                <option
+                                    key={item}
+                                    value={item}
+                                >
                                     {item}
                                 </option>
                             ))}
@@ -232,18 +362,141 @@ export default function UpdateVisitProcedureDrawer({
                     </div>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">
+                            Custom Procedure Name
+                        </label>
+
+                        <input
+                            disabled={disableCustom}
+                            type="text"
+                            value={
+                                form.customProcedureName ??
+                                ''
+                            }
+                            onChange={e =>
+                                setCustomField(
+                                    'customProcedureName',
+                                    e.target.value
+                                )
+                            }
+                            placeholder="Enter custom procedure name"
+                            className={`
+                                w-full h-12 rounded-2xl border px-4
+                                focus:outline-none focus:ring-2 focus:ring-blue-500
+                                ${disableCustom
+                                    ? 'bg-gray-100 cursor-not-allowed border-gray-200'
+                                    : 'border-gray-200'
+                                }
+                            `}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">
+                            Custom Procedure Code
+                        </label>
+
+                        <input
+                            disabled={disableCustom}
+                            type="text"
+                            value={
+                                form.customProcedureCode ??
+                                ''
+                            }
+                            onChange={e =>
+                                setCustomField(
+                                    'customProcedureCode',
+                                    e.target.value
+                                )
+                            }
+                            placeholder="e.g PROC-001"
+                            className={`
+                                w-full h-12 rounded-2xl border px-4
+                                focus:outline-none focus:ring-2 focus:ring-blue-500
+                                ${disableCustom
+                                    ? 'bg-gray-100 cursor-not-allowed border-gray-200'
+                                    : 'border-gray-200'
+                                }
+                            `}
+                        />
+                    </div>
+                </div>
+
                 <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-700">
-                        Estimated Duration (minutes)
+                        Procedure Catalog
                     </label>
 
-                    <input
-                        type="number"
-                        value={estimatedDuration}
-                        onChange={e => setEstimatedDuration(e.target.value)}
-                        placeholder="e.g 90"
-                        className="w-full h-12 rounded-2xl border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    <Select
+                        disabled={disableCatalog}
+                        showSearch={{
+                            filterSort: (a, b) =>
+                                (a.label ?? '')
+                                    .toString()
+                                    .localeCompare(
+                                        (b.label ?? '').toString()
+                                    ),
+                        }}
+                        allowClear
+                        placeholder="Select procedure catalog"
+                        value={form.procedureCatalogId ?? undefined}
+                        onChange={value => setCatalog(value)}
+                        optionFilterProp="label"
+                        size="large"
+                        className="
+                            w-full
+                            [&_.ant-select-selector]:!rounded-2xl
+                            [&_.ant-select-selector]:!min-h-12
+                            [&_.ant-select-selector]:!h-auto
+                            [&_.ant-select-selector]:!py-1.5
+                            [&_.ant-select-selector]:!px-4
+                            [&_.ant-select-selector]:!items-start
+                            [&_.ant-select-selector]:!border-gray-200
+                            [&_.ant-select-selector]:!shadow-none
+
+                            [&_.ant-select-selection-wrap]:!items-start
+                            [&_.ant-select-selection-wrap]:!flex-col
+
+                            [&_.ant-select-selection-item]:!leading-5
+                            [&_.ant-select-selection-placeholder]:!leading-5
+                        "
+                        options={catalogs?.map((c: any) => ({
+                            value: c.id,
+                            label: c.name,
+                        }))}
                     />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">
+                            Estimated Duration (minutes)
+                        </label>
+
+                        <input
+                            type="number"
+                            value={
+                                form.estimatedDuration ?? ''
+                            }
+                            onChange={e =>
+                                setForm(prev => ({
+                                    ...prev,
+                                    estimatedDuration:
+                                        e.target.value
+                                            ? Number(
+                                                e.target.value
+                                            )
+                                            : undefined,
+                                }))
+                            }
+                            placeholder="e.g 90"
+                            className="w-full h-12 rounded-2xl border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
                 </div>
 
                 <div className="space-y-2">
@@ -253,28 +506,17 @@ export default function UpdateVisitProcedureDrawer({
 
                     <textarea
                         rows={5}
-                        value={notes}
-                        onChange={e => setNotes(e.target.value)}
-                        placeholder="Document observations, findings, or procedural notes..."
+                        value={form.notes ?? ''}
+                        onChange={e =>
+                            setForm(prev => ({
+                                ...prev,
+                                notes: e.target.value,
+                            }))
+                        }
+                        placeholder="Document findings, observations, or procedural notes..."
                         className="w-full rounded-3xl border border-gray-200 px-4 py-4 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
-
-                {status === VisitProcedureStatus.Cancelled && (
-                    <div className="space-y-2 rounded-3xl border border-red-100 bg-red-50 p-5">
-                        <label className="text-sm font-semibold text-red-700">
-                            Cancellation Reason
-                        </label>
-
-                        <textarea
-                            rows={4}
-                            value={cancellationReason}
-                            onChange={e => setCancellationReason(e.target.value)}
-                            placeholder="Provide a reason for cancellation"
-                            className="w-full rounded-2xl border border-red-200 px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-red-500"
-                        />
-                    </div>
-                )}
 
                 {error && (
                     <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -291,18 +533,20 @@ export default function UpdateVisitProcedureDrawer({
                 <div className="sticky bottom-0 bg-white pt-3">
                     <button
                         onClick={handleSubmit}
-                        disabled={loading}
+                        disabled={loading || !canSubmit}
                         className="
                             w-full h-14 rounded-2xl
                             bg-gradient-to-r from-blue-600 to-indigo-600
-                            text-white font-bold text-base
+                            !text-white font-bold text-base
                             shadow-xl hover:shadow-2xl
                             hover:scale-[1.01]
                             transition-all duration-200
                             disabled:opacity-50 disabled:cursor-not-allowed
                         "
                     >
-                        {loading ? 'Updating Procedure...' : 'Save Procedure Changes'}
+                        {loading
+                            ? 'Updating Procedure...'
+                            : 'Save Procedure Changes'}
                     </button>
                 </div>
             </div>
