@@ -70,7 +70,7 @@ export async function clientFetch(
       .json()
       .catch(() => ({}));
 
-    throw new Error(json.error || 'Request failed');
+    return res;
   }
 
   if (res.status !== 401) return res;
