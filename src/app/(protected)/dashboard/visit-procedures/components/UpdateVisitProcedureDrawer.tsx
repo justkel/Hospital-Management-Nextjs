@@ -433,6 +433,7 @@ export default function UpdateVisitProcedureDrawer({
                     <Select
                         disabled={disableCatalog}
                         showSearch={{
+                            optionFilterProp: 'label',
                             filterSort: (a, b) =>
                                 (a.label ?? '')
                                     .toString()
@@ -444,7 +445,6 @@ export default function UpdateVisitProcedureDrawer({
                         placeholder="Select procedure catalog"
                         value={form.procedureCatalogId ?? undefined}
                         onChange={value => setCatalog(value)}
-                        optionFilterProp="label"
                         size="large"
                         className="
                             w-full
