@@ -22,6 +22,9 @@ import {
 import { useBilling } from '@/hooks/billing/useBilling';
 
 import CreateVisitProcedureForm from './components/CreateVisitProcedureForm';
+import { ClockCircleOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import Link from 'next/link';
+import { formatDuration } from '../../../visit-procedures/components/procedure-functions';
 
 type VisitProcedureItem =
   GetVisitProceduresByVisitQuery['visitProceduresByVisit'][number];
@@ -66,7 +69,7 @@ export default function VisitProcedureClient({
       if (!res.ok) {
         message.error(
           json.error ||
-            'Failed to load procedures'
+          'Failed to load procedures'
         );
 
         return;
@@ -74,8 +77,8 @@ export default function VisitProcedureClient({
 
       setProcedures(
         json.procedures ??
-          json.visitProcedures ??
-          []
+        json.visitProcedures ??
+        []
       );
     } finally {
       setLoading(false);
@@ -100,7 +103,6 @@ export default function VisitProcedureClient({
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="max-w-7xl mx-auto py-3 lg:px-3 space-y-6">
 
-        {/* HERO */}
         <div className="relative overflow-hidden rounded-3xl border border-white/50 bg-white shadow-xl shadow-slate-200/60">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-cyan-500/5 to-indigo-500/10" />
 
@@ -177,100 +179,162 @@ export default function VisitProcedureClient({
           onCreated={refresh}
         />
 
-        <div className="rounded-3xl border bg-white shadow-sm overflow-hidden">
-
-          <div className="flex items-center justify-between border-b px-6 py-5">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900">
-                Procedures
-              </h2>
-
-              <p className="text-sm text-slate-500 mt-1">
-                All procedures associated with
-                this visit
-              </p>
-            </div>
-
-            {loading && (
-              <div className="flex items-center gap-2 text-sm text-slate-500">
-                <Loader2
-                  size={16}
-                  className="animate-spin"
-                />
-                Refreshing...
+        <div className="overflow-hidden rounded-[2rem] border border-slate-200/70 bg-white/90 shadow-[0_10px_40px_rgba(15,23,42,0.06)] backdrop-blur-xl">
+          <div className="border-b border-slate-100 bg-gradient-to-r from-slate-50 via-white to-blue-50/60 px-5 py-5 sm:px-7">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
+                  <ClipboardList size={14} />
+                  Procedure list
+                </div>
               </div>
-            )}
+
+              {loading && (
+                <div className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 shadow-sm">
+                  <Loader2
+                    size={16}
+                    className="animate-spin text-blue-600"
+                  />
+
+                  Refreshing procedures...
+                </div>
+              )}
+            </div>
           </div>
 
           {procedures.length === 0 ? (
-            <div className="py-20 flex flex-col items-center justify-center text-center">
-              <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                <ClipboardList className="text-slate-400" />
+            <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-slate-100 to-slate-200 shadow-inner">
+                <ClipboardList
+                  size={34}
+                  className="text-slate-400"
+                />
               </div>
 
-              <h3 className="text-lg font-semibold text-slate-700">
+              <h3 className="mt-6 text-xl font-bold text-slate-800">
                 No Procedures Yet
               </h3>
 
-              <p className="text-sm text-slate-500 mt-2 max-w-md">
-                Procedures created for this visit
-                will appear here.
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-500">
+                Procedures created for this visit will automatically appear here
+                for tracking and management.
               </p>
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y divide-slate-100">
               {procedures.map(p => (
                 <div
                   key={p.id}
-                  className="group p-5 md:p-6 hover:bg-slate-50 transition-all duration-200"
+                  className="
+                        group relative overflow-hidden
+                        px-5 py-5 sm:px-6 sm:py-6
+                        transition-all duration-300
+                        hover:bg-gradient-to-r
+                        hover:from-slate-50
+                        hover:to-blue-50/40
+                    "
                 >
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+                  <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
 
-                    <div className="space-y-3 flex-1">
+                    <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-3">
-                        <h3 className="text-lg font-semibold text-slate-900">
+                        <h3 className="truncate text-lg font-black tracking-tight text-slate-900 sm:text-xl">
                           {p.customProcedureName ??
-                            p.procedureCatalog
-                              ?.name}
+                            p.procedureCatalog?.name}
                         </h3>
 
                         <span
-                          className={`px-3 py-1 rounded-full border text-xs font-semibold ${
-                            priorityStyles[
-                              p.priority ??
-                                'NORMAL'
-                            ]
-                          }`}
+                          className={`
+                                        rounded-full border px-3 py-1
+                                        text-xs font-bold uppercase tracking-wide
+                                        ${priorityStyles[
+                            p.priority ?? 'NORMAL'
+                            ]}
+                                    `}
                         >
                           {p.priority ?? 'NORMAL'}
                         </span>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
-                        <span className="rounded-full bg-slate-100 px-3 py-1">
-                          Status: {p.status}
-                        </span>
+                      <div className="mt-4 flex flex-wrap gap-3 text-sm">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-slate-600 shadow-sm">
+                          <span className="h-2 w-2 rounded-full bg-emerald-500" />
 
-                        {p.procedureCatalog
-                          ?.code && (
-                          <span className="rounded-full bg-slate-100 px-3 py-1">
-                            Code:{' '}
-                            {
-                              p.procedureCatalog
-                                .code
-                            }
+                          <span className="font-medium">
+                            {p.status}
                           </span>
+                        </div>
+
+                        {p.procedureCatalog?.code && (
+                          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-slate-600 shadow-sm">
+                            <span className="font-semibold text-slate-500">
+                              Code:
+                            </span>
+
+                            <span className="font-bold text-slate-800">
+                              {p.procedureCatalog.code}
+                            </span>
+                          </div>
+                        )}
+
+                        {p.estimatedDuration && (
+                          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-slate-600 shadow-sm">
+                            <ClockCircleOutlined />
+
+                            <span>
+                              {formatDuration(
+                                p.estimatedDuration
+                              )}
+                            </span>
+                          </div>
                         )}
                       </div>
+
+                      {p.notes && (
+                        <div className="mt-4 rounded-2xl border border-slate-100 bg-white/80 px-4 py-4 text-sm leading-relaxed text-slate-600 shadow-sm">
+                          {p.notes}
+                        </div>
+                      )}
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <button className="rounded-xl border !border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-100 transition">
-                        View
-                      </button>
+                    <div className="flex w-full flex-row gap-3 sm:w-auto">
+                      <Link
+                        href={`/dashboard/visit-procedures/${p.id}`}
+                        className="
+                                    flex-1 sm:flex-none
+                                    inline-flex h-12 items-center justify-center gap-2
+                                    rounded-2xl border border-slate-200
+                                    bg-white px-5
+                                    text-sm font-bold text-slate-700
+                                    shadow-sm transition-all duration-200
+                                    hover:-translate-y-0.5
+                                    hover:border-slate-300
+                                    hover:bg-slate-50
+                                    hover:shadow-md
+                                "
+                      >
+                        <EyeOutlined />
 
-                      <button className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium !text-white hover:bg-blue-700 transition shadow-lg shadow-blue-600/20">
-                        Manage
+                        <span>View</span>
+                      </Link>
+
+                      <button
+                        className="
+                                    flex-1 sm:flex-none
+                                    inline-flex h-12 items-center justify-center gap-2
+                                    rounded-2xl
+                                    bg-gradient-to-r from-blue-600 to-indigo-600
+                                    px-5
+                                    text-sm font-bold !text-white
+                                    shadow-lg shadow-blue-600/20
+                                    transition-all duration-200
+                                    hover:scale-[1.02]
+                                    hover:shadow-xl
+                                "
+                      >
+                        <EditOutlined />
+
+                        <span>Manage</span>
                       </button>
                     </div>
                   </div>
