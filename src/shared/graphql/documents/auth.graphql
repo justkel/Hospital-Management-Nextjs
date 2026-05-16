@@ -1597,3 +1597,65 @@ mutation CancelVisitProcedure(
     }
   }
 }
+
+query GetVisitProcedureEvents(
+  $pagination: VisitProcedureEventPaginationInput!
+) {
+  visitProcedureEvents(
+    pagination: $pagination
+  ) {
+    items {
+      id
+
+      procedureId
+
+      type
+      message
+      metadata
+      occurredAt
+
+      createdBy {
+        id
+        fullName
+      }
+
+      procedure {
+        id
+        status
+        priority
+      }
+    }
+
+    total
+    page
+    pageCount
+  }
+}
+
+mutation CreateVisitProcedureEvent(
+  $data: CreateVisitProcedureEventInput!
+) {
+  createVisitProcedureEvent(
+    data: $data
+  ) {
+    id
+
+    procedureId
+
+    type
+    message
+    metadata
+    occurredAt
+
+    createdBy {
+      id
+      fullName
+    }
+
+    procedure {
+      id
+      status
+      priority
+    }
+  }
+}

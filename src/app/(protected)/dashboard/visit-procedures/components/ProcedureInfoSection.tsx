@@ -13,6 +13,8 @@ import { useBilling } from '@/hooks/billing/useBilling';
 import { ChargeDomain } from '@/shared/graphql/generated/graphql';
 
 import { formatDateTime } from '@/utils/formatDateTime';
+import VisitProcedureEventTimeline from './VisitProcedureEventTimeline';
+import CreateVisitProcedureEventCard from './CreateVisitProcedureEventCard';
 
 import {
     Activity,
@@ -32,6 +34,7 @@ import {
 import { STATUS_CONFIG, PRIORITY_CONFIG, OUTCOME_CONFIG, StatusPill, ProcedureCard, DetailRow } from './procedure-types';
 import { formatDuration } from '../types/procedure-functions';
 import CancelVisitProcedureModal from './CancelVisitProcedureModal';
+import CollapsibleSection from '../../visits/components/CollapsibleSection';
 
 type Procedure =
     GetVisitProcedureByIdQuery['visitProcedureById'];
@@ -44,6 +47,8 @@ export default function ProcedureInfoSection({
     procedure,
 }: Props) {
     const router = useRouter();
+    const [timelineRefreshKey, setTimelineRefreshKey] =
+        useState(0);
     const status =
         STATUS_CONFIG[
         procedure.status as VisitProcedureStatus
@@ -147,7 +152,7 @@ export default function ProcedureInfoSection({
                 </div>
             </div>
 
-            <div className="sticky top-3 z-20">
+            <div>
                 <div
                     className="
                         grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3
@@ -238,179 +243,154 @@ export default function ProcedureInfoSection({
                                 : 'Cancel Procedure'}
                         </span>
                     </button>
-
-                    <button
-                        className="
-                            group
-                            w-full
-                            min-h-[56px]
-                            inline-flex items-center justify-center gap-2
-                            rounded-2xl
-                            border border-slate-200
-                            bg-white
-                            px-4 py-3
-                            text-sm sm:text-base
-                            font-semibold
-                            text-slate-700
-                            shadow-sm
-                            transition-all duration-200
-                            hover:bg-slate-50
-                            hover:shadow-md
-                            active:scale-[0.98]
-                        "
-                    >
-                        <ClipboardList className="h-4 w-4 shrink-0" />
-
-                        <span className="truncate">
-                            View Timeline
-                        </span>
-                    </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-                <ProcedureCard title="Procedure Details">
-                    <DetailRow
-                        icon={ClipboardList}
-                        label="Procedure Name"
-                        value={
-                            procedure
-                                .procedureCatalog
-                                ?.name ||
-                            procedure.customProcedureName
-                        }
-                    />
+            <CollapsibleSection title="Procedure Details" defaultOpen={false}>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                    <ProcedureCard title="">
+                        <DetailRow
+                            icon={ClipboardList}
+                            label="Procedure Name"
+                            value={
+                                procedure
+                                    .procedureCatalog
+                                    ?.name ||
+                                procedure.customProcedureName
+                            }
+                        />
 
-                    <DetailRow
-                        icon={Hash}
-                        label="Procedure Code"
-                        value={
-                            procedure
-                                .procedureCatalog
-                                ?.code ||
-                            procedure.customProcedureCode
-                        }
-                    />
+                        <DetailRow
+                            icon={Hash}
+                            label="Procedure Code"
+                            value={
+                                procedure
+                                    .procedureCatalog
+                                    ?.code ||
+                                procedure.customProcedureCode
+                            }
+                        />
 
-                    <DetailRow
-                        icon={ShieldAlert}
-                        label="Priority"
-                        value={
-                            procedure.priority
-                        }
-                    />
+                        <DetailRow
+                            icon={ShieldAlert}
+                            label="Priority"
+                            value={
+                                procedure.priority
+                            }
+                        />
 
-                    <DetailRow
-                        icon={Activity}
-                        label="Status"
-                        value={
-                            procedure.status
-                        }
-                    />
+                        <DetailRow
+                            icon={Activity}
+                            label="Status"
+                            value={
+                                procedure.status
+                            }
+                        />
 
-                    <DetailRow
-                        icon={CheckCircle2}
-                        label="Outcome"
-                        value={
-                            procedure.outcome
-                        }
-                    />
+                        <DetailRow
+                            icon={CheckCircle2}
+                            label="Outcome"
+                            value={
+                                procedure.outcome
+                            }
+                        />
 
-                    <DetailRow
-                        icon={TimerReset}
-                        label="Estimated Duration"
-                        value={
-                            procedure.estimatedDuration
-                                ? `${formatDuration(procedure.estimatedDuration)}`
-                                : null
-                        }
-                    />
-                </ProcedureCard>
+                        <DetailRow
+                            icon={TimerReset}
+                            label="Estimated Duration"
+                            value={
+                                procedure.estimatedDuration
+                                    ? `${formatDuration(procedure.estimatedDuration)}`
+                                    : null
+                            }
+                        />
+                    </ProcedureCard>
 
-                <ProcedureCard title="Timeline">
-                    <DetailRow
-                        icon={CalendarDays}
-                        label="Ordered At"
-                        value={formatDateTime(
-                            procedure.orderedAt
-                        )}
-                    />
+                    <ProcedureCard title="Timeline">
+                        <DetailRow
+                            icon={CalendarDays}
+                            label="Ordered At"
+                            value={formatDateTime(
+                                procedure.orderedAt
+                            )}
+                        />
 
-                    <DetailRow
-                        icon={Clock3}
-                        label="Started At"
-                        value={
-                            procedure.startedAt
-                                ? formatDateTime(procedure.startedAt)
-                                : '—'
-                        }
-                    />
+                        <DetailRow
+                            icon={Clock3}
+                            label="Started At"
+                            value={
+                                procedure.startedAt
+                                    ? formatDateTime(procedure.startedAt)
+                                    : '—'
+                            }
+                        />
 
-                    <DetailRow
-                        icon={CheckCircle2}
-                        label="Completed At"
-                        value={
-                            procedure.completedAt
-                                ? formatDateTime(procedure.completedAt)
-                                : '—'
-                        }
-                    />
+                        <DetailRow
+                            icon={CheckCircle2}
+                            label="Completed At"
+                            value={
+                                procedure.completedAt
+                                    ? formatDateTime(procedure.completedAt)
+                                    : '—'
+                            }
+                        />
 
-                    <DetailRow
-                        icon={XCircle}
-                        label="Cancelled At"
-                        value={
-                            procedure.cancelledAt
-                                ? formatDateTime(procedure.cancelledAt)
-                                : '—'
-                        }
-                    />
-                </ProcedureCard>
+                        <DetailRow
+                            icon={XCircle}
+                            label="Cancelled At"
+                            value={
+                                procedure.cancelledAt
+                                    ? formatDateTime(procedure.cancelledAt)
+                                    : '—'
+                            }
+                        />
+                    </ProcedureCard>
 
-                <ProcedureCard title="Clinical Information">
-                    <DetailRow
-                        icon={User2}
-                        label="Ordered By"
-                        value={
-                            procedure.orderedBy
-                                ?.fullName
-                        }
-                    />
+                    <ProcedureCard title="Clinical Information">
+                        <DetailRow
+                            icon={User2}
+                            label="Ordered By"
+                            value={
+                                procedure.orderedBy
+                                    ?.fullName
+                            }
+                        />
 
-                    <DetailRow
-                        icon={Stethoscope}
-                        label="Theatre Booking ID"
-                        value={
-                            procedure.theatreBookingId
-                        }
-                    />
+                        <DetailRow
+                            icon={Stethoscope}
+                            label="Theatre Booking ID"
+                            value={
+                                procedure.theatreBookingId
+                            }
+                        />
 
-                    <DetailRow
-                        icon={ClipboardList}
-                        label="Bed Allocation"
-                        value={
-                            procedure
-                                .bedAllocation?.id
-                        }
-                    />
-                </ProcedureCard>
+                        <DetailRow
+                            icon={ClipboardList}
+                            label="Bed Allocation"
+                            value={
+                                procedure
+                                    .bedAllocation?.id
+                            }
+                        />
+                    </ProcedureCard>
 
-                <ProcedureCard title="Notes & Cancellation">
-                    <DetailRow
-                        icon={FileText}
-                        label="Clinical Notes"
-                        value={procedure.notes}
-                    />
+                    <ProcedureCard title="Notes & Cancellation">
+                        <DetailRow
+                            icon={FileText}
+                            label="Clinical Notes"
+                            value={procedure.notes}
+                        />
 
-                    <DetailRow
-                        icon={AlertTriangle}
-                        label="Cancellation Reason"
-                        value={
-                            procedure.cancellationReason
-                        }
-                    />
-                </ProcedureCard>
-            </div>
+                        <DetailRow
+                            icon={AlertTriangle}
+                            label="Cancellation Reason"
+                            value={
+                                procedure.cancellationReason
+                            }
+                        />
+                    </ProcedureCard>
+                </div>
+            </CollapsibleSection>
 
             <UpdateVisitProcedureDrawer
                 open={showDrawer}
@@ -422,6 +402,22 @@ export default function ProcedureInfoSection({
                     router.refresh();
                 }}
             />
+
+            <div className="space-y-6 pt-2">
+                <CreateVisitProcedureEventCard
+                    procedureId={procedure.id}
+                    status={procedure.status as VisitProcedureStatus}
+                    onCreated={() => {
+                        setTimelineRefreshKey(prev => prev + 1);
+                        router.refresh();
+                    }}
+                />
+
+                <VisitProcedureEventTimeline
+                    procedureId={procedure.id}
+                    refreshKey={timelineRefreshKey}
+                />
+            </div>
 
             <CancelVisitProcedureModal
                 open={showCancelModal}
