@@ -24,7 +24,7 @@ import { useBilling } from '@/hooks/billing/useBilling';
 import CreateVisitProcedureForm from './components/CreateVisitProcedureForm';
 import { ClockCircleOutlined, EyeOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { formatDuration } from '../../../visit-procedures/components/procedure-functions';
+import { formatDuration } from '../../../visit-procedures/types/procedure-functions';
 
 type VisitProcedureItem =
   GetVisitProceduresByVisitQuery['visitProceduresByVisit'][number];

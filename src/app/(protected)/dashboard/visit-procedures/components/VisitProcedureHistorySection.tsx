@@ -25,7 +25,7 @@ import { formatDateTime } from '@/utils/formatDateTime';
 
 import UpdateVisitProcedureDrawer from './UpdateVisitProcedureDrawer';
 import { useBilling } from '@/hooks/billing/useBilling';
-import { formatDuration } from './procedure-functions';
+import { formatDuration } from '../types/procedure-functions';
 import { StatCard, StatusBadge, PriorityBadge } from './procedure-types';
 
 type ProcedureItem =

@@ -30,7 +30,8 @@ import {
     XCircle,
 } from 'lucide-react';
 import { STATUS_CONFIG, PRIORITY_CONFIG, OUTCOME_CONFIG, StatusPill, ProcedureCard, DetailRow } from './procedure-types';
-import { formatDuration } from './procedure-functions';
+import { formatDuration } from '../types/procedure-functions';
+import CancelVisitProcedureModal from './CancelVisitProcedureModal';
 
 type Procedure =
     GetVisitProcedureByIdQuery['visitProcedureById'];
@@ -62,8 +63,15 @@ export default function ProcedureInfoSection({
     const [showDrawer, setShowDrawer] =
         useState(false);
 
+    const [showCancelModal, setShowCancelModal] =
+        useState(false);
+
     const { catalogs } =
         useBilling(ChargeDomain.Procedure);
+
+    const isCancelled =
+        procedure.status ===
+        VisitProcedureStatus.Cancelled;
 
     return (
         <div className="w-full max-w-5xl mx-auto space-y-5 py-2 sm:py-4">
@@ -142,7 +150,8 @@ export default function ProcedureInfoSection({
             <div className="sticky top-3 z-20">
                 <div
                     className="
-                        flex flex-col sm:flex-row gap-3
+                        grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3
+                        gap-3
                         rounded-[1.5rem]
                         border border-white/40
                         bg-white/80
@@ -151,44 +160,110 @@ export default function ProcedureInfoSection({
                         shadow-xl
                     "
                 >
+                    {!isCancelled && (
+                        <button
+                            onClick={() => setShowDrawer(true)}
+                            className="
+                                group
+                                w-full
+                                min-h-[56px]
+                                inline-flex items-center justify-center gap-2
+                                rounded-2xl
+                                bg-gradient-to-r from-blue-600 to-indigo-600
+                                px-4 py-3
+                                text-sm sm:text-base
+                                font-bold
+                                !text-white
+                                shadow-lg shadow-blue-600/20
+                                transition-all duration-200
+                                hover:-translate-y-0.5
+                                hover:shadow-xl
+                                active:scale-[0.98]
+                            "
+                        >
+                            <Activity className="h-4 w-4 shrink-0" />
+
+                            <span className="truncate">
+                                Update Procedure
+                            </span>
+                        </button>
+                    )}
+
                     <button
-                        onClick={() => setShowDrawer(true)}
-                        className="
-                            flex-1 sm:flex-none
+                        onClick={() => {
+                            if (!isCancelled) {
+                                setShowCancelModal(true);
+                            }
+                        }}
+                        disabled={isCancelled}
+                        className={`
+                            group
+                            w-full
+                            min-h-[56px]
                             inline-flex items-center justify-center gap-2
-                            h-12 px-5
                             rounded-2xl
-                            bg-gradient-to-r from-blue-600 to-indigo-600
-                            !text-white
+                            px-4 py-3
+                            text-sm sm:text-base
                             font-bold
-                            shadow-lg shadow-blue-600/20
                             transition-all duration-200
-                            hover:scale-[1.02]
-                            hover:shadow-xl
-                        "
+                            active:scale-[0.98]
+
+                            ${isCancelled
+                                ? `
+                                cursor-not-allowed
+                                border border-red-200
+                                bg-red-50
+                                text-red-500
+                                shadow-sm
+                            `
+                                : `
+                                bg-gradient-to-r from-red-600 to-rose-600
+                                !text-white
+                                shadow-lg shadow-red-600/20
+                                hover:-translate-y-0.5
+                                hover:shadow-xl
+                            `
+                            }
+                        `}
                     >
-                        <Activity className="h-4 w-4" />
-                        Update Procedure
+                        {isCancelled ? (
+                            <CheckCircle2 className="h-4 w-4 shrink-0" />
+                        ) : (
+                            <AlertTriangle className="h-4 w-4 shrink-0" />
+                        )}
+
+                        <span className="truncate">
+                            {isCancelled
+                                ? 'Procedure Cancelled'
+                                : 'Cancel Procedure'}
+                        </span>
                     </button>
 
                     <button
                         className="
-                            flex-1 sm:flex-none
+                            group
+                            w-full
+                            min-h-[56px]
                             inline-flex items-center justify-center gap-2
-                            h-12 px-5
                             rounded-2xl
                             border border-slate-200
                             bg-white
-                            text-slate-700
+                            px-4 py-3
+                            text-sm sm:text-base
                             font-semibold
+                            text-slate-700
                             shadow-sm
                             transition-all duration-200
                             hover:bg-slate-50
                             hover:shadow-md
+                            active:scale-[0.98]
                         "
                     >
-                        <ClipboardList className="h-4 w-4" />
-                        View Timeline
+                        <ClipboardList className="h-4 w-4 shrink-0" />
+
+                        <span className="truncate">
+                            View Timeline
+                        </span>
                     </button>
                 </div>
             </div>
@@ -346,6 +421,14 @@ export default function ProcedureInfoSection({
                     setShowDrawer(false);
                     router.refresh();
                 }}
+            />
+
+            <CancelVisitProcedureModal
+                open={showCancelModal}
+                onClose={() =>
+                    setShowCancelModal(false)
+                }
+                procedureId={procedure.id}
             />
         </div>
     );

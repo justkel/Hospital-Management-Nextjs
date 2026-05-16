@@ -1569,3 +1569,31 @@ mutation UpdateVisitProcedure(
     outcome
   }
 }
+
+mutation CancelVisitProcedure(
+  $procedureId: ID!
+  $cancellationReason: String!
+) {
+  cancelVisitProcedure(
+    procedureId: $procedureId
+    cancellationReason: $cancellationReason
+  ) {
+    id
+
+    customProcedureName
+    customProcedureCode
+
+    status
+    priority
+    outcome
+
+    cancellationReason
+    cancelledAt
+
+    procedureCatalog {
+      id
+      name
+      code
+    }
+  }
+}
