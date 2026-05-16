@@ -1491,40 +1491,46 @@ query GetVisitProcedureById(
   $id: ID!
 ) {
   visitProcedureById(id: $id) {
-    id
+     id
 
-    customProcedureName
-    customProcedureCode
+      visitId
+      customProcedureName
+      customProcedureCode
 
-    status
-    priority
-    outcome
+      status
+      priority
+      outcome
 
-    orderedAt
-    startedAt
-    completedAt
-    cancelledAt
+      orderedAt
+      startedAt
+      completedAt
+      cancelledAt
 
-    estimatedDuration
-    theatreBookingId
+      estimatedDuration
+      theatreBookingId
 
-    cancellationReason
-    notes
+      cancellationReason
+      notes
 
-    orderedBy {
-      id
-      fullName
-    }
+      visit {
+        id
+      }
 
-    procedureCatalog {
-      id
-      name
-      code
-    }
+      orderedBy {
+        id
+        fullName
+      }
 
-    bedAllocation {
-      id
-    }
+      procedureCatalog {
+        id
+        name
+        code
+      }
+
+      bedAllocation {
+        id
+        bedId
+      }
   }
 }
 

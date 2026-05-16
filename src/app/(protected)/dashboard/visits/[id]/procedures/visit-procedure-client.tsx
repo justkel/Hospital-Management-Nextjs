@@ -22,7 +22,7 @@ import {
 import { useBilling } from '@/hooks/billing/useBilling';
 
 import CreateVisitProcedureForm from './components/CreateVisitProcedureForm';
-import { ClockCircleOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { ClockCircleOutlined, EyeOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { formatDuration } from '../../../visit-procedures/components/procedure-functions';
 
@@ -317,25 +317,6 @@ export default function VisitProcedureClient({
 
                         <span>View</span>
                       </Link>
-
-                      <button
-                        className="
-                                    flex-1 sm:flex-none
-                                    inline-flex h-12 items-center justify-center gap-2
-                                    rounded-2xl
-                                    bg-gradient-to-r from-blue-600 to-indigo-600
-                                    px-5
-                                    text-sm font-bold !text-white
-                                    shadow-lg shadow-blue-600/20
-                                    transition-all duration-200
-                                    hover:scale-[1.02]
-                                    hover:shadow-xl
-                                "
-                      >
-                        <EditOutlined />
-
-                        <span>Manage</span>
-                      </button>
                     </div>
                   </div>
                 </div>

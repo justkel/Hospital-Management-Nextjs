@@ -6,6 +6,11 @@ import {
     VisitProcedureStatus,
     VisitProcedureOutcome,
 } from '@/shared/graphql/generated/graphql';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import UpdateVisitProcedureDrawer from '../../visit-procedures/components/UpdateVisitProcedureDrawer';
+import { useBilling } from '@/hooks/billing/useBilling';
+import { ChargeDomain } from '@/shared/graphql/generated/graphql';
 
 import { formatDateTime } from '@/utils/formatDateTime';
 
@@ -25,6 +30,7 @@ import {
     XCircle,
 } from 'lucide-react';
 import { STATUS_CONFIG, PRIORITY_CONFIG, OUTCOME_CONFIG, StatusPill, ProcedureCard, DetailRow } from './procedure-types';
+import { formatDuration } from './procedure-functions';
 
 type Procedure =
     GetVisitProcedureByIdQuery['visitProcedureById'];
@@ -36,6 +42,7 @@ type Props = {
 export default function ProcedureInfoSection({
     procedure,
 }: Props) {
+    const router = useRouter();
     const status =
         STATUS_CONFIG[
         procedure.status as VisitProcedureStatus
@@ -51,6 +58,12 @@ export default function ProcedureInfoSection({
         procedure.outcome as VisitProcedureOutcome
         ]
         : null;
+
+    const [showDrawer, setShowDrawer] =
+        useState(false);
+
+    const { catalogs } =
+        useBilling(ChargeDomain.Procedure);
 
     return (
         <div className="w-full max-w-5xl mx-auto space-y-5 py-2 sm:py-4">
@@ -126,6 +139,60 @@ export default function ProcedureInfoSection({
                 </div>
             </div>
 
+            <div className="sticky top-3 z-20">
+                <div
+                    className="
+                        flex flex-col sm:flex-row gap-3
+                        rounded-[1.5rem]
+                        border border-white/40
+                        bg-white/80
+                        backdrop-blur-xl
+                        p-3 sm:p-4
+                        shadow-xl
+                    "
+                >
+                    <button
+                        onClick={() => setShowDrawer(true)}
+                        className="
+                            flex-1 sm:flex-none
+                            inline-flex items-center justify-center gap-2
+                            h-12 px-5
+                            rounded-2xl
+                            bg-gradient-to-r from-blue-600 to-indigo-600
+                            !text-white
+                            font-bold
+                            shadow-lg shadow-blue-600/20
+                            transition-all duration-200
+                            hover:scale-[1.02]
+                            hover:shadow-xl
+                        "
+                    >
+                        <Activity className="h-4 w-4" />
+                        Update Procedure
+                    </button>
+
+                    <button
+                        className="
+                            flex-1 sm:flex-none
+                            inline-flex items-center justify-center gap-2
+                            h-12 px-5
+                            rounded-2xl
+                            border border-slate-200
+                            bg-white
+                            text-slate-700
+                            font-semibold
+                            shadow-sm
+                            transition-all duration-200
+                            hover:bg-slate-50
+                            hover:shadow-md
+                        "
+                    >
+                        <ClipboardList className="h-4 w-4" />
+                        View Timeline
+                    </button>
+                </div>
+            </div>
+
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
                 <ProcedureCard title="Procedure Details">
                     <DetailRow
@@ -179,7 +246,7 @@ export default function ProcedureInfoSection({
                         label="Estimated Duration"
                         value={
                             procedure.estimatedDuration
-                                ? `${procedure.estimatedDuration} mins`
+                                ? `${formatDuration(procedure.estimatedDuration)}`
                                 : null
                         }
                     />
@@ -269,6 +336,17 @@ export default function ProcedureInfoSection({
                     />
                 </ProcedureCard>
             </div>
+
+            <UpdateVisitProcedureDrawer
+                open={showDrawer}
+                onClose={() => setShowDrawer(false)}
+                procedure={procedure}
+                catalogs={catalogs ?? []}
+                onUpdated={() => {
+                    setShowDrawer(false);
+                    router.refresh();
+                }}
+            />
         </div>
     );
 }

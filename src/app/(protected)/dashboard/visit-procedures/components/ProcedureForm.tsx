@@ -5,7 +5,6 @@ import { Select } from 'antd';
 import {
     UpdateVisitProcedureInput,
     VisitProcedurePriority,
-    VisitProcedureStatus,
 } from '@/shared/graphql/generated/graphql';
 
 import { ChargeCatalogOption } from '../../visits/components/vitals/VisitVitalsSection';
@@ -43,39 +42,6 @@ export default function ProcedureForm({
     return (
         <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold text-gray-700">
-                        Procedure Status
-                    </label>
-
-                    <select
-                        value={form.status ?? ''}
-                        onChange={e =>
-                            setForm(prev => ({
-                                ...prev,
-                                status:
-                                    e.target
-                                        .value as VisitProcedureStatus,
-                            }))
-                        }
-                        className="w-full h-12 rounded-2xl border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        {Object.values(
-                            VisitProcedureStatus
-                        ).map(item => (
-                            <option
-                                key={item}
-                                value={item}
-                            >
-                                {item.replace(
-                                    /_/g,
-                                    ' '
-                                )}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
                 <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-700">
                         Priority Level
