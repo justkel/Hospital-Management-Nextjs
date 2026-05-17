@@ -8,6 +8,7 @@ import {
     UpdateVisitProcedureInput,
     VisitProcedurePriority,
     VisitProcedureStatus,
+    VisitProcedureOutcome,
 } from '@/shared/graphql/generated/graphql';
 
 import { clientFetch } from '@/lib/clientFetch';
@@ -69,6 +70,9 @@ export default function UpdateVisitProcedureDrawer({
 
             notes: procedure.notes || undefined,
 
+            outcome:
+                procedure.outcome as VisitProcedureOutcome | undefined,
+
             estimatedDuration:
                 procedure.estimatedDuration || undefined,
 
@@ -99,8 +103,14 @@ export default function UpdateVisitProcedureDrawer({
 
     const disableCustom = hasCatalog;
     const disableCatalog = hasCustom;
+    const isCompleted =
+        procedure?.status === VisitProcedureStatus.Completed;
 
     const canSubmit = useMemo(() => {
+        if (isCompleted) {
+            return !!form.outcome;
+        }
+
         if (
             !form.procedureCatalogId &&
             !form.customProcedureName?.trim()
@@ -109,7 +119,13 @@ export default function UpdateVisitProcedureDrawer({
         }
 
         return true;
-    }, [form]);
+    }, [form, isCompleted]);
+
+    const resetState = () => {
+        setLoading(false);
+        setError(null);
+        setSuccess(null);
+    };
 
     const setCatalog = (value?: string) => {
         const normalized =
@@ -164,41 +180,49 @@ export default function UpdateVisitProcedureDrawer({
             setError(null);
             setSuccess(null);
 
-            const payload: UpdateVisitProcedureInput = {
-                ...form,
+            const payload: UpdateVisitProcedureInput = isCompleted
+                ? {
+                    visitProcedureId: procedure.id,
+                    outcome: form.outcome,
+                    _validation: true,
+                }
+                : {
+                    ...form,
 
-                estimatedDuration:
-                    form.estimatedDuration || undefined,
+                    visitProcedureId: procedure.id,
 
-                notes: form.notes?.trim() || undefined,
+                    estimatedDuration:
+                        form.estimatedDuration || undefined,
 
-                procedureCatalogId:
-                    form.procedureCatalogId?.trim()
-                        ? form.procedureCatalogId
-                        : undefined,
+                    notes: form.notes?.trim() || undefined,
 
-                customProcedureName:
-                    form.customProcedureName?.trim() ||
-                    undefined,
+                    procedureCatalogId:
+                        form.procedureCatalogId?.trim()
+                            ? form.procedureCatalogId
+                            : undefined,
 
-                customProcedureCode:
-                    form.customProcedureCode?.trim() ||
-                    undefined,
+                    customProcedureName:
+                        form.customProcedureName?.trim() ||
+                        undefined,
 
-                startedAt:
-                    form.status ===
-                        VisitProcedureStatus.InProgress &&
-                        !procedure.startedAt
-                        ? new Date().toISOString()
-                        : undefined,
+                    customProcedureCode:
+                        form.customProcedureCode?.trim() ||
+                        undefined,
 
-                completedAt:
-                    form.status ===
-                        VisitProcedureStatus.Completed &&
-                        !procedure.completedAt
-                        ? new Date().toISOString()
-                        : undefined,
-            };
+                    startedAt:
+                        form.status ===
+                            VisitProcedureStatus.InProgress &&
+                            !procedure.startedAt
+                            ? new Date().toISOString()
+                            : undefined,
+
+                    completedAt:
+                        form.status ===
+                            VisitProcedureStatus.Completed &&
+                            !procedure.completedAt
+                            ? new Date().toISOString()
+                            : undefined,
+                };
 
             const res = await clientFetch(
                 '/api/visit-procedure/update',
@@ -225,6 +249,7 @@ export default function UpdateVisitProcedureDrawer({
             );
 
             setTimeout(() => {
+                resetState();
                 onUpdated?.();
             }, 900);
         } catch (err) {
@@ -248,7 +273,10 @@ export default function UpdateVisitProcedureDrawer({
                 </div>
             }
             placement={isMobile ? 'bottom' : 'right'}
-            onClose={onClose}
+            onClose={() => {
+                resetState();
+                onClose();
+            }}
             open={open}
             size={isMobile ? 'large' : 'default'}
             rootClassName={
@@ -267,15 +295,75 @@ export default function UpdateVisitProcedureDrawer({
                     procedure={procedure}
                 />
 
-                <ProcedureForm
-                    form={form}
-                    setForm={setForm}
-                    catalogs={catalogs}
-                    disableCatalog={disableCatalog}
-                    disableCustom={disableCustom}
-                    setCatalog={setCatalog}
-                    setCustomField={setCustomField}
-                />
+                {!isCompleted ? (
+                    <ProcedureForm
+                        form={form}
+                        setForm={setForm}
+                        catalogs={catalogs}
+                        disableCatalog={disableCatalog}
+                        disableCustom={disableCustom}
+                        setCatalog={setCatalog}
+                        setCustomField={setCustomField}
+                    />
+                ) : (
+                    <div className="space-y-5 rounded-[2rem] border border-emerald-200 bg-emerald-50/60 p-5">
+                        <div>
+                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-500">
+                                Procedure Completion
+                            </p>
+
+                            <h3 className="mt-1 text-xl font-black text-emerald-900">
+                                Finalize Procedure Outcome
+                            </h3>
+
+                            <p className="mt-2 text-sm leading-relaxed text-emerald-700">
+                                This procedure is being marked as completed.
+                                Select the final clinical outcome.
+                            </p>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-bold text-slate-700">
+                                Procedure Outcome
+                            </label>
+
+                            <select
+                                value={form.outcome || ''}
+                                onChange={e =>
+                                    setForm(prev => ({
+                                        ...prev,
+                                        outcome:
+                                            e.target.value as VisitProcedureOutcome,
+                                    }))
+                                }
+                                className="
+                                    h-14 w-full rounded-2xl
+                                    border border-emerald-300
+                                    bg-white px-4
+                                    text-sm font-medium text-slate-800
+                                    outline-none transition-all
+                                    focus:border-emerald-500
+                                    focus:ring-4 focus:ring-emerald-100
+                                "
+                            >
+                                <option value="">
+                                    Select outcome
+                                </option>
+
+                                {Object.values(VisitProcedureOutcome).map(
+                                    outcome => (
+                                        <option
+                                            key={outcome}
+                                            value={outcome}
+                                        >
+                                            {outcome.replace(/_/g, ' ')}
+                                        </option>
+                                    )
+                                )}
+                            </select>
+                        </div>
+                    </div>
+                )}
 
                 {error && (
                     <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

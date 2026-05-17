@@ -78,6 +78,13 @@ export default function ProcedureInfoSection({
         procedure.status ===
         VisitProcedureStatus.Cancelled;
 
+    const isCompleted =
+        procedure.status ===
+        VisitProcedureStatus.Completed;
+
+    const disableCancellation =
+        isCancelled || isCompleted;
+
     return (
         <div className="w-full max-w-5xl mx-auto space-y-5 py-2 sm:py-4">
             <div className="rounded-[2rem] bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 p-5 sm:p-7 text-white shadow-2xl">
@@ -196,11 +203,11 @@ export default function ProcedureInfoSection({
 
                     <button
                         onClick={() => {
-                            if (!isCancelled) {
+                            if (!disableCancellation) {
                                 setShowCancelModal(true);
                             }
                         }}
-                        disabled={isCancelled}
+                        disabled={disableCancellation}
                         className={`
                             group
                             w-full
@@ -213,25 +220,27 @@ export default function ProcedureInfoSection({
                             transition-all duration-200
                             active:scale-[0.98]
 
-                            ${isCancelled
-                                ? `
+                            ${disableCancellation
+                                                    ? `
                                 cursor-not-allowed
-                                border border-red-200
-                                bg-red-50
-                                text-red-500
+                                border border-slate-200
+                                bg-slate-50
+                                text-slate-500
                                 shadow-sm
                             `
-                                : `
+                                                    : `
                                 bg-gradient-to-r from-red-600 to-rose-600
                                 !text-white
                                 shadow-lg shadow-red-600/20
                                 hover:-translate-y-0.5
                                 hover:shadow-xl
                             `
-                            }
+                                                }
                         `}
                     >
                         {isCancelled ? (
+                            <XCircle className="h-4 w-4 shrink-0" />
+                        ) : isCompleted ? (
                             <CheckCircle2 className="h-4 w-4 shrink-0" />
                         ) : (
                             <AlertTriangle className="h-4 w-4 shrink-0" />
@@ -240,7 +249,9 @@ export default function ProcedureInfoSection({
                         <span className="truncate">
                             {isCancelled
                                 ? 'Procedure Cancelled'
-                                : 'Cancel Procedure'}
+                                : isCompleted
+                                    ? 'Procedure Completed'
+                                    : 'Cancel Procedure'}
                         </span>
                     </button>
                 </div>
