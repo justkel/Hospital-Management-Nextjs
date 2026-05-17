@@ -1659,3 +1659,45 @@ mutation CreateVisitProcedureEvent(
     }
   }
 }
+
+query GetVisitProcedureStaff(
+  $procedureId: ID!
+) {
+  visitProcedureStaff(
+    procedureId: $procedureId
+  ) {
+    id
+    staffId
+    staffName
+    userCode
+    functionInProcedure
+  }
+}
+
+mutation BulkAssignVisitProcedureStaff(
+  $data: BulkAssignProcedureStaffInput!
+) {
+  bulkAssignVisitProcedureStaff(
+    data: $data
+  ) {
+    id
+    staffId
+    staffName
+    userCode
+    functionInProcedure
+  }
+}
+
+mutation UpdateVisitProcedureStaff(
+  $data: UpdateProcedureStaffInput!
+) {
+  updateVisitProcedureStaff(
+    data: $data
+  ) {
+    id
+    staffId
+    staffName
+    userCode
+    functionInProcedure
+  }
+}
