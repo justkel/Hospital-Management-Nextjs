@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { message } from 'antd';
 import {
   Activity,
+  CheckCircle2,
   ClipboardList,
   Clock3,
   Loader2,
@@ -103,71 +104,56 @@ export default function VisitProcedureClient({
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="max-w-7xl mx-auto py-3 lg:px-3 space-y-6">
 
-        <div className="relative overflow-hidden rounded-3xl border border-white/50 bg-white shadow-xl shadow-slate-200/60">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-cyan-500/5 to-indigo-500/10" />
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white">
 
-          <div className="relative p-6 md:p-8 lg:p-10">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-
-              <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-1.5 text-sm font-medium text-blue-700">
-                  <ClipboardList size={16} />
-                  Procedure Management
-                </div>
-
-                <div>
-                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">
-                    Visit Procedures
-                  </h1>
-
-                  <p className="mt-2 max-w-2xl text-slate-500 text-sm md:text-base">
-                    Create, monitor and manage all
-                    procedures assigned to this
-                    patient visit in an organized workflow.
-                  </p>
-                </div>
+          <div className="px-6 py-7 sm:px-8 sm:py-8">
+            <div className="mb-6">
+              <div className="mb-3.5 inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                <ClipboardList size={13} />
+                Procedure management
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full lg:w-auto">
+              <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+                Visit procedures
+              </h1>
 
-                <div className="rounded-2xl border bg-white/80 backdrop-blur p-5 min-w-[160px]">
-                  <div className="flex items-center justify-between">
-                    <Activity className="text-blue-600" />
-                    <span className="text-3xl font-bold text-slate-900">
-                      {stats.total}
-                    </span>
+              <p className="mt-1.5 max-w-lg text-sm leading-relaxed text-slate-500">
+                Create, monitor, and manage all procedures assigned to this patient visit
+                in an organized clinical workflow.
+              </p>
+            </div>
+            <div className="mb-6 h-px bg-slate-100" />
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+
+              <div className="rounded-xl bg-slate-50 p-4">
+                <div className="mb-2.5 flex items-center justify-between">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <Activity size={16} />
                   </div>
-
-                  <p className="mt-3 text-sm font-medium text-slate-500">
-                    Total Procedures
-                  </p>
+                  <span className="text-2xl font-semibold text-slate-900">{stats.total}</span>
                 </div>
+                <p className="text-xs font-medium text-slate-500">Total procedures</p>
+              </div>
 
-                <div className="rounded-2xl border bg-white/80 backdrop-blur p-5 min-w-[160px]">
-                  <div className="flex items-center justify-between">
-                    <ShieldAlert className="text-red-600" />
-                    <span className="text-3xl font-bold text-slate-900">
-                      {stats.urgent}
-                    </span>
+              <div className="rounded-xl bg-slate-50 p-4">
+                <div className="mb-2.5 flex items-center justify-between">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-600">
+                    <ShieldAlert size={16} />
                   </div>
-
-                  <p className="mt-3 text-sm font-medium text-slate-500">
-                    Urgent Cases
-                  </p>
+                  <span className="text-2xl font-semibold text-slate-900">{stats.urgent}</span>
                 </div>
+                <p className="text-xs font-medium text-slate-500">Urgent cases</p>
+              </div>
 
-                <div className="rounded-2xl border bg-white/80 backdrop-blur p-5 min-w-[160px]">
-                  <div className="flex items-center justify-between">
-                    <Clock3 className="text-emerald-600" />
-                    <span className="text-3xl font-bold text-slate-900">
-                      {stats.completed}
-                    </span>
+              <div className="rounded-xl bg-slate-50 p-4">
+                <div className="mb-2.5 flex items-center justify-between">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                    <CheckCircle2 size={16} />
                   </div>
-
-                  <p className="mt-3 text-sm font-medium text-slate-500">
-                    Completed
-                  </p>
+                  <span className="text-2xl font-semibold text-slate-900">{stats.completed}</span>
                 </div>
+                <p className="text-xs font-medium text-slate-500">Completed</p>
               </div>
             </div>
           </div>

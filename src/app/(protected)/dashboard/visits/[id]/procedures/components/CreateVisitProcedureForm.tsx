@@ -122,164 +122,179 @@ export default function CreateVisitProcedureForm({
     <>
       {contextHolder}
 
-      <div className="relative overflow-hidden rounded-3xl border bg-white shadow-sm">
-
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-cyan-500/5 to-indigo-500/5" />
-
-        <div className="relative p-6 md:p-8">
-
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center">
-              <ClipboardPlus className="text-blue-700" />
+      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white">
+        <div className="px-6 py-7 sm:px-8 sm:py-8">
+          <div className="mb-6">
+            <div className="mb-3.5 inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+              <ClipboardPlus size={13} />
+              Add procedure
             </div>
-
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900">
-                Add New Procedure
-              </h2>
-              <p className="text-sm text-slate-500 mt-1">
-                Create and assign a new procedure to this visit
-              </p>
-            </div>
-          </div>
-
-          <div className="mb-6 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">
-            <AlertTriangle size={16} className="mt-0.5" />
-            <p>
-              You can only use either a <b>procedure catalog</b> OR
-              <b> custom procedure fields</b>, not both.
+            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+              New visit procedure
+            </h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-slate-500">
+              Assign a procedure from the catalog or enter custom details for this visit.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="mb-6 h-px bg-slate-100" />
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">
-                Custom Procedure Name
+          <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+            <AlertTriangle size={15} className="mt-0.5 shrink-0" />
+            <p className="leading-relaxed">
+              Use either a <strong className="font-semibold">procedure catalog</strong> or{' '}
+              <strong className="font-semibold">custom fields</strong> — not both at the same time.
+            </p>
+          </div>
+          <div className="mb-5">
+            <p className="mb-3 text-[11px] font-medium uppercase tracking-widest text-slate-400">
+              From catalog
+            </p>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-slate-500">
+                Procedure catalog
               </label>
-
-              <input
-                disabled={disableCustom}
-                type="text"
-                placeholder="Enter procedure name"
-                value={form.customProcedureName ?? ''}
-                onChange={e =>
-                  setCustomField(
-                    'customProcedureName',
-                    e.target.value
-                  )
-                }
-                className={`w-full h-12 rounded-xl border px-4 text-sm outline-none transition
-                  ${disableCustom
-                    ? 'bg-slate-100 cursor-not-allowed'
-                    : 'border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'
-                  }`}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">
-                Custom Procedure Code
-              </label>
-
-              <input
-                disabled={disableCustom}
-                type="text"
-                placeholder="Enter code (e.g XR-001)"
-                value={form.customProcedureCode ?? ''}
-                onChange={e =>
-                  setCustomField(
-                    'customProcedureCode',
-                    e.target.value
-                  )
-                }
-                className={`w-full h-12 rounded-xl border px-4 text-sm outline-none transition
-                  ${disableCustom
-                    ? 'bg-slate-100 cursor-not-allowed'
-                    : 'border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'
-                  }`}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">
-                Procedure Catalog
-              </label>
-
               <select
                 disabled={disableCatalog}
                 value={form.procedureCatalogId ?? ''}
                 onChange={e => setCatalog(e.target.value)}
-                className={`w-full h-12 rounded-xl border px-4 text-sm outline-none transition
+                className={`h-10 w-full rounded-lg border px-3 text-sm outline-none transition
                   ${disableCatalog
-                    ? 'bg-slate-100 cursor-not-allowed'
-                    : 'border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'
+                    ? 'cursor-not-allowed bg-slate-50 text-slate-400'
+                    : 'border-slate-200 bg-white focus:border-blue-400 focus:ring-3 focus:ring-blue-100'
                   }`}
               >
-                <option value="">Select procedure catalog</option>
-
+                <option value="">Select a procedure catalog…</option>
                 {catalogs?.map((c: any) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">
-                Estimated Duration (minutes)
-              </label>
+          <div className="my-5 flex items-center gap-3">
+            <div className="h-px flex-1 bg-slate-100" />
+            <span className="text-[11px] font-medium uppercase tracking-widest text-slate-400">
+              or enter custom
+            </span>
+            <div className="h-px flex-1 bg-slate-100" />
+          </div>
 
-              <input
-                type="number"
-                value={form.estimatedDuration ?? ''}
-                onChange={e =>
-                  setForm({
-                    ...form,
-                    estimatedDuration: e.target.value
-                      ? Number(e.target.value)
-                      : undefined,
-                  })
-                }
-                className="w-full h-12 rounded-xl border border-slate-200 px-4 text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none"
-              />
-            </div>
-
-            <div className="lg:col-span-2 space-y-2">
-              <label className="text-sm font-semibold text-slate-700">
-                Notes
-              </label>
-
-              <textarea
-                rows={4}
-                value={form.notes ?? ''}
-                onChange={e =>
-                  setForm({
-                    ...form,
-                    notes: e.target.value,
-                  })
-                }
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none"
-              />
+          <div className="mb-5">
+            <p className="mb-3 text-[11px] font-medium uppercase tracking-widest text-slate-400">
+              Custom procedure
+            </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-slate-500">
+                  Procedure name
+                </label>
+                <input
+                  disabled={disableCustom}
+                  type="text"
+                  placeholder="e.g. Chest X-Ray"
+                  value={form.customProcedureName ?? ''}
+                  onChange={e => setCustomField('customProcedureName', e.target.value)}
+                  className={`h-10 w-full rounded-lg border px-3 text-sm outline-none transition
+                    ${disableCustom
+                      ? 'cursor-not-allowed bg-slate-50 text-slate-400'
+                      : 'border-slate-200 bg-white focus:border-blue-400 focus:ring-3 focus:ring-blue-100'
+                    }`}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-slate-500">
+                  Procedure code
+                </label>
+                <input
+                  disabled={disableCustom}
+                  type="text"
+                  placeholder="e.g. XR-001"
+                  value={form.customProcedureCode ?? ''}
+                  onChange={e => setCustomField('customProcedureCode', e.target.value)}
+                  className={`h-10 w-full rounded-lg border px-3 text-sm outline-none transition
+                    ${disableCustom
+                      ? 'cursor-not-allowed bg-slate-50 text-slate-400'
+                      : 'border-slate-200 bg-white focus:border-blue-400 focus:ring-3 focus:ring-blue-100'
+                    }`}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="mt-8 flex justify-end">
+          <div className="mb-5 h-px bg-slate-100" />
+
+          <div>
+            <p className="mb-3 text-[11px] font-medium uppercase tracking-widest text-slate-400">
+              Details
+            </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-slate-500">
+                  Priority
+                </label>
+                <select
+                  value={form.priority ?? ''}
+                  onChange={e => setForm({ ...form, priority: e.target.value as VisitProcedurePriority })}
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-3 focus:ring-blue-100"
+                >
+                  <option value={VisitProcedurePriority.Normal}>Normal</option>
+                  <option value={VisitProcedurePriority.Urgent}>Urgent</option>
+                  <option value={VisitProcedurePriority.High}>High</option>
+                  <option value={VisitProcedurePriority.Low}>Low</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-slate-500">
+                  Estimated duration (minutes)
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g. 30"
+                  value={form.estimatedDuration ?? ''}
+                  onChange={e => setForm({ ...form, estimatedDuration: e.target.value ? Number(e.target.value) : undefined })}
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-3 focus:ring-blue-100"
+                />
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-xs font-medium text-slate-500">
+                  Notes
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Any relevant clinical notes for this procedure…"
+                  value={form.notes ?? ''}
+                  onChange={e => setForm({ ...form, notes: e.target.value })}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-3 focus:ring-blue-100"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-100 pt-5">
+            <button
+              type="button"
+              className="h-9 rounded-lg border border-slate-200 px-4 text-sm font-medium text-slate-500 transition hover:bg-slate-50"
+            >
+              Cancel
+            </button>
             <button
               onClick={submit}
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-6 py-3 text-sm font-semibold !text-white hover:bg-blue-700 disabled:opacity-50 shadow-xl"
+              className="inline-flex h-9 items-center gap-2 rounded-lg bg-blue-50 border border-blue-200 px-5 text-sm font-medium text-blue-700 transition hover:bg-blue-100 disabled:opacity-50"
             >
               {loading ? (
                 <>
-                  <Loader2 size={18} className="animate-spin" />
-                  Creating Procedure...
+                  <Loader2 size={14} className="animate-spin" />
+                  Creating…
                 </>
               ) : (
                 <>
-                  <PlusCircle size={18} />
-                  Create Procedure
+                  <PlusCircle size={14} />
+                  Create procedure
                 </>
               )}
             </button>
