@@ -28,11 +28,17 @@ export default function CreateVisitProcedureForm({
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
+  const initialFormState: CreateVisitProcedureInput = {
+    visitId,
+    priority: VisitProcedurePriority.Normal,
+  };
+
   const [form, setForm] =
-    useState<CreateVisitProcedureInput>({
-      visitId,
-      priority: VisitProcedurePriority.Normal,
-    });
+    useState<CreateVisitProcedureInput>(initialFormState);
+
+  const resetForm = () => {
+    setForm(initialFormState);
+  };
 
   const hasCustom =
     !!form.customProcedureName?.trim() ||
@@ -106,10 +112,7 @@ export default function CreateVisitProcedureForm({
 
       messageApi.success('Procedure created successfully');
 
-      setForm({
-        visitId,
-        priority: VisitProcedurePriority.Normal,
-      });
+      resetForm();
     } finally {
       setLoading(false);
     }
@@ -277,6 +280,7 @@ export default function CreateVisitProcedureForm({
           <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-100 pt-5">
             <button
               type="button"
+              onClick={resetForm}
               className="h-9 rounded-lg border border-slate-200 px-4 text-sm font-medium text-slate-500 transition hover:bg-slate-50"
             >
               Cancel
