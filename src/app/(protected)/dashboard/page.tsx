@@ -13,19 +13,22 @@ export default async function DashboardPage() {
     {}
   );
 
-  // Access token expired → let SessionGuard refresh or redirect
   if (!data) {
     return <SessionGuard needsRefresh />;
   }
 
-  const email = data.whoAmI?.email ?? 'Unknown';
-  const roles = Array.isArray(data.whoAmI?.roles)
-    ? data.whoAmI.roles
-    : [];
+  const whoAmI = data.whoAmI;
 
   return (
     <SessionGuard needsRefresh={false}>
-      <DashboardClient email={email} roles={roles} />
+      <DashboardClient
+        email={whoAmI?.email ?? 'Unknown'}
+        roles={Array.isArray(whoAmI?.roles) ? whoAmI.roles : []}
+        phoneNumber={whoAmI?.phoneNumber}
+        status={whoAmI?.status}
+        lastLoginAt={whoAmI?.lastLoginAt}
+        lastSeenAt={whoAmI?.lastSeenAt}
+      />
     </SessionGuard>
   );
 }
