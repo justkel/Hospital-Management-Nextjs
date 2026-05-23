@@ -42,47 +42,44 @@ export default async function VisitDetailPage({ params }: Props) {
     <SessionGuard needsRefresh={false}>
       <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-10">
         <div className="max-w-7xl mx-auto space-y-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#E8E6E0] bg-white px-5 py-4">
             <div>
-              <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
-                Visit Workspace
-              </h2>
-              <p className="text-lg font-bold text-slate-900">
+              <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-[#B4B2A9]">
+                Visit workspace
+              </p>
+              <p className="mt-0.5 text-[14px] font-medium text-[#2C2C2A]">
                 Manage everything related to this visit
               </p>
             </div>
 
             <Link
               href={`/dashboard/visits/${visit.id}/procedures`}
-              className="group relative inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold !text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-600/20 transition-all hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] w-full sm:w-auto"
+              className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] bg-[#0c1a12] px-4 text-[13px] font-medium text-white transition hover:bg-[#1D9E75]"
             >
-              <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-white/15 group-hover:bg-white/20 transition">
-                <ClipboardList size={16} />
-              </span>
-
-              View Procedures
-              <span className="absolute inset-0 rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition" />
+              <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-white/12">
+                <ClipboardList size={13} />
+              </div>
+              View procedures
             </Link>
-
           </div>
           <VisitHeaderCard visit={visit} />
 
-          <CollapsibleSection title="Visit Records" defaultOpen={false}>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-              <div className="lg:col-span-2 space-y-6">
+          <CollapsibleSection
+            title="Visit records"
+            icon={<ClipboardList size={14} />}
+            iconColor="teal"
+            defaultOpen={false}
+          >
+            <div className="flex flex-col gap-3 lg:grid lg:grid-cols-3">
+              <div className="flex flex-col gap-3 lg:col-span-2">
                 <VisitInfoSection visit={visit} />
                 <VisitTimelineSection visit={visit} />
               </div>
-
-              <div className="space-y-6">
+              <div className="flex flex-col gap-3">
                 <PatientInfoSection patient={visit.patient} />
                 <VisitSummarySection visit={visit} />
               </div>
-
             </div>
-
           </CollapsibleSection>
 
           <VisitVitalsSection visitId={visit.id} />
