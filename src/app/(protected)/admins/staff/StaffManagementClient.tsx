@@ -13,6 +13,7 @@ import StaffCard from './components/StaffCard';
 import RolesModal from './components/RolesModal';
 import DetailsDrawer from './components/DetailsDrawer';
 import { clientFetch } from '@/lib/clientFetch';
+import { CheckCircle, Search, UserPlus, Users } from 'lucide-react';
 
 type StaffItem = GetAllStaffQuery['staffs']['items'][number];
 type StaffsQueryResult = GetAllStaffQuery['staffs'];
@@ -183,49 +184,78 @@ export default function StaffManagementClient({
     setDetails(null);
   }
 
-  return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-8">
-      <div className="flex flex-col lg:flex-row lg:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Staff Management
-          </h1>
-          <p className="text-gray-500 mt-1 text-sm sm:text-base">
-            Manage and explore staff across your organization
-          </p>
-        </div>
+  const activeCount = list.filter(s => s.status === 'ACTIVE').length;
+  const roleCount = new Set(list.flatMap(s => s.roles)).size;
 
-        <button
-          onClick={() => setOpenCreate(true)}
-          className="px-6 py-2 rounded-2xl bg-green-700 text-white! font-medium hover:bg-slate-700 transition self-start"
-        >
-          + Add Staff
-        </button>
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="relative overflow-hidden rounded-xl bg-[#0c1a12] px-6 py-6 sm:px-8">
+        <div className="pointer-events-none absolute inset-0"
+          style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+        <div className="pointer-events-none absolute -bottom-12 -right-12 h-44 w-44 rounded-full bg-[#1D9E75]/15 blur-[50px]" />
+
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.1em] !text-[#5DCAA5]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#1D9E75]" />
+              Organization roster
+            </div>
+            <h1 className="mb-1 text-[20px] font-medium tracking-[-0.02em] !text-white">
+              Staff management
+            </h1>
+            <p className="text-[13px] !text-[#5a7a6a]">
+              Manage and explore staff across your organisation
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="hidden gap-2.5 sm:flex">
+              {[
+                { val: total,       label: 'Total'  },
+                { val: roleCount,   label: 'Roles'  },
+                { val: activeCount, label: 'Active' },
+              ].map(s => (
+                <div key={s.label}
+                  className="min-w-[60px] rounded-[10px] border border-white/[0.08] bg-white/[0.05] px-3 py-2.5 text-center"
+                >
+                  <p className="text-[18px] font-medium leading-none !text-white">{s.val}</p>
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.07em] !text-[#3B6D11]">{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setOpenCreate(true)}
+              className="inline-flex h-[38px] items-center gap-2 rounded-[9px] bg-[#1D9E75] px-5 text-[13px] font-medium !text-white transition hover:bg-[#0F6E56]"
+            >
+              <UserPlus size={14} />
+              Add staff
+            </button>
+          </div>
+        </div>
       </div>
 
-      {successMessage && (
-        <div className="fixed top-20 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md animate-fade-in">
-          {successMessage}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative min-w-[200px] flex-1 sm:max-w-[300px]">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 !text-[#B4B2A9]" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by name or code…"
+            className="h-[38px] w-full rounded-[9px] border border-[#E8E6E0] bg-white pl-9 pr-3 text-[13px] text-[#2C2C2A] placeholder-[#B4B2A9] outline-none transition focus:border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/10"
+          />
         </div>
-      )}
 
-      <div className="flex flex-col md:flex-row gap-3 md:items-center">
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search by name or email…"
-          className="w-full md:max-w-sm px-4 py-2 rounded-xl border focus:ring-2 focus:ring-indigo-500"
-        />
-
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {(['ALL', ...Object.values(StaffRole)] as const).map(r => (
             <button
               key={r}
               onClick={() => setRoleFilter(r)}
-              className={`px-4 py-1 rounded-full text-sm font-medium transition ${roleFilter === r
-                  ? 'bg-green-700 text-white!'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+              className={`h-8 rounded-full px-3.5 text-[12px] font-medium transition border ${
+                roleFilter === r
+                  ? 'border-[#0c1a12] bg-[#0c1a12] !text-white'
+                  : 'border-[#E8E6E0] bg-white text-[#5F5E5A] hover:border-[#D3D1C7] hover:text-[#2C2C2A]'
+              }`}
             >
               {r}
             </button>
@@ -233,7 +263,7 @@ export default function StaffManagementClient({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {filtered.length > 0 ? (
           filtered.map(staff => (
             <StaffCard
@@ -244,15 +274,21 @@ export default function StaffManagementClient({
             />
           ))
         ) : (
-          <div className="col-span-full text-center py-12 text-gray-500">
-            {roleFilter === 'ALL'
-              ? 'No staff available.'
-              : `No staff found with the role "${roleFilter}".`}
+          <div className="col-span-full flex flex-col items-center justify-center py-16">
+            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-white border border-[#E8E6E0]">
+              <Users size={22} className="text-[#B4B2A9]" />
+            </div>
+            <p className="text-[13px] font-medium text-[#5F5E5A]">No staff found</p>
+            <p className="mt-1 text-[12px] !text-[#B4B2A9]">
+              {roleFilter === 'ALL'
+                ? 'No staff available yet.'
+                : `No staff with the role "${roleFilter}".`}
+            </p>
           </div>
         )}
       </div>
 
-      <div className="flex justify-center pt-6">
+      <div className="flex justify-center pt-2">
         <Pagination
           current={page}
           pageSize={limit}
@@ -264,6 +300,13 @@ export default function StaffManagementClient({
           }}
         />
       </div>
+
+      {successMessage && (
+        <div className="fixed right-5 top-[72px] z-50 flex items-center gap-2 rounded-[10px] border border-[#1D9E75]/30 bg-[#0c1a12] px-4 py-2.5 text-[13px] font-medium !text-[#5DCAA5] shadow-[0_8px_24px_rgba(0,0,0,0.15)]">
+          <CheckCircle size={14} />
+          {successMessage}
+        </div>
+      )}
 
       {selectedId && (
         <DetailsDrawer
@@ -288,7 +331,7 @@ export default function StaffManagementClient({
           error={roleError}
         />
       )}
-
+      
       {openCreate && (
         <CreateStaffModal
           onClose={() => setOpenCreate(false)}
