@@ -146,7 +146,7 @@ export default function EditPatientButton({ patient }: Props) {
         <>
             <button
                 onClick={openModal}
-                className="p-2 rounded-xl hover:bg-gray-100 transition cursor-pointer"
+                className="p-2 rounded-xl !text-white hover:bg-green-700 transition cursor-pointer"
             >
                 <Pencil size={18} />
             </button>

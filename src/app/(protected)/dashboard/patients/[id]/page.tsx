@@ -2,12 +2,14 @@ import {
   GetPatientByIdDocument,
   GetPatientByIdQuery,
   GetPatientByIdQueryVariables,
+  PatientStatus,
 } from '@/shared/graphql/generated/graphql';
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 import SessionGuard from '@/components/SessionGuard';
 import SystemInformation from '@/app/(protected)/admins/staff/components/SystemInformation';
 import EditPatientButton from '../components/EditPatientButton';
 import CreateVisitModal from '../components/CreateVisitModal';
+import { AlertTriangle, UserX } from 'lucide-react';
 
 interface Props {
   params: Promise<{
@@ -67,47 +69,43 @@ export default async function PatientDetailPage({ params }: Props) {
 
   return (
     <SessionGuard needsRefresh={false}>
-      <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-10">
-        <div className="max-w-7xl mx-auto space-y-8">
+      <div className="flex flex-col gap-4">
+        <div className="relative overflow-hidden rounded-xl bg-[#0c1a12] px-6 py-6 sm:px-8">
+          <div className="pointer-events-none absolute inset-0"
+            style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+          <div className="pointer-events-none absolute -bottom-12 -right-12 h-44 w-44 rounded-full bg-[#1D9E75]/15 blur-[50px]" />
 
-          <div className="bg-white rounded-3xl shadow-sm p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            
-            <div className="flex items-center gap-6">
-              <div className="h-20 w-20 rounded-2xl bg-emerald-100 flex items-center justify-center text-2xl font-bold text-emerald-700">
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-[12px] border border-[#5DCAA5]/30 bg-[#1D9E75]/18 text-[22px] font-medium text-[#5DCAA5]">
                 {patient.fullName?.charAt(0)?.toUpperCase()}
               </div>
-
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="mb-1 text-[18px] font-medium tracking-[-0.02em] !text-white">
                   {patient.fullName}
                 </h1>
-
-                <p className="text-gray-500 mt-1">
-                  Patient No: {patient.patientNumber} • Code: {patient.userCode}
+                <p className="mb-2.5 text-[12px] text-[#3B6D11]">
+                  {patient.patientNumber}&nbsp;&nbsp;·&nbsp;&nbsp;Code: {patient.userCode}
                 </p>
-
-                <div className="flex flex-wrap gap-2 mt-3">
+                <div className="flex flex-wrap gap-1.5">
                   {patient.emergency && (
-                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
-                      EMERGENCY
+                    <span className="inline-flex items-center gap-1 rounded-full border border-[#DC2626]/30 bg-[#DC2626]/15 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] text-[#FDA9A9]">
+                      <span className="h-1 w-1 rounded-full bg-current" />Emergency
                     </span>
                   )}
-
-                  <span
-                    className={`px-3 py-1 text-xs font-semibold rounded-full ${patient.status === 'ACTIVE'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-gray-200 text-gray-600'
-                      }`}
-                  >
-                    {patient.status}
+                  <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] ${patient.status === PatientStatus.Active
+                      ? 'border-[#1D9E75]/30 bg-[#F0FAF5] text-[#1D9E75]'
+                      : 'border-white/10 bg-white/[0.07] text-[#5a7a6a]'
+                    }`}>
+                    <span className="h-1 w-1 rounded-full bg-current" />{patient.status}
                   </span>
-
-                  <span className="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
-                    {patient.gender}
-                  </span>
-
+                  {patient.gender && (
+                    <span className="inline-flex rounded-full border border-white/10 bg-white/[0.07] px-2.5 py-0.5 text-[10px] uppercase tracking-[0.06em] text-[#8ba0b8]">
+                      {patient.gender}
+                    </span>
+                  )}
                   {patient.bloodGroup && (
-                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-red-50 text-red-700">
+                    <span className="inline-flex rounded-full border border-[#DC2626]/25 bg-[#DC2626]/12 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] text-[#FDA9A9]">
                       {patient.bloodGroup}
                     </span>
                   )}
@@ -115,110 +113,97 @@ export default async function PatientDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <EditPatientButton patient={patient} />
               <CreateVisitModal patientId={patient.id} />
             </div>
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
+          <div className="flex flex-col gap-4">
+            <Section icon="user" iconColor="teal" title="Personal information">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Info label="Date of birth" value={patient.dateOfBirth} />
+                <Info label="Age" value={age ? `${age} years` : undefined} />
+                <Info label="Email" value={patient.email} />
+                <Info label="Phone" value={patient.phoneNumber} />
+                <Info label="Secondary phone" value={patient.secondaryPhoneNumber} />
+              </div>
+            </Section>
 
-            <div className="lg:col-span-2 space-y-6">
-
-              <div className="bg-white rounded-3xl shadow-sm p-6">
-                <h2 className="text-lg font-semibold mb-4">Personal Information</h2>
-
-                <div className="grid sm:grid-cols-2 gap-6 text-sm">
-                  <Info label="Date of Birth" value={patient.dateOfBirth} />
-                  <Info label="Age" value={age ? `${age} years` : '—'} />
-                  <Info label="Email" value={patient.email} />
-                  <Info label="Phone" value={patient.phoneNumber} />
-                  <Info label="Secondary Phone" value={patient.secondaryPhoneNumber} />
+            <Section icon="heart-rate-monitor" iconColor="amber" title="Medical information">
+              <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.07em] text-[#B4B2A9]">Allergies</p>
+              {patient.allergies?.length ? (
+                <div className="flex flex-wrap gap-2">
+                  {patient.allergies.map((allergy, i) => (
+                    <span key={i}
+                      className="inline-flex rounded-full border border-[#D97706]/25 bg-[#FFFBEB] px-2.5 py-1 text-[11px] font-medium text-[#D97706]"
+                    >
+                      {allergy}
+                    </span>
+                  ))}
                 </div>
-              </div>
-
-              <div className="bg-white rounded-3xl shadow-sm p-6">
-                <h2 className="text-lg font-semibold mb-4">Medical Information</h2>
-
-                {patient.allergies?.length ? (
-                  <div className="flex flex-wrap gap-2">
-                    {patient.allergies.map((allergy, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 font-medium"
-                      >
-                        {allergy}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500">
-                    No recorded allergies.
-                  </p>
-                )}
-              </div>
-
-              <div className="bg-white rounded-3xl shadow-sm p-6">
-                <h2 className="text-lg font-semibold mb-4">Addresses</h2>
-
-                {patient.addresses?.length ? (
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {patient.addresses.map((addr, i) => (
-                      <div
-                        key={i}
-                        className="rounded-2xl bg-gray-50 p-4 text-sm"
-                      >
-                        <p className="font-medium">{addr?.addressLine1}</p>
-                        <p className="text-gray-600">{addr?.city}</p>
-                        <p className="text-gray-600">{addr?.state}</p>
-                        <p className="text-gray-600">{addr?.country}</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 text-sm">
-                    No addresses recorded.
-                  </p>
-                )}
-              </div>
-
-              {patient.extraDetails && (
-                <div className="bg-white rounded-3xl shadow-sm p-6">
-                  <h2 className="text-lg font-semibold mb-3">
-                    Additional Details
-                  </h2>
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    {patient.extraDetails}
-                  </p>
-                </div>
+              ) : (
+                <p className="text-[13px] text-[#B4B2A9]">No recorded allergies.</p>
               )}
-            </div>
-            <div className="space-y-6">
+            </Section>
 
-              <div className="bg-white rounded-3xl shadow-sm p-6">
-                <h2 className="text-lg font-semibold mb-4">Next of Kin</h2>
+            <Section icon="map-pin" iconColor="blue" title="Addresses">
+              {patient.addresses?.length ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {patient.addresses.map((addr, i) => (
+                    <div key={i} className="rounded-[10px] border border-[#E8E6E0] bg-[#F7F7F5] p-3.5">
+                      <p className="text-[13px] font-medium text-[#2C2C2A]">{addr?.addressLine1}</p>
+                      <p className="mt-0.5 text-[12px] text-[#888780]">{addr?.city}</p>
+                      <p className="text-[12px] text-[#888780]">{addr?.state}</p>
+                      <p className="text-[12px] text-[#888780]">{addr?.country}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[13px] text-[#B4B2A9]">No addresses recorded.</p>
+              )}
+            </Section>
+
+            {patient.extraDetails && (
+              <Section icon="notes" iconColor="teal" title="Additional details">
+                <p className="text-[13px] leading-relaxed text-[#5F5E5A]">{patient.extraDetails}</p>
+              </Section>
+            )}
+          </div>
+          <div className="flex flex-col gap-4">
+
+            <Section icon="users" iconColor="teal" title="Next of kin">
+              <div className="flex flex-col gap-3">
                 <Info label="Name" value={patient.nextOfKinName} />
+                <div className="h-px bg-[#F0F0EC]" />
                 <Info label="Phone" value={patient.nextOfKinPhone} />
               </div>
+            </Section>
 
-              <SystemInformation staffId={patient.createdByStaffId} />
+            <SystemInformation staffId={patient.createdByStaffId} />
 
-              {duplicatePatients.length ? (
-                <div className="bg-red-50 border border-red-200 rounded-3xl p-6">
-                  <h2 className="text-lg font-semibold text-red-700 mb-3">
-                    Possible Duplicates
-                  </h2>
-                  <ul className="text-sm text-red-800 space-y-1">
-                    {duplicatePatients.map((dup, i) => (
-                      <li key={i}>
-                        {dup?.fullName} • Code: {dup?.userCode}
-                      </li>
-                    ))}
-                  </ul>
+            {duplicatePatients.length > 0 && (
+              <div className="overflow-hidden rounded-xl border border-[#DC2626]/25 bg-[#FEF2F2]">
+                <div className="flex items-center gap-2 border-b border-[#DC2626]/15 px-4 py-3">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-[#DC2626]/12">
+                    <AlertTriangle size={13} className="text-[#DC2626]" />
+                  </div>
+                  <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#DC2626]">
+                    Possible duplicates
+                  </span>``
                 </div>
-              ) : null}
-
-            </div>
+                <div className="divide-y divide-[#DC2626]/10 px-4">
+                  {duplicatePatients.map((dup, i) => (
+                    <div key={i} className="flex items-center gap-2 py-2.5 text-[13px] text-[#991B1B]">
+                      <UserX size={13} className="shrink-0 text-[#DC2626]" />
+                      {dup?.fullName}&nbsp;·&nbsp;Code: {dup?.userCode}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -226,12 +211,42 @@ export default async function PatientDetailPage({ params }: Props) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function Info({ label, value }: { label: string; value?: any }) {
+const ICON_COLORS: Record<string, string> = {
+  teal: 'bg-[#F0FAF5] text-[#1D9E75]',
+  amber: 'bg-[#FFFBEB] text-[#D97706]',
+  blue: 'bg-[#EFF6FF] text-[#2563EB]',
+  red: 'bg-[#FEF2F2] text-[#DC2626]',
+};
+
+function Section({
+  icon, iconColor = 'teal', title, children,
+}: {
+  icon: string; iconColor?: string; title: string; children: React.ReactNode;
+}) {
   return (
-    <div className="text-sm">
-      <p className="text-gray-500">{label}</p>
-      <p className="font-medium text-gray-900">{value ?? '—'}</p>
+    <div className="overflow-hidden rounded-xl border border-[#E8E6E0] bg-white">
+      <div className="flex items-center gap-2.5 border-b border-[#E8E6E0] px-4 py-3">
+        <div className={`flex h-7 w-7 items-center justify-center rounded-[7px] ${ICON_COLORS[iconColor]}`}>
+          <span className={`ti ti-${icon} text-[14px]`} aria-hidden="true" />
+        </div>
+        <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#B4B2A9]">
+          {title}
+        </span>
+      </div>
+      <div className="p-4">{children}</div>
+    </div>
+  );
+}
+
+function Info({ label, value }: { label: string; value?: string | null }) {
+  return (
+    <div>
+      <p className="mb-0.5 text-[11px] font-medium uppercase tracking-[0.07em] text-[#B4B2A9]">
+        {label}
+      </p>
+      <p className={`text-[13px] font-medium ${value ? 'text-[#2C2C2A]' : 'text-[#B4B2A9]'}`}>
+        {value ?? '—'}
+      </p>
     </div>
   );
 }
