@@ -1706,3 +1706,73 @@ mutation UpdateVisitProcedureStaff(
     functionInProcedure
   }
 }
+
+query GetTheatres($pagination: TheatrePaginationInput!) {
+  theatres(pagination: $pagination) {
+    items {
+      id
+      name
+      code
+      floor
+
+      department
+      capacity
+
+      organizationId
+
+      isActive
+    }
+
+    total
+    page
+    pageCount
+  }
+}
+
+query GetTheatreById($id: ID!) {
+  theatreById(id: $id) {
+    id
+    name
+    code
+    floor
+
+    department
+    capacity
+
+    organizationId
+
+    isActive
+  }
+}
+
+mutation CreateTheatre($data: CreateTheatreInput!) {
+  createTheatre(data: $data) {
+    id
+    name
+    code
+    floor
+
+    department
+    capacity
+
+    organizationId
+
+    isActive
+  }
+}
+
+mutation UpdateTheatre($data: UpdateTheatreInput!) {
+  updateTheatre(data: $data) {
+    id
+    name
+    code
+    floor
+
+    department
+    capacity
+
+    organizationId
+
+    isActive
+  }
+}
