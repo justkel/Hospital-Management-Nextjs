@@ -20,6 +20,11 @@ query WhoAmI {
   whoAmI {
     email
     roles
+    userCode
+    status
+    phoneNumber
+    lastLoginAt
+    lastSeenAt
   }
 }
 
