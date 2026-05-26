@@ -357,6 +357,22 @@ export type CreateStaffInput = {
   roles: Array<StaffRole>;
 };
 
+export type CreateTheatreIncidentInput = {
+  notes?: InputMaybe<Scalars['String']['input']>;
+  severity: TheatreIncidentSeverity;
+  theatreId: Scalars['ID']['input'];
+  type: TheatreIncidentType;
+};
+
+export type CreateTheatreInput = {
+  capacity?: InputMaybe<Scalars['Int']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  department?: InputMaybe<TheatreDepartment>;
+  floor?: InputMaybe<Scalars['Int']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
 export type CreateVisitChargeInput = {
   chargeCatalogId?: InputMaybe<Scalars['ID']['input']>;
   chargeDomain?: InputMaybe<ChargeDomain>;
@@ -575,6 +591,8 @@ export type Mutation = {
   createOrganization: Organization;
   createPatient: CreatePatientResult;
   createStaff: Staff;
+  createTheatre: Theatre;
+  createTheatreIncident: TheatreIncident;
   createVisit: Visit;
   createVisitCharge: VisitCharge;
   createVisitComplaint: VisitComplaint;
@@ -602,6 +620,8 @@ export type Mutation = {
   updateStaffPassword: Scalars['Boolean']['output'];
   updateStaffRoles: Staff;
   updateStaffStatus: Staff;
+  updateTheatre: Theatre;
+  updateTheatreIncident: TheatreIncident;
   updateVisitComplaint: VisitComplaint;
   updateVisitDiagnosis: VisitDiagnosis;
   updateVisitPrescription: VisitPrescription;
@@ -676,6 +696,16 @@ export type MutationCreatePatientArgs = {
 
 export type MutationCreateStaffArgs = {
   data: CreateStaffInput;
+};
+
+
+export type MutationCreateTheatreArgs = {
+  data: CreateTheatreInput;
+};
+
+
+export type MutationCreateTheatreIncidentArgs = {
+  data: CreateTheatreIncidentInput;
 };
 
 
@@ -802,6 +832,16 @@ export type MutationUpdateStaffRolesArgs = {
 
 export type MutationUpdateStaffStatusArgs = {
   data: UpdateStaffStatusInput;
+};
+
+
+export type MutationUpdateTheatreArgs = {
+  data: UpdateTheatreInput;
+};
+
+
+export type MutationUpdateTheatreIncidentArgs = {
+  data: UpdateTheatreIncidentInput;
 };
 
 
@@ -959,6 +999,11 @@ export type Query = {
   staffById: Staff;
   staffByRole: Array<Staff>;
   staffs: PaginatedStaff;
+  theatreById: Theatre;
+  theatreIncidentById: TheatreIncident;
+  theatreIncidents: TheatreIncidentPaginationResult;
+  theatreIncidentsByTheatre: TheatreIncidentPaginationResult;
+  theatres: TheatrePaginationResult;
   visit: Visit;
   visitChargeExistsByDomain: Scalars['Boolean']['output'];
   visitComplaintById: VisitComplaint;
@@ -1081,6 +1126,32 @@ export type QueryStaffByRoleArgs = {
 export type QueryStaffsArgs = {
   limit?: Scalars['Int']['input'];
   page?: Scalars['Int']['input'];
+};
+
+
+export type QueryTheatreByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryTheatreIncidentByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryTheatreIncidentsArgs = {
+  pagination: TheatreIncidentPaginationInput;
+};
+
+
+export type QueryTheatreIncidentsByTheatreArgs = {
+  pagination: TheatreIncidentPaginationInput;
+  theatreId: Scalars['ID']['input'];
+};
+
+
+export type QueryTheatresArgs = {
+  pagination: TheatrePaginationInput;
 };
 
 
@@ -1239,6 +1310,109 @@ export type SyncChargeDomainMappingInput = {
   chargeDomain: ChargeDomain;
 };
 
+export type Theatre = {
+  __typename?: 'Theatre';
+  capacity?: Maybe<Scalars['Float']['output']>;
+  code?: Maybe<Scalars['String']['output']>;
+  department?: Maybe<TheatreDepartment>;
+  floor?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  organization: Organization;
+  organizationId: Scalars['ID']['output'];
+};
+
+/** Department type for a theatre */
+export enum TheatreDepartment {
+  Cardiothoracic = 'CARDIOTHORACIC',
+  Emergency = 'EMERGENCY',
+  Ent = 'ENT',
+  GeneralSurgery = 'GENERAL_SURGERY',
+  Neurosurgery = 'NEUROSURGERY',
+  ObstetricsGynecology = 'OBSTETRICS_GYNECOLOGY',
+  Ophthalmology = 'OPHTHALMOLOGY',
+  Orthopedics = 'ORTHOPEDICS',
+  PediatricSurgery = 'PEDIATRIC_SURGERY',
+  Urology = 'UROLOGY'
+}
+
+export type TheatreIncident = {
+  __typename?: 'TheatreIncident';
+  id: Scalars['ID']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
+  organization: Organization;
+  organizationId: Scalars['String']['output'];
+  reportedAt: Scalars['DateTime']['output'];
+  reportedBy: Staff;
+  reportedByStaffId: Scalars['String']['output'];
+  resolvedAt?: Maybe<Scalars['DateTime']['output']>;
+  severity: TheatreIncidentSeverity;
+  status: TheatreIncidentStatus;
+  theatre: Theatre;
+  theatreId: Scalars['String']['output'];
+  type: TheatreIncidentType;
+};
+
+export type TheatreIncidentPaginationInput = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  severity?: InputMaybe<TheatreIncidentSeverity>;
+  status?: InputMaybe<TheatreIncidentStatus>;
+  theatreId?: InputMaybe<Scalars['ID']['input']>;
+  type?: InputMaybe<TheatreIncidentType>;
+};
+
+export type TheatreIncidentPaginationResult = {
+  __typename?: 'TheatreIncidentPaginationResult';
+  items: Array<TheatreIncident>;
+  page: Scalars['Int']['output'];
+  pageCount: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export enum TheatreIncidentSeverity {
+  Critical = 'CRITICAL',
+  High = 'HIGH',
+  Low = 'LOW',
+  Medium = 'MEDIUM'
+}
+
+export enum TheatreIncidentStatus {
+  Active = 'ACTIVE',
+  Escalated = 'ESCALATED',
+  Resolved = 'RESOLVED'
+}
+
+export enum TheatreIncidentType {
+  EquipmentFailure = 'EQUIPMENT_FAILURE',
+  FireOutbreak = 'FIRE_OUTBREAK',
+  GasLeak = 'GAS_LEAK',
+  Other = 'OTHER',
+  PatientEmergency = 'PATIENT_EMERGENCY',
+  PowerFailure = 'POWER_FAILURE',
+  SchedulingConflict = 'SCHEDULING_CONFLICT',
+  SecurityBreach = 'SECURITY_BREACH',
+  StaffShortage = 'STAFF_SHORTAGE',
+  SterilityBreach = 'STERILITY_BREACH',
+  WaterLeak = 'WATER_LEAK'
+}
+
+export type TheatrePaginationInput = {
+  department?: InputMaybe<TheatreDepartment>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+};
+
+export type TheatrePaginationResult = {
+  __typename?: 'TheatrePaginationResult';
+  items: Array<Theatre>;
+  page: Scalars['Int']['output'];
+  pageCount: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
 export type UpdateBedInput = {
   bedId: Scalars['ID']['input'];
   class?: InputMaybe<BedClass>;
@@ -1326,6 +1500,25 @@ export type UpdateStaffRolesInput = {
 export type UpdateStaffStatusInput = {
   staffId: Scalars['String']['input'];
   status: StaffStatus;
+};
+
+export type UpdateTheatreIncidentInput = {
+  incidentId: Scalars['ID']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  resolvedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  severity?: InputMaybe<TheatreIncidentSeverity>;
+  status?: InputMaybe<TheatreIncidentStatus>;
+  type?: InputMaybe<TheatreIncidentType>;
+};
+
+export type UpdateTheatreInput = {
+  capacity?: InputMaybe<Scalars['Int']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  department?: InputMaybe<TheatreDepartment>;
+  floor?: InputMaybe<Scalars['Int']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  theatreId: Scalars['ID']['input'];
 };
 
 export type UpdateVisitComplaintInput = {
@@ -1780,7 +1973,13 @@ export type WardPaginationResult = {
 export type WhoAmIDto = {
   __typename?: 'WhoAmIDto';
   email: Scalars['String']['output'];
+  fullName: Scalars['String']['output'];
+  lastLoginAt?: Maybe<Scalars['DateTime']['output']>;
+  lastSeenAt?: Maybe<Scalars['DateTime']['output']>;
+  phoneNumber?: Maybe<Scalars['String']['output']>;
   roles: Array<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+  userCode: Scalars['Float']['output'];
 };
 
 export type StaffLoginMutationVariables = Exact<{
@@ -1798,7 +1997,7 @@ export type RefreshTokenMutation = { __typename?: 'Mutation', refreshToken: { __
 export type WhoAmIQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type WhoAmIQuery = { __typename?: 'Query', whoAmI: { __typename?: 'WhoAmIDto', email: string, roles: Array<string> } };
+export type WhoAmIQuery = { __typename?: 'Query', whoAmI: { __typename?: 'WhoAmIDto', email: string, roles: Array<string>, userCode: number, status: string, phoneNumber?: string | null, lastLoginAt?: string | null, lastSeenAt?: string | null } };
 
 export type GetAllStaffQueryVariables = Exact<{
   page?: Scalars['Int']['input'];
@@ -2396,10 +2595,38 @@ export type UpdateVisitProcedureStaffMutationVariables = Exact<{
 
 export type UpdateVisitProcedureStaffMutation = { __typename?: 'Mutation', updateVisitProcedureStaff: Array<{ __typename?: 'ProcedureStaffResult', id: string, staffId: string, staffName: string, userCode?: string | null, functionInProcedure: StaffFunction }> };
 
+export type GetTheatresQueryVariables = Exact<{
+  pagination: TheatrePaginationInput;
+}>;
+
+
+export type GetTheatresQuery = { __typename?: 'Query', theatres: { __typename?: 'TheatrePaginationResult', total: number, page: number, pageCount: number, items: Array<{ __typename?: 'Theatre', id: string, name: string, code?: string | null, floor?: number | null, department?: TheatreDepartment | null, capacity?: number | null, organizationId: string, isActive: boolean }> } };
+
+export type GetTheatreByIdQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetTheatreByIdQuery = { __typename?: 'Query', theatreById: { __typename?: 'Theatre', id: string, name: string, code?: string | null, floor?: number | null, department?: TheatreDepartment | null, capacity?: number | null, organizationId: string, isActive: boolean } };
+
+export type CreateTheatreMutationVariables = Exact<{
+  data: CreateTheatreInput;
+}>;
+
+
+export type CreateTheatreMutation = { __typename?: 'Mutation', createTheatre: { __typename?: 'Theatre', id: string, name: string, code?: string | null, floor?: number | null, department?: TheatreDepartment | null, capacity?: number | null, organizationId: string, isActive: boolean } };
+
+export type UpdateTheatreMutationVariables = Exact<{
+  data: UpdateTheatreInput;
+}>;
+
+
+export type UpdateTheatreMutation = { __typename?: 'Mutation', updateTheatre: { __typename?: 'Theatre', id: string, name: string, code?: string | null, floor?: number | null, department?: TheatreDepartment | null, capacity?: number | null, organizationId: string, isActive: boolean } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
-export const WhoAmIDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"WhoAmI"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"whoAmI"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"roles"}}]}}]}}]} as unknown as DocumentNode<WhoAmIQuery, WhoAmIQueryVariables>;
+export const WhoAmIDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"WhoAmI"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"whoAmI"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"roles"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"lastLoginAt"}},{"kind":"Field","name":{"kind":"Name","value":"lastSeenAt"}}]}}]}}]} as unknown as DocumentNode<WhoAmIQuery, WhoAmIQueryVariables>;
 export const GetAllStaffDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAllStaff"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"page"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},"defaultValue":{"kind":"IntValue","value":"1"}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},"defaultValue":{"kind":"IntValue","value":"25"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"page"},"value":{"kind":"Variable","name":{"kind":"Name","value":"page"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"userType"}},{"kind":"Field","name":{"kind":"Name","value":"roles"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pageCount"}}]}}]}}]} as unknown as DocumentNode<GetAllStaffQuery, GetAllStaffQueryVariables>;
 export const GetStaffByRoleDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetStaffByRole"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"role"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffRole"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffByRole"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"role"},"value":{"kind":"Variable","name":{"kind":"Name","value":"role"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"userType"}},{"kind":"Field","name":{"kind":"Name","value":"roles"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<GetStaffByRoleQuery, GetStaffByRoleQueryVariables>;
 export const CreateStaffDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateStaff"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateStaffInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createStaff"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"userType"}},{"kind":"Field","name":{"kind":"Name","value":"roles"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<CreateStaffMutation, CreateStaffMutationVariables>;
@@ -2486,3 +2713,7 @@ export const CreateVisitProcedureEventDocument = {"kind":"Document","definitions
 export const GetVisitProcedureStaffDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitProcedureStaff"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"procedureId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitProcedureStaff"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"procedureId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"procedureId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"staffId"}},{"kind":"Field","name":{"kind":"Name","value":"staffName"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"functionInProcedure"}}]}}]}}]} as unknown as DocumentNode<GetVisitProcedureStaffQuery, GetVisitProcedureStaffQueryVariables>;
 export const BulkAssignVisitProcedureStaffDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"BulkAssignVisitProcedureStaff"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"BulkAssignProcedureStaffInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"bulkAssignVisitProcedureStaff"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"staffId"}},{"kind":"Field","name":{"kind":"Name","value":"staffName"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"functionInProcedure"}}]}}]}}]} as unknown as DocumentNode<BulkAssignVisitProcedureStaffMutation, BulkAssignVisitProcedureStaffMutationVariables>;
 export const UpdateVisitProcedureStaffDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitProcedureStaff"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateProcedureStaffInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitProcedureStaff"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"staffId"}},{"kind":"Field","name":{"kind":"Name","value":"staffName"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"functionInProcedure"}}]}}]}}]} as unknown as DocumentNode<UpdateVisitProcedureStaffMutation, UpdateVisitProcedureStaffMutationVariables>;
+export const GetTheatresDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetTheatres"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"TheatrePaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"theatres"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pageCount"}}]}}]}}]} as unknown as DocumentNode<GetTheatresQuery, GetTheatresQueryVariables>;
+export const GetTheatreByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetTheatreById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"theatreById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]} as unknown as DocumentNode<GetTheatreByIdQuery, GetTheatreByIdQueryVariables>;
+export const CreateTheatreDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateTheatre"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateTheatreInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createTheatre"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]} as unknown as DocumentNode<CreateTheatreMutation, CreateTheatreMutationVariables>;
+export const UpdateTheatreDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateTheatre"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateTheatreInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateTheatre"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}}]}}]} as unknown as DocumentNode<UpdateTheatreMutation, UpdateTheatreMutationVariables>;
