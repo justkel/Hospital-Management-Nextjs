@@ -1421,7 +1421,6 @@ query GetVisitProcedures(
       cancelledAt
 
       estimatedDuration
-      theatreBookingId
 
       cancellationReason
       notes
@@ -1471,7 +1470,6 @@ query GetVisitProceduresByVisit(
     cancelledAt
 
     estimatedDuration
-    theatreBookingId
 
     cancellationReason
     notes
@@ -1512,7 +1510,6 @@ query GetVisitProcedureById(
       cancelledAt
 
       estimatedDuration
-      theatreBookingId
 
       cancellationReason
       notes
