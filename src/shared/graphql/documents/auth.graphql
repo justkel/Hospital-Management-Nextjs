@@ -1776,3 +1776,185 @@ mutation UpdateTheatre($data: UpdateTheatreInput!) {
     isActive
   }
 }
+
+query GetTheatreIncidents(
+  $pagination: TheatreIncidentPaginationInput!
+) {
+  theatreIncidents(
+    pagination: $pagination
+  ) {
+    items {
+      id
+
+      theatreId
+      organizationId
+      reportedByStaffId
+
+      type
+      severity
+      status
+
+      reportedAt
+      resolvedAt
+
+      notes
+
+      theatre {
+        id
+        name
+        floor
+        isActive
+      }
+
+      reportedBy {
+        id
+        userCode
+        fullName
+      }
+    }
+
+    total
+    page
+    pageCount
+  }
+}
+
+query GetTheatreIncidentsByTheatre(
+  $theatreId: ID!
+  $pagination: TheatreIncidentPaginationInput!
+) {
+  theatreIncidentsByTheatre(
+    theatreId: $theatreId
+    pagination: $pagination
+  ) {
+    items {
+      id
+
+      theatreId
+      organizationId
+      reportedByStaffId
+
+      type
+      severity
+      status
+
+      reportedAt
+      resolvedAt
+
+      notes
+
+      theatre {
+        id
+        name
+        floor
+        isActive
+      }
+
+      reportedBy {
+        id
+        userCode
+        fullName
+      }
+    }
+
+    total
+    page
+    pageCount
+  }
+}
+
+query GetTheatreIncidentById($id: ID!) {
+  theatreIncidentById(id: $id) {
+    id
+
+    theatreId
+    organizationId
+    reportedByStaffId
+
+    type
+    severity
+    status
+
+    reportedAt
+    resolvedAt
+
+    notes
+
+    theatre {
+      id
+      name
+      floor
+      isActive
+    }
+
+    reportedBy {
+      id
+      fullName
+      userCode
+    }
+  }
+}
+
+mutation CreateTheatreIncident(
+  $data: CreateTheatreIncidentInput!
+) {
+  createTheatreIncident(data: $data) {
+    id
+
+    theatreId
+    organizationId
+    reportedByStaffId
+
+    type
+    severity
+    status
+
+    reportedAt
+    resolvedAt
+
+    notes
+
+    theatre {
+      id
+      name
+    }
+
+    reportedBy {
+      id
+      fullName
+      userCode
+    }
+  }
+}
+
+mutation UpdateTheatreIncident(
+  $data: UpdateTheatreIncidentInput!
+) {
+  updateTheatreIncident(data: $data) {
+    id
+
+    theatreId
+    organizationId
+    reportedByStaffId
+
+    type
+    severity
+    status
+
+    reportedAt
+    resolvedAt
+
+    notes
+
+    theatre {
+      id
+      name
+    }
+
+    reportedBy {
+      id
+      fullName
+      userCode
+    }
+  }
+}
