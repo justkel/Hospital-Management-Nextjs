@@ -255,7 +255,9 @@ export default function UpdateTheatreDrawer({
                 onChange={v =>
                   setForm(prev => ({
                     ...prev,
-                    floor: v,
+                    floor: v
+                      ? String(Math.max(0, Number(v)))
+                      : '',
                   }))
                 }
               />
@@ -271,7 +273,9 @@ export default function UpdateTheatreDrawer({
                 onChange={v =>
                   setForm(prev => ({
                     ...prev,
-                    capacity: v,
+                    capacity: v
+                      ? String(Math.max(0, Number(v)))
+                      : '',
                   }))
                 }
               />
@@ -391,11 +395,10 @@ function Input({
 
       <input
         type={type}
+        min={type === 'number' ? 0 : undefined}
         value={value}
         placeholder={placeholder}
-        onChange={e =>
-          onChange(e.target.value)
-        }
+        onChange={e => onChange(e.target.value)}
         className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-600"
       />
     </div>

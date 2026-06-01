@@ -4,6 +4,10 @@ import {
   GetTheatreByIdDocument,
   GetTheatreByIdQuery,
   GetTheatreByIdQueryVariables,
+
+  GetTheatreIncidentsByTheatreDocument,
+  GetTheatreIncidentsByTheatreQuery,
+  GetTheatreIncidentsByTheatreQueryVariables,
 } from '@/shared/graphql/generated/graphql';
 
 import { graphqlFetch } from '@/shared/graphql/fetcher';
@@ -11,6 +15,7 @@ import { graphqlFetch } from '@/shared/graphql/fetcher';
 import CollapsibleSection from '../../visits/components/CollapsibleSection';
 
 import TheatreInfoSection from '../components/TheatreInfoSection';
+import TheatreIncidentsSection from '../components/TheatreIncidentsSection';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -32,6 +37,17 @@ export default async function TheatreDetailPage({
     return <SessionGuard needsRefresh />;
   }
 
+  const incidentsData = await graphqlFetch<
+    GetTheatreIncidentsByTheatreQuery,
+    GetTheatreIncidentsByTheatreQueryVariables
+  >(GetTheatreIncidentsByTheatreDocument, {
+    theatreId: id,
+    pagination: {
+      page: 1,
+      limit: 20,
+    },
+  });
+
   const theatre = data.theatreById;
 
   return (
@@ -42,6 +58,15 @@ export default async function TheatreDetailPage({
           <CollapsibleSection title="Theatre Information">
             <TheatreInfoSection theatre={theatre} />
           </CollapsibleSection>
+
+          {incidentsData?.theatreIncidentsByTheatre && (
+            <TheatreIncidentsSection
+              theatreId={id}
+              paginated={
+                incidentsData.theatreIncidentsByTheatre
+              }
+            />
+          )}
 
         </div>
       </div>

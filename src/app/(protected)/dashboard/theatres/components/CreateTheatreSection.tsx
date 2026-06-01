@@ -60,7 +60,7 @@ export default function CreateTheatreSection({
       if (!res.ok) {
         message.error(
           json.error ||
-            'Failed to create theatre'
+          'Failed to create theatre'
         );
 
         return;
@@ -167,7 +167,7 @@ export default function CreateTheatreSection({
               setForm(prev => ({
                 ...prev,
                 floor: v
-                  ? Number(v)
+                  ? Math.max(0, Number(v))
                   : undefined,
               }))
             }
@@ -204,7 +204,7 @@ export default function CreateTheatreSection({
               setForm(prev => ({
                 ...prev,
                 capacity: v
-                  ? Number(v)
+                  ? Math.max(0, Number(v))
                   : undefined,
               }))
             }
@@ -279,6 +279,7 @@ function Input({
         </div>
 
         <input
+          min={type === 'number' ? 0 : undefined}
           type={type}
           required={required}
           value={value}
