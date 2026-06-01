@@ -368,14 +368,6 @@ export default function ProcedureInfoSection({
                         />
 
                         <DetailRow
-                            icon={Stethoscope}
-                            label="Theatre Booking ID"
-                            value={
-                                procedure.theatreBookingId
-                            }
-                        />
-
-                        <DetailRow
                             icon={ClipboardList}
                             label="Bed Allocation"
                             value={
