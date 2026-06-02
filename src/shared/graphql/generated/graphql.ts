@@ -179,6 +179,11 @@ export type BulkAssignProcedureStaffInput = {
   procedureId: Scalars['ID']['input'];
 };
 
+export type CancelTheatreBookingInput = {
+  cancellationReason: Scalars['String']['input'];
+  theatreBookingId: Scalars['ID']['input'];
+};
+
 export type ChargeCatalog = {
   __typename?: 'ChargeCatalog';
   billingType: BillingType;
@@ -244,6 +249,12 @@ export type ChargeDomainCatalogMapping = {
   id: Scalars['ID']['output'];
   organization: Organization;
   organizationId: Scalars['ID']['output'];
+};
+
+export type CompleteTheatreProcedureInput = {
+  actualEndTime?: InputMaybe<Scalars['DateTime']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  theatreBookingId: Scalars['ID']['input'];
 };
 
 export type CreateAddressInput = {
@@ -357,6 +368,24 @@ export type CreateStaffInput = {
   roles: Array<StaffRole>;
 };
 
+export type CreateTheatreBlockInput = {
+  endTime: Scalars['DateTime']['input'];
+  reason?: InputMaybe<Scalars['String']['input']>;
+  startTime: Scalars['DateTime']['input'];
+  theatreId: Scalars['ID']['input'];
+  type: TheatreBlockType;
+};
+
+export type CreateTheatreBookingInput = {
+  estimatedDurationMinutes?: InputMaybe<Scalars['Int']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  priority?: InputMaybe<TheatreBookingPriority>;
+  procedureId: Scalars['ID']['input'];
+  scheduledEndTime: Scalars['DateTime']['input'];
+  scheduledStartTime: Scalars['DateTime']['input'];
+  theatreId: Scalars['ID']['input'];
+};
+
 export type CreateTheatreIncidentInput = {
   notes?: InputMaybe<Scalars['String']['input']>;
   severity: TheatreIncidentSeverity;
@@ -434,7 +463,6 @@ export type CreateVisitProcedureInput = {
   performedByStaffId?: InputMaybe<Scalars['ID']['input']>;
   priority?: InputMaybe<VisitProcedurePriority>;
   procedureCatalogId?: InputMaybe<Scalars['ID']['input']>;
-  theatreBookingId?: InputMaybe<Scalars['String']['input']>;
   visitId: Scalars['ID']['input'];
 };
 
@@ -471,6 +499,13 @@ export type CreateWardInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   wardClass: WardClass;
+};
+
+export type DelayTheatreBookingInput = {
+  delayReason: Scalars['String']['input'];
+  newScheduledEndTime?: InputMaybe<Scalars['DateTime']['input']>;
+  newScheduledStartTime?: InputMaybe<Scalars['DateTime']['input']>;
+  theatreBookingId: Scalars['ID']['input'];
 };
 
 export type DuplicatePatientMatch = {
@@ -578,10 +613,13 @@ export type LoginAuthResponse = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  abortTheatreBooking: TheatreBooking;
   bulkAssignVisitProcedureStaff: Array<ProcedureStaffResult>;
+  cancelTheatreBooking: TheatreBooking;
   cancelVisitProcedure: VisitProcedure;
   cloneGlobalCategoryToOrganization: BillingCatalogueCategory;
   completeLabRequest: LabRequest;
+  completeTheatreProcedure: TheatreBooking;
   createBed: Bed;
   createBillingCategory: BillingCatalogueCategory;
   createBillingItem: GlobalBillingCatalogueItem;
@@ -592,6 +630,8 @@ export type Mutation = {
   createPatient: CreatePatientResult;
   createStaff: Staff;
   createTheatre: Theatre;
+  createTheatreBlock: Theatre;
+  createTheatreBooking: TheatreBooking;
   createTheatreIncident: TheatreIncident;
   createVisit: Visit;
   createVisitCharge: VisitCharge;
@@ -603,11 +643,16 @@ export type Mutation = {
   createVisitVital: VisitVital;
   createWard: Ward;
   createWardIncident: WardIncident;
+  delayTheatreBooking: TheatreBooking;
   logout: Scalars['Boolean']['output'];
+  reallocateTheatreBooking: TheatreBooking;
   refreshToken: AuthResponse;
+  resolveTheatreBlock: Theatre;
   staffLogin: LoginAuthResponse;
   startLabRequest: LabRequest;
+  startTheatreProcedure: TheatreBooking;
   syncChargeDomainMapping: Array<ChargeDomainCatalogMapping>;
+  syncTheatreAvailability: Array<TheatreAvailability>;
   updateBed: Bed;
   updateBillingCategory: BillingCatalogueCategory;
   updateChargeCatalog: ChargeCatalog;
@@ -621,6 +666,8 @@ export type Mutation = {
   updateStaffRoles: Staff;
   updateStaffStatus: Staff;
   updateTheatre: Theatre;
+  updateTheatreBlock: Theatre;
+  updateTheatreBooking: TheatreBooking;
   updateTheatreIncident: TheatreIncident;
   updateVisitComplaint: VisitComplaint;
   updateVisitDiagnosis: VisitDiagnosis;
@@ -633,8 +680,18 @@ export type Mutation = {
 };
 
 
+export type MutationAbortTheatreBookingArgs = {
+  data: CancelTheatreBookingInput;
+};
+
+
 export type MutationBulkAssignVisitProcedureStaffArgs = {
   data: BulkAssignProcedureStaffInput;
+};
+
+
+export type MutationCancelTheatreBookingArgs = {
+  data: CancelTheatreBookingInput;
 };
 
 
@@ -651,6 +708,11 @@ export type MutationCloneGlobalCategoryToOrganizationArgs = {
 
 export type MutationCompleteLabRequestArgs = {
   labRequestId: Scalars['ID']['input'];
+};
+
+
+export type MutationCompleteTheatreProcedureArgs = {
+  data: CompleteTheatreProcedureInput;
 };
 
 
@@ -701,6 +763,16 @@ export type MutationCreateStaffArgs = {
 
 export type MutationCreateTheatreArgs = {
   data: CreateTheatreInput;
+};
+
+
+export type MutationCreateTheatreBlockArgs = {
+  data: CreateTheatreBlockInput;
+};
+
+
+export type MutationCreateTheatreBookingArgs = {
+  data: CreateTheatreBookingInput;
 };
 
 
@@ -759,6 +831,21 @@ export type MutationCreateWardIncidentArgs = {
 };
 
 
+export type MutationDelayTheatreBookingArgs = {
+  data: DelayTheatreBookingInput;
+};
+
+
+export type MutationReallocateTheatreBookingArgs = {
+  data: ReallocateTheatreBookingInput;
+};
+
+
+export type MutationResolveTheatreBlockArgs = {
+  data: ResolveTheatreBlockInput;
+};
+
+
 export type MutationStaffLoginArgs = {
   input: StaffLoginInput;
 };
@@ -769,8 +856,18 @@ export type MutationStartLabRequestArgs = {
 };
 
 
+export type MutationStartTheatreProcedureArgs = {
+  data: StartTheatreProcedureInput;
+};
+
+
 export type MutationSyncChargeDomainMappingArgs = {
   data: SyncChargeDomainMappingInput;
+};
+
+
+export type MutationSyncTheatreAvailabilityArgs = {
+  data: SyncTheatreAvailabilityInput;
 };
 
 
@@ -837,6 +934,16 @@ export type MutationUpdateStaffStatusArgs = {
 
 export type MutationUpdateTheatreArgs = {
   data: UpdateTheatreInput;
+};
+
+
+export type MutationUpdateTheatreBlockArgs = {
+  data: UpdateTheatreBlockInput;
+};
+
+
+export type MutationUpdateTheatreBookingArgs = {
+  data: UpdateTheatreBookingInput;
 };
 
 
@@ -972,7 +1079,9 @@ export type ProcedureStaffResult = {
 
 export type Query = {
   __typename?: 'Query';
+  activeBlocksForTheatre: Array<Theatre>;
   auditLogs: AuditPaginationResult;
+  availableTheatresForTimeRange: Array<Theatre>;
   beds: BedPaginationResult;
   billingCategoryById: BillingCatalogueCategory;
   catalogsByChargeDomain: Array<ChargeDomainCatalogMapping>;
@@ -980,6 +1089,7 @@ export type Query = {
   getAuditDistinctValues: Array<Scalars['String']['output']>;
   getAuditLogById: AuditLog;
   getAuditLogs: Array<AuditLog>;
+  getProcedureTheatreBookings: Array<TheatreBooking>;
   globalBillingCategories: Array<BillingCatalogueCategory>;
   health: Scalars['String']['output'];
   labRequestById: LabRequest;
@@ -999,10 +1109,12 @@ export type Query = {
   staffById: Staff;
   staffByRole: Array<Staff>;
   staffs: PaginatedStaff;
+  theatreAvailabilities: Array<TheatreAvailability>;
   theatreById: Theatre;
   theatreIncidentById: TheatreIncident;
   theatreIncidents: TheatreIncidentPaginationResult;
   theatreIncidentsByTheatre: TheatreIncidentPaginationResult;
+  theatreScheduleForDay: Theatre;
   theatres: TheatrePaginationResult;
   visit: Visit;
   visitChargeExistsByDomain: Scalars['Boolean']['output'];
@@ -1028,8 +1140,20 @@ export type Query = {
 };
 
 
+export type QueryActiveBlocksForTheatreArgs = {
+  theatreId: Scalars['ID']['input'];
+};
+
+
 export type QueryAuditLogsArgs = {
   pagination: AuditPaginationInput;
+};
+
+
+export type QueryAvailableTheatresForTimeRangeArgs = {
+  endTime: Scalars['DateTime']['input'];
+  priority?: InputMaybe<TheatreBookingPriority>;
+  startTime: Scalars['DateTime']['input'];
 };
 
 
@@ -1055,6 +1179,11 @@ export type QueryGetAuditDistinctValuesArgs = {
 
 export type QueryGetAuditLogByIdArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryGetProcedureTheatreBookingsArgs = {
+  procedureId: Scalars['ID']['input'];
 };
 
 
@@ -1129,6 +1258,11 @@ export type QueryStaffsArgs = {
 };
 
 
+export type QueryTheatreAvailabilitiesArgs = {
+  theatreId: Scalars['ID']['input'];
+};
+
+
 export type QueryTheatreByIdArgs = {
   id: Scalars['ID']['input'];
 };
@@ -1146,6 +1280,12 @@ export type QueryTheatreIncidentsArgs = {
 
 export type QueryTheatreIncidentsByTheatreArgs = {
   pagination: TheatreIncidentPaginationInput;
+  theatreId: Scalars['ID']['input'];
+};
+
+
+export type QueryTheatreScheduleForDayArgs = {
+  date: Scalars['DateTime']['input'];
   theatreId: Scalars['ID']['input'];
 };
 
@@ -1256,6 +1396,20 @@ export type QueryWardsArgs = {
   pagination: WardPaginationInput;
 };
 
+export type ReallocateTheatreBookingInput = {
+  newTheatreId: Scalars['ID']['input'];
+  reallocationReason?: InputMaybe<Scalars['String']['input']>;
+  scheduledEndTime?: InputMaybe<Scalars['DateTime']['input']>;
+  scheduledStartTime?: InputMaybe<Scalars['DateTime']['input']>;
+  theatreBookingId: Scalars['ID']['input'];
+};
+
+export type ResolveTheatreBlockInput = {
+  resolutionReason?: InputMaybe<Scalars['String']['input']>;
+  status: TheatreBlockStatus;
+  theatreBlockId: Scalars['ID']['input'];
+};
+
 export type Staff = {
   __typename?: 'Staff';
   email: Scalars['String']['output'];
@@ -1305,9 +1459,19 @@ export enum StaffStatus {
   Suspended = 'SUSPENDED'
 }
 
+export type StartTheatreProcedureInput = {
+  actualStartTime?: InputMaybe<Scalars['DateTime']['input']>;
+  theatreBookingId: Scalars['ID']['input'];
+};
+
 export type SyncChargeDomainMappingInput = {
   chargeCatalogIds: Array<Scalars['ID']['input']>;
   chargeDomain: ChargeDomain;
+};
+
+export type SyncTheatreAvailabilityInput = {
+  schedules: Array<TheatreAvailabilityScheduleInput>;
+  theatreId: Scalars['ID']['input'];
 };
 
 export type Theatre = {
@@ -1322,6 +1486,92 @@ export type Theatre = {
   organization: Organization;
   organizationId: Scalars['ID']['output'];
 };
+
+export type TheatreAvailability = {
+  __typename?: 'TheatreAvailability';
+  createdBy: Staff;
+  createdByStaffId: Scalars['ID']['output'];
+  dayOfWeek: Scalars['Int']['output'];
+  endTime: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
+  startTime: Scalars['String']['output'];
+  theatre: Theatre;
+  theatreId: Scalars['ID']['output'];
+  type: TheatreAvailabilityType;
+};
+
+export type TheatreAvailabilityScheduleInput = {
+  dayOfWeek: Scalars['Float']['input'];
+  endTime: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  startTime: Scalars['String']['input'];
+  type: TheatreAvailabilityType;
+};
+
+export enum TheatreAvailabilityType {
+  Emergency = 'EMERGENCY',
+  Regular = 'REGULAR',
+  SpecialSession = 'SPECIAL_SESSION'
+}
+
+export enum TheatreBlockStatus {
+  Active = 'ACTIVE',
+  Cancelled = 'CANCELLED',
+  Completed = 'COMPLETED',
+  Released = 'RELEASED'
+}
+
+export enum TheatreBlockType {
+  Cleaning = 'CLEANING',
+  EquipmentFailure = 'EQUIPMENT_FAILURE',
+  InfectionControl = 'INFECTION_CONTROL',
+  Maintenance = 'MAINTENANCE',
+  Other = 'OTHER',
+  Reserved = 'RESERVED',
+  Sterilization = 'STERILIZATION'
+}
+
+export type TheatreBooking = {
+  __typename?: 'TheatreBooking';
+  actualDurationMinutes?: Maybe<Scalars['Int']['output']>;
+  actualEndTime?: Maybe<Scalars['DateTime']['output']>;
+  actualStartTime?: Maybe<Scalars['DateTime']['output']>;
+  bookedBy: Staff;
+  bookedByStaffId: Scalars['ID']['output'];
+  cancellationReason?: Maybe<Scalars['String']['output']>;
+  delayReason?: Maybe<Scalars['String']['output']>;
+  estimatedDurationMinutes?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
+  priority: TheatreBookingPriority;
+  procedure: VisitProcedure;
+  procedureId: Scalars['ID']['output'];
+  scheduledEndTime: Scalars['DateTime']['output'];
+  scheduledStartTime: Scalars['DateTime']['output'];
+  status: TheatreBookingStatus;
+  theatre: Theatre;
+  theatreId: Scalars['ID']['output'];
+};
+
+export enum TheatreBookingPriority {
+  Elective = 'ELECTIVE',
+  Emergency = 'EMERGENCY',
+  Urgent = 'URGENT'
+}
+
+export enum TheatreBookingStatus {
+  Aborted = 'ABORTED',
+  Cancelled = 'CANCELLED',
+  Completed = 'COMPLETED',
+  Delayed = 'DELAYED',
+  InProgress = 'IN_PROGRESS',
+  PendingReallocation = 'PENDING_REALLOCATION',
+  Postponed = 'POSTPONED',
+  Ready = 'READY',
+  Scheduled = 'SCHEDULED'
+}
 
 /** Department type for a theatre */
 export enum TheatreDepartment {
@@ -1502,6 +1752,23 @@ export type UpdateStaffStatusInput = {
   status: StaffStatus;
 };
 
+export type UpdateTheatreBlockInput = {
+  endTime?: InputMaybe<Scalars['DateTime']['input']>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  startTime?: InputMaybe<Scalars['DateTime']['input']>;
+  theatreBlockId: Scalars['ID']['input'];
+  type?: InputMaybe<TheatreBlockType>;
+};
+
+export type UpdateTheatreBookingInput = {
+  estimatedDurationMinutes?: InputMaybe<Scalars['Int']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  priority?: InputMaybe<TheatreBookingPriority>;
+  scheduledEndTime?: InputMaybe<Scalars['DateTime']['input']>;
+  scheduledStartTime?: InputMaybe<Scalars['DateTime']['input']>;
+  theatreBookingId: Scalars['ID']['input'];
+};
+
 export type UpdateTheatreIncidentInput = {
   incidentId: Scalars['ID']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -1561,7 +1828,6 @@ export type UpdateVisitProcedureInput = {
   procedureCatalogId?: InputMaybe<Scalars['ID']['input']>;
   startedAt?: InputMaybe<Scalars['DateTime']['input']>;
   status?: InputMaybe<VisitProcedureStatus>;
-  theatreBookingId?: InputMaybe<Scalars['String']['input']>;
   visitProcedureId: Scalars['ID']['input'];
 };
 
@@ -1750,7 +2016,6 @@ export type VisitProcedure = {
   procedureCatalog?: Maybe<ChargeCatalog>;
   startedAt?: Maybe<Scalars['DateTime']['output']>;
   status: VisitProcedureStatus;
-  theatreBookingId?: Maybe<Scalars['String']['output']>;
   visit: Visit;
   visitId: Scalars['ID']['output'];
 };
@@ -2659,6 +2924,65 @@ export type UpdateTheatreIncidentMutationVariables = Exact<{
 
 export type UpdateTheatreIncidentMutation = { __typename?: 'Mutation', updateTheatreIncident: { __typename?: 'TheatreIncident', id: string, theatreId: string, organizationId: string, reportedByStaffId: string, type: TheatreIncidentType, severity: TheatreIncidentSeverity, status: TheatreIncidentStatus, reportedAt: string, resolvedAt?: string | null, notes?: string | null, theatre: { __typename?: 'Theatre', id: string, name: string }, reportedBy: { __typename?: 'Staff', id: string, fullName: string, userCode: number } } };
 
+export type AvailableTheatresForTimeRangeQueryVariables = Exact<{
+  startTime: Scalars['DateTime']['input'];
+  endTime: Scalars['DateTime']['input'];
+  priority?: InputMaybe<TheatreBookingPriority>;
+}>;
+
+
+export type AvailableTheatresForTimeRangeQuery = { __typename?: 'Query', availableTheatresForTimeRange: Array<{ __typename?: 'Theatre', id: string, name: string, code?: string | null, floor?: number | null, department?: TheatreDepartment | null, capacity?: number | null, isActive: boolean, organizationId: string }> };
+
+export type TheatreScheduleForDayQueryVariables = Exact<{
+  theatreId: Scalars['ID']['input'];
+  date: Scalars['DateTime']['input'];
+}>;
+
+
+export type TheatreScheduleForDayQuery = { __typename?: 'Query', theatreScheduleForDay: { __typename?: 'Theatre', id: string, name: string, code?: string | null, floor?: number | null, department?: TheatreDepartment | null, capacity?: number | null, isActive: boolean, organizationId: string } };
+
+export type ActiveBlocksForTheatreQueryVariables = Exact<{
+  theatreId: Scalars['ID']['input'];
+}>;
+
+
+export type ActiveBlocksForTheatreQuery = { __typename?: 'Query', activeBlocksForTheatre: Array<{ __typename?: 'Theatre', id: string, name: string, code?: string | null, floor?: number | null, department?: TheatreDepartment | null, capacity?: number | null, isActive: boolean, organizationId: string }> };
+
+export type TheatreAvailabilitiesQueryVariables = Exact<{
+  theatreId: Scalars['ID']['input'];
+}>;
+
+
+export type TheatreAvailabilitiesQuery = { __typename?: 'Query', theatreAvailabilities: Array<{ __typename?: 'TheatreAvailability', id: string, theatreId: string, dayOfWeek: number, startTime: string, endTime: string, type: TheatreAvailabilityType, notes?: string | null, isActive: boolean, createdByStaffId: string }> };
+
+export type SyncTheatreAvailabilityMutationVariables = Exact<{
+  data: SyncTheatreAvailabilityInput;
+}>;
+
+
+export type SyncTheatreAvailabilityMutation = { __typename?: 'Mutation', syncTheatreAvailability: Array<{ __typename?: 'TheatreAvailability', id: string, theatreId: string, dayOfWeek: number, startTime: string, endTime: string, type: TheatreAvailabilityType, notes?: string | null, isActive: boolean, createdByStaffId: string }> };
+
+export type CreateTheatreBlockMutationVariables = Exact<{
+  data: CreateTheatreBlockInput;
+}>;
+
+
+export type CreateTheatreBlockMutation = { __typename?: 'Mutation', createTheatreBlock: { __typename?: 'Theatre', id: string, name: string, code?: string | null, floor?: number | null, department?: TheatreDepartment | null, capacity?: number | null, isActive: boolean, organizationId: string } };
+
+export type UpdateTheatreBlockMutationVariables = Exact<{
+  data: UpdateTheatreBlockInput;
+}>;
+
+
+export type UpdateTheatreBlockMutation = { __typename?: 'Mutation', updateTheatreBlock: { __typename?: 'Theatre', id: string, name: string, code?: string | null, floor?: number | null, department?: TheatreDepartment | null, capacity?: number | null, isActive: boolean, organizationId: string } };
+
+export type ResolveTheatreBlockMutationVariables = Exact<{
+  data: ResolveTheatreBlockInput;
+}>;
+
+
+export type ResolveTheatreBlockMutation = { __typename?: 'Mutation', resolveTheatreBlock: { __typename?: 'Theatre', id: string, name: string, code?: string | null, floor?: number | null, department?: TheatreDepartment | null, capacity?: number | null, isActive: boolean, organizationId: string } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -2758,3 +3082,11 @@ export const GetTheatreIncidentsByTheatreDocument = {"kind":"Document","definiti
 export const GetTheatreIncidentByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetTheatreIncidentById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"theatreIncidentById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"theatreId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"reportedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reportedAt"}},{"kind":"Field","name":{"kind":"Name","value":"resolvedAt"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"theatre"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reportedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}}]}}]}}]}}]} as unknown as DocumentNode<GetTheatreIncidentByIdQuery, GetTheatreIncidentByIdQueryVariables>;
 export const CreateTheatreIncidentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateTheatreIncident"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateTheatreIncidentInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createTheatreIncident"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"theatreId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"reportedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reportedAt"}},{"kind":"Field","name":{"kind":"Name","value":"resolvedAt"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"theatre"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reportedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}}]}}]}}]}}]} as unknown as DocumentNode<CreateTheatreIncidentMutation, CreateTheatreIncidentMutationVariables>;
 export const UpdateTheatreIncidentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateTheatreIncident"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateTheatreIncidentInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateTheatreIncident"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"theatreId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"reportedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reportedAt"}},{"kind":"Field","name":{"kind":"Name","value":"resolvedAt"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"theatre"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reportedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateTheatreIncidentMutation, UpdateTheatreIncidentMutationVariables>;
+export const AvailableTheatresForTimeRangeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AvailableTheatresForTimeRange"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"startTime"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"endTime"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"priority"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"TheatreBookingPriority"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"availableTheatresForTimeRange"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"startTime"},"value":{"kind":"Variable","name":{"kind":"Name","value":"startTime"}}},{"kind":"Argument","name":{"kind":"Name","value":"endTime"},"value":{"kind":"Variable","name":{"kind":"Name","value":"endTime"}}},{"kind":"Argument","name":{"kind":"Name","value":"priority"},"value":{"kind":"Variable","name":{"kind":"Name","value":"priority"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<AvailableTheatresForTimeRangeQuery, AvailableTheatresForTimeRangeQueryVariables>;
+export const TheatreScheduleForDayDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"TheatreScheduleForDay"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"theatreId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"date"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"theatreScheduleForDay"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"theatreId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"theatreId"}}},{"kind":"Argument","name":{"kind":"Name","value":"date"},"value":{"kind":"Variable","name":{"kind":"Name","value":"date"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<TheatreScheduleForDayQuery, TheatreScheduleForDayQueryVariables>;
+export const ActiveBlocksForTheatreDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ActiveBlocksForTheatre"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"theatreId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"activeBlocksForTheatre"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"theatreId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"theatreId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<ActiveBlocksForTheatreQuery, ActiveBlocksForTheatreQueryVariables>;
+export const TheatreAvailabilitiesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"TheatreAvailabilities"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"theatreId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"theatreAvailabilities"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"theatreId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"theatreId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"theatreId"}},{"kind":"Field","name":{"kind":"Name","value":"dayOfWeek"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"createdByStaffId"}}]}}]}}]} as unknown as DocumentNode<TheatreAvailabilitiesQuery, TheatreAvailabilitiesQueryVariables>;
+export const SyncTheatreAvailabilityDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SyncTheatreAvailability"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SyncTheatreAvailabilityInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"syncTheatreAvailability"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"theatreId"}},{"kind":"Field","name":{"kind":"Name","value":"dayOfWeek"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"createdByStaffId"}}]}}]}}]} as unknown as DocumentNode<SyncTheatreAvailabilityMutation, SyncTheatreAvailabilityMutationVariables>;
+export const CreateTheatreBlockDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateTheatreBlock"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateTheatreBlockInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createTheatreBlock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<CreateTheatreBlockMutation, CreateTheatreBlockMutationVariables>;
+export const UpdateTheatreBlockDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateTheatreBlock"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateTheatreBlockInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateTheatreBlock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<UpdateTheatreBlockMutation, UpdateTheatreBlockMutationVariables>;
+export const ResolveTheatreBlockDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ResolveTheatreBlock"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ResolveTheatreBlockInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"resolveTheatreBlock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"floor"}},{"kind":"Field","name":{"kind":"Name","value":"department"}},{"kind":"Field","name":{"kind":"Name","value":"capacity"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<ResolveTheatreBlockMutation, ResolveTheatreBlockMutationVariables>;

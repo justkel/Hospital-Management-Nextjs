@@ -1955,3 +1955,147 @@ mutation UpdateTheatreIncident(
     }
   }
 }
+
+query AvailableTheatresForTimeRange(
+  $startTime: DateTime!
+  $endTime: DateTime!
+  $priority: TheatreBookingPriority
+) {
+  availableTheatresForTimeRange(
+    startTime: $startTime
+    endTime: $endTime
+    priority: $priority
+  ) {
+    id
+    name
+    code
+    floor
+    department
+    capacity
+    isActive
+    organizationId
+  }
+}
+
+query TheatreScheduleForDay(
+  $theatreId: ID!
+  $date: DateTime!
+) {
+  theatreScheduleForDay(
+    theatreId: $theatreId
+    date: $date
+  ) {
+    id
+    name
+    code
+    floor
+    department
+    capacity
+    isActive
+    organizationId
+  }
+}
+
+query ActiveBlocksForTheatre(
+  $theatreId: ID!
+) {
+  activeBlocksForTheatre(
+    theatreId: $theatreId
+  ) {
+    id
+    name
+    code
+    floor
+    department
+    capacity
+    isActive
+    organizationId
+  }
+}
+
+query TheatreAvailabilities(
+  $theatreId: ID!
+) {
+  theatreAvailabilities(
+    theatreId: $theatreId
+  ) {
+    id
+    theatreId
+    dayOfWeek
+    startTime
+    endTime
+    type
+    notes
+    isActive
+    createdByStaffId
+  }
+}
+
+mutation SyncTheatreAvailability(
+  $data: SyncTheatreAvailabilityInput!
+) {
+  syncTheatreAvailability(
+    data: $data
+  ) {
+    id
+    theatreId
+    dayOfWeek
+    startTime
+    endTime
+    type
+    notes
+    isActive
+    createdByStaffId
+  }
+}
+
+mutation CreateTheatreBlock(
+  $data: CreateTheatreBlockInput!
+) {
+  createTheatreBlock(
+    data: $data
+  ) {
+    id
+    name
+    code
+    floor
+    department
+    capacity
+    isActive
+    organizationId
+  }
+}
+
+mutation UpdateTheatreBlock(
+  $data: UpdateTheatreBlockInput!
+) {
+  updateTheatreBlock(
+    data: $data
+  ) {
+    id
+    name
+    code
+    floor
+    department
+    capacity
+    isActive
+    organizationId
+  }
+}
+
+mutation ResolveTheatreBlock(
+  $data: ResolveTheatreBlockInput!
+) {
+  resolveTheatreBlock(
+    data: $data
+  ) {
+    id
+    name
+    code
+    floor
+    department
+    capacity
+    isActive
+    organizationId
+  }
+}
