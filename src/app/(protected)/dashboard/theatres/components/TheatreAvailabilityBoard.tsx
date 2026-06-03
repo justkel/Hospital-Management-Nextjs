@@ -218,7 +218,7 @@ function SlotCard({ slot }: { slot: Availability }) {
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition hover:border-slate-200 hover:shadow-md">
       <div
-        className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full ${config.bar}`}
+        className={`absolute left-0 top-3 bottom-3 w-[0.3] rounded-r-full ${config.bar}`}
       />
 
       <div className="pl-3">
