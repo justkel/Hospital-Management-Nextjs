@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation'; // <-- 1. IMPORT USEROUTER
 
 import {
   ArrowLeft,
@@ -13,6 +14,7 @@ import Link from 'next/link';
 import {
   GetTheatreByIdQuery,
   TheatreAvailabilitiesQuery,
+  TheatreAvailability,
   TheatreAvailabilityType,
 } from '@/shared/graphql/generated/graphql';
 
@@ -36,6 +38,7 @@ export default function TheatreAvailabilityWorkspace({
   theatre,
   initialAvailabilities,
 }: Props) {
+  const router = useRouter();
   const [view, setView] = useState<View>('board');
   const [availabilities, setAvailabilities] =
     useState<Availability[]>(initialAvailabilities);
@@ -48,13 +51,21 @@ export default function TheatreAvailabilityWorkspace({
         `/api/theatre/availabilities?theatreId=${theatre!.id}`,
       );
       const json = await res.json();
-      if (json.availabilities) {
-        setAvailabilities(json.availabilities);
+      if (Array.isArray(json)) {
+        const mappedAvailabilities = json.map((item: TheatreAvailability) => ({
+          ...item,
+          type: item.type === 'REGULAR' ? TheatreAvailabilityType.Regular :
+                item.type === 'EMERGENCY' ? TheatreAvailabilityType.Emergency :
+                item.type === 'SPECIAL_SESSION' ? TheatreAvailabilityType.SpecialSession : item.type
+        }));
+
+        setAvailabilities(mappedAvailabilities);
       }
+      router.refresh(); 
     } finally {
       setSyncing(false);
     }
-  }, [theatre]);
+  }, [theatre, router]);
 
   const handleSyncSuccess = useCallback(
     async () => {
