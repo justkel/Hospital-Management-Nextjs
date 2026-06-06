@@ -2003,13 +2003,18 @@ query ActiveBlocksForTheatre(
     theatreId: $theatreId
   ) {
     id
-    name
-    code
-    floor
-    department
-    capacity
+    theatreId
+    startTime
+    endTime
+    type
+    status
     isActive
-    organizationId
+    reason
+    createdByStaffId
+    createdBy {
+      id
+      fullName
+    }
   }
 }
 
@@ -2056,13 +2061,18 @@ mutation CreateTheatreBlock(
     data: $data
   ) {
     id
-    name
-    code
-    floor
-    department
-    capacity
+    theatreId
+    startTime
+    endTime
+    type
+    status
     isActive
-    organizationId
+    reason
+    createdByStaffId
+    createdBy {
+      id
+      fullName
+    }
   }
 }
 
@@ -2073,13 +2083,18 @@ mutation UpdateTheatreBlock(
     data: $data
   ) {
     id
-    name
-    code
-    floor
-    department
-    capacity
+    theatreId
+    startTime
+    endTime
+    type
+    status
     isActive
-    organizationId
+    reason
+    createdByStaffId
+    createdBy {
+      id
+      fullName
+    }
   }
 }
 
@@ -2090,12 +2105,17 @@ mutation ResolveTheatreBlock(
     data: $data
   ) {
     id
-    name
-    code
-    floor
-    department
-    capacity
+    theatreId
+    startTime
+    endTime
+    type
+    status
     isActive
-    organizationId
+    reason
+    createdByStaffId
+    createdBy {
+      id
+      fullName
+    }
   }
 }
