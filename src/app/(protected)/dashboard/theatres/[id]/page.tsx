@@ -1,37 +1,29 @@
 import SessionGuard from '@/components/SessionGuard';
-
 import {
   GetTheatreByIdDocument,
   GetTheatreByIdQuery,
   GetTheatreByIdQueryVariables,
-
   GetTheatreIncidentsByTheatreDocument,
   GetTheatreIncidentsByTheatreQuery,
   GetTheatreIncidentsByTheatreQueryVariables,
 } from '@/shared/graphql/generated/graphql';
-
 import { graphqlFetch } from '@/shared/graphql/fetcher';
-
 import CollapsibleSection from '../../visits/components/CollapsibleSection';
-
 import TheatreInfoSection from '../components/TheatreInfoSection';
 import TheatreIncidentsSection from '../components/TheatreIncidentsSection';
+import TheatreQuickLinks from '../components/TheatreQuickLinks';
 
 interface Props {
   params: Promise<{ id: string }>;
 }
 
-export default async function TheatreDetailPage({
-  params,
-}: Props) {
+export default async function TheatreDetailPage({ params }: Props) {
   const { id } = await params;
 
   const data = await graphqlFetch<
     GetTheatreByIdQuery,
     GetTheatreByIdQueryVariables
-  >(GetTheatreByIdDocument, {
-    id,
-  });
+  >(GetTheatreByIdDocument, { id });
 
   if (!data?.theatreById) {
     return <SessionGuard needsRefresh />;
@@ -42,10 +34,7 @@ export default async function TheatreDetailPage({
     GetTheatreIncidentsByTheatreQueryVariables
   >(GetTheatreIncidentsByTheatreDocument, {
     theatreId: id,
-    pagination: {
-      page: 1,
-      limit: 20,
-    },
+    pagination: { page: 1, limit: 20 },
   });
 
   const theatre = data.theatreById;
@@ -59,12 +48,14 @@ export default async function TheatreDetailPage({
             <TheatreInfoSection theatre={theatre} />
           </CollapsibleSection>
 
+          <CollapsibleSection title="Scheduling & Operations">
+            <TheatreQuickLinks theatreId={id} />
+          </CollapsibleSection>
+
           {incidentsData?.theatreIncidentsByTheatre && (
             <TheatreIncidentsSection
               theatreId={id}
-              paginated={
-                incidentsData.theatreIncidentsByTheatre
-              }
+              paginated={incidentsData.theatreIncidentsByTheatre}
             />
           )}
 
