@@ -1956,24 +1956,21 @@ mutation UpdateTheatreIncident(
   }
 }
 
-query AvailableTheatresForTimeRange(
-  $startTime: DateTime!
-  $endTime: DateTime!
-  $priority: TheatreBookingPriority
-) {
-  availableTheatresForTimeRange(
-    startTime: $startTime
-    endTime: $endTime
-    priority: $priority
-  ) {
-    id
-    name
-    code
-    floor
-    department
-    capacity
-    isActive
-    organizationId
+query AvailableTheatresForTimeRange($pagination: AvailableTheatrePaginationInput!) {
+  availableTheatresForTimeRange(pagination: $pagination) {
+    items {
+      id
+      name
+      code
+      floor
+      department
+      capacity
+      organizationId
+      isActive
+    }
+    total
+    page
+    pageCount
   }
 }
 
