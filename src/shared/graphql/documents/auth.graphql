@@ -2116,3 +2116,246 @@ mutation ResolveTheatreBlock(
     }
   }
 }
+
+mutation CreateTheatreBooking(
+  $data: CreateTheatreBookingInput!
+) {
+  createTheatreBooking(
+    data: $data
+  ) {
+    id
+    theatreId
+    procedureId
+
+    scheduledStartTime
+    scheduledEndTime
+
+    actualStartTime
+    actualEndTime
+
+    status
+    priority
+
+    estimatedDurationMinutes
+    actualDurationMinutes
+
+    bookedByStaffId
+
+    notes
+    delayReason
+    cancellationReason
+
+    theatre {
+      id
+      name
+    }
+
+    procedure {
+      id
+    }
+
+    bookedBy {
+      id
+      fullName
+    }
+  }
+}
+
+mutation UpdateTheatreBooking(
+  $data: UpdateTheatreBookingInput!
+) {
+  updateTheatreBooking(
+    data: $data
+  ) {
+    id
+    theatreId
+    procedureId
+
+    scheduledStartTime
+    scheduledEndTime
+
+    actualStartTime
+    actualEndTime
+
+    status
+    priority
+
+    estimatedDurationMinutes
+    actualDurationMinutes
+
+    bookedByStaffId
+
+    notes
+    delayReason
+    cancellationReason
+
+    theatre {
+      id
+      name
+    }
+
+    procedure {
+      id
+    }
+
+    bookedBy {
+      id
+      fullName
+    }
+  }
+}
+
+mutation CancelTheatreBooking(
+  $data: CancelTheatreBookingInput!
+) {
+  cancelTheatreBooking(
+    data: $data
+  ) {
+    id
+    status
+    cancellationReason
+
+    scheduledStartTime
+    scheduledEndTime
+
+    theatre {
+      id
+      name
+    }
+
+    procedure {
+      id
+    }
+  }
+}
+
+mutation ReallocateTheatreBooking(
+  $data: ReallocateTheatreBookingInput!
+) {
+  reallocateTheatreBooking(
+    data: $data
+  ) {
+    id
+
+    theatreId
+
+    scheduledStartTime
+    scheduledEndTime
+
+    status
+
+    theatre {
+      id
+      name
+    }
+
+    procedure {
+      id
+    }
+  }
+}
+
+mutation DelayTheatreBooking(
+  $data: DelayTheatreBookingInput!
+) {
+  delayTheatreBooking(
+    data: $data
+  ) {
+    id
+
+    scheduledStartTime
+    scheduledEndTime
+
+    status
+
+    delayReason
+
+    theatre {
+      id
+      name
+    }
+
+    procedure {
+      id
+    }
+  }
+}
+
+mutation StartTheatreProcedure(
+  $data: StartTheatreProcedureInput!
+) {
+  startTheatreProcedure(
+    data: $data
+  ) {
+    id
+
+    status
+
+    scheduledStartTime
+    scheduledEndTime
+
+    actualStartTime
+    actualEndTime
+
+    theatre {
+      id
+      name
+    }
+
+    procedure {
+      id
+    }
+  }
+}
+
+mutation CompleteTheatreProcedure(
+  $data: CompleteTheatreProcedureInput!
+) {
+  completeTheatreProcedure(
+    data: $data
+  ) {
+    id
+
+    status
+
+    actualStartTime
+    actualEndTime
+
+    actualDurationMinutes
+
+    theatre {
+      id
+      name
+    }
+
+    procedure {
+      id
+    }
+  }
+}
+
+mutation AbortTheatreBooking(
+  $data: CancelTheatreBookingInput!
+) {
+  abortTheatreBooking(
+    data: $data
+  ) {
+    id
+
+    status
+
+    cancellationReason
+
+    scheduledStartTime
+    scheduledEndTime
+
+    theatre {
+      id
+      name
+    }
+
+    procedure {
+      id
+    }
+  }
+}
