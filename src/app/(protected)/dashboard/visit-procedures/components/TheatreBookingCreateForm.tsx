@@ -1,0 +1,363 @@
+'use client';
+
+import { useState, useCallback } from 'react';
+
+import {
+  AlertTriangle,
+  CalendarPlus,
+  CheckCircle2,
+  Lock,
+  Search,
+  Siren,
+  Zap,
+  Sparkles,
+} from 'lucide-react';
+
+import { TheatreBookingPriority } from '@/shared/graphql/generated/graphql';
+import { clientFetch } from '@/lib/clientFetch';
+
+interface Props {
+  procedureId: string;
+  onSuccess: () => Promise<void>;
+  onCancel: () => void;
+}
+
+interface TheatreOption {
+  id: string;
+  name: string;
+  code?: string | null;
+  floor?: number | null;
+  department?: string | null;
+}
+
+const PRIORITY_OPTIONS: {
+  value: TheatreBookingPriority;
+  label: string;
+  description: string;
+  icon: React.ElementType;
+  active: string;
+  ring: string;
+}[] = [
+  {
+    value: TheatreBookingPriority.Elective,
+    label: 'Elective',
+    description: 'Routine scheduled procedure',
+    icon: Sparkles,
+    active: 'border-slate-500 bg-slate-900 text-slate-200',
+    ring: 'ring-slate-500',
+  },
+  {
+    value: TheatreBookingPriority.Urgent,
+    label: 'Urgent',
+    description: 'Requires scheduling within 24–72h',
+    icon: Zap,
+    active: 'border-amber-600 bg-amber-950 text-amber-200',
+    ring: 'ring-amber-500',
+  },
+  {
+    value: TheatreBookingPriority.Emergency,
+    label: 'Emergency',
+    description: 'Immediate — bypasses availability rules',
+    icon: Siren,
+    active: 'border-rose-600 bg-rose-950 text-rose-200',
+    ring: 'ring-rose-500',
+  },
+];
+
+function toDatetimeLocal(d: Date) {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCancel }: Props) {
+  const now = new Date();
+  const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+
+  const [priority, setPriority] = useState<TheatreBookingPriority>(TheatreBookingPriority.Elective);
+  const [startTime, setStartTime] = useState(toDatetimeLocal(now));
+  const [endTime, setEndTime] = useState(toDatetimeLocal(twoHoursLater));
+  const [estimatedDuration, setEstimatedDuration] = useState('');
+  const [notes, setNotes] = useState('');
+  const [theatreId, setTheatreId] = useState('');
+  const [theatreSearch, setTheatreSearch] = useState('');
+  const [theatreOptions, setTheatreOptions] = useState<TheatreOption[]>([]);
+  const [theatreName, setTheatreName] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
+
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const searchTheatres = useCallback(async () => {
+    if (!startTime || !endTime) return;
+    setSearchLoading(true);
+    try {
+      const params = new URLSearchParams({
+        startTime,
+        endTime,
+        page: '1',
+        limit: '20',
+      });
+      if (priority === TheatreBookingPriority.Emergency) {
+        params.set('priority', priority);
+      }
+      const res = await clientFetch(`/api/theatre/available-for-time-range?${params}`);
+      const json = await res.json();
+      setTheatreOptions(json.theatres?.items ?? []);
+    } catch {
+      setTheatreOptions([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  }, [startTime, endTime, priority]);
+
+  const handleSubmit = useCallback(async () => {
+    setError(null);
+    if (!theatreId) { setError('Please select a theatre.'); return; }
+    if (!startTime || !endTime) { setError('Start and end times are required.'); return; }
+    if (new Date(startTime) >= new Date(endTime)) { setError('Start time must be before end time.'); return; }
+
+    setSaving(true);
+    try {
+      const res = await clientFetch('/api/theatre/booking/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          procedureId,
+          theatreId,
+          scheduledStartTime: startTime,
+          scheduledEndTime: endTime,
+          priority,
+          estimatedDurationMinutes: estimatedDuration ? parseInt(estimatedDuration) : undefined,
+          notes: notes || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error ?? 'Failed to create booking');
+      }
+      setSaved(true);
+      await onSuccess();
+    } catch (err: any) {
+      setError(err.message ?? 'Something went wrong.');
+    } finally {
+      setSaving(false);
+    }
+  }, [procedureId, theatreId, startTime, endTime, priority, estimatedDuration, notes, onSuccess]);
+
+  const durationMins = startTime && endTime
+    ? Math.round((new Date(endTime).getTime() - new Date(startTime).getTime()) / 60000)
+    : null;
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111827]">
+      <div className="border-b border-white/[0.07] px-6 py-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-700/50 bg-teal-950/60">
+            <CalendarPlus className="h-4 w-4 text-teal-400" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold !text-white">New Theatre Booking</h2>
+            <p className="text-xs text-slate-500">Allocate an operating theatre slot for this procedure</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-6 p-6">
+        <div>
+          <Label>Booking Priority</Label>
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+            {PRIORITY_OPTIONS.map((opt) => {
+              const Icon = opt.icon;
+              const sel = priority === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => setPriority(opt.value)}
+                  className={`flex items-start gap-3 rounded-xl border p-4 text-left transition ${
+                    sel
+                      ? `${opt.active} ring-1 ${opt.ring}`
+                      : 'border-white/[0.07] bg-white/[0.02] hover:border-white/[0.12] hover:bg-white/[0.04]'
+                  }`}
+                >
+                  <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${sel ? 'bg-white/10' : 'bg-white/5'}`}>
+                    <Icon size={14} className={sel ? '' : 'text-slate-500'} />
+                  </div>
+                  <div>
+                    <p className={`text-xs font-bold ${sel ? '' : 'text-slate-400'}`}>{opt.label}</p>
+                    <p className={`mt-0.5 text-[10px] leading-relaxed ${sel ? 'opacity-70' : 'text-slate-600'}`}>{opt.description}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <Label>Scheduled Window</Label>
+            {durationMins && durationMins > 0 && (
+              <span className="font-mono text-[10px] font-bold text-teal-400">
+                {durationMins < 60 ? `${durationMins}m` : `${Math.floor(durationMins / 60)}h ${durationMins % 60 > 0 ? `${durationMins % 60}m` : ''}`.trim()}
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Field label="Start">
+              <input
+                type="datetime-local"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 font-mono text-sm font-semibold !text-white transition focus:border-teal-500/50 focus:bg-white/[0.07] focus:outline-none"
+              />
+            </Field>
+            <Field label="End">
+              <input
+                type="datetime-local"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 font-mono text-sm font-semibold !text-white transition focus:border-teal-500/50 focus:bg-white/[0.07] focus:outline-none"
+              />
+            </Field>
+          </div>
+        </div>
+
+        <div>
+          <Label>Theatre</Label>
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={searchTheatres}
+              disabled={searchLoading || !startTime || !endTime}
+              className="inline-flex items-center gap-2 rounded-xl border border-teal-700/50 bg-teal-950/50 px-4 py-2.5 text-xs font-bold text-teal-300 transition hover:bg-teal-950 disabled:opacity-40"
+            >
+              {searchLoading ? (
+                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-teal-700 border-t-teal-300" />
+              ) : (
+                <Search size={12} />
+              )}
+              Find Available
+            </button>
+            {theatreId && (
+              <div className="flex items-center gap-2 rounded-xl border border-teal-700/40 bg-teal-950/30 px-3 py-2 text-xs font-bold text-teal-300">
+                <CheckCircle2 size={12} className="text-teal-400" />
+                {theatreName}
+              </div>
+            )}
+          </div>
+
+          {theatreOptions.length > 0 && !theatreId && (
+            <div className="mt-2 space-y-1.5 rounded-xl border border-white/[0.07] bg-black/30 p-3">
+              <p className="mb-2 font-mono text-[10px] font-bold uppercase tracking-widest text-slate-600">
+                {theatreOptions.length} available
+              </p>
+              {theatreOptions.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => { setTheatreId(t.id); setTheatreName(t.name); setTheatreOptions([]); }}
+                  className="flex w-full items-center justify-between rounded-lg border border-white/[0.05] bg-white/[0.02] px-4 py-3 text-left transition hover:border-teal-500/30 hover:bg-teal-500/5"
+                >
+                  <div>
+                    <p className="text-sm font-bold !text-white">{t.name}</p>
+                    <p className="font-mono text-[10px] text-slate-500">
+                      {[t.code, t.department?.replace(/_/g, ' '), t.floor ? `Floor ${t.floor}` : null].filter(Boolean).join(' · ')}
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-bold text-teal-400">Select →</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {theatreOptions.length === 0 && !theatreId && searchLoading === false && theatreSearch !== '' && (
+            <p className="mt-2 text-xs text-slate-600">No theatres found. Try adjusting the time window.</p>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label="Estimated Duration (minutes, optional)">
+            <input
+              type="number"
+              min="1"
+              value={estimatedDuration}
+              onChange={(e) => setEstimatedDuration(e.target.value)}
+              placeholder="e.g. 120"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 font-mono text-sm !text-white transition placeholder:text-slate-700 focus:border-teal-500/50 focus:bg-white/[0.07] focus:outline-none"
+            />
+          </Field>
+          <Field label="Notes (optional)">
+            <input
+              type="text"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Special requirements…"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm !text-white transition placeholder:text-slate-700 focus:border-teal-500/50 focus:bg-white/[0.07] focus:outline-none"
+            />
+          </Field>
+        </div>
+
+        {error && (
+          <div className="flex items-start gap-3 rounded-xl border border-rose-800/50 bg-rose-950/50 px-4 py-3.5">
+            <AlertTriangle size={14} className="mt-0.5 shrink-0 text-rose-400" />
+            <p className="text-sm font-medium text-rose-300">{error}</p>
+          </div>
+        )}
+        {saved && (
+          <div className="flex items-center gap-3 rounded-xl border border-teal-700/50 bg-teal-950/50 px-4 py-3.5">
+            <CheckCircle2 size={14} className="shrink-0 text-teal-400" />
+            <p className="text-sm font-medium text-teal-300">Booking created successfully!</p>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between border-t border-white/[0.07] pt-5">
+          <p className="text-xs text-slate-600">
+            Booking will be validated against theatre availability and active blocks.
+          </p>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onCancel}
+              disabled={saving}
+              className="rounded-xl border border-white/10 px-4 py-2 text-xs font-semibold text-slate-400 transition hover:border-white/20 !hover:text-white disabled:opacity-40"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={saving || saved || !theatreId}
+              className="inline-flex items-center gap-2 rounded-xl bg-teal-500 px-5 py-2 text-xs font-bold text-black transition hover:bg-teal-400 disabled:opacity-50 active:scale-95"
+            >
+              {saving ? (
+                <>
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black/20 border-t-black" />
+                  Booking…
+                </>
+              ) : (
+                <>
+                  <Lock size={12} />
+                  Confirm Booking
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Label({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500">
+      {children}
+    </p>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label>{label}</Label>
+      {children}
+    </div>
+  );
+}
