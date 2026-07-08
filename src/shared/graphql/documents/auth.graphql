@@ -2359,3 +2359,31 @@ mutation AbortTheatreBooking(
     }
   }
 }
+
+query GetProcedureTheatreBookings(
+  $procedureId: ID!
+) {
+  getProcedureTheatreBookings(
+    procedureId: $procedureId
+  ) {
+    id
+    theatreId
+    procedureId
+    scheduledStartTime
+    scheduledEndTime
+    actualStartTime
+    actualEndTime
+    status
+    priority
+    estimatedDurationMinutes
+    actualDurationMinutes
+    bookedByStaffId
+    notes
+    delayReason
+    cancellationReason
+    theatre {
+      id
+      name
+    }
+  }
+}
