@@ -14,6 +14,7 @@ import {
 
 import {
   GetProcedureTheatreBookingsQuery,
+  GetTheatresQuery,
   GetVisitProcedureByIdQuery,
   TheatreBookingStatus,
 } from '@/shared/graphql/generated/graphql';
@@ -27,12 +28,15 @@ import TheatreBookingActionPanel from './TheatreBookingActionPanel';
 export type Booking =
   GetProcedureTheatreBookingsQuery['getProcedureTheatreBookings'][number];
 export type Procedure = GetVisitProcedureByIdQuery['visitProcedureById'];
+type Theatre =
+  GetTheatresQuery['theatres']['items'][number];
 
 type View = 'timeline' | 'create' | 'action';
 
 interface Props {
   procedure: Procedure;
   initialBookings: Booking[];
+  theatres: Theatre[];
 }
 
 export const STATUS_META: Record<
@@ -95,7 +99,7 @@ export const STATUS_META: Record<
   },
 };
 
-export default function TheatreBookingWorkspace({ procedure, initialBookings }: Props) {
+export default function TheatreBookingWorkspace({ procedure, initialBookings, theatres }: Props) {
   const [view, setView] = useState<View>('timeline');
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
@@ -265,6 +269,7 @@ export default function TheatreBookingWorkspace({ procedure, initialBookings }: 
       {view === 'action' && selectedBooking && (
         <TheatreBookingActionPanel
           booking={selectedBooking}
+          theatres={theatres}
           onDone={handleActionDone}
           onCancel={() => { setSelectedBooking(null); setView('timeline'); }}
         />

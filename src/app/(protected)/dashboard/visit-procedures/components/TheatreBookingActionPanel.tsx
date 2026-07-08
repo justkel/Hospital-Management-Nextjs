@@ -19,8 +19,17 @@ import { clientFetch } from '@/lib/clientFetch';
 
 import { STATUS_META, type Booking } from './TheatreBookingWorkspace';
 
+interface TheatreOption {
+  id: string;
+  name: string;
+  code?: string | null;
+  floor?: number | null;
+  department?: string | null;
+}
+
 interface Props {
   booking: Booking;
+  theatres: TheatreOption[];
   onDone: () => Promise<void>;
   onCancel: () => void;
 }
@@ -35,78 +44,78 @@ const ACTIONS: {
   color: string;
   allowedStatuses: TheatreBookingStatus[];
 }[] = [
-  {
-    id: 'start',
-    label: 'Start Procedure',
-    description: 'Mark as In Progress — actual start time recorded now',
-    icon: Play,
-    color: 'border-teal-700/50 bg-teal-950/40 text-teal-300 hover:bg-teal-950',
-    allowedStatuses: [
-      TheatreBookingStatus.Scheduled,
-      TheatreBookingStatus.Ready,
-      TheatreBookingStatus.Delayed,
-    ],
-  },
-  {
-    id: 'update',
-    label: 'Edit Booking',
-    description: 'Change scheduled times, priority, or notes',
-    icon: Edit3,
-    color: 'border-sky-700/50 bg-sky-950/40 text-sky-300 hover:bg-sky-950',
-    allowedStatuses: [
-      TheatreBookingStatus.Scheduled,
-      TheatreBookingStatus.Ready,
-      TheatreBookingStatus.Delayed,
-      TheatreBookingStatus.InProgress,
-    ],
-  },
-  {
-    id: 'delay',
-    label: 'Delay Booking',
-    description: 'Reschedule to a later window with a delay reason',
-    icon: Hourglass,
-    color: 'border-amber-700/50 bg-amber-950/40 text-amber-300 hover:bg-amber-950',
-    allowedStatuses: [
-      TheatreBookingStatus.Scheduled,
-      TheatreBookingStatus.Ready,
-    ],
-  },
-  {
-    id: 'reallocate',
-    label: 'Reallocate Theatre',
-    description: 'Move to a different theatre, optionally at a new time',
-    icon: LayoutGrid,
-    color: 'border-violet-700/50 bg-violet-950/40 text-violet-300 hover:bg-violet-950',
-    allowedStatuses: [
-      TheatreBookingStatus.Scheduled,
-      TheatreBookingStatus.Ready,
-      TheatreBookingStatus.Delayed,
-      TheatreBookingStatus.PendingReallocation,
-    ],
-  },
-  {
-    id: 'cancel',
-    label: 'Cancel Booking',
-    description: 'Cancel with a reason — theatre slot is released',
-    icon: XCircle,
-    color: 'border-slate-600/50 bg-slate-900/60 text-slate-400 hover:bg-slate-900',
-    allowedStatuses: [
-      TheatreBookingStatus.Scheduled,
-      TheatreBookingStatus.Ready,
-      TheatreBookingStatus.Delayed,
-    ],
-  },
-  {
-    id: 'abort',
-    label: 'Abort Procedure',
-    description: 'Emergency stop — procedure aborted mid-session',
-    icon: Ban,
-    color: 'border-rose-700/50 bg-rose-950/40 text-rose-300 hover:bg-rose-950',
-    allowedStatuses: [
-      TheatreBookingStatus.InProgress,
-    ],
-  },
-];
+    {
+      id: 'start',
+      label: 'Start Procedure',
+      description: 'Mark as In Progress — actual start time recorded now',
+      icon: Play,
+      color: 'border-teal-700/50 bg-teal-950/40 text-teal-300 hover:bg-teal-950',
+      allowedStatuses: [
+        TheatreBookingStatus.Scheduled,
+        TheatreBookingStatus.Ready,
+        TheatreBookingStatus.Delayed,
+      ],
+    },
+    {
+      id: 'update',
+      label: 'Edit Booking',
+      description: 'Change scheduled times, priority, or notes',
+      icon: Edit3,
+      color: 'border-sky-700/50 bg-sky-950/40 text-sky-300 hover:bg-sky-950',
+      allowedStatuses: [
+        TheatreBookingStatus.Scheduled,
+        TheatreBookingStatus.Ready,
+        TheatreBookingStatus.Delayed,
+        TheatreBookingStatus.InProgress,
+      ],
+    },
+    {
+      id: 'delay',
+      label: 'Delay Booking',
+      description: 'Reschedule to a later window with a delay reason',
+      icon: Hourglass,
+      color: 'border-amber-700/50 bg-amber-950/40 text-amber-300 hover:bg-amber-950',
+      allowedStatuses: [
+        TheatreBookingStatus.Scheduled,
+        TheatreBookingStatus.Ready,
+      ],
+    },
+    {
+      id: 'reallocate',
+      label: 'Reallocate Theatre',
+      description: 'Move to a different theatre, optionally at a new time',
+      icon: LayoutGrid,
+      color: 'border-violet-700/50 bg-violet-950/40 text-violet-300 hover:bg-violet-950',
+      allowedStatuses: [
+        TheatreBookingStatus.Scheduled,
+        TheatreBookingStatus.Ready,
+        TheatreBookingStatus.Delayed,
+        TheatreBookingStatus.PendingReallocation,
+      ],
+    },
+    {
+      id: 'cancel',
+      label: 'Cancel Booking',
+      description: 'Cancel with a reason — theatre slot is released',
+      icon: XCircle,
+      color: 'border-slate-600/50 bg-slate-900/60 text-slate-400 hover:bg-slate-900',
+      allowedStatuses: [
+        TheatreBookingStatus.Scheduled,
+        TheatreBookingStatus.Ready,
+        TheatreBookingStatus.Delayed,
+      ],
+    },
+    {
+      id: 'abort',
+      label: 'Abort Procedure',
+      description: 'Emergency stop — procedure aborted mid-session',
+      icon: Ban,
+      color: 'border-rose-700/50 bg-rose-950/40 text-rose-300 hover:bg-rose-950',
+      allowedStatuses: [
+        TheatreBookingStatus.InProgress,
+      ],
+    },
+  ];
 
 function toDatetimeLocal(d: string | Date) {
   const dt = new Date(d);
@@ -122,7 +131,7 @@ function fmt(dt: string) {
   });
 }
 
-export default function TheatreBookingActionPanel({ booking, onDone, onCancel }: Props) {
+export default function TheatreBookingActionPanel({ booking, onDone, onCancel, theatres }: Props) {
   const [activeAction, setActiveAction] = useState<Action | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -131,6 +140,7 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel }:
   const [startTime, setStartTime] = useState(toDatetimeLocal(booking.scheduledStartTime));
   const [endTime, setEndTime] = useState(toDatetimeLocal(booking.scheduledEndTime));
   const [newTheatreId, setNewTheatreId] = useState('');
+  const [theatreSearch, setTheatreSearch] = useState('');
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState(booking.notes ?? '');
 
@@ -211,6 +221,20 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel }:
   }, [activeAction, booking.id, startTime, endTime, newTheatreId, reason, notes, onDone]);
 
   const selectedAction = ACTIONS.find((a) => a.id === activeAction);
+
+  const filteredTheatres = theatres
+    .filter((t) => t.id !== booking.theatre.id)
+    .filter((t) => {
+      const q = theatreSearch.trim().toLowerCase();
+
+      if (!q) return true;
+
+      return (
+        t.name.toLowerCase().includes(q) ||
+        t.code?.toLowerCase().includes(q) ||
+        t.department?.replace(/_/g, ' ').toLowerCase().includes(q)
+      );
+    });
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111827]">
@@ -323,14 +347,64 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel }:
               )}
 
               {activeAction === 'reallocate' && (
-                <Field label="New Theatre ID">
+                <Field label="New Theatre">
                   <input
                     type="text"
-                    value={newTheatreId}
-                    onChange={(e) => setNewTheatreId(e.target.value)}
-                    placeholder="Paste theatre UUID…"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 font-mono text-sm !text-white transition placeholder:text-slate-700 focus:border-teal-500/50 focus:outline-none"
+                    value={theatreSearch}
+                    onChange={(e) => setTheatreSearch(e.target.value)}
+                    placeholder="Search theatres..."
+                    className="mb-3 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm !text-white transition placeholder:text-slate-700 focus:border-violet-500/50 focus:outline-none"
                   />
+
+                  <div className="max-h-72 overflow-y-auto rounded-xl border border-white/10 bg-black/20 scrollbar-hide">
+                    {filteredTheatres.map((theatre) => {
+                      const selected = theatre.id === newTheatreId;
+
+                      return (
+                        <button
+                          key={theatre.id}
+                          type="button"
+                          onClick={() => {
+                            setNewTheatreId(theatre.id);
+                            setTheatreSearch(theatre.name);
+                          }}
+                          className={`flex w-full items-center justify-between border-b border-white/5 px-4 py-3 text-left transition last:border-b-0 ${selected
+                              ? 'bg-violet-500/10'
+                              : 'hover:bg-white/5'
+                            }`}
+                        >
+                          <div>
+                            <p className="text-sm font-semibold !text-white">
+                              {theatre.name}
+                            </p>
+
+                            <p className="font-mono text-[10px] text-slate-500">
+                              {[
+                                theatre.code,
+                                theatre.department?.replace(/_/g, ' '),
+                                theatre.floor ? `Floor ${theatre.floor}` : null,
+                              ]
+                                .filter(Boolean)
+                                .join(' • ')}
+                            </p>
+                          </div>
+
+                          {selected && (
+                            <CheckCircle2
+                              size={16}
+                              className="text-violet-400"
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+
+                    {filteredTheatres.length === 0 && (
+                      <div className="px-4 py-8 text-center text-sm text-slate-500">
+                        No theatres match your search.
+                      </div>
+                    )}
+                  </div>
                 </Field>
               )}
 
@@ -342,9 +416,9 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel }:
                     onChange={(e) => setReason(e.target.value)}
                     placeholder={
                       activeAction === 'delay' ? 'e.g. Theatre unavailable due to emergency case…'
-                      : activeAction === 'cancel' ? 'e.g. Procedure postponed at patient request…'
-                      : activeAction === 'abort' ? 'e.g. Patient deterioration…'
-                      : 'e.g. Equipment failure in original theatre…'
+                        : activeAction === 'cancel' ? 'e.g. Procedure postponed at patient request…'
+                          : activeAction === 'abort' ? 'e.g. Patient deterioration…'
+                            : 'e.g. Equipment failure in original theatre…'
                     }
                     className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm !text-white transition placeholder:text-slate-700 focus:border-teal-500/50 focus:outline-none"
                   />
@@ -391,13 +465,12 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel }:
               <button
                 onClick={submit}
                 disabled={saving || saved}
-                className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-xs font-bold transition disabled:opacity-50 active:scale-95 ${
-                  activeAction === 'abort' || activeAction === 'cancel'
-                    ? 'bg-rose-600 !text-white hover:bg-rose-500'
-                    : activeAction === 'start'
+                className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-xs font-bold transition disabled:opacity-50 active:scale-95 ${activeAction === 'abort' || activeAction === 'cancel'
+                  ? 'bg-rose-600 !text-white hover:bg-rose-500'
+                  : activeAction === 'start'
                     ? 'bg-teal-500 text-black hover:bg-teal-400'
                     : 'bg-sky-600 !text-white hover:bg-sky-500'
-                }`}
+                  }`}
               >
                 {saving ? (
                   <>

@@ -7,6 +7,9 @@ import {
   GetProcedureTheatreBookingsDocument,
   GetProcedureTheatreBookingsQuery,
   GetProcedureTheatreBookingsQueryVariables,
+  GetTheatresDocument,
+  GetTheatresQuery,
+  GetTheatresQueryVariables,
 } from '@/shared/graphql/generated/graphql';
 
 import { graphqlFetch } from '@/shared/graphql/fetcher';
@@ -20,15 +23,30 @@ interface Props {
 export default async function ProcedureBookingsPage({ params }: Props) {
   const { id } = await params;
 
-  const [procedureData, bookingsData] = await Promise.all([
-    graphqlFetch<GetVisitProcedureByIdQuery, GetVisitProcedureByIdQueryVariables>(
-      GetVisitProcedureByIdDocument,
-      { id },
-    ),
-    graphqlFetch<GetProcedureTheatreBookingsQuery, GetProcedureTheatreBookingsQueryVariables>(
-      GetProcedureTheatreBookingsDocument,
-      { procedureId: id },
-    ),
+  const [procedureData, bookingsData, theatresData] = await Promise.all([
+    graphqlFetch<
+      GetVisitProcedureByIdQuery,
+      GetVisitProcedureByIdQueryVariables
+    >(GetVisitProcedureByIdDocument, {
+      id,
+    }),
+
+    graphqlFetch<
+      GetProcedureTheatreBookingsQuery,
+      GetProcedureTheatreBookingsQueryVariables
+    >(GetProcedureTheatreBookingsDocument, {
+      procedureId: id,
+    }),
+
+    graphqlFetch<
+      GetTheatresQuery,
+      GetTheatresQueryVariables
+    >(GetTheatresDocument, {
+      pagination: {
+        page: 1,
+        limit: 50,
+      },
+    }),
   ]);
 
   if (!procedureData?.visitProcedureById) {
@@ -45,6 +63,7 @@ export default async function ProcedureBookingsPage({ params }: Props) {
           <TheatreBookingWorkspace
             procedure={procedure}
             initialBookings={bookings}
+            theatres={theatresData?.theatres?.items ?? []}
           />
         </div>
       </div>
