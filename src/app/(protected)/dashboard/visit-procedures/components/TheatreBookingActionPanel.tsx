@@ -49,7 +49,7 @@ const ACTIONS: {
       label: 'Start Procedure',
       description: 'Mark as In Progress — actual start time recorded now',
       icon: Play,
-      color: 'border-teal-700/50 bg-teal-950/40 text-teal-300 hover:bg-teal-950',
+      color: 'border-teal-700/50 bg-gradient-to-b from-teal-900/40 to-teal-950/60 text-teal-300 hover:border-teal-500/60',
       allowedStatuses: [
         TheatreBookingStatus.Scheduled,
         TheatreBookingStatus.Ready,
@@ -61,7 +61,7 @@ const ACTIONS: {
       label: 'Edit Booking',
       description: 'Change scheduled times, priority, or notes',
       icon: Edit3,
-      color: 'border-sky-700/50 bg-sky-950/40 text-sky-300 hover:bg-sky-950',
+      color: 'border-sky-700/50 bg-gradient-to-b from-sky-900/40 to-sky-950/60 text-sky-300 hover:border-sky-500/60',
       allowedStatuses: [
         TheatreBookingStatus.Scheduled,
         TheatreBookingStatus.Ready,
@@ -74,7 +74,7 @@ const ACTIONS: {
       label: 'Delay Booking',
       description: 'Reschedule to a later window with a delay reason',
       icon: Hourglass,
-      color: 'border-amber-700/50 bg-amber-950/40 text-amber-300 hover:bg-amber-950',
+      color: 'border-amber-700/50 bg-gradient-to-b from-amber-900/40 to-amber-950/60 text-amber-300 hover:border-amber-500/60',
       allowedStatuses: [
         TheatreBookingStatus.Scheduled,
         TheatreBookingStatus.Ready,
@@ -85,7 +85,7 @@ const ACTIONS: {
       label: 'Reallocate Theatre',
       description: 'Move to a different theatre, optionally at a new time',
       icon: LayoutGrid,
-      color: 'border-violet-700/50 bg-violet-950/40 text-violet-300 hover:bg-violet-950',
+      color: 'border-violet-700/50 bg-gradient-to-b from-violet-900/40 to-violet-950/60 text-violet-300 hover:border-violet-500/60',
       allowedStatuses: [
         TheatreBookingStatus.Scheduled,
         TheatreBookingStatus.Ready,
@@ -98,7 +98,7 @@ const ACTIONS: {
       label: 'Cancel Booking',
       description: 'Cancel with a reason — theatre slot is released',
       icon: XCircle,
-      color: 'border-slate-600/50 bg-slate-900/60 text-slate-400 hover:bg-slate-900',
+      color: 'border-slate-600/50 bg-gradient-to-b from-slate-800/60 to-slate-900/70 text-slate-400 hover:border-slate-400/60',
       allowedStatuses: [
         TheatreBookingStatus.Scheduled,
         TheatreBookingStatus.Ready,
@@ -110,7 +110,7 @@ const ACTIONS: {
       label: 'Abort Procedure',
       description: 'Emergency stop — procedure aborted mid-session',
       icon: Ban,
-      color: 'border-rose-700/50 bg-rose-950/40 text-rose-300 hover:bg-rose-950',
+      color: 'border-rose-700/50 bg-gradient-to-b from-rose-900/40 to-rose-950/60 text-rose-300 hover:border-rose-500/60',
       allowedStatuses: [
         TheatreBookingStatus.InProgress,
       ],
@@ -124,11 +124,11 @@ function toDatetimeLocal(d: string | Date) {
 }
 
 function fmt(dt: string) {
-  const d = new Date(dt);
-  return d.toLocaleString('en-GB', {
-    day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit', hour12: false,
-  });
+  const [date, time] = dt.split('T');
+  const [year, month, day] = date.split('-');
+  const [hour, minute] = time.slice(0, 5).split(':');
+
+  return `${day}/${month}/${year} ${hour}:${minute}`;
 }
 
 export default function TheatreBookingActionPanel({ booking, onDone, onCancel, theatres }: Props) {
@@ -187,12 +187,22 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
           reallocationReason: reason || undefined,
         };
       } else if (activeAction === 'cancel') {
+        if (!reason.trim()) {
+          setError('Cancellation reason is required.');
+          setSaving(false);
+          return;
+        }
         endpoint = '/api/theatre/booking/cancel';
         body = {
           theatreBookingId: booking.id,
           cancellationReason: reason || undefined,
         };
       } else if (activeAction === 'abort') {
+        if (!reason.trim()) {
+          setError('Cancellation reason is required.');
+          setSaving(false);
+          return;
+        }
         endpoint = '/api/theatre/booking/abort';
         body = {
           theatreBookingId: booking.id,
@@ -237,10 +247,10 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
     });
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111827]">
-      <div className="border-b border-white/[0.07] bg-black/20 px-6 py-4">
+    <div className="overflow-hidden rounded-[24px] border border-white/[0.08] bg-gradient-to-b from-[#111827] to-[#0D131F] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]">
+      <div className="border-b border-white/[0.07] bg-black/20 px-5 py-4 sm:px-7">
         <div className="flex flex-wrap items-center gap-3">
-          <span className={`inline-flex items-center gap-1.5 rounded border px-2.5 py-1 font-mono text-[10px] font-bold ${meta.badge}`}>
+          <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 font-mono text-[10px] font-bold ${meta.badge}`}>
             <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
             {meta.label}
           </span>
@@ -252,27 +262,27 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
         </div>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-5 sm:p-7 space-y-6">
         {!activeAction ? (
           <div>
-            <p className="mb-3 font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600">
+            <p className="mb-3 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">
               Available Actions
             </p>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
               {availableActions.map((a) => {
                 const Icon = a.icon;
                 return (
                   <button
                     key={a.id}
                     onClick={() => setActiveAction(a.id)}
-                    className={`flex items-start gap-3 rounded-xl border p-4 text-left transition ${a.color}`}
+                    className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition ${a.color}`}
                   >
-                    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/10">
-                      <Icon size={14} />
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg !text-white bg-white/10">
+                      <Icon size={15} />
                     </div>
                     <div>
-                      <p className="text-xs font-bold">{a.label}</p>
-                      <p className="mt-0.5 text-[10px] leading-relaxed opacity-70">{a.description}</p>
+                      <p className="text-xs font-bold !text-white">{a.label}</p>
+                      <p className="mt-0.5 text-[10px] leading-relaxed opacity-75 !text-white">{a.description}</p>
                     </div>
                   </button>
                 );
@@ -280,18 +290,18 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
             </div>
 
             {availableActions.length === 0 && (
-              <div className="rounded-xl border border-white/[0.05] bg-white/[0.02] py-8 text-center">
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] py-8 text-center">
                 <p className="text-sm font-semibold text-slate-500">No actions available</p>
-                <p className="mt-1 text-xs text-slate-600">
+                <p className="mt-1 text-xs text-white/50">
                   This booking is in a terminal state.
                 </p>
               </div>
             )}
 
-            <div className="mt-4 flex justify-end">
+            <div className="mt-5 flex justify-end">
               <button
                 onClick={onCancel}
-                className="rounded-xl border border-white/10 px-4 py-2 text-xs font-semibold text-slate-500 transition hover:border-white/20 hover:text-slate-300"
+                className="h-10 rounded-xl border border-white/10 px-4 text-xs font-semibold !text-slate-300 transition hover:border-white/20 hover:text-slate-300"
               >
                 Back to Timeline
               </button>
@@ -302,7 +312,7 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
             <div className="mb-5 flex items-center gap-3">
               <button
                 onClick={() => { setActiveAction(null); setError(null); }}
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 text-slate-500 transition hover:border-white/20 hover:text-slate-300"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-slate-500 transition hover:border-white/20 hover:text-slate-300"
               >
                 ←
               </button>
@@ -320,7 +330,7 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
                       type="datetime-local"
                       value={startTime}
                       onChange={(e) => setStartTime(e.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 font-mono text-sm font-semibold !text-white transition focus:border-teal-500/50 focus:outline-none"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 font-mono text-sm font-semibold !text-white transition focus:border-teal-500/60 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                     />
                   </Field>
                   <Field label="End Time">
@@ -328,7 +338,7 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
                       type="datetime-local"
                       value={endTime}
                       onChange={(e) => setEndTime(e.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 font-mono text-sm font-semibold !text-white transition focus:border-teal-500/50 focus:outline-none"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 font-mono text-sm font-semibold !text-white transition focus:border-teal-500/60 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                     />
                   </Field>
                 </div>
@@ -341,7 +351,7 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Update notes…"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm !text-white transition placeholder:text-slate-700 focus:border-teal-500/50 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm !text-white transition placeholder:text-slate-700 focus:border-teal-500/60 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                   />
                 </Field>
               )}
@@ -353,7 +363,7 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
                     value={theatreSearch}
                     onChange={(e) => setTheatreSearch(e.target.value)}
                     placeholder="Search theatres..."
-                    className="mb-3 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm !text-white transition placeholder:text-slate-700 focus:border-violet-500/50 focus:outline-none"
+                    className="mb-3 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm !text-white transition placeholder:text-slate-700 focus:border-violet-500/60 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
                   />
 
                   <div className="max-h-72 overflow-y-auto rounded-xl border border-white/10 bg-black/20 scrollbar-hide">
@@ -369,8 +379,8 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
                             setTheatreSearch(theatre.name);
                           }}
                           className={`flex w-full items-center justify-between border-b border-white/5 px-4 py-3 text-left transition last:border-b-0 ${selected
-                              ? 'bg-violet-500/10'
-                              : 'hover:bg-white/5'
+                            ? 'bg-violet-500/10'
+                            : 'hover:bg-white/5'
                             }`}
                         >
                           <div>
@@ -420,13 +430,13 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
                           : activeAction === 'abort' ? 'e.g. Patient deterioration…'
                             : 'e.g. Equipment failure in original theatre…'
                     }
-                    className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm !text-white transition placeholder:text-slate-700 focus:border-teal-500/50 focus:outline-none"
+                    className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm !text-white transition placeholder:text-slate-700 focus:border-teal-500/60 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                   />
                 </Field>
               )}
 
               {activeAction === 'start' && (
-                <div className="rounded-xl border border-teal-700/40 bg-teal-950/30 px-4 py-4">
+                <div className="rounded-2xl border border-teal-700/40 bg-gradient-to-b from-teal-900/30 to-teal-950/50 px-4 py-4">
                   <div className="flex items-start gap-3">
                     <Play size={15} className="mt-0.5 shrink-0 text-teal-400" />
                     <div>
@@ -454,22 +464,22 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
               </div>
             )}
 
-            <div className="mt-5 flex items-center justify-end gap-3 border-t border-white/[0.07] pt-5">
+            <div className="mt-5 flex flex-col-reverse gap-3 border-t border-white/[0.07] pt-5 xs:flex-row xs:items-center xs:justify-end">
               <button
                 onClick={() => { setActiveAction(null); setError(null); }}
                 disabled={saving}
-                className="rounded-xl border border-white/10 px-4 py-2 text-xs font-semibold text-slate-400 transition hover:border-white/20 !hover:text-white disabled:opacity-40"
+                className="h-10 rounded-xl border border-white/10 px-4 text-xs font-semibold text-slate-400 transition hover:border-white/20 hover:!text-white disabled:opacity-40"
               >
                 Back
               </button>
               <button
                 onClick={submit}
                 disabled={saving || saved}
-                className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-xs font-bold transition disabled:opacity-50 active:scale-95 ${activeAction === 'abort' || activeAction === 'cancel'
-                  ? 'bg-rose-600 !text-white hover:bg-rose-500'
+                className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl px-5 text-xs font-bold transition disabled:opacity-50 active:scale-[0.97] ${activeAction === 'abort' || activeAction === 'cancel'
+                  ? 'bg-gradient-to-br from-rose-500 to-rose-600 !text-white shadow-[0_8px_20px_-8px_rgba(244,63,94,0.6)] hover:from-rose-400 hover:to-rose-500'
                   : activeAction === 'start'
-                    ? 'bg-teal-500 text-black hover:bg-teal-400'
-                    : 'bg-sky-600 !text-white hover:bg-sky-500'
+                    ? 'bg-gradient-to-br from-teal-400 to-teal-500 text-black shadow-[0_8px_20px_-8px_rgba(45,212,191,0.65)] hover:from-teal-300 hover:to-teal-400'
+                    : 'bg-gradient-to-br from-sky-500 to-sky-600 !text-white shadow-[0_8px_20px_-8px_rgba(14,165,233,0.6)] hover:from-sky-400 hover:to-sky-500'
                   }`}
               >
                 {saving ? (
@@ -495,7 +505,7 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600">
+      <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">
         {label}
       </p>
       {children}
