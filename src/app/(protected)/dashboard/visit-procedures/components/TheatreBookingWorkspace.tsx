@@ -17,6 +17,7 @@ import {
   GetTheatresQuery,
   GetVisitProcedureByIdQuery,
   TheatreBookingStatus,
+  VisitProcedure,
 } from '@/shared/graphql/generated/graphql';
 
 import { clientFetch } from '@/lib/clientFetch';
@@ -212,7 +213,7 @@ export default function TheatreBookingWorkspace({ procedure, initialBookings, th
               </div>
 
               <h1 className="text-2xl font-black tracking-tight !text-white sm:text-3xl">
-                {(procedure as any).name ?? `Procedure ${procedure.id.slice(0, 8)}`}
+                {(procedure as VisitProcedure).customProcedureName ?? `Procedure ${procedure.id.slice(0, 8)}`}
               </h1>
 
               <p className="mt-1.5 max-w-md text-sm leading-relaxed text-slate-500">
