@@ -156,6 +156,10 @@ export default function TheatreBookingWorkspace({ procedure, initialBookings, th
       (event) => event.type === VisitProcedureEventType.Completed,
     ) ?? false;
 
+  const bookingCompleted = bookings.some(
+    (booking) => booking.status === TheatreBookingStatus.Completed,
+  );
+
   return (
     <div className="space-y-5 sm:space-y-6">
       <div className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-gradient-to-b from-[#0D1220] to-[#0A0E17] shadow-[0_20px_60px_-25px_rgba(0,0,0,0.8)]">
@@ -259,12 +263,13 @@ export default function TheatreBookingWorkspace({ procedure, initialBookings, th
               onClick={() => { setView('timeline'); setSelectedBooking(null); }}
               label="Booking History"
             />
-            <ConsoleTab
+            {!bookingCompleted && <ConsoleTab
               active={view === 'create'}
               onClick={() => { setView('create'); setSelectedBooking(null); }}
               label="New Booking"
               accent
-            />
+            />}
+
             {view === 'action' && selectedBooking && (
               <ConsoleTab
                 active
@@ -363,8 +368,8 @@ function ConsoleTab({
       <button
         onClick={onClick}
         className={`shrink-0 rounded-xl px-4 py-2 text-xs font-bold transition ${accent
-            ? 'bg-gradient-to-br from-teal-400 to-teal-600 text-black shadow-[0_4px_16px_-4px_rgba(45,212,191,0.6)]'
-            : 'bg-white/[0.09] !text-white shadow-inner'
+          ? 'bg-gradient-to-br from-teal-400 to-teal-600 text-black shadow-[0_4px_16px_-4px_rgba(45,212,191,0.6)]'
+          : 'bg-white/[0.09] !text-white shadow-inner'
           }`}
       >
         {label}
@@ -375,8 +380,8 @@ function ConsoleTab({
     <button
       onClick={onClick}
       className={`shrink-0 rounded-xl px-4 py-2 text-xs font-medium transition !text-white ${accent
-          ? ' hover:bg-teal-500/10'
-          : 'hover:bg-white/5 hover:text-slate-300'
+        ? ' hover:bg-teal-500/10'
+        : 'hover:bg-white/5 hover:text-slate-300'
         }`}
     >
       {label}
