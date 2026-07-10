@@ -922,6 +922,22 @@ query FindLabRequestById($id: ID!) {
     }
 }
 
+query GetLabRequestsByVisit($visitId: ID!) {
+  labRequestsByVisit(visitId: $visitId) {
+    id
+    visitId
+    priority
+    status
+    createdAt
+    updatedAt
+
+    tests {
+      chargeCatalogId
+      testName
+    }
+  }
+}
+
 mutation CreateLabResult($data: CreateLabResultInput!) {
   createLabResult(data: $data) {
     id
