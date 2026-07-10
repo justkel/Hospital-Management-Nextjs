@@ -9,7 +9,8 @@ import SessionGuard from '@/components/SessionGuard';
 import SystemInformation from '@/app/(protected)/admins/staff/components/SystemInformation';
 import EditPatientButton from '../components/EditPatientButton';
 import CreateVisitModal from '../components/CreateVisitModal';
-import { AlertTriangle, UserX } from 'lucide-react';
+import Link from 'next/link';
+import { AlertTriangle, UserX, History } from 'lucide-react';
 
 interface Props {
   params: Promise<{
@@ -113,7 +114,14 @@ export default async function PatientDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href={`/dashboard/patients/${id}/history`}
+                className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium text-white transition-colors hover:bg-white/[0.12]"
+              >
+                <History size={14} />
+                Visit history
+              </Link>
               <EditPatientButton patient={patient} />
               <CreateVisitModal patientId={patient.id} />
             </div>
@@ -192,7 +200,7 @@ export default async function PatientDetailPage({ params }: Props) {
                   </div>
                   <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#DC2626]">
                     Possible duplicates
-                  </span>``
+                  </span>
                 </div>
                 <div className="divide-y divide-[#DC2626]/10 px-4">
                   {duplicatePatients.map((dup, i) => (
