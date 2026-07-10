@@ -3,6 +3,7 @@ import Link from 'next/link';
 import {
   ArrowRight,
   Ban,
+  CalendarClock,
   CalendarDays,
 } from 'lucide-react';
 
@@ -16,14 +17,25 @@ const LINKS = [
     icon: CalendarDays,
     label: 'Availability',
     description: 'Configure weekly operating windows and session types',
+    badgeLabel: 'Manage',
     accent: {
-      bg: 'from-violet-500 to-indigo-600',
-      glow: 'shadow-violet-200',
       badge: 'bg-violet-100 text-violet-700 border-violet-200',
-      bar: 'bg-violet-500',
       hover: 'hover:shadow-violet-200/80',
       arrow: 'group-hover:bg-violet-600',
       iconBg: 'bg-violet-50 text-violet-600',
+    },
+  },
+  {
+    href: (id: string) => `/dashboard/theatres/${id}/day-schedule`,
+    icon: CalendarClock,
+    label: 'Day Schedule',
+    description: 'View a single day\u2019s timeline of open windows and active holds',
+    badgeLabel: 'View',
+    accent: {
+      badge: 'bg-cyan-100 text-cyan-700 border-cyan-200',
+      hover: 'hover:shadow-cyan-200/80',
+      arrow: 'group-hover:bg-cyan-600',
+      iconBg: 'bg-cyan-50 text-cyan-600',
     },
   },
   {
@@ -31,11 +43,9 @@ const LINKS = [
     icon: Ban,
     label: 'Blocks',
     description: 'Manage maintenance holds, closures and scheduling restrictions',
+    badgeLabel: 'Manage',
     accent: {
-      bg: 'from-rose-500 to-pink-600',
-      glow: 'shadow-rose-200',
       badge: 'bg-rose-100 text-rose-700 border-rose-200',
-      bar: 'bg-rose-500',
       hover: 'hover:shadow-rose-200/80',
       arrow: 'group-hover:bg-rose-600',
       iconBg: 'bg-rose-50 text-rose-600',
@@ -45,7 +55,7 @@ const LINKS = [
 
 export default function TheatreQuickLinks({ theatreId }: Props) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {LINKS.map((link) => {
         const Icon = link.icon;
         const { accent } = link;
@@ -72,7 +82,7 @@ export default function TheatreQuickLinks({ theatreId }: Props) {
                   <span
                     className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${accent.badge}`}
                   >
-                    Manage
+                    {link.badgeLabel}
                   </span>
                 </div>
                 <p className="mt-1 text-xs leading-relaxed text-slate-500">
