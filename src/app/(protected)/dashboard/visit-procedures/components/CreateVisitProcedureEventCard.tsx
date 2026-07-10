@@ -32,7 +32,9 @@ export default function CreateVisitProcedureEventCard({
     const [messageValue, setMessageValue] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const disabled = status === VisitProcedureStatus.Cancelled;
+    const isCancelled = status === VisitProcedureStatus.Cancelled;
+    const isCompleted = status === VisitProcedureStatus.Completed;
+    const disabled = isCancelled || isCompleted;
 
     const selected = useMemo(
         () => EVENT_OPTIONS.find(item => item.type === selectedType),
@@ -97,7 +99,9 @@ export default function CreateVisitProcedureEventCard({
                             className={`
                                 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold
                                 ${disabled
-                                    ? 'bg-red-50 text-red-600'
+                                    ? isCompleted
+                                        ? 'bg-blue-50 text-blue-600'
+                                        : 'bg-red-50 text-red-600'
                                     : 'bg-emerald-50 text-emerald-700'
                                 }
                             `}
@@ -105,20 +109,34 @@ export default function CreateVisitProcedureEventCard({
                             <span
                                 className={`
                                     h-1.5 w-1.5 rounded-full
-                                    ${disabled ? 'bg-red-500' : 'bg-emerald-500 animate-pulse'}
+                                    ${disabled
+                                        ? isCompleted
+                                            ? 'bg-blue-500'
+                                            : 'bg-red-500'
+                                        : 'bg-emerald-500 animate-pulse'
+                                    }
                                 `}
                             />
-                            {disabled ? 'Cancelled' : 'Active'}
+                            {isCompleted ? 'Completed' : isCancelled ? 'Cancelled' : 'Active'}
                         </div>
                     </div>
                 </div>
 
                 <div className="p-5 sm:p-6 space-y-5">
-                    {disabled && (
+                    {isCancelled && (
                         <div className="flex items-center gap-2.5 rounded-xl border border-red-100 bg-red-50 px-4 py-3">
                             <XCircle className="h-4 w-4 flex-shrink-0 text-red-500" />
                             <p className="text-sm font-medium text-red-700">
                                 This procedure has been cancelled. Event creation is disabled.
+                            </p>
+                        </div>
+                    )}
+
+                    {isCompleted && (
+                        <div className="flex items-center gap-2.5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
+                            <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-blue-500" />
+                            <p className="text-sm font-medium text-blue-700">
+                                This procedure has been completed. Event creation is disabled.
                             </p>
                         </div>
                     )}
