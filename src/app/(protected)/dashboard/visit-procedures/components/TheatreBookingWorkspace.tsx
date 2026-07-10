@@ -18,6 +18,7 @@ import {
   GetVisitProcedureByIdQuery,
   TheatreBookingStatus,
   VisitProcedure,
+  VisitProcedureEventType,
 } from '@/shared/graphql/generated/graphql';
 
 import { clientFetch } from '@/lib/clientFetch';
@@ -150,6 +151,11 @@ export default function TheatreBookingWorkspace({ procedure, initialBookings, th
     (b) => b.status === TheatreBookingStatus.Completed,
   ).length;
 
+  const procedureCompleted =
+    bookings[0]?.procedure?.events?.some(
+      (event) => event.type === VisitProcedureEventType.Completed,
+    ) ?? false;
+
   return (
     <div className="space-y-5 sm:space-y-6">
       <div className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-gradient-to-b from-[#0D1220] to-[#0A0E17] shadow-[0_20px_60px_-25px_rgba(0,0,0,0.8)]">
@@ -262,7 +268,7 @@ export default function TheatreBookingWorkspace({ procedure, initialBookings, th
             {view === 'action' && selectedBooking && (
               <ConsoleTab
                 active
-                onClick={() => {}}
+                onClick={() => { }}
                 label="Manage Booking"
               />
             )}
@@ -284,6 +290,7 @@ export default function TheatreBookingWorkspace({ procedure, initialBookings, th
       {view === 'timeline' && (
         <TheatreBookingTimeline
           bookings={bookings}
+          bookingDisabled={procedureCompleted}
           onCreateRequest={() => setView('create')}
           onManageRequest={openAction}
         />
@@ -355,11 +362,10 @@ function ConsoleTab({
     return (
       <button
         onClick={onClick}
-        className={`shrink-0 rounded-xl px-4 py-2 text-xs font-bold transition ${
-          accent
+        className={`shrink-0 rounded-xl px-4 py-2 text-xs font-bold transition ${accent
             ? 'bg-gradient-to-br from-teal-400 to-teal-600 text-black shadow-[0_4px_16px_-4px_rgba(45,212,191,0.6)]'
             : 'bg-white/[0.09] !text-white shadow-inner'
-        }`}
+          }`}
       >
         {label}
       </button>
@@ -368,11 +374,10 @@ function ConsoleTab({
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 rounded-xl px-4 py-2 text-xs font-medium transition !text-white ${
-        accent
+      className={`shrink-0 rounded-xl px-4 py-2 text-xs font-medium transition !text-white ${accent
           ? ' hover:bg-teal-500/10'
           : 'hover:bg-white/5 hover:text-slate-300'
-      }`}
+        }`}
     >
       {label}
     </button>

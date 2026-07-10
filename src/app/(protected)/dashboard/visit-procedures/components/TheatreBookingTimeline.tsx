@@ -24,6 +24,7 @@ import { STATUS_META, type Booking } from './TheatreBookingWorkspace';
 
 interface Props {
   bookings: Booking[];
+  bookingDisabled: boolean;
   onCreateRequest: () => void;
   onManageRequest: (booking: Booking) => void;
 }
@@ -85,6 +86,7 @@ export default function TheatreBookingTimeline({
   bookings,
   onCreateRequest,
   onManageRequest,
+  bookingDisabled,
 }: Props) {
   const hasBookings = bookings.length > 0;
   const active = bookings.filter((b) => !TERMINAL_STATUSES.includes(b.status));
@@ -98,17 +100,33 @@ export default function TheatreBookingTimeline({
             ? `${bookings.length} booking${bookings.length !== 1 ? 's' : ''} on record`
             : 'No bookings recorded'}
         </p>
-        <button
-          onClick={onCreateRequest}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-teal-400 to-teal-500 px-4 text-xs font-bold text-black shadow-[0_8px_20px_-8px_rgba(45,212,191,0.65)] transition hover:from-teal-300 hover:to-teal-400 active:scale-[0.97]"
-        >
-          <Plus size={13} strokeWidth={2.75} />
-          Book Theatre
-        </button>
+        {bookingDisabled ? (
+          <div className="group relative">
+            <button
+              disabled
+              className="inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-emerald-600/20 bg-emerald-950/30 px-4 text-xs font-bold !text-emerald-400/60 opacity-80"
+            >
+              <CheckCircle2 size={13} />
+              Procedure Completed
+            </button>
+
+            <p className="mt-2 text-right text-[11px] !text-slate-400">
+              Theatre booking is locked because this procedure has been completed.
+            </p>
+          </div>
+        ) : (
+          <button
+            onClick={onCreateRequest}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-teal-400 to-teal-500 px-4 text-xs font-bold text-black shadow-[0_8px_20px_-8px_rgba(45,212,191,0.65)] transition hover:from-teal-300 hover:to-teal-400 active:scale-[0.97]"
+          >
+            <Plus size={13} strokeWidth={2.75} />
+            Book Theatre
+          </button>
+        )}
       </div>
 
       {!hasBookings ? (
-        <Empty onCreateRequest={onCreateRequest} />
+        <Empty onCreateRequest={onCreateRequest} bookingDisabled={bookingDisabled} />
       ) : (
         <div className="space-y-6 sm:space-y-7">
           {active.length > 0 && (
@@ -250,7 +268,7 @@ function BookingRow({ booking, onManage }: { booking: Booking; onManage: () => v
   );
 }
 
-function Empty({ onCreateRequest }: { onCreateRequest: () => void }) {
+function Empty({ onCreateRequest, bookingDisabled }: { onCreateRequest: () => void; bookingDisabled: boolean }) {
   return (
     <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-[24px] border border-dashed border-white/[0.12] bg-gradient-to-b from-[#111827] to-[#0D131F] py-16 text-center sm:py-20">
       <div className="pointer-events-none absolute -top-16 h-40 w-40 rounded-full bg-teal-500/10 blur-3xl" />
@@ -264,6 +282,7 @@ function Empty({ onCreateRequest }: { onCreateRequest: () => void }) {
       </p>
       <button
         onClick={onCreateRequest}
+        disabled={bookingDisabled}
         className="relative mt-6 inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-to-br from-teal-400 to-teal-500 px-5 text-sm font-bold text-black shadow-[0_10px_24px_-10px_rgba(45,212,191,0.7)] transition hover:from-teal-300 hover:to-teal-400 active:scale-[0.97]"
       >
         <Plus size={14} strokeWidth={2.75} />
