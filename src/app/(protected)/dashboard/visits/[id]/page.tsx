@@ -18,7 +18,7 @@ import VisitComplaintsSection from '../components/visit-complaints/VisitComplain
 import VisitDiagnosisSection from '../components/visit-diagnoses/VisitDiagnosisSection';
 import VisitPrescriptionsSection from '../components/visit-prescriptions/VisitPrescriptionsSection';
 import Link from 'next/link';
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, FlaskConical } from 'lucide-react';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -52,15 +52,27 @@ export default async function VisitDetailPage({ params }: Props) {
               </p>
             </div>
 
-            <Link
-              href={`/dashboard/visits/${visit.id}/procedures`}
-              className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] bg-[#0c1a12] px-4 text-[13px] font-medium text-white transition hover:bg-[#1D9E75]"
-            >
-              <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-white/12">
-                <ClipboardList size={13} />
-              </div>
-              View procedures
-            </Link>
+            <div className="flex flex-wrap gap-2.5">
+              <Link
+                href={`/dashboard/visits/${visit.id}/procedures`}
+                className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] bg-[#0c1a12] px-4 text-[13px] font-medium text-white transition hover:bg-[#1D9E75]"
+              >
+                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-white/12">
+                  <ClipboardList size={13} />
+                </div>
+                View procedures
+              </Link>
+
+              <Link
+                href={`/dashboard/visits/${visit.id}/lab-requests`}
+                className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] border border-[#E8E6E0] bg-white px-4 text-[13px] font-medium text-[#2C2C2A] transition hover:border-[#1D9E75]/30 hover:bg-[#F0FAF5] hover:text-[#1D9E75]"
+              >
+                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-[#F0FAF5] text-[#1D9E75]">
+                  <FlaskConical size={13} />
+                </div>
+                View lab requests
+              </Link>
+            </div>
           </div>
           <VisitHeaderCard visit={visit} />
 
