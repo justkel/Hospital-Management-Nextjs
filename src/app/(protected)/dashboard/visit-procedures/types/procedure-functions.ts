@@ -1,6 +1,5 @@
 import { VisitProcedureEventType } from "@/shared/graphql/generated/graphql";
-import { FileText, PlayCircle, CheckCircle2, PauseCircle, Sparkles, ShieldAlert } from "lucide-react";
-import { Activity } from "react";
+import { FileText, PlayCircle, CheckCircle2, PauseCircle, Sparkles, ShieldAlert, Activity } from "lucide-react";
 
 export function formatDuration(minutes?: number | null) {
     if (!minutes) return null;
