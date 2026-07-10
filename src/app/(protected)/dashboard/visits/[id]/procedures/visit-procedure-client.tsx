@@ -6,7 +6,6 @@ import {
   Activity,
   CheckCircle2,
   ClipboardList,
-  Clock3,
   Loader2,
   ShieldAlert,
 } from 'lucide-react';
