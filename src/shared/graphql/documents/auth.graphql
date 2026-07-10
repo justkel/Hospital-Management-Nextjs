@@ -1982,16 +1982,57 @@ query TheatreScheduleForDay(
     theatreId: $theatreId
     date: $date
   ) {
-    id
-    name
-    code
-    floor
-    department
-    capacity
-    isActive
-    organizationId
+    theatre {
+      id
+      name
+      code
+      floor
+      department
+      capacity
+      isActive
+      organizationId
+    }
+    date
+    computedStatus
+    availability {
+      id
+      theatreId
+      dayOfWeek
+      startTime
+      endTime
+      type
+      notes
+      isActive
+      createdByStaffId
+    }
+    blocks {
+      id
+      theatreId
+      startTime
+      endTime
+      type
+      status
+      isActive
+      reason
+      createdByStaffId
+    }
+    bookings {
+      id
+      theatreId
+      scheduledStartTime
+      scheduledEndTime
+      status
+      procedure {
+        id
+        customProcedureName
+        customProcedureCode
+        procedureCatalog {
+          name
+        }
+      }
+    }
   }
-}
+}  
 
 query ActiveBlocksForTheatre(
   $theatreId: ID!
@@ -2384,6 +2425,22 @@ query GetProcedureTheatreBookings(
     theatre {
       id
       name
+    }
+    procedure {
+      id
+      status
+
+      events {
+        id
+        type
+        message
+        occurredAt
+
+        createdBy {
+          id
+          fullName
+        }
+      }
     }
   }
 }
