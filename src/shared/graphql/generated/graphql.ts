@@ -451,6 +451,11 @@ export type CreateVisitInput = {
   visitType: VisitType;
 };
 
+export type CreateVisitNoteInput = {
+  note: Scalars['String']['input'];
+  visitId: Scalars['ID']['input'];
+};
+
 export type CreateVisitPrescriptionInput = {
   dose?: InputMaybe<Scalars['String']['input']>;
   drug: Scalars['String']['input'];
@@ -656,6 +661,7 @@ export type Mutation = {
   createVisitCharge: VisitCharge;
   createVisitComplaint: VisitComplaint;
   createVisitDiagnosis: VisitDiagnosis;
+  createVisitNote: VisitNote;
   createVisitPrescription: VisitPrescription;
   createVisitProcedure: CreateVisitProcedureResponse;
   createVisitProcedureEvent: VisitProcedureEvent;
@@ -692,12 +698,14 @@ export type Mutation = {
   updateTheatreIncident: TheatreIncident;
   updateVisitComplaint: VisitComplaint;
   updateVisitDiagnosis: VisitDiagnosis;
+  updateVisitNote: VisitNote;
   updateVisitPrescription: VisitPrescription;
   updateVisitProcedure: VisitProcedure;
   updateVisitProcedureStaff: Array<ProcedureStaffResult>;
   updateVisitVital: VisitVital;
   updateWard: Ward;
   updateWardIncident: WardIncident;
+  upsertVisitNotePosition: VisitNotePosition;
 };
 
 
@@ -824,6 +832,11 @@ export type MutationCreateVisitComplaintArgs = {
 
 export type MutationCreateVisitDiagnosisArgs = {
   data: CreateVisitDiagnosisInput;
+};
+
+
+export type MutationCreateVisitNoteArgs = {
+  data: CreateVisitNoteInput;
 };
 
 
@@ -998,6 +1011,11 @@ export type MutationUpdateVisitDiagnosisArgs = {
 };
 
 
+export type MutationUpdateVisitNoteArgs = {
+  data: UpdateVisitNoteInput;
+};
+
+
 export type MutationUpdateVisitPrescriptionArgs = {
   data: UpdateVisitPrescriptionInput;
 };
@@ -1025,6 +1043,11 @@ export type MutationUpdateWardArgs = {
 
 export type MutationUpdateWardIncidentArgs = {
   data: UpdateWardIncidentInput;
+};
+
+
+export type MutationUpsertVisitNotePositionArgs = {
+  data: UpsertVisitNotePositionInput;
 };
 
 export type Organization = {
@@ -1160,6 +1183,8 @@ export type Query = {
   visitComplaints: Array<VisitComplaint>;
   visitDiagnoses: Array<VisitDiagnosis>;
   visitDiagnosisById: VisitDiagnosis;
+  visitNotePositionsByVisit: Array<VisitNotePosition>;
+  visitNotesByVisit: Array<VisitNote>;
   visitPrescriptions: Array<VisitPrescription>;
   visitProcedureById: VisitProcedure;
   visitProcedureEvents: VisitProcedureEventPaginationResult;
@@ -1369,6 +1394,16 @@ export type QueryVisitDiagnosesArgs = {
 
 export type QueryVisitDiagnosisByIdArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitNotePositionsByVisitArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitNotesByVisitArgs = {
+  visitId: Scalars['ID']['input'];
 };
 
 
@@ -1891,6 +1926,11 @@ export type UpdateVisitDiagnosisInput = {
   notes?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateVisitNoteInput = {
+  note: Scalars['String']['input'];
+  visitNoteId: Scalars['ID']['input'];
+};
+
 export type UpdateVisitPrescriptionInput = {
   dose?: InputMaybe<Scalars['String']['input']>;
   drug?: InputMaybe<Scalars['String']['input']>;
@@ -1951,6 +1991,13 @@ export type UpdateWardInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   wardClass?: InputMaybe<WardClass>;
   wardId: Scalars['ID']['input'];
+};
+
+export type UpsertVisitNotePositionInput = {
+  positionX: Scalars['Float']['input'];
+  positionY: Scalars['Float']['input'];
+  visitNoteId: Scalars['ID']['input'];
+  zIndex?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** Type of user */
@@ -2059,6 +2106,30 @@ export type VisitDiagnosis = {
   notes?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   visitId: Scalars['ID']['output'];
+};
+
+export type VisitNote = {
+  __typename?: 'VisitNote';
+  author: Staff;
+  authorStaffId: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  note: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  visit: Visit;
+  visitId: Scalars['ID']['output'];
+};
+
+export type VisitNotePosition = {
+  __typename?: 'VisitNotePosition';
+  id: Scalars['ID']['output'];
+  positionX: Scalars['Float']['output'];
+  positionY: Scalars['Float']['output'];
+  staff: Staff;
+  staffId: Scalars['ID']['output'];
+  visitNote: VisitNote;
+  visitNoteId: Scalars['ID']['output'];
+  zIndex: Scalars['Int']['output'];
 };
 
 export type VisitPaginationInput = {
@@ -3185,6 +3256,41 @@ export type TransferBedAllocationMutationVariables = Exact<{
 
 export type TransferBedAllocationMutation = { __typename?: 'Mutation', transferBedAllocation: { __typename?: 'VisitBedAllocation', id: string, visitId: string, bedId: string, organizationId: string, status: VisitBedAllocationStatus, allocatedAt: string, allocatedByStaffId: string, reason?: string | null, bed: { __typename?: 'Bed', id: string, name: string, bedCode: string, class: BedClass, status: BedStatus } } };
 
+export type GetVisitNotesByVisitQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitNotesByVisitQuery = { __typename?: 'Query', visitNotesByVisit: Array<{ __typename?: 'VisitNote', id: string, visitId: string, note: string, authorStaffId: string, createdAt: string, updatedAt: string, author: { __typename?: 'Staff', id: string, userCode: number, fullName: string } }> };
+
+export type CreateVisitNoteMutationVariables = Exact<{
+  data: CreateVisitNoteInput;
+}>;
+
+
+export type CreateVisitNoteMutation = { __typename?: 'Mutation', createVisitNote: { __typename?: 'VisitNote', id: string, visitId: string, note: string, authorStaffId: string, createdAt: string, updatedAt: string, author: { __typename?: 'Staff', id: string, userCode: number, fullName: string } } };
+
+export type UpdateVisitNoteMutationVariables = Exact<{
+  data: UpdateVisitNoteInput;
+}>;
+
+
+export type UpdateVisitNoteMutation = { __typename?: 'Mutation', updateVisitNote: { __typename?: 'VisitNote', id: string, visitId: string, note: string, authorStaffId: string, createdAt: string, updatedAt: string, author: { __typename?: 'Staff', id: string, userCode: number, fullName: string } } };
+
+export type GetVisitNotePositionsByVisitQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitNotePositionsByVisitQuery = { __typename?: 'Query', visitNotePositionsByVisit: Array<{ __typename?: 'VisitNotePosition', id: string, visitNoteId: string, staffId: string, positionX: number, positionY: number, zIndex: number }> };
+
+export type UpsertVisitNotePositionMutationVariables = Exact<{
+  data: UpsertVisitNotePositionInput;
+}>;
+
+
+export type UpsertVisitNotePositionMutation = { __typename?: 'Mutation', upsertVisitNotePosition: { __typename?: 'VisitNotePosition', id: string, visitNoteId: string, staffId: string, positionX: number, positionY: number, zIndex: number } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -3307,3 +3413,8 @@ export const GetBedAllocationsByVisitDocument = {"kind":"Document","definitions"
 export const CreateBedAllocationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateBedAllocation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitBedAllocationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createBedAllocation"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"bedId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"bed"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}}]} as unknown as DocumentNode<CreateBedAllocationMutation, CreateBedAllocationMutationVariables>;
 export const UpdateBedAllocationStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateBedAllocationStatus"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitBedAllocationStatusInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateBedAllocationStatus"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"bedId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"releasedAt"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"releasedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"bed"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateBedAllocationStatusMutation, UpdateBedAllocationStatusMutationVariables>;
 export const TransferBedAllocationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"TransferBedAllocation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"TransferVisitBedAllocationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"transferBedAllocation"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"bedId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"bed"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}}]} as unknown as DocumentNode<TransferBedAllocationMutation, TransferBedAllocationMutationVariables>;
+export const GetVisitNotesByVisitDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitNotesByVisit"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitNotesByVisit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"note"}},{"kind":"Field","name":{"kind":"Name","value":"authorStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<GetVisitNotesByVisitQuery, GetVisitNotesByVisitQueryVariables>;
+export const CreateVisitNoteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVisitNote"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitNoteInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVisitNote"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"note"}},{"kind":"Field","name":{"kind":"Name","value":"authorStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<CreateVisitNoteMutation, CreateVisitNoteMutationVariables>;
+export const UpdateVisitNoteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitNote"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitNoteInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitNote"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"note"}},{"kind":"Field","name":{"kind":"Name","value":"authorStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateVisitNoteMutation, UpdateVisitNoteMutationVariables>;
+export const GetVisitNotePositionsByVisitDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitNotePositionsByVisit"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitNotePositionsByVisit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitNoteId"}},{"kind":"Field","name":{"kind":"Name","value":"staffId"}},{"kind":"Field","name":{"kind":"Name","value":"positionX"}},{"kind":"Field","name":{"kind":"Name","value":"positionY"}},{"kind":"Field","name":{"kind":"Name","value":"zIndex"}}]}}]}}]} as unknown as DocumentNode<GetVisitNotePositionsByVisitQuery, GetVisitNotePositionsByVisitQueryVariables>;
+export const UpsertVisitNotePositionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpsertVisitNotePosition"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpsertVisitNotePositionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"upsertVisitNotePosition"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitNoteId"}},{"kind":"Field","name":{"kind":"Name","value":"staffId"}},{"kind":"Field","name":{"kind":"Name","value":"positionX"}},{"kind":"Field","name":{"kind":"Name","value":"positionY"}},{"kind":"Field","name":{"kind":"Name","value":"zIndex"}}]}}]}}]} as unknown as DocumentNode<UpsertVisitNotePositionMutation, UpsertVisitNotePositionMutationVariables>;

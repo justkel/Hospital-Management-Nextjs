@@ -2606,3 +2606,76 @@ mutation TransferBedAllocation($data: TransferVisitBedAllocationInput!) {
     }
   }
 }
+
+query GetVisitNotesByVisit($visitId: ID!) {
+  visitNotesByVisit(visitId: $visitId) {
+    id
+    visitId
+    note
+    authorStaffId
+    createdAt
+    updatedAt
+
+    author {
+      id
+      userCode
+      fullName
+    }
+  }
+}
+
+mutation CreateVisitNote($data: CreateVisitNoteInput!) {
+  createVisitNote(data: $data) {
+    id
+    visitId
+    note
+    authorStaffId
+    createdAt
+    updatedAt
+
+    author {
+      id
+      userCode
+      fullName
+    }
+  }
+}
+
+mutation UpdateVisitNote($data: UpdateVisitNoteInput!) {
+  updateVisitNote(data: $data) {
+    id
+    visitId
+    note
+    authorStaffId
+    createdAt
+    updatedAt
+
+    author {
+      id
+      userCode
+      fullName
+    }
+  }
+}
+
+query GetVisitNotePositionsByVisit($visitId: ID!) {
+  visitNotePositionsByVisit(visitId: $visitId) {
+    id
+    visitNoteId
+    staffId
+    positionX
+    positionY
+    zIndex
+  }
+}
+
+mutation UpsertVisitNotePosition($data: UpsertVisitNotePositionInput!) {
+  upsertVisitNotePosition(data: $data) {
+    id
+    visitNoteId
+    staffId
+    positionX
+    positionY
+    zIndex
+  }
+}
