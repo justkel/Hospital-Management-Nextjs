@@ -2460,3 +2460,149 @@ query GetProcedureTheatreBookings(
     }
   }
 }
+
+query FindBedAllocationById($id: ID!) {
+  bedAllocationById(id: $id) {
+    id
+    visitId
+    bedId
+    organizationId
+    status
+    allocatedAt
+    releasedAt
+    allocatedByStaffId
+    releasedByStaffId
+    reason
+
+    bed {
+      id
+      wardId
+      name
+      bedCode
+      class
+      status
+      isActive
+    }
+
+    visit {
+      id
+      visitType
+      visitDateTime
+      status
+    }
+
+    allocatedBy {
+      id
+      userCode
+      fullName
+    }
+
+    releasedBy {
+      id
+      userCode
+      fullName
+    }
+  }
+}
+
+query GetBedAllocationsByVisit($visitId: ID!) {
+  bedAllocationsByVisit(visitId: $visitId) {
+    id
+    visitId
+    bedId
+    organizationId
+    status
+    allocatedAt
+    releasedAt
+    allocatedByStaffId
+    releasedByStaffId
+    reason
+
+    bed {
+      id
+      wardId
+      name
+      bedCode
+      class
+      status
+      isActive
+    }
+
+    allocatedBy {
+      id
+      userCode
+      fullName
+    }
+
+    releasedBy {
+      id
+      userCode
+      fullName
+    }
+  }
+}
+
+mutation CreateBedAllocation($data: CreateVisitBedAllocationInput!) {
+  createBedAllocation(data: $data) {
+    id
+    visitId
+    bedId
+    organizationId
+    status
+    allocatedAt
+    allocatedByStaffId
+    reason
+
+    bed {
+      id
+      name
+      bedCode
+      class
+      status
+    }
+  }
+}
+
+mutation UpdateBedAllocationStatus($data: UpdateVisitBedAllocationStatusInput!) {
+  updateBedAllocationStatus(data: $data) {
+    id
+    visitId
+    bedId
+    organizationId
+    status
+    allocatedAt
+    releasedAt
+    allocatedByStaffId
+    releasedByStaffId
+    reason
+
+    bed {
+      id
+      name
+      bedCode
+      class
+      status
+    }
+  }
+}
+
+mutation TransferBedAllocation($data: TransferVisitBedAllocationInput!) {
+  transferBedAllocation(data: $data) {
+    id
+    visitId
+    bedId
+    organizationId
+    status
+    allocatedAt
+    allocatedByStaffId
+    reason
+
+    bed {
+      id
+      name
+      bedCode
+      class
+      status
+    }
+  }
+}

@@ -411,7 +411,16 @@ export type CreateTheatreInput = {
   name: Scalars['String']['input'];
 };
 
+export type CreateVisitBedAllocationInput = {
+  bedId: Scalars['ID']['input'];
+  chargeCatalogId: Scalars['ID']['input'];
+  reason?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<VisitBedAllocationStatus>;
+  visitId: Scalars['ID']['input'];
+};
+
 export type CreateVisitChargeInput = {
+  billingType?: InputMaybe<BillingType>;
   chargeCatalogId?: InputMaybe<Scalars['ID']['input']>;
   chargeDomain?: InputMaybe<ChargeDomain>;
   chargeName?: InputMaybe<Scalars['String']['input']>;
@@ -630,6 +639,7 @@ export type Mutation = {
   completeLabRequest: LabRequest;
   completeTheatreProcedure: TheatreBooking;
   createBed: Bed;
+  createBedAllocation: VisitBedAllocation;
   createBillingCategory: BillingCatalogueCategory;
   createBillingItem: GlobalBillingCatalogueItem;
   createChargeCatalog: ChargeCatalog;
@@ -662,7 +672,9 @@ export type Mutation = {
   startTheatreProcedure: TheatreBooking;
   syncChargeDomainMapping: Array<ChargeDomainCatalogMapping>;
   syncTheatreAvailability: Array<TheatreAvailability>;
+  transferBedAllocation: VisitBedAllocation;
   updateBed: Bed;
+  updateBedAllocationStatus: VisitBedAllocation;
   updateBillingCategory: BillingCatalogueCategory;
   updateChargeCatalog: ChargeCatalog;
   updateLabRequest: CreateLabRequestResponse;
@@ -727,6 +739,11 @@ export type MutationCompleteTheatreProcedureArgs = {
 
 export type MutationCreateBedArgs = {
   data: CreateBedInput;
+};
+
+
+export type MutationCreateBedAllocationArgs = {
+  data: CreateVisitBedAllocationInput;
 };
 
 
@@ -880,8 +897,18 @@ export type MutationSyncTheatreAvailabilityArgs = {
 };
 
 
+export type MutationTransferBedAllocationArgs = {
+  data: TransferVisitBedAllocationInput;
+};
+
+
 export type MutationUpdateBedArgs = {
   data: UpdateBedInput;
+};
+
+
+export type MutationUpdateBedAllocationStatusArgs = {
+  data: UpdateVisitBedAllocationStatusInput;
 };
 
 
@@ -1091,6 +1118,8 @@ export type Query = {
   activeBlocksForTheatre: Array<TheatreBlock>;
   auditLogs: AuditPaginationResult;
   availableTheatresForTimeRange: TheatrePaginationResult;
+  bedAllocationById: VisitBedAllocation;
+  bedAllocationsByVisit: Array<VisitBedAllocation>;
   beds: BedPaginationResult;
   billingCategoryById: BillingCatalogueCategory;
   catalogsByChargeDomain: Array<ChargeDomainCatalogMapping>;
@@ -1161,6 +1190,16 @@ export type QueryAuditLogsArgs = {
 
 export type QueryAvailableTheatresForTimeRangeArgs = {
   pagination: AvailableTheatrePaginationInput;
+};
+
+
+export type QueryBedAllocationByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryBedAllocationsByVisitArgs = {
+  visitId: Scalars['ID']['input'];
 };
 
 
@@ -1701,6 +1740,14 @@ export enum TheatreScheduleStatus {
   Partial = 'PARTIAL'
 }
 
+export type TransferVisitBedAllocationInput = {
+  allocationId: Scalars['ID']['input'];
+  chargeCatalogId: Scalars['ID']['input'];
+  newBedId: Scalars['ID']['input'];
+  newStatus?: InputMaybe<VisitBedAllocationStatus>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdateBedInput = {
   bedId: Scalars['ID']['input'];
   class?: InputMaybe<BedClass>;
@@ -1826,6 +1873,12 @@ export type UpdateTheatreInput = {
   theatreId: Scalars['ID']['input'];
 };
 
+export type UpdateVisitBedAllocationStatusInput = {
+  allocationId: Scalars['ID']['input'];
+  reason?: InputMaybe<Scalars['String']['input']>;
+  status: VisitBedAllocationStatus;
+};
+
 export type UpdateVisitComplaintInput = {
   complaint: Scalars['String']['input'];
   complaintId: Scalars['ID']['input'];
@@ -1924,14 +1977,20 @@ export type Visit = {
 export type VisitBedAllocation = {
   __typename?: 'VisitBedAllocation';
   allocatedAt: Scalars['DateTime']['output'];
+  allocatedBy: Staff;
   allocatedByStaffId: Scalars['ID']['output'];
+  bed: Bed;
+  bedAllocationCatalog?: Maybe<ChargeCatalog>;
   bedId: Scalars['ID']['output'];
   id: Scalars['ID']['output'];
   organizationId: Scalars['ID']['output'];
   reason?: Maybe<Scalars['String']['output']>;
   releasedAt?: Maybe<Scalars['DateTime']['output']>;
+  releasedBy?: Maybe<Staff>;
   releasedByStaffId?: Maybe<Scalars['ID']['output']>;
   status: VisitBedAllocationStatus;
+  visit: Visit;
+  visitCharge?: Maybe<VisitCharge>;
   visitId: Scalars['ID']['output'];
 };
 
@@ -1945,6 +2004,7 @@ export enum VisitBedAllocationStatus {
 
 export type VisitCharge = {
   __typename?: 'VisitCharge';
+  billingType?: Maybe<BillingType>;
   chargeCatalog: ChargeCatalog;
   chargeCatalogId?: Maybe<Scalars['ID']['output']>;
   chargeDomain?: Maybe<ChargeDomain>;
@@ -3090,6 +3150,41 @@ export type GetProcedureTheatreBookingsQueryVariables = Exact<{
 
 export type GetProcedureTheatreBookingsQuery = { __typename?: 'Query', getProcedureTheatreBookings: Array<{ __typename?: 'TheatreBooking', id: string, theatreId: string, procedureId: string, scheduledStartTime: string, scheduledEndTime: string, actualStartTime?: string | null, actualEndTime?: string | null, status: TheatreBookingStatus, priority: TheatreBookingPriority, estimatedDurationMinutes?: number | null, actualDurationMinutes?: number | null, bookedByStaffId: string, notes?: string | null, delayReason?: string | null, cancellationReason?: string | null, theatre: { __typename?: 'Theatre', id: string, name: string }, procedure: { __typename?: 'VisitProcedure', id: string, status: VisitProcedureStatus, events: Array<{ __typename?: 'VisitProcedureEvent', id: string, type: VisitProcedureEventType, message: string, occurredAt: string, createdBy: { __typename?: 'Staff', id: string, fullName: string } }> } }> };
 
+export type FindBedAllocationByIdQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type FindBedAllocationByIdQuery = { __typename?: 'Query', bedAllocationById: { __typename?: 'VisitBedAllocation', id: string, visitId: string, bedId: string, organizationId: string, status: VisitBedAllocationStatus, allocatedAt: string, releasedAt?: string | null, allocatedByStaffId: string, releasedByStaffId?: string | null, reason?: string | null, bed: { __typename?: 'Bed', id: string, wardId: string, name: string, bedCode: string, class: BedClass, status: BedStatus, isActive: boolean }, visit: { __typename?: 'Visit', id: string, visitType: VisitType, visitDateTime: string, status: VisitStatus }, allocatedBy: { __typename?: 'Staff', id: string, userCode: number, fullName: string }, releasedBy?: { __typename?: 'Staff', id: string, userCode: number, fullName: string } | null } };
+
+export type GetBedAllocationsByVisitQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetBedAllocationsByVisitQuery = { __typename?: 'Query', bedAllocationsByVisit: Array<{ __typename?: 'VisitBedAllocation', id: string, visitId: string, bedId: string, organizationId: string, status: VisitBedAllocationStatus, allocatedAt: string, releasedAt?: string | null, allocatedByStaffId: string, releasedByStaffId?: string | null, reason?: string | null, bed: { __typename?: 'Bed', id: string, wardId: string, name: string, bedCode: string, class: BedClass, status: BedStatus, isActive: boolean }, allocatedBy: { __typename?: 'Staff', id: string, userCode: number, fullName: string }, releasedBy?: { __typename?: 'Staff', id: string, userCode: number, fullName: string } | null }> };
+
+export type CreateBedAllocationMutationVariables = Exact<{
+  data: CreateVisitBedAllocationInput;
+}>;
+
+
+export type CreateBedAllocationMutation = { __typename?: 'Mutation', createBedAllocation: { __typename?: 'VisitBedAllocation', id: string, visitId: string, bedId: string, organizationId: string, status: VisitBedAllocationStatus, allocatedAt: string, allocatedByStaffId: string, reason?: string | null, bed: { __typename?: 'Bed', id: string, name: string, bedCode: string, class: BedClass, status: BedStatus } } };
+
+export type UpdateBedAllocationStatusMutationVariables = Exact<{
+  data: UpdateVisitBedAllocationStatusInput;
+}>;
+
+
+export type UpdateBedAllocationStatusMutation = { __typename?: 'Mutation', updateBedAllocationStatus: { __typename?: 'VisitBedAllocation', id: string, visitId: string, bedId: string, organizationId: string, status: VisitBedAllocationStatus, allocatedAt: string, releasedAt?: string | null, allocatedByStaffId: string, releasedByStaffId?: string | null, reason?: string | null, bed: { __typename?: 'Bed', id: string, name: string, bedCode: string, class: BedClass, status: BedStatus } } };
+
+export type TransferBedAllocationMutationVariables = Exact<{
+  data: TransferVisitBedAllocationInput;
+}>;
+
+
+export type TransferBedAllocationMutation = { __typename?: 'Mutation', transferBedAllocation: { __typename?: 'VisitBedAllocation', id: string, visitId: string, bedId: string, organizationId: string, status: VisitBedAllocationStatus, allocatedAt: string, allocatedByStaffId: string, reason?: string | null, bed: { __typename?: 'Bed', id: string, name: string, bedCode: string, class: BedClass, status: BedStatus } } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -3207,3 +3302,8 @@ export const StartTheatreProcedureDocument = {"kind":"Document","definitions":[{
 export const CompleteTheatreProcedureDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CompleteTheatreProcedure"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CompleteTheatreProcedureInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"completeTheatreProcedure"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"actualStartTime"}},{"kind":"Field","name":{"kind":"Name","value":"actualEndTime"}},{"kind":"Field","name":{"kind":"Name","value":"actualDurationMinutes"}},{"kind":"Field","name":{"kind":"Name","value":"theatre"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"procedure"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<CompleteTheatreProcedureMutation, CompleteTheatreProcedureMutationVariables>;
 export const AbortTheatreBookingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AbortTheatreBooking"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CancelTheatreBookingInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"abortTheatreBooking"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"cancellationReason"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledStartTime"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledEndTime"}},{"kind":"Field","name":{"kind":"Name","value":"theatre"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"procedure"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<AbortTheatreBookingMutation, AbortTheatreBookingMutationVariables>;
 export const GetProcedureTheatreBookingsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetProcedureTheatreBookings"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"procedureId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getProcedureTheatreBookings"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"procedureId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"procedureId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"theatreId"}},{"kind":"Field","name":{"kind":"Name","value":"procedureId"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledStartTime"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledEndTime"}},{"kind":"Field","name":{"kind":"Name","value":"actualStartTime"}},{"kind":"Field","name":{"kind":"Name","value":"actualEndTime"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"estimatedDurationMinutes"}},{"kind":"Field","name":{"kind":"Name","value":"actualDurationMinutes"}},{"kind":"Field","name":{"kind":"Name","value":"bookedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"delayReason"}},{"kind":"Field","name":{"kind":"Name","value":"cancellationReason"}},{"kind":"Field","name":{"kind":"Name","value":"theatre"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"procedure"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"events"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"occurredAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetProcedureTheatreBookingsQuery, GetProcedureTheatreBookingsQueryVariables>;
+export const FindBedAllocationByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindBedAllocationById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"bedAllocationById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"bedId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"releasedAt"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"releasedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"bed"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}},{"kind":"Field","name":{"kind":"Name","value":"visit"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitType"}},{"kind":"Field","name":{"kind":"Name","value":"visitDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"allocatedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"releasedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<FindBedAllocationByIdQuery, FindBedAllocationByIdQueryVariables>;
+export const GetBedAllocationsByVisitDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetBedAllocationsByVisit"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"bedAllocationsByVisit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"bedId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"releasedAt"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"releasedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"bed"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"wardId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}},{"kind":"Field","name":{"kind":"Name","value":"allocatedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"releasedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<GetBedAllocationsByVisitQuery, GetBedAllocationsByVisitQueryVariables>;
+export const CreateBedAllocationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateBedAllocation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitBedAllocationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createBedAllocation"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"bedId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"bed"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}}]} as unknown as DocumentNode<CreateBedAllocationMutation, CreateBedAllocationMutationVariables>;
+export const UpdateBedAllocationStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateBedAllocationStatus"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitBedAllocationStatusInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateBedAllocationStatus"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"bedId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"releasedAt"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"releasedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"bed"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateBedAllocationStatusMutation, UpdateBedAllocationStatusMutationVariables>;
+export const TransferBedAllocationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"TransferBedAllocation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"TransferVisitBedAllocationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"transferBedAllocation"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"bedId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"bed"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bedCode"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}}]} as unknown as DocumentNode<TransferBedAllocationMutation, TransferBedAllocationMutationVariables>;
