@@ -18,6 +18,7 @@ import VisitComplaintsSection from '../components/visit-complaints/VisitComplain
 import VisitDiagnosisSection from '../components/visit-diagnoses/VisitDiagnosisSection';
 import VisitPrescriptionsSection from '../components/visit-prescriptions/VisitPrescriptionsSection';
 import VisitBedAllocationSection from '../components/visit-bed-allocation/VisitBedAllocationsSection';
+import VisitNoteBoard from '../components/visit-note-positions/VisitNoteBoard';
 import Link from 'next/link';
 import { ClipboardList, FlaskConical } from 'lucide-react';
 
@@ -41,7 +42,7 @@ export default async function VisitDetailPage({ params }: Props) {
 
   return (
     <SessionGuard needsRefresh={false}>
-      <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-10">
+      <div className="relative min-h-screen bg-gray-50 p-4 sm:p-6 md:p-10">
         <div className="max-w-7xl mx-auto space-y-8">
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#E8E6E0] bg-white px-5 py-4">
             <div>
@@ -102,6 +103,8 @@ export default async function VisitDetailPage({ params }: Props) {
           <VisitBedAllocationSection visitId={visit.id} />
 
         </div>
+
+        <VisitNoteBoard visitId={visit.id} />
       </div>
     </SessionGuard>
   );
