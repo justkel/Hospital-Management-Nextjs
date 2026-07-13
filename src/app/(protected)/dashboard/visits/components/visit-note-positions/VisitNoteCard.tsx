@@ -62,8 +62,25 @@ export default function VisitNoteCard({
     return () => clearTimeout(timer);
   }, [index]);
 
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const createdAtMs = new Date(note.createdAt).getTime();
+    const windowMs = EDIT_WINDOW_MINUTES * 60 * 1000;
+
+    if (Date.now() - createdAtMs > windowMs) return;
+
+    const interval = setInterval(() => {
+      const current = Date.now();
+      setNow(current);
+      if (current - createdAtMs > windowMs) clearInterval(interval);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [note.createdAt]);
+
   const minutesSinceCreation =
-    (Date.now() - new Date(note.createdAt).getTime()) / (1000 * 60);
+    (now - new Date(note.createdAt).getTime()) / (1000 * 60);
   const editable = minutesSinceCreation <= EDIT_WINDOW_MINUTES;
   const remainingEditSeconds = Math.max(
     0,

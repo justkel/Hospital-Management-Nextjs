@@ -20,7 +20,7 @@ export default function VisitNoteBoard({ visitId }: Props) {
   const { getPosition, moveLocal, commitPosition, bringToFront } =
     useVisitNotePositions(visitId);
 
-  const [boardOpen, setBoardOpen] = useState(false);
+  const [boardOpen, setBoardOpen] = useState(true);
   const [composing, setComposing] = useState(false);
   const [draft, setDraft] = useState('');
 
