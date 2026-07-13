@@ -495,6 +495,13 @@ export type CreateVisitProcedureResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+export type CreateVisitTaskInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  dueAt?: InputMaybe<Scalars['String']['input']>;
+  taskType: VisitTaskType;
+  visitId: Scalars['ID']['input'];
+};
+
 export type CreateVisitVitalInput = {
   bloodPressure?: InputMaybe<Scalars['String']['input']>;
   chargeCatalogId?: InputMaybe<Scalars['ID']['input']>;
@@ -665,6 +672,7 @@ export type Mutation = {
   createVisitPrescription: VisitPrescription;
   createVisitProcedure: CreateVisitProcedureResponse;
   createVisitProcedureEvent: VisitProcedureEvent;
+  createVisitTask: VisitTask;
   createVisitVital: VisitVital;
   createWard: Ward;
   createWardIncident: WardIncident;
@@ -702,6 +710,8 @@ export type Mutation = {
   updateVisitPrescription: VisitPrescription;
   updateVisitProcedure: VisitProcedure;
   updateVisitProcedureStaff: Array<ProcedureStaffResult>;
+  updateVisitTask: VisitTask;
+  updateVisitTaskStatus: VisitTask;
   updateVisitVital: VisitVital;
   updateWard: Ward;
   updateWardIncident: WardIncident;
@@ -852,6 +862,11 @@ export type MutationCreateVisitProcedureArgs = {
 
 export type MutationCreateVisitProcedureEventArgs = {
   data: CreateVisitProcedureEventInput;
+};
+
+
+export type MutationCreateVisitTaskArgs = {
+  data: CreateVisitTaskInput;
 };
 
 
@@ -1031,6 +1046,16 @@ export type MutationUpdateVisitProcedureStaffArgs = {
 };
 
 
+export type MutationUpdateVisitTaskArgs = {
+  data: UpdateVisitTaskInput;
+};
+
+
+export type MutationUpdateVisitTaskStatusArgs = {
+  data: UpdateVisitTaskStatusInput;
+};
+
+
 export type MutationUpdateVisitVitalArgs = {
   data: UpdateVisitVitalInput;
 };
@@ -1191,6 +1216,7 @@ export type Query = {
   visitProcedureStaff: Array<ProcedureStaffResult>;
   visitProcedures: VisitProcedurePaginationResult;
   visitProceduresByVisit: Array<VisitProcedure>;
+  visitTasksByVisit: Array<VisitTask>;
   visitVitals: Array<VisitVital>;
   visits: VisitPaginationResult;
   visitsByPatientUserCode: Array<Visit>;
@@ -1433,6 +1459,11 @@ export type QueryVisitProceduresArgs = {
 
 
 export type QueryVisitProceduresByVisitArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitTasksByVisitArgs = {
   visitId: Scalars['ID']['input'];
 };
 
@@ -1962,6 +1993,18 @@ export type UpdateVisitProcedureInput = {
   visitProcedureId: Scalars['ID']['input'];
 };
 
+export type UpdateVisitTaskInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  dueAt?: InputMaybe<Scalars['String']['input']>;
+  taskType?: InputMaybe<VisitTaskType>;
+  visitTaskId: Scalars['ID']['input'];
+};
+
+export type UpdateVisitTaskStatusInput = {
+  status: VisitTaskStatus;
+  visitTaskId: Scalars['ID']['input'];
+};
+
 export type UpdateVisitVitalInput = {
   bloodPressure?: InputMaybe<Scalars['String']['input']>;
   heartRate?: InputMaybe<Scalars['Int']['input']>;
@@ -2275,6 +2318,39 @@ export enum VisitStatus {
   Closed = 'CLOSED',
   Discharged = 'DISCHARGED',
   Open = 'OPEN'
+}
+
+export type VisitTask = {
+  __typename?: 'VisitTask';
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  completedBy?: Maybe<Staff>;
+  completedByStaffId?: Maybe<Scalars['ID']['output']>;
+  createdBy?: Maybe<Staff>;
+  createdByStaffId?: Maybe<Scalars['ID']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  dueAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  isEmailSent: Scalars['Boolean']['output'];
+  status: VisitTaskStatus;
+  taskType: VisitTaskType;
+  visit: Visit;
+  visitId: Scalars['ID']['output'];
+};
+
+/** Status of a visit task */
+export enum VisitTaskStatus {
+  Cancelled = 'CANCELLED',
+  Done = 'DONE',
+  Pending = 'PENDING'
+}
+
+/** Type of task associated with a visit */
+export enum VisitTaskType {
+  FollowUp = 'FOLLOW_UP',
+  Imaging = 'IMAGING',
+  Lab = 'LAB',
+  Other = 'OTHER',
+  Referral = 'REFERRAL'
 }
 
 /** Type of patient visit */
@@ -3291,6 +3367,34 @@ export type UpsertVisitNotePositionMutationVariables = Exact<{
 
 export type UpsertVisitNotePositionMutation = { __typename?: 'Mutation', upsertVisitNotePosition: { __typename?: 'VisitNotePosition', id: string, visitNoteId: string, staffId: string, positionX: number, positionY: number, zIndex: number } };
 
+export type GetVisitTasksByVisitQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitTasksByVisitQuery = { __typename?: 'Query', visitTasksByVisit: Array<{ __typename?: 'VisitTask', id: string, visitId: string, taskType: VisitTaskType, description?: string | null, status: VisitTaskStatus, dueAt?: string | null, isEmailSent: boolean, createdByStaffId?: string | null, completedByStaffId?: string | null, completedAt?: string | null, createdBy?: { __typename?: 'Staff', id: string, userCode: number, fullName: string } | null, completedBy?: { __typename?: 'Staff', id: string, userCode: number, fullName: string } | null }> };
+
+export type CreateVisitTaskMutationVariables = Exact<{
+  data: CreateVisitTaskInput;
+}>;
+
+
+export type CreateVisitTaskMutation = { __typename?: 'Mutation', createVisitTask: { __typename?: 'VisitTask', id: string, visitId: string, taskType: VisitTaskType, description?: string | null, status: VisitTaskStatus, dueAt?: string | null, isEmailSent: boolean, createdByStaffId?: string | null, createdBy?: { __typename?: 'Staff', id: string, userCode: number, fullName: string } | null } };
+
+export type UpdateVisitTaskMutationVariables = Exact<{
+  data: UpdateVisitTaskInput;
+}>;
+
+
+export type UpdateVisitTaskMutation = { __typename?: 'Mutation', updateVisitTask: { __typename?: 'VisitTask', id: string, visitId: string, taskType: VisitTaskType, description?: string | null, status: VisitTaskStatus, dueAt?: string | null, isEmailSent: boolean, createdByStaffId?: string | null, createdBy?: { __typename?: 'Staff', id: string, userCode: number, fullName: string } | null } };
+
+export type UpdateVisitTaskStatusMutationVariables = Exact<{
+  data: UpdateVisitTaskStatusInput;
+}>;
+
+
+export type UpdateVisitTaskStatusMutation = { __typename?: 'Mutation', updateVisitTaskStatus: { __typename?: 'VisitTask', id: string, visitId: string, taskType: VisitTaskType, status: VisitTaskStatus, dueAt?: string | null, isEmailSent: boolean, completedByStaffId?: string | null, completedAt?: string | null, completedBy?: { __typename?: 'Staff', id: string, userCode: number, fullName: string } | null } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -3418,3 +3522,7 @@ export const CreateVisitNoteDocument = {"kind":"Document","definitions":[{"kind"
 export const UpdateVisitNoteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitNote"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitNoteInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitNote"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"note"}},{"kind":"Field","name":{"kind":"Name","value":"authorStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateVisitNoteMutation, UpdateVisitNoteMutationVariables>;
 export const GetVisitNotePositionsByVisitDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitNotePositionsByVisit"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitNotePositionsByVisit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitNoteId"}},{"kind":"Field","name":{"kind":"Name","value":"staffId"}},{"kind":"Field","name":{"kind":"Name","value":"positionX"}},{"kind":"Field","name":{"kind":"Name","value":"positionY"}},{"kind":"Field","name":{"kind":"Name","value":"zIndex"}}]}}]}}]} as unknown as DocumentNode<GetVisitNotePositionsByVisitQuery, GetVisitNotePositionsByVisitQueryVariables>;
 export const UpsertVisitNotePositionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpsertVisitNotePosition"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpsertVisitNotePositionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"upsertVisitNotePosition"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitNoteId"}},{"kind":"Field","name":{"kind":"Name","value":"staffId"}},{"kind":"Field","name":{"kind":"Name","value":"positionX"}},{"kind":"Field","name":{"kind":"Name","value":"positionY"}},{"kind":"Field","name":{"kind":"Name","value":"zIndex"}}]}}]}}]} as unknown as DocumentNode<UpsertVisitNotePositionMutation, UpsertVisitNotePositionMutationVariables>;
+export const GetVisitTasksByVisitDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitTasksByVisit"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitTasksByVisit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"taskType"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"dueAt"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailSent"}},{"kind":"Field","name":{"kind":"Name","value":"createdByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"completedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"completedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<GetVisitTasksByVisitQuery, GetVisitTasksByVisitQueryVariables>;
+export const CreateVisitTaskDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVisitTask"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitTaskInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVisitTask"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"taskType"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"dueAt"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailSent"}},{"kind":"Field","name":{"kind":"Name","value":"createdByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<CreateVisitTaskMutation, CreateVisitTaskMutationVariables>;
+export const UpdateVisitTaskDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitTask"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitTaskInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitTask"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"taskType"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"dueAt"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailSent"}},{"kind":"Field","name":{"kind":"Name","value":"createdByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateVisitTaskMutation, UpdateVisitTaskMutationVariables>;
+export const UpdateVisitTaskStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitTaskStatus"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitTaskStatusInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitTaskStatus"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"taskType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"dueAt"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailSent"}},{"kind":"Field","name":{"kind":"Name","value":"completedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateVisitTaskStatusMutation, UpdateVisitTaskStatusMutationVariables>;

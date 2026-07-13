@@ -2679,3 +2679,87 @@ mutation UpsertVisitNotePosition($data: UpsertVisitNotePositionInput!) {
     zIndex
   }
 }
+
+query GetVisitTasksByVisit($visitId: ID!) {
+  visitTasksByVisit(visitId: $visitId) {
+    id
+    visitId
+    taskType
+    description
+    status
+    dueAt
+    isEmailSent
+    createdByStaffId
+    completedByStaffId
+    completedAt
+
+    createdBy {
+      id
+      userCode
+      fullName
+    }
+
+    completedBy {
+      id
+      userCode
+      fullName
+    }
+  }
+}
+
+mutation CreateVisitTask($data: CreateVisitTaskInput!) {
+  createVisitTask(data: $data) {
+    id
+    visitId
+    taskType
+    description
+    status
+    dueAt
+    isEmailSent
+    createdByStaffId
+
+    createdBy {
+      id
+      userCode
+      fullName
+    }
+  }
+}
+
+mutation UpdateVisitTask($data: UpdateVisitTaskInput!) {
+  updateVisitTask(data: $data) {
+    id
+    visitId
+    taskType
+    description
+    status
+    dueAt
+    isEmailSent
+    createdByStaffId
+
+    createdBy {
+      id
+      userCode
+      fullName
+    }
+  }
+}
+
+mutation UpdateVisitTaskStatus($data: UpdateVisitTaskStatusInput!) {
+  updateVisitTaskStatus(data: $data) {
+    id
+    visitId
+    taskType
+    status
+    dueAt
+    isEmailSent
+    completedByStaffId
+    completedAt
+
+    completedBy {
+      id
+      userCode
+      fullName
+    }
+  }
+}
