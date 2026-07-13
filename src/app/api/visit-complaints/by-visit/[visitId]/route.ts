@@ -15,46 +15,55 @@ export async function GET(
   req: Request,
   context: { params: Promise<{ visitId: string }> }
 ) {
-  const { visitId } = await context.params;
+  try {
+    const { visitId } = await context.params;
 
-  if (!visitId) {
-    return NextResponse.json({ error: 'Missing visitId' }, { status: 400 });
-  }
+    if (!visitId) {
+      return NextResponse.json({ error: 'Missing visitId' }, { status: 400 });
+    }
 
-  const accessToken = (await cookies()).get('access_token')?.value;
+    const accessToken = (await cookies()).get('access_token')?.value;
 
-  if (!accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+    if (!accessToken) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-  const res = await fetch(GATEWAY_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({
-      query: print(VisitComplaintsDocument),
-      variables: { visitId } as VisitComplaintsQueryVariables,
-    }),
-  });
+    const res = await fetch(GATEWAY_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        query: print(VisitComplaintsDocument),
+        variables: { visitId } as VisitComplaintsQueryVariables,
+      }),
+    });
 
-  const json: {
-    data?: VisitComplaintsQuery;
-    errors?: GraphQLErrorShape[];
-  } = await res.json();
+    const json: {
+      data?: VisitComplaintsQuery;
+      errors?: GraphQLErrorShape[];
+    } = await res.json();
 
-  const errorResponse = handleGraphQLError(json.errors);
-  if (errorResponse) return errorResponse;
+    const errorResponse = handleGraphQLError(json.errors);
+    if (errorResponse) return errorResponse;
 
-  if (!json.data?.visitComplaints) {
+    if (!json.data?.visitComplaints) {
+      return NextResponse.json(
+        { error: 'Failed to fetch visit complaints' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      complaints: json.data?.visitComplaints ?? [],
+    });
+  } catch (error) {
+    console.error('VisitComplaints API error:', error);
+
     return NextResponse.json(
-      { error: 'Failed to fetch visit complaints' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
-
-  return NextResponse.json({
-    complaints: json.data?.visitComplaints ?? [],
-  });
 }
