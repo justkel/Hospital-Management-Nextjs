@@ -18,6 +18,7 @@ import VisitComplaintsSection from '../components/visit-complaints/VisitComplain
 import VisitDiagnosisSection from '../components/visit-diagnoses/VisitDiagnosisSection';
 import VisitPrescriptionsSection from '../components/visit-prescriptions/VisitPrescriptionsSection';
 import VisitBedAllocationSection from '../components/visit-bed-allocation/VisitBedAllocationsSection';
+import VisitTasksSection from '../components/visit-tasks/VisitTasksSection';
 import VisitNoteBoard from '../components/visit-note-positions/VisitNoteBoard';
 import Link from 'next/link';
 import { ClipboardList, FlaskConical } from 'lucide-react';
@@ -101,6 +102,7 @@ export default async function VisitDetailPage({ params }: Props) {
           <VisitDiagnosisSection visitId={visit.id} />
           <VisitPrescriptionsSection visitId={visit.id} />
           <VisitBedAllocationSection visitId={visit.id} />
+          <VisitTasksSection visitId={visit.id} />
 
         </div>
 
