@@ -125,7 +125,7 @@ export default function DashboardShell({
     const close = () => setMenuOpen(false);
 
     const userMenuItems = [
-        { key: 'profile', icon: <UserOutlined />, label: 'Profile' },
+        { key: 'profile', icon: <UserOutlined />, label: <Link href="/dashboard/profile">Profile</Link> },
         { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
         { type: 'divider' as const },
         { key: 'logout', icon: <LogoutOutlined />, label: 'Sign out', danger: true, onClick: () => setLogoutModal(true) },
