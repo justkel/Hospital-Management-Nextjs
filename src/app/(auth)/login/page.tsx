@@ -8,6 +8,7 @@ import {
 import { loginAction } from '@/lib/auth/login.action';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import Link from 'next/link';
 import { Activity, AlertCircle, ArrowRight, CreditCard, FileText, IdCard, ShieldCheck, Users } from 'lucide-react';
 
 const STATUS_MESSAGE_MAP: Record<string, string> = {
@@ -189,6 +190,15 @@ export default function LoginPage() {
                 />
               </div>
             </Form.Item>
+
+            <div className="mb-2 flex justify-end">
+              <Link
+                href="/forgot-password"
+                className="text-[12px] font-medium text-[#1D9E75] hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
 
             <Button
               htmlType="submit"
