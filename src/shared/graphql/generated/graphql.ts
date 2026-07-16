@@ -647,6 +647,7 @@ export type Mutation = {
   bulkAssignVisitProcedureStaff: Array<ProcedureStaffResult>;
   cancelTheatreBooking: TheatreBooking;
   cancelVisitProcedure: VisitProcedure;
+  changeStaffPassword: AuthResponse;
   cloneGlobalCategoryToOrganization: BillingCatalogueCategory;
   completeLabRequest: LabRequest;
   completeTheatreProcedure: TheatreBooking;
@@ -680,6 +681,8 @@ export type Mutation = {
   logout: Scalars['Boolean']['output'];
   reallocateTheatreBooking: TheatreBooking;
   refreshToken: AuthResponse;
+  requestPasswordReset: Scalars['Boolean']['output'];
+  resetPassword: Scalars['Boolean']['output'];
   resolveTheatreBlock: TheatreBlock;
   staffLogin: LoginAuthResponse;
   startLabRequest: LabRequest;
@@ -737,6 +740,11 @@ export type MutationCancelTheatreBookingArgs = {
 export type MutationCancelVisitProcedureArgs = {
   cancellationReason: Scalars['String']['input'];
   procedureId: Scalars['ID']['input'];
+};
+
+
+export type MutationChangeStaffPasswordArgs = {
+  input: UpdateStaffPasswordInput;
 };
 
 
@@ -892,6 +900,16 @@ export type MutationDelayTheatreBookingArgs = {
 
 export type MutationReallocateTheatreBookingArgs = {
   data: ReallocateTheatreBookingInput;
+};
+
+
+export type MutationRequestPasswordResetArgs = {
+  input: RequestPasswordResetInput;
+};
+
+
+export type MutationResetPasswordArgs = {
+  input: ResetPasswordInput;
 };
 
 
@@ -1202,6 +1220,7 @@ export type Query = {
   theatreIncidentsByTheatre: TheatreIncidentPaginationResult;
   theatreScheduleForDay: TheatreScheduleForDay;
   theatres: TheatrePaginationResult;
+  validatePasswordResetToken: Scalars['Boolean']['output'];
   visit: Visit;
   visitChargeExistsByDomain: Scalars['Boolean']['output'];
   visitComplaintById: VisitComplaint;
@@ -1392,6 +1411,11 @@ export type QueryTheatresArgs = {
 };
 
 
+export type QueryValidatePasswordResetTokenArgs = {
+  token: Scalars['String']['input'];
+};
+
+
 export type QueryVisitArgs = {
   id: Scalars['String']['input'];
 };
@@ -1514,6 +1538,15 @@ export type ReallocateTheatreBookingInput = {
   scheduledEndTime?: InputMaybe<Scalars['DateTime']['input']>;
   scheduledStartTime?: InputMaybe<Scalars['DateTime']['input']>;
   theatreBookingId: Scalars['ID']['input'];
+};
+
+export type RequestPasswordResetInput = {
+  email: Scalars['String']['input'];
+};
+
+export type ResetPasswordInput = {
+  newPassword: Scalars['String']['input'];
+  token: Scalars['String']['input'];
 };
 
 export type ResolveTheatreBlockInput = {
@@ -3395,6 +3428,13 @@ export type UpdateVisitTaskStatusMutationVariables = Exact<{
 
 export type UpdateVisitTaskStatusMutation = { __typename?: 'Mutation', updateVisitTaskStatus: { __typename?: 'VisitTask', id: string, visitId: string, taskType: VisitTaskType, status: VisitTaskStatus, dueAt?: string | null, isEmailSent: boolean, completedByStaffId?: string | null, completedAt?: string | null, completedBy?: { __typename?: 'Staff', id: string, userCode: number, fullName: string } | null } };
 
+export type ChangeStaffPasswordMutationVariables = Exact<{
+  input: UpdateStaffPasswordInput;
+}>;
+
+
+export type ChangeStaffPasswordMutation = { __typename?: 'Mutation', changeStaffPassword: { __typename?: 'AuthResponse', accessToken: string, refreshToken?: string | null } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -3526,3 +3566,4 @@ export const GetVisitTasksByVisitDocument = {"kind":"Document","definitions":[{"
 export const CreateVisitTaskDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVisitTask"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitTaskInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVisitTask"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"taskType"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"dueAt"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailSent"}},{"kind":"Field","name":{"kind":"Name","value":"createdByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<CreateVisitTaskMutation, CreateVisitTaskMutationVariables>;
 export const UpdateVisitTaskDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitTask"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitTaskInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitTask"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"taskType"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"dueAt"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailSent"}},{"kind":"Field","name":{"kind":"Name","value":"createdByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateVisitTaskMutation, UpdateVisitTaskMutationVariables>;
 export const UpdateVisitTaskStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitTaskStatus"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitTaskStatusInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitTaskStatus"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"taskType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"dueAt"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailSent"}},{"kind":"Field","name":{"kind":"Name","value":"completedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateVisitTaskStatusMutation, UpdateVisitTaskStatusMutationVariables>;
+export const ChangeStaffPasswordDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ChangeStaffPassword"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateStaffPasswordInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"changeStaffPassword"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<ChangeStaffPasswordMutation, ChangeStaffPasswordMutationVariables>;

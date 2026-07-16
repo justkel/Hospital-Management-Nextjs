@@ -2763,3 +2763,10 @@ mutation UpdateVisitTaskStatus($data: UpdateVisitTaskStatusInput!) {
     }
   }
 }
+
+mutation ChangeStaffPassword($input: UpdateStaffPasswordInput!) {
+  changeStaffPassword(input: $input) {
+    accessToken
+    refreshToken
+  }
+}
