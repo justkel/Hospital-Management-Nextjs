@@ -8,6 +8,7 @@ import {
     PatientStatus,
 } from '@/shared/graphql/generated/graphql';
 import { clientFetch } from '@/lib/clientFetch';
+import { useUrlFilters } from '@/hooks/useUrlFilters';
 import CreatePatientModal from './components/CreatePatientModal';
 import PatientCard from './components/PatientCard';
 import { Search, UserPlus, Users } from 'lucide-react';
@@ -20,21 +21,25 @@ export default function PatientManagementClient({
 }: {
     paginated: GetAllPatientsQuery['patients'];
 }) {
+    const { searchParams, update } = useUrlFilters();
+
     const [list, setList] = useState<PatientListItem[]>(paginated.items);
 
     const [page, setPage] = useState(paginated.page);
     const [total, setTotal] = useState(paginated.total);
-    const [limit, setLimit] = useState(20);
+    const [limit, setLimit] = useState(Number(searchParams.get('limit')) || 20);
 
-    const [search, setSearch] = useState('');
-    const [statusFilter, setStatusFilter] = useState<PatientStatus | 'ALL'>('ALL');
+    const [search, setSearch] = useState(searchParams.get('search') ?? '');
+    const [statusFilter, setStatusFilter] = useState<PatientStatus | 'ALL'>(
+        (searchParams.get('status') as PatientStatus) ?? 'ALL',
+    );
     const [openCreate, setOpenCreate] = useState(false);
 
     async function fetchPatients(
         nextPage: number,
-        nextLimit = limit,
-        nextSearch = search,
-        nextStatus = statusFilter,
+        nextLimit: number,
+        nextSearch: string,
+        nextStatus: PatientStatus | 'ALL',
     ) {
         const params = new URLSearchParams({
             page: String(nextPage),
@@ -58,6 +63,26 @@ export default function PatientManagementClient({
         setTotal(json.patients.total);
         setList(json.patients.items);
     }
+
+    function applyFilters(next: {
+        page: number;
+        limit: number;
+        search: string;
+        status: PatientStatus | 'ALL';
+    }) {
+        setStatusFilter(next.status);
+        setLimit(next.limit);
+
+        update({
+            search: next.search.trim() || undefined,
+            status: next.status === 'ALL' ? undefined : next.status,
+            page: next.page,
+            limit: next.limit,
+        });
+
+        fetchPatients(next.page, next.limit, next.search, next.status);
+    }
+
     const isFirstRender = useRef(true);
 
     useEffect(() => {
@@ -67,7 +92,7 @@ export default function PatientManagementClient({
         }
 
         const t = setTimeout(() => {
-            fetchPatients(1, limit, search, statusFilter);
+            applyFilters({ page: 1, limit, search, status: statusFilter });
         }, 350);
 
         return () => clearTimeout(t);
@@ -192,8 +217,7 @@ export default function PatientManagementClient({
                     total={total}
                     showSizeChanger
                     onChange={(p, l) => {
-                        setLimit(l);
-                        fetchPatients(p, l, search, statusFilter);
+                        applyFilters({ page: p, limit: l, search, status: statusFilter });
                     }}
                 />
             </div>
