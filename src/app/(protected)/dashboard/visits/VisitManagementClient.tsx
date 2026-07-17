@@ -8,6 +8,7 @@ import {
   VisitType,
 } from '@/shared/graphql/generated/graphql';
 import { clientFetch } from '@/lib/clientFetch';
+import { useUrlFilters } from '@/hooks/useUrlFilters';
 import Link from 'next/link';
 import { Bed, CalendarClock, ClipboardList, MessageCircle, RotateCw, Scissors, Stethoscope, Video } from 'lucide-react';
 
@@ -19,19 +20,25 @@ export default function VisitManagementClient({
 }: {
   paginated: FindAllVisitsQuery['visits'];
 }) {
+  const { searchParams, update } = useUrlFilters();
+
   const [list, setList] = useState<VisitListItem[]>(paginated.items);
   const [page, setPage] = useState(paginated.page);
   const [total, setTotal] = useState(paginated.total);
-  const [limit, setLimit] = useState(20);
+  const [limit, setLimit] = useState(Number(searchParams.get('limit')) || 20);
 
-  const [statusFilter, setStatusFilter] = useState<VisitStatus | 'ALL'>('ALL');
-  const [typeFilter, setTypeFilter] = useState<VisitType | 'ALL'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<VisitStatus | 'ALL'>(
+    (searchParams.get('status') as VisitStatus) ?? 'ALL',
+  );
+  const [typeFilter, setTypeFilter] = useState<VisitType | 'ALL'>(
+    (searchParams.get('visitType') as VisitType) ?? 'ALL',
+  );
 
   async function fetchPage(
     nextPage: number,
-    nextLimit = limit,
-    nextStatus = statusFilter,
-    nextType = typeFilter,
+    nextLimit: number,
+    nextStatus: VisitStatus | 'ALL',
+    nextType: VisitType | 'ALL',
   ) {
     const params = new URLSearchParams({
       page: String(nextPage),
@@ -56,14 +63,32 @@ export default function VisitManagementClient({
     setList(json.visits.items);
   }
 
+  function applyFilters(next: {
+    page: number;
+    limit: number;
+    status: VisitStatus | 'ALL';
+    type: VisitType | 'ALL';
+  }) {
+    setStatusFilter(next.status);
+    setTypeFilter(next.type);
+    setLimit(next.limit);
+
+    update({
+      status: next.status === 'ALL' ? undefined : next.status,
+      visitType: next.type === 'ALL' ? undefined : next.type,
+      page: next.page,
+      limit: next.limit,
+    });
+
+    fetchPage(next.page, next.limit, next.status, next.type);
+  }
+
   function handleStatusFilterChange(next: VisitStatus | 'ALL') {
-    setStatusFilter(next);
-    fetchPage(1, limit, next, typeFilter);
+    applyFilters({ page: 1, limit, status: next, type: typeFilter });
   }
 
   function handleTypeFilterChange(next: VisitType | 'ALL') {
-    setTypeFilter(next);
-    fetchPage(1, limit, statusFilter, next);
+    applyFilters({ page: 1, limit, status: statusFilter, type: next });
   }
 
   const TYPE_ICON: Record<VisitType, React.ReactNode> = {
@@ -255,8 +280,7 @@ export default function VisitManagementClient({
             total={total}
             showSizeChanger
           onChange={(p, l) => {
-            setLimit(l);
-            fetchPage(p, l, statusFilter, typeFilter);
+            applyFilters({ page: p, limit: l, status: statusFilter, type: typeFilter });
           }}
           />
         </div>
@@ -264,4 +288,3 @@ export default function VisitManagementClient({
     );
 
   }
-  
