@@ -12,8 +12,10 @@ export default async function StaffPage() {
     graphqlFetch<GetAllStaffQuery, GetAllStaffQueryVariables>(
       GetAllStaffDocument,
       {
-        page: 1,
-        limit: 25,
+        pagination: {
+          page: 1,
+          limit: 25,
+        },
       }
     ),
   ]);
@@ -21,7 +23,6 @@ export default async function StaffPage() {
   if (!data) {
     return <SessionGuard needsRefresh />;
   }
-
 
   return (
     <SessionGuard needsRefresh={false}>

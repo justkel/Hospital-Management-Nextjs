@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pagination } from 'antd';
 import {
   StaffRole,
@@ -24,7 +24,6 @@ export default function StaffManagementClient({
   paginated: StaffsQueryResult;
 }) {
   const [list, setList] = useState<StaffItem[]>(paginated.items);
-  const [baseList, setBaseList] = useState<StaffItem[]>(paginated.items);
 
   const [page, setPage] = useState(paginated.page);
   const [limit, setLimit] = useState(25);
@@ -42,15 +41,25 @@ export default function StaffManagementClient({
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  async function fetchPage(nextPage: number, nextLimit = limit) {
+  async function fetchStaff(
+    nextPage: number,
+    nextLimit = limit,
+    nextSearch = search,
+  ) {
     try {
-      const res = await clientFetch(
-        `/api/staff/staff-list?page=${nextPage}&limit=${nextLimit}`,
-        {
-          method: 'GET',
-          credentials: 'include',
-        }
-      );
+      const params = new URLSearchParams({
+        page: String(nextPage),
+        limit: String(nextLimit),
+      });
+
+      if (nextSearch.trim()) {
+        params.set('search', nextSearch.trim());
+      }
+
+      const res = await clientFetch(`/api/staff/staff-list?${params.toString()}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
 
       const json = await res.json();
 
@@ -63,29 +72,27 @@ export default function StaffManagementClient({
 
       setPage(data.page);
       setTotal(data.total);
-      setBaseList(data.items);
       setList(data.items);
     } catch (err) {
       console.error(err);
     }
   }
 
-  useEffect(() => {
-    const run = async () => {
-      if (!search.trim()) {
-        setList(baseList);
-        return;
-      }
+  const isFirstRender = useRef(true);
 
-      const res = await clientFetch(
-        `/api/staff/search?query=${encodeURIComponent(search)}`
-      );
-      const json = await res.json();
-      setList(json.staff ?? []);
-    };
-    const t = setTimeout(run, 350);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    const t = setTimeout(() => {
+      fetchStaff(1, limit, search);
+    }, 350);
+
     return () => clearTimeout(t);
-  }, [search, baseList]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const filtered = useMemo(() => {
     return roleFilter === 'ALL'
@@ -132,9 +139,6 @@ export default function StaffManagementClient({
       return;
     }
 
-    setBaseList(prev =>
-      prev.map(s => (s.id === json.staff.id ? json.staff : s))
-    );
     setList(prev =>
       prev.map(s => (s.id === json.staff.id ? json.staff : s))
     );
@@ -162,7 +166,6 @@ export default function StaffManagementClient({
 
     const staff = json.staff;
 
-    setBaseList(prev => [staff, ...prev]);
     setList(prev => [staff, ...prev]);
     setTotal(t => t + 1);
   }
@@ -296,7 +299,7 @@ export default function StaffManagementClient({
           showSizeChanger
           onChange={(p, l) => {
             setLimit(l);
-            fetchPage(p, l);
+            fetchStaff(p, l, search);
           }}
         />
       </div>
@@ -314,7 +317,6 @@ export default function StaffManagementClient({
           loading={loadingDetails}
           onClose={closeDetails}
           onStatusUpdated={updatedStaff => {
-            setBaseList(prev => prev.map(s => s.id === updatedStaff.id ? updatedStaff : s));
             setList(prev => prev.map(s => s.id === updatedStaff.id ? updatedStaff : s));
           }}
         />

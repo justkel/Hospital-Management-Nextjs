@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pagination } from 'antd';
 import {
     GetAllPatientsQuery,
@@ -21,47 +21,58 @@ export default function PatientManagementClient({
     paginated: GetAllPatientsQuery['patients'];
 }) {
     const [list, setList] = useState<PatientListItem[]>(paginated.items);
-    const [baseList, setBaseList] = useState<PatientListItem[]>(paginated.items);
 
     const [page, setPage] = useState(paginated.page);
     const [total, setTotal] = useState(paginated.total);
     const [limit, setLimit] = useState(20);
 
     const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState<PatientStatus | 'ALL'>('ALL');
     const [openCreate, setOpenCreate] = useState(false);
 
-    async function fetchPage(nextPage: number, nextLimit = limit) {
-        const res = await clientFetch(
-            `/api/patients/list?page=${nextPage}&limit=${nextLimit}`
-        );
+    async function fetchPatients(
+        nextPage: number,
+        nextLimit = limit,
+        nextSearch = search,
+        nextStatus = statusFilter,
+    ) {
+        const params = new URLSearchParams({
+            page: String(nextPage),
+            limit: String(nextLimit),
+        });
+
+        if (nextSearch.trim()) {
+            params.set('search', nextSearch.trim());
+        }
+
+        if (nextStatus !== 'ALL') {
+            params.set('status', nextStatus);
+        }
+
+        const res = await clientFetch(`/api/patients/list?${params.toString()}`);
 
         const json = await res.json();
         if (!res.ok) return;
 
         setPage(json.patients.page);
         setTotal(json.patients.total);
-        setBaseList(json.patients.items);
         setList(json.patients.items);
     }
+    const isFirstRender = useRef(true);
 
     useEffect(() => {
-        const run = async () => {
-            if (!search.trim()) {
-                setList(baseList);
-                return;
-            }
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
 
-            const res = await clientFetch(
-                `/api/patients/search?query=${encodeURIComponent(search)}`
-            );
+        const t = setTimeout(() => {
+            fetchPatients(1, limit, search, statusFilter);
+        }, 350);
 
-            const json = await res.json();
-            setList(json.patients ?? []);
-        };
-
-        const t = setTimeout(run, 350);
         return () => clearTimeout(t);
-    }, [search, baseList]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [search, statusFilter]);
 
     async function handleCreate(data: CreatePatientInput) {
         const res = await clientFetch('/api/patients/create', {
@@ -73,7 +84,6 @@ export default function PatientManagementClient({
         const json = await res.json();
         if (!res.ok) throw new Error(json.error);
 
-        setBaseList(prev => [json.patient, ...prev]);
         setList(prev => [json.patient, ...prev]);
         setTotal(t => t + 1);
 
@@ -129,14 +139,32 @@ export default function PatientManagementClient({
                 </div>
             </div>
 
-            <div className="relative max-w-[300px]">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B4B2A9]" />
-                <input
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    placeholder="Search name or patient number…"
-                    className="h-[38px] w-full rounded-[9px] border border-[#E8E6E0] bg-white pl-9 pr-3 text-[13px] text-[#2C2C2A] placeholder-[#B4B2A9] outline-none transition focus:border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/10"
-                />
+            <div className="flex flex-wrap items-center gap-3">
+                <div className="relative min-w-[200px] flex-1 sm:max-w-[300px]">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B4B2A9]" />
+                    <input
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        placeholder="Search name or patient number…"
+                        className="h-[38px] w-full rounded-[9px] border border-[#E8E6E0] bg-white pl-9 pr-3 text-[13px] text-[#2C2C2A] placeholder-[#B4B2A9] outline-none transition focus:border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/10"
+                    />
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                    {(['ALL', ...Object.values(PatientStatus)] as const).map(s => (
+                        <button
+                            key={s}
+                            onClick={() => setStatusFilter(s)}
+                            className={`h-8 rounded-full px-3.5 text-[12px] font-medium transition border ${
+                                statusFilter === s
+                                    ? 'border-[#0c1a12] bg-[#0c1a12] text-white!'
+                                    : 'border-[#E8E6E0] bg-white text-[#5F5E5A] hover:border-[#D3D1C7] hover:text-[#2C2C2A]'
+                            }`}
+                        >
+                            {s}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -148,7 +176,11 @@ export default function PatientManagementClient({
                             <Users size={22} className="text-[#B4B2A9]" />
                         </div>
                         <p className="text-[13px] font-medium text-[#5F5E5A]">No patients found</p>
-                        <p className="mt-1 text-[12px] text-[#B4B2A9]">Try a different search or register a new patient</p>
+                        <p className="mt-1 text-[12px] text-[#B4B2A9]">
+                            {statusFilter === 'ALL'
+                                ? 'Try a different search or register a new patient'
+                                : `No patients with status "${statusFilter}".`}
+                        </p>
                     </div>
                 )}
             </div>
@@ -161,7 +193,7 @@ export default function PatientManagementClient({
                     showSizeChanger
                     onChange={(p, l) => {
                         setLimit(l);
-                        fetchPage(p, l);
+                        fetchPatients(p, l, search, statusFilter);
                     }}
                 />
             </div>
