@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
     message,
     Pagination,
@@ -14,6 +14,7 @@ import {
     BedClass,
     BedStatus,
     GetBedsQuery,
+    GetBedAllocationsByWardQuery,
 } from '@/shared/graphql/generated/graphql';
 
 import { clientFetch } from '@/lib/clientFetch';
@@ -25,13 +26,16 @@ import {
     StopFilled,
 } from '@ant-design/icons';
 
-import { Bed } from 'lucide-react';
+import { Bed, UserRound } from 'lucide-react';
 
 import BedForm from './forms/BedForm';
 import { STATUS_COLORS, CLASS_STYLES, getClassIcon } from './types';
 
 type BedItem =
     GetBedsQuery['beds']['items'][number];
+
+type AllocationItem =
+    GetBedAllocationsByWardQuery['visitBedAllocationsByWard'][number];
 
 export default function WardBedsSection({
     wardId,
@@ -59,6 +63,37 @@ export default function WardBedsSection({
 
     const [activeFilter, setActiveFilter] =
         useState<boolean | undefined>();
+
+    const [allocations, setAllocations] =
+        useState<AllocationItem[]>([]);
+
+    async function fetchAllocations() {
+        try {
+            const res = await clientFetch(
+                `/api/bed-allocation/by-ward?wardId=${wardId}`,
+            );
+
+            const json = await res.json();
+
+            if (!res.ok) return;
+
+            setAllocations(json.bedAllocations ?? []);
+        } catch {}
+    }
+
+    useEffect(() => {
+        fetchAllocations();
+    }, [wardId]);
+
+    const allocationByBedId = useMemo(() => {
+        const map = new Map<string, AllocationItem>();
+
+        for (const allocation of allocations) {
+            map.set(allocation.bedId, allocation);
+        }
+
+        return map;
+    }, [allocations]);
 
     async function fetchBeds(
         p = page,
@@ -172,6 +207,15 @@ export default function WardBedsSection({
         message.success(
             'Bed status updated',
         );
+    }
+
+    function formatAllocatedAt(value: string) {
+        return new Date(value).toLocaleString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
     }
 
     const hasFilters =
@@ -365,106 +409,136 @@ export default function WardBedsSection({
                         </div>
                         <div className="rounded-[28px] border border-slate-200 bg-white p-3 shadow-sm sm:p-5">
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                                {beds.map(bed => (
-                                    <div
-                                        key={bed.id}
-                                        className={`group relative overflow-hidden rounded-[22px] border p-3.5 sm:p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${STATUS_COLORS[bed.status]}`}
-                                    >
-                                        <div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-white/30 blur-2xl" />
+                                {beds.map(bed => {
+                                    const allocation = allocationByBedId.get(bed.id);
 
-                                        <div className="relative">
-                                            <div className="flex items-start justify-between gap-2">
-                                                <div className="flex min-w-0 items-center gap-3">
-                                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/70 shadow-sm">
-                                                        <Bed size={18} />
+                                    return (
+                                        <div
+                                            key={bed.id}
+                                            className={`group relative overflow-hidden rounded-[22px] border p-3.5 sm:p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${STATUS_COLORS[bed.status]}`}
+                                        >
+                                            <div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-white/30 blur-2xl" />
+
+                                            <div className="relative">
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="flex min-w-0 items-center gap-3">
+                                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/70 shadow-sm">
+                                                            <Bed size={18} />
+                                                        </div>
+
+                                                        <div className="min-w-0">
+                                                            <h3 className="truncate text-sm sm:text-base font-bold">
+                                                                {bed.name}
+                                                            </h3>
+
+                                                            <p className="hidden sm:block truncate text-[11px] opacity-60">
+                                                                {bed.bedCode || 'No code'}
+                                                            </p>
+                                                        </div>
                                                     </div>
 
-                                                    <div className="min-w-0">
-                                                        <h3 className="truncate text-sm sm:text-base font-bold">
-                                                            {bed.name}
-                                                        </h3>
-
-                                                        <p className="hidden sm:block truncate text-[11px] opacity-60">
-                                                            {bed.bedCode || 'No code'}
-                                                        </p>
-                                                    </div>
+                                                    <button
+                                                        onClick={e => {
+                                                            e.stopPropagation();
+                                                            setSelectedBed(bed);
+                                                        }}
+                                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/70 text-slate-700 shadow-sm transition hover:scale-105"
+                                                    >
+                                                        <EditOutlined className="text-[13px]" />
+                                                    </button>
                                                 </div>
 
-                                                <button
-                                                    onClick={e => {
-                                                        e.stopPropagation();
-                                                        setSelectedBed(bed);
-                                                    }}
-                                                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/70 text-slate-700 shadow-sm transition hover:scale-105"
-                                                >
-                                                    <EditOutlined className="text-[13px]" />
-                                                </button>
-                                            </div>
+                                                <div className="mt-3 flex flex-wrap items-center gap-2">
+                                                    <Tag
+                                                        className={`m-0 flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${CLASS_STYLES[bed.class]}`}
+                                                    >
+                                                        <span className="sm:hidden">
+                                                            {getClassIcon(bed.class)}
+                                                        </span>
 
-                                            <div className="mt-3 flex flex-wrap items-center gap-2">
-                                                <Tag
-                                                    className={`m-0 flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${CLASS_STYLES[bed.class]}`}
-                                                >
-                                                    <span className="sm:hidden">
-                                                        {getClassIcon(bed.class)}
-                                                    </span>
+                                                        <span className="hidden sm:flex items-center gap-1">
+                                                            {getClassIcon(bed.class)}
+                                                            {bed.class}
+                                                        </span>
+                                                    </Tag>
 
-                                                    <span className="hidden sm:flex items-center gap-1">
-                                                        {getClassIcon(bed.class)}
-                                                        {bed.class}
-                                                    </span>
-                                                </Tag>
+                                                    <Tag
+                                                        className={`m-0 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${bed.isActive
+                                                            ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
+                                                            : 'border-red-200 bg-red-100 text-red-700'
+                                                            }`}
+                                                    >
+                                                        <span className="sm:hidden">
+                                                            {bed.isActive ? '🟢' : '🔴'}
+                                                        </span>
 
-                                                <Tag
-                                                    className={`m-0 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${bed.isActive
-                                                        ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
-                                                        : 'border-red-200 bg-red-100 text-red-700'
-                                                        }`}
-                                                >
-                                                    <span className="sm:hidden">
-                                                        {bed.isActive ? '🟢' : '🔴'}
-                                                    </span>
+                                                        <span className="hidden sm:flex items-center gap-1">
+                                                            {bed.isActive ? (
+                                                                <>
+                                                                    <CheckCircleFilled />
+                                                                    Active
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <StopFilled />
+                                                                    Disabled
+                                                                </>
+                                                            )}
+                                                        </span>
+                                                    </Tag>
+                                                </div>
 
-                                                    <span className="hidden sm:flex items-center gap-1">
-                                                        {bed.isActive ? (
-                                                            <>
-                                                                <CheckCircleFilled />
-                                                                Active
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <StopFilled />
-                                                                Disabled
-                                                            </>
+                                                {allocation ? (
+                                                    <div className="mt-3 rounded-xl border border-white/50 bg-white/60 px-3 py-2.5">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <UserRound size={12} className="opacity-60" />
+                                                            <p className="text-[10px] font-semibold uppercase tracking-wide opacity-60">
+                                                                {allocation.status}
+                                                            </p>
+                                                        </div>
+
+                                                        <p className="mt-1 text-xs font-medium">
+                                                            Allocated by{' '}
+                                                            {allocation.allocatedBy?.fullName ?? 'Unknown staff'}
+                                                        </p>
+
+                                                        <p className="text-[11px] opacity-70">
+                                                            Since {formatAllocatedAt(allocation.allocatedAt)}
+                                                        </p>
+
+                                                        {allocation.reason && (
+                                                            <p className="mt-1 text-[11px] italic opacity-60">
+                                                                {allocation.reason}
+                                                            </p>
                                                         )}
-                                                    </span>
-                                                </Tag>
-                                            </div>
-
-                                            <div className="mt-3">
-                                                <select
-                                                    className="h-10 w-full rounded-xl border border-white/40 bg-white/80 px-3 text-xs sm:text-sm font-medium shadow-sm outline-none"
-                                                    value={bed.status}
-                                                    onChange={e =>
-                                                        updateStatus(
-                                                            bed,
-                                                            e.target.value as BedStatus,
-                                                        )
-                                                    }
-                                                >
-                                                    {Object.values(BedStatus).map(s => (
-                                                        <option
-                                                            key={s}
-                                                            value={s}
+                                                    </div>
+                                                ) : (
+                                                    <div className="mt-3">
+                                                        <select
+                                                            className="h-10 w-full rounded-xl border border-white/40 bg-white/80 px-3 text-xs sm:text-sm font-medium shadow-sm outline-none"
+                                                            value={bed.status}
+                                                            onChange={e =>
+                                                                updateStatus(
+                                                                    bed,
+                                                                    e.target.value as BedStatus,
+                                                                )
+                                                            }
                                                         >
-                                                            {s}
-                                                        </option>
-                                                    ))}
-                                                </select>
+                                                            {Object.values(BedStatus).map(s => (
+                                                                <option
+                                                                    key={s}
+                                                                    value={s}
+                                                                >
+                                                                    {s}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
 
