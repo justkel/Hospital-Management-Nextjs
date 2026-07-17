@@ -2520,6 +2520,43 @@ query GetBedAllocationsByVisit($visitId: ID!) {
   }
 }
 
+query GetBedAllocationsByWard($wardId: ID!) {
+  visitBedAllocationsByWard(wardId: $wardId) {
+    id
+    visitId
+    bedId
+    organizationId
+    status
+    allocatedAt
+    releasedAt
+    allocatedByStaffId
+    releasedByStaffId
+    reason
+
+    bed {
+      id
+      wardId
+      name
+      bedCode
+      class
+      status
+      isActive
+    }
+
+    allocatedBy {
+      id
+      userCode
+      fullName
+    }
+
+    releasedBy {
+      id
+      userCode
+      fullName
+    }
+  }
+}
+
 mutation CreateBedAllocation($data: CreateVisitBedAllocationInput!) {
   createBedAllocation(data: $data) {
     id
