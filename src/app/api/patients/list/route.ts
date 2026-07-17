@@ -24,6 +24,7 @@ export async function GET(req: Request) {
   const pageParam = searchParams.get('page');
   const limitParam = searchParams.get('limit');
   const statusParam = searchParams.get('status');
+  const searchParam = searchParams.get('search');
 
   const page = pageParam ? parseInt(pageParam) : 1;
   const limit = limitParam ? parseInt(limitParam) : 20;
@@ -47,6 +48,7 @@ export async function GET(req: Request) {
             page,
             limit,
             ...(status && { status }),
+            ...(searchParam && { search: searchParam }),
           },
         } as GetAllPatientsQueryVariables,
       }),

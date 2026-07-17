@@ -21,6 +21,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const pageParam = searchParams.get('page');
   const limitParam = searchParams.get('limit');
+  const searchParam = searchParams.get('search');
 
   const page = pageParam ? parseInt(pageParam) : 1;
   const limit = limitParam ? parseInt(limitParam) : 25;
@@ -34,7 +35,13 @@ export async function GET(req: Request) {
       },
       body: JSON.stringify({
         query: print(GetAllStaffDocument),
-        variables: { page, limit } as GetAllStaffQueryVariables,
+        variables: {
+          pagination: {
+            page,
+            limit,
+            ...(searchParam && { search: searchParam }),
+          },
+        } as GetAllStaffQueryVariables,
       }),
     });
 
@@ -48,7 +55,7 @@ export async function GET(req: Request) {
 
     if (!json.data?.staffs) {
       return NextResponse.json(
-        { error: 'Failed to fetch staffs' },
+        { error: 'Failed to fetch staff' },
         { status: 500 }
       );
     }
