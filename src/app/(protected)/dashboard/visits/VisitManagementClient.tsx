@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Pagination } from 'antd';
+import { Pagination, Select } from 'antd';
 import {
   FindAllVisitsQuery,
   VisitStatus,
@@ -24,10 +24,29 @@ export default function VisitManagementClient({
   const [total, setTotal] = useState(paginated.total);
   const [limit, setLimit] = useState(20);
 
-  async function fetchPage(nextPage: number, nextLimit = limit) {
-    const res = await clientFetch(
-      `/api/visit/list?page=${nextPage}&limit=${nextLimit}`
-    );
+  const [statusFilter, setStatusFilter] = useState<VisitStatus | 'ALL'>('ALL');
+  const [typeFilter, setTypeFilter] = useState<VisitType | 'ALL'>('ALL');
+
+  async function fetchPage(
+    nextPage: number,
+    nextLimit = limit,
+    nextStatus = statusFilter,
+    nextType = typeFilter,
+  ) {
+    const params = new URLSearchParams({
+      page: String(nextPage),
+      limit: String(nextLimit),
+    });
+
+    if (nextStatus !== 'ALL') {
+      params.set('status', nextStatus);
+    }
+
+    if (nextType !== 'ALL') {
+      params.set('visitType', nextType);
+    }
+
+    const res = await clientFetch(`/api/visit/list?${params.toString()}`);
 
     const json = await res.json();
     if (!res.ok) return;
@@ -35,6 +54,16 @@ export default function VisitManagementClient({
     setPage(json.visits.page);
     setTotal(json.visits.total);
     setList(json.visits.items);
+  }
+
+  function handleStatusFilterChange(next: VisitStatus | 'ALL') {
+    setStatusFilter(next);
+    fetchPage(1, limit, next, typeFilter);
+  }
+
+  function handleTypeFilterChange(next: VisitType | 'ALL') {
+    setTypeFilter(next);
+    fetchPage(1, limit, statusFilter, next);
   }
 
   const TYPE_ICON: Record<VisitType, React.ReactNode> = {
@@ -64,6 +93,40 @@ export default function VisitManagementClient({
       </span>
     );
   }
+
+  const statusOptions = [
+    { value: 'ALL' as const, label: 'All statuses' },
+    ...Object.values(VisitStatus).map(s => ({
+      value: s,
+      label: (
+        <span className="inline-flex items-center gap-1.5">
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ backgroundColor: STATUS_STYLES[s]?.includes('1D9E75') ? '#1D9E75'
+              : STATUS_STYLES[s]?.includes('2563EB') ? '#2563EB'
+              : STATUS_STYLES[s]?.includes('7C3AED') ? '#7C3AED'
+              : STATUS_STYLES[s]?.includes('DC2626') ? '#DC2626'
+              : '#B4B2A9' }}
+          />
+          {s}
+        </span>
+      ),
+    })),
+  ];
+
+  const typeOptions = [
+    { value: 'ALL' as const, label: 'All types' },
+    ...Object.values(VisitType).map(t => ({
+      value: t,
+      label: (
+        <span className="inline-flex items-center gap-1.5">
+          <span className="text-[#B4B2A9]">{TYPE_ICON[t]}</span>
+          {t.replace(/_/g, ' ')}
+        </span>
+      ),
+    })),
+  ];
+
     const openCount = list.filter(v => v.status === VisitStatus.Open).length;
     const admittedCount = list.filter(v => v.status === VisitStatus.Admitted).length;
     const closedCount = list.filter(v => v.status === VisitStatus.Closed || v.status === VisitStatus.Discharged).length;
@@ -101,6 +164,22 @@ export default function VisitManagementClient({
               ))}
             </div>
           </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Select
+            value={statusFilter}
+            onChange={handleStatusFilterChange}
+            options={statusOptions}
+            className="w-[170px] [&_.ant-select-selector]:!rounded-[9px] [&_.ant-select-selector]:!border-[#E8E6E0] [&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!items-center"
+          />
+
+          <Select
+            value={typeFilter}
+            onChange={handleTypeFilterChange}
+            options={typeOptions}
+            className="w-[200px] [&_.ant-select-selector]:!rounded-[9px] [&_.ant-select-selector]:!border-[#E8E6E0] [&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!items-center"
+          />
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -160,7 +239,11 @@ export default function VisitManagementClient({
                 <ClipboardList size={22} className="text-[#B4B2A9]" />
               </div>
               <p className="text-[13px] font-medium text-[#5F5E5A]">No visits found</p>
-              <p className="mt-1 text-[12px] text-[#B4B2A9]">Patient visits will appear here once created</p>
+              <p className="mt-1 text-[12px] text-[#B4B2A9]">
+                {statusFilter === 'ALL' && typeFilter === 'ALL'
+                  ? 'Patient visits will appear here once created'
+                  : 'No visits match the selected filters'}
+              </p>
             </div>
           )}
         </div>
@@ -173,7 +256,7 @@ export default function VisitManagementClient({
             showSizeChanger
           onChange={(p, l) => {
             setLimit(l);
-            fetchPage(p, l);
+            fetchPage(p, l, statusFilter, typeFilter);
           }}
           />
         </div>
@@ -181,3 +264,4 @@ export default function VisitManagementClient({
     );
 
   }
+  
