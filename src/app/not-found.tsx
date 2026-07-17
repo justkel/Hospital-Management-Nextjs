@@ -1,13 +1,30 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Lottie from 'lottie-react';
+import animationData from '@/animations/404 Error.json';
+
 export default function NotFound() {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setReady(true);
+  }, []);
+
+  if (!ready) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center text-center px-6">
-      <div>
-        <h1 className="text-4xl font-bold text-gray-800">404</h1>
-        <p className="mt-2 text-gray-500">Page not found</p>
+    <div className="min-h-screen flex items-center justify-center text-center px-6 bg-white">
+      <div className="flex flex-col items-center">
+        <div className="w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] lg:w-[550px] lg:h-[550px]">
+          <Lottie animationData={animationData} loop autoplay />
+        </div>
 
         <a
           href="/dashboard"
-          className="inline-block mt-6 bg-black text-white px-5 py-2.5 rounded-lg"
+          className="inline-block bg-black text-white px-5 py-2.5 rounded-lg transition hover:bg-gray-800"
         >
           Go to Dashboard
         </a>
