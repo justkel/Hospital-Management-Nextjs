@@ -96,11 +96,11 @@ export default function DashboardShell({
         if (pathname.startsWith('/dashboard/wards')) return 'wards';
         if (pathname.startsWith('/dashboard/lab-requests')) return 'lab-requests';
         if (pathname.startsWith('/dashboard/theatres')) return 'theatres';
+        if (pathname.startsWith('/dashboard/audit')) return 'audit';
         if (pathname.startsWith('/records')) return 'records';
         if (pathname.startsWith('/admins/billing/global')) return 'billing-global';
         if (pathname.startsWith('/admins/billing/organization')) return 'billing-organization';
         if (pathname.startsWith('/settings')) return 'settings';
-        if (pathname.startsWith('/audit')) return 'audit';
         if (pathname.startsWith('/dashboard')) return 'dashboard';
         return '';
     })();
