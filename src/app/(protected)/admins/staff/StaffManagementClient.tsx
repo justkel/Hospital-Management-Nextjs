@@ -13,6 +13,7 @@ import StaffCard from './components/StaffCard';
 import RolesModal from './components/RolesModal';
 import DetailsDrawer from './components/DetailsDrawer';
 import { clientFetch } from '@/lib/clientFetch';
+import { useUrlFilters } from '@/hooks/useUrlFilters';
 import { CheckCircle, Search, UserPlus, Users } from 'lucide-react';
 
 type StaffItem = GetAllStaffQuery['staffs']['items'][number];
@@ -23,15 +24,17 @@ export default function StaffManagementClient({
 }: {
   paginated: StaffsQueryResult;
 }) {
+  const { searchParams, update } = useUrlFilters();
+
   const [list, setList] = useState<StaffItem[]>(paginated.items);
 
   const [page, setPage] = useState(paginated.page);
-  const [limit, setLimit] = useState(25);
+  const [limit, setLimit] = useState(Number(searchParams.get('limit')) || 25);
   const [total, setTotal] = useState(paginated.total);
 
   const [openCreate, setOpenCreate] = useState(false);
   const [roleFilter, setRoleFilter] = useState<StaffRole | 'ALL'>('ALL');
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchParams.get('search') ?? '');
   const [editingStaff, setEditingStaff] = useState<StaffItem | null>(null);
   const [rolesToUpdate, setRolesToUpdate] = useState<StaffRole[]>([]);
   const [updatingRoles, setUpdatingRoles] = useState(false);
@@ -43,8 +46,8 @@ export default function StaffManagementClient({
 
   async function fetchStaff(
     nextPage: number,
-    nextLimit = limit,
-    nextSearch = search,
+    nextLimit: number,
+    nextSearch: string,
   ) {
     try {
       const params = new URLSearchParams({
@@ -78,6 +81,22 @@ export default function StaffManagementClient({
     }
   }
 
+  function applyFilters(next: {
+    page: number;
+    limit: number;
+    search: string;
+  }) {
+    setLimit(next.limit);
+
+    update({
+      search: next.search.trim() || undefined,
+      page: next.page,
+      limit: next.limit,
+    });
+
+    fetchStaff(next.page, next.limit, next.search);
+  }
+
   const isFirstRender = useRef(true);
 
   useEffect(() => {
@@ -87,7 +106,7 @@ export default function StaffManagementClient({
     }
 
     const t = setTimeout(() => {
-      fetchStaff(1, limit, search);
+      applyFilters({ page: 1, limit, search });
     }, 350);
 
     return () => clearTimeout(t);
@@ -298,8 +317,7 @@ export default function StaffManagementClient({
           total={total}
           showSizeChanger
           onChange={(p, l) => {
-            setLimit(l);
-            fetchStaff(p, l, search);
+            applyFilters({ page: p, limit: l, search });
           }}
         />
       </div>

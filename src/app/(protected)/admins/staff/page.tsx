@@ -7,14 +7,26 @@ import { graphqlFetch } from '@/shared/graphql/fetcher';
 import SessionGuard from '@/components/SessionGuard';
 import StaffManagementClient from './StaffManagementClient';
 
-export default async function StaffPage() {
+export default async function StaffPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+
+  const page = Number(params.page) || 1;
+  const limit = Number(params.limit) || 25;
+  const search =
+    typeof params.search === 'string' ? params.search : undefined;
+
   const [data] = await Promise.all([
     graphqlFetch<GetAllStaffQuery, GetAllStaffQueryVariables>(
       GetAllStaffDocument,
       {
         pagination: {
-          page: 1,
-          limit: 25,
+          page,
+          limit,
+          ...(search && { search }),
         },
       }
     ),
