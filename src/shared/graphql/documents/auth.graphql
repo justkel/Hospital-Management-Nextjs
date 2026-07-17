@@ -32,8 +32,10 @@ query WhoAmI {
 # STAFF
 ############################
 
-query GetAllStaff($page: Int! = 1, $limit: Int! = 25) {
-  staffs(page: $page, limit: $limit) {
+query GetAllStaff(
+  $pagination: StaffPaginationInput! = { page: 1, limit: 25 }
+) {
+  staffs(pagination: $pagination) {
     items {
       id
       fullName
@@ -87,17 +89,6 @@ query GetStaffById($id: String!) {
     roles
     userCode
     status
-  }
-}
-
-query SearchStaff($query: String!) {
-  searchStaff(query: $query) {
-    id
-    fullName
-    email
-    phoneNumber
-    roles
-    userCode
   }
 }
 
@@ -174,19 +165,6 @@ query GetAllPatients($pagination: PatientPaginationInput!) {
     total
     page
     pageCount
-  }
-}
-
-query SearchPatient($query: String!) {
-  searchPatient(query: $query) {
-    id
-    fullName
-    email
-    phoneNumber
-    gender
-    patientNumber
-    status
-    emergency
   }
 }
 
