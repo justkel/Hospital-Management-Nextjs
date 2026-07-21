@@ -36,6 +36,39 @@ export enum AddressOwnerType {
   Staff = 'STAFF'
 }
 
+export enum AdjustmentAppliedOn {
+  Charge = 'CHARGE',
+  Invoice = 'INVOICE'
+}
+
+export enum AdjustmentDirection {
+  Decrease = 'DECREASE',
+  Increase = 'INCREASE'
+}
+
+export enum AdjustmentMethod {
+  Flat = 'FLAT',
+  Percentage = 'PERCENTAGE'
+}
+
+export enum AdjustmentStatus {
+  Applied = 'APPLIED',
+  Approved = 'APPROVED',
+  Rejected = 'REJECTED',
+  Requested = 'REQUESTED',
+  Unrequested = 'UNREQUESTED'
+}
+
+export enum AdjustmentType {
+  AdjustmentReversal = 'ADJUSTMENT_REVERSAL',
+  Correction = 'CORRECTION',
+  Discount = 'DISCOUNT',
+  Insurance = 'INSURANCE',
+  Surcharge = 'SURCHARGE',
+  Waiver = 'WAIVER',
+  WriteOff = 'WRITE_OFF'
+}
+
 export type AssignProcedureStaffInput = {
   functionInProcedure: StaffFunction;
   staffId: Scalars['ID']['input'];
@@ -152,6 +185,30 @@ export enum BedStatus {
   Occupied = 'OCCUPIED',
   Reserved = 'RESERVED'
 }
+
+export type BillingAdjustment = {
+  __typename?: 'BillingAdjustment';
+  amount?: Maybe<Scalars['Float']['output']>;
+  appliedAt?: Maybe<Scalars['DateTime']['output']>;
+  appliedOn: AdjustmentAppliedOn;
+  approvedByStaffId?: Maybe<Scalars['ID']['output']>;
+  currency: Scalars['String']['output'];
+  direction?: Maybe<AdjustmentDirection>;
+  id: Scalars['ID']['output'];
+  invoiceId?: Maybe<Scalars['ID']['output']>;
+  method: AdjustmentMethod;
+  notes?: Maybe<Scalars['String']['output']>;
+  organizationId: Scalars['ID']['output'];
+  reason: Scalars['String']['output'];
+  requestedByStaffId: Scalars['ID']['output'];
+  reversesAdjustment?: Maybe<BillingAdjustment>;
+  reversesAdjustmentId?: Maybe<Scalars['ID']['output']>;
+  status: AdjustmentStatus;
+  type: AdjustmentType;
+  value?: Maybe<Scalars['Float']['output']>;
+  visitChargeId?: Maybe<Scalars['ID']['output']>;
+  visitId: Scalars['ID']['output'];
+};
 
 export type BillingCatalogueCategory = {
   __typename?: 'BillingCatalogueCategory';
@@ -279,6 +336,21 @@ export type CreateBedInput = {
   name: Scalars['String']['input'];
   status?: InputMaybe<BedStatus>;
   wardId: Scalars['ID']['input'];
+};
+
+export type CreateBillingAdjustmentInput = {
+  amount?: InputMaybe<Scalars['Float']['input']>;
+  appliedOn: AdjustmentAppliedOn;
+  direction?: InputMaybe<AdjustmentDirection>;
+  invoiceId?: InputMaybe<Scalars['ID']['input']>;
+  method: AdjustmentMethod;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  reason: Scalars['String']['input'];
+  reversesAdjustmentId?: InputMaybe<Scalars['ID']['input']>;
+  type: AdjustmentType;
+  value?: InputMaybe<Scalars['Float']['input']>;
+  visitChargeId?: InputMaybe<Scalars['ID']['input']>;
+  visitId: Scalars['ID']['input'];
 };
 
 export type CreateBillingCategoryInput = {
@@ -429,6 +501,7 @@ export type CreateVisitChargeInput = {
   notes?: InputMaybe<Scalars['String']['input']>;
   overrideReason?: InputMaybe<Scalars['String']['input']>;
   quantity?: Scalars['Int']['input'];
+  unitPrice?: InputMaybe<Scalars['Float']['input']>;
   visitId: Scalars['ID']['input'];
 };
 
@@ -453,6 +526,16 @@ export type CreateVisitInput = {
 
 export type CreateVisitNoteInput = {
   note: Scalars['String']['input'];
+  visitId: Scalars['ID']['input'];
+};
+
+export type CreateVisitPaymentInput = {
+  allocations: Array<PaymentAllocationInput>;
+  amountPaid: Scalars['Float']['input'];
+  invoiceId?: InputMaybe<Scalars['ID']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  paymentMethod: PaymentMethod;
+  reference?: InputMaybe<Scalars['String']['input']>;
   visitId: Scalars['ID']['input'];
 };
 
@@ -644,6 +727,8 @@ export type LoginAuthResponse = {
 export type Mutation = {
   __typename?: 'Mutation';
   abortTheatreBooking: TheatreBooking;
+  applyBillingAdjustment: BillingAdjustment;
+  approveBillingAdjustment: BillingAdjustment;
   bulkAssignVisitProcedureStaff: Array<ProcedureStaffResult>;
   cancelTheatreBooking: TheatreBooking;
   cancelVisitProcedure: VisitProcedure;
@@ -651,11 +736,13 @@ export type Mutation = {
   cloneGlobalCategoryToOrganization: BillingCatalogueCategory;
   completeLabRequest: LabRequest;
   completeTheatreProcedure: TheatreBooking;
+  confirmVisitPayment: VisitPayment;
   createBed: Bed;
   createBedAllocation: VisitBedAllocation;
   createBillingCategory: BillingCatalogueCategory;
   createBillingItem: GlobalBillingCatalogueItem;
   createChargeCatalog: ChargeCatalog;
+  createChargeFromPrescription: VisitCharge;
   createLabRequest: CreateLabRequestResponse;
   createLabResult: LabResult;
   createOrganization: Organization;
@@ -670,6 +757,7 @@ export type Mutation = {
   createVisitComplaint: VisitComplaint;
   createVisitDiagnosis: VisitDiagnosis;
   createVisitNote: VisitNote;
+  createVisitPayment: VisitPayment;
   createVisitPrescription: VisitPrescription;
   createVisitProcedure: CreateVisitProcedureResponse;
   createVisitProcedureEvent: VisitProcedureEvent;
@@ -678,9 +766,15 @@ export type Mutation = {
   createWard: Ward;
   createWardIncident: WardIncident;
   delayTheatreBooking: TheatreBooking;
+  failVisitPayment: VisitPayment;
+  generateVisitInvoice: VisitInvoice;
+  issueVisitInvoice: VisitInvoice;
   logout: Scalars['Boolean']['output'];
   reallocateTheatreBooking: TheatreBooking;
   refreshToken: AuthResponse;
+  refundVisitPayment: VisitPayment;
+  rejectBillingAdjustment: BillingAdjustment;
+  requestBillingAdjustment: BillingAdjustment;
   requestPasswordReset: Scalars['Boolean']['output'];
   resetPassword: Scalars['Boolean']['output'];
   resolveTheatreBlock: TheatreBlock;
@@ -707,6 +801,7 @@ export type Mutation = {
   updateTheatreBlock: TheatreBlock;
   updateTheatreBooking: TheatreBooking;
   updateTheatreIncident: TheatreIncident;
+  updateVisitCharge: VisitCharge;
   updateVisitComplaint: VisitComplaint;
   updateVisitDiagnosis: VisitDiagnosis;
   updateVisitNote: VisitNote;
@@ -724,6 +819,16 @@ export type Mutation = {
 
 export type MutationAbortTheatreBookingArgs = {
   data: CancelTheatreBookingInput;
+};
+
+
+export type MutationApplyBillingAdjustmentArgs = {
+  adjustmentId: Scalars['ID']['input'];
+};
+
+
+export type MutationApproveBillingAdjustmentArgs = {
+  adjustmentId: Scalars['ID']['input'];
 };
 
 
@@ -763,6 +868,11 @@ export type MutationCompleteTheatreProcedureArgs = {
 };
 
 
+export type MutationConfirmVisitPaymentArgs = {
+  paymentId: Scalars['ID']['input'];
+};
+
+
 export type MutationCreateBedArgs = {
   data: CreateBedInput;
 };
@@ -785,6 +895,12 @@ export type MutationCreateBillingItemArgs = {
 
 export type MutationCreateChargeCatalogArgs = {
   data: CreateChargeCatalogInput;
+};
+
+
+export type MutationCreateChargeFromPrescriptionArgs = {
+  prescriptionId: Scalars['ID']['input'];
+  unitPrice: Scalars['Float']['input'];
 };
 
 
@@ -858,6 +974,11 @@ export type MutationCreateVisitNoteArgs = {
 };
 
 
+export type MutationCreateVisitPaymentArgs = {
+  data: CreateVisitPaymentInput;
+};
+
+
 export type MutationCreateVisitPrescriptionArgs = {
   data: CreateVisitPrescriptionInput;
 };
@@ -898,8 +1019,41 @@ export type MutationDelayTheatreBookingArgs = {
 };
 
 
+export type MutationFailVisitPaymentArgs = {
+  paymentId: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+};
+
+
+export type MutationGenerateVisitInvoiceArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
+export type MutationIssueVisitInvoiceArgs = {
+  invoiceId: Scalars['ID']['input'];
+};
+
+
 export type MutationReallocateTheatreBookingArgs = {
   data: ReallocateTheatreBookingInput;
+};
+
+
+export type MutationRefundVisitPaymentArgs = {
+  paymentId: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+};
+
+
+export type MutationRejectBillingAdjustmentArgs = {
+  adjustmentId: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+};
+
+
+export type MutationRequestBillingAdjustmentArgs = {
+  data: CreateBillingAdjustmentInput;
 };
 
 
@@ -1031,6 +1185,11 @@ export type MutationUpdateTheatreBookingArgs = {
 
 export type MutationUpdateTheatreIncidentArgs = {
   data: UpdateTheatreIncidentInput;
+};
+
+
+export type MutationUpdateVisitChargeArgs = {
+  data: UpdateVisitChargeInput;
 };
 
 
@@ -1171,6 +1330,27 @@ export enum PatientStatus {
   Suspended = 'SUSPENDED'
 }
 
+export type PaymentAllocationInput = {
+  amountAllocated: Scalars['Float']['input'];
+  visitChargeId: Scalars['ID']['input'];
+};
+
+export enum PaymentMethod {
+  Card = 'CARD',
+  Cash = 'CASH',
+  Insurance = 'INSURANCE',
+  Pos = 'POS',
+  Transfer = 'TRANSFER',
+  Wallet = 'WALLET'
+}
+
+export enum PaymentStatus {
+  Failed = 'FAILED',
+  Pending = 'PENDING',
+  Refunded = 'REFUNDED',
+  Success = 'SUCCESS'
+}
+
 export type ProcedureStaffResult = {
   __typename?: 'ProcedureStaffResult';
   functionInProcedure: StaffFunction;
@@ -1188,6 +1368,7 @@ export type Query = {
   bedAllocationById: VisitBedAllocation;
   bedAllocationsByVisit: Array<VisitBedAllocation>;
   beds: BedPaginationResult;
+  billingAdjustments: Array<BillingAdjustment>;
   billingCategoryById: BillingCatalogueCategory;
   catalogsByChargeDomain: Array<ChargeDomainCatalogMapping>;
   chargeDomainMappings: Array<ChargeDomainCatalogMapping>;
@@ -1201,6 +1382,7 @@ export type Query = {
   labRequests: LabRequestPaginationResult;
   labRequestsByVisit: Array<LabRequest>;
   labResultsByLabRequest: Array<LabResult>;
+  latestVisitInvoice?: Maybe<VisitInvoice>;
   organization: Organization;
   organizationBillingCategories: Array<BillingCatalogueCategory>;
   organizationChargeCatalogs: ChargeCatalogPaginationResult;
@@ -1219,16 +1401,24 @@ export type Query = {
   theatreIncidentsByTheatre: TheatreIncidentPaginationResult;
   theatreScheduleForDay: TheatreScheduleForDay;
   theatres: TheatrePaginationResult;
+  unbilledPrescriptions: Array<VisitPrescription>;
   validatePasswordResetToken: Scalars['Boolean']['output'];
   visit: Visit;
   visitBedAllocationsByWard: Array<VisitBedAllocation>;
+  visitChargeBalances: Array<VisitChargeBalance>;
   visitChargeExistsByDomain: Scalars['Boolean']['output'];
+  visitChargeSummary: VisitChargeSummary;
+  visitChargeTotal: Scalars['Float']['output'];
   visitComplaintById: VisitComplaint;
   visitComplaints: Array<VisitComplaint>;
+  visitCurrentTotals: VisitCurrentTotals;
   visitDiagnoses: Array<VisitDiagnosis>;
   visitDiagnosisById: VisitDiagnosis;
+  visitInvoiceDetail: VisitInvoiceDetail;
+  visitInvoices: Array<VisitInvoice>;
   visitNotePositionsByVisit: Array<VisitNotePosition>;
   visitNotesByVisit: Array<VisitNote>;
+  visitPayments: Array<VisitPayment>;
   visitPrescriptions: Array<VisitPrescription>;
   visitProcedureById: VisitProcedure;
   visitProcedureEvents: VisitProcedureEventPaginationResult;
@@ -1278,6 +1468,11 @@ export type QueryBedsArgs = {
 };
 
 
+export type QueryBillingAdjustmentsArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
 export type QueryBillingCategoryByIdArgs = {
   categoryId: Scalars['String']['input'];
 };
@@ -1320,6 +1515,11 @@ export type QueryLabRequestsByVisitArgs = {
 
 export type QueryLabResultsByLabRequestArgs = {
   labRequestId: Scalars['ID']['input'];
+};
+
+
+export type QueryLatestVisitInvoiceArgs = {
+  visitId: Scalars['ID']['input'];
 };
 
 
@@ -1400,6 +1600,11 @@ export type QueryTheatresArgs = {
 };
 
 
+export type QueryUnbilledPrescriptionsArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
 export type QueryValidatePasswordResetTokenArgs = {
   token: Scalars['String']['input'];
 };
@@ -1415,9 +1620,24 @@ export type QueryVisitBedAllocationsByWardArgs = {
 };
 
 
+export type QueryVisitChargeBalancesArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
 export type QueryVisitChargeExistsByDomainArgs = {
   chargeDomain: ChargeDomain;
   visitId: Scalars['String']['input'];
+};
+
+
+export type QueryVisitChargeSummaryArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitChargeTotalArgs = {
+  visitId: Scalars['ID']['input'];
 };
 
 
@@ -1427,6 +1647,11 @@ export type QueryVisitComplaintByIdArgs = {
 
 
 export type QueryVisitComplaintsArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitCurrentTotalsArgs = {
   visitId: Scalars['ID']['input'];
 };
 
@@ -1441,12 +1666,27 @@ export type QueryVisitDiagnosisByIdArgs = {
 };
 
 
+export type QueryVisitInvoiceDetailArgs = {
+  invoiceId: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitInvoicesArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
 export type QueryVisitNotePositionsByVisitArgs = {
   visitId: Scalars['ID']['input'];
 };
 
 
 export type QueryVisitNotesByVisitArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitPaymentsArgs = {
   visitId: Scalars['ID']['input'];
 };
 
@@ -1978,6 +2218,16 @@ export type UpdateVisitBedAllocationStatusInput = {
   status: VisitBedAllocationStatus;
 };
 
+export type UpdateVisitChargeInput = {
+  chargeType?: InputMaybe<VisitChargeType>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  overrideReason?: InputMaybe<Scalars['String']['input']>;
+  quantity?: InputMaybe<Scalars['Int']['input']>;
+  status?: InputMaybe<VisitChargeStatus>;
+  unitPrice?: InputMaybe<Scalars['Float']['input']>;
+  visitChargeId: Scalars['ID']['input'];
+};
+
 export type UpdateVisitComplaintInput = {
   complaint: Scalars['String']['input'];
   complaintId: Scalars['ID']['input'];
@@ -2128,7 +2378,7 @@ export enum VisitBedAllocationStatus {
 export type VisitCharge = {
   __typename?: 'VisitCharge';
   billingType?: Maybe<BillingType>;
-  chargeCatalog: ChargeCatalog;
+  chargeCatalog?: Maybe<ChargeCatalog>;
   chargeCatalogId?: Maybe<Scalars['ID']['output']>;
   chargeDomain?: Maybe<ChargeDomain>;
   chargeName: Scalars['String']['output'];
@@ -2149,12 +2399,28 @@ export type VisitCharge = {
   visitId: Scalars['ID']['output'];
 };
 
+export type VisitChargeBalance = {
+  __typename?: 'VisitChargeBalance';
+  amountPaid: Scalars['Float']['output'];
+  effectiveTotal: Scalars['Float']['output'];
+  remaining: Scalars['Float']['output'];
+  totalAmount: Scalars['Float']['output'];
+  visitChargeId: Scalars['ID']['output'];
+};
+
 export enum VisitChargeStatus {
   Billed = 'BILLED',
   Cancelled = 'CANCELLED',
   Pending = 'PENDING',
   Waived = 'WAIVED'
 }
+
+export type VisitChargeSummary = {
+  __typename?: 'VisitChargeSummary';
+  editableCharges: Array<VisitCharge>;
+  lockedCharges: Array<VisitCharge>;
+  total: Scalars['Float']['output'];
+};
 
 export enum VisitChargeType {
   Fixed = 'FIXED',
@@ -2172,6 +2438,16 @@ export type VisitComplaint = {
   visitId: Scalars['ID']['output'];
 };
 
+export type VisitCurrentTotals = {
+  __typename?: 'VisitCurrentTotals';
+  discountTotal: Scalars['Float']['output'];
+  outstandingBalance: Scalars['Float']['output'];
+  subtotal: Scalars['Float']['output'];
+  surchargeTotal: Scalars['Float']['output'];
+  totalPaid: Scalars['Float']['output'];
+  totalPayable: Scalars['Float']['output'];
+};
+
 export type VisitDiagnosis = {
   __typename?: 'VisitDiagnosis';
   createdAt: Scalars['DateTime']['output'];
@@ -2183,6 +2459,68 @@ export type VisitDiagnosis = {
   updatedAt: Scalars['DateTime']['output'];
   visitId: Scalars['ID']['output'];
 };
+
+export type VisitInvoice = {
+  __typename?: 'VisitInvoice';
+  discountTotal: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  invoiceNumber: Scalars['String']['output'];
+  issuedAt?: Maybe<Scalars['DateTime']['output']>;
+  lockedAt?: Maybe<Scalars['DateTime']['output']>;
+  organizationId: Scalars['ID']['output'];
+  outstandingBalance: Scalars['Float']['output'];
+  status: VisitInvoiceStatus;
+  subtotal: Scalars['Float']['output'];
+  totalPaid: Scalars['Float']['output'];
+  totalPayable: Scalars['Float']['output'];
+  visitId: Scalars['ID']['output'];
+};
+
+export type VisitInvoiceAdjustmentSnapshot = {
+  __typename?: 'VisitInvoiceAdjustmentSnapshot';
+  amount?: Maybe<Scalars['Float']['output']>;
+  billingAdjustment?: Maybe<BillingAdjustment>;
+  billingAdjustmentId: Scalars['ID']['output'];
+  direction?: Maybe<AdjustmentDirection>;
+  id: Scalars['ID']['output'];
+  invoiceId: Scalars['ID']['output'];
+  method: AdjustmentMethod;
+  organizationId: Scalars['ID']['output'];
+  reason: Scalars['String']['output'];
+  resolvedAmount: Scalars['Float']['output'];
+  type: AdjustmentType;
+  value?: Maybe<Scalars['Float']['output']>;
+};
+
+export type VisitInvoiceDetail = {
+  __typename?: 'VisitInvoiceDetail';
+  adjustmentSnapshots: Array<VisitInvoiceAdjustmentSnapshot>;
+  invoice: VisitInvoice;
+  lineItems: Array<VisitInvoiceLineItem>;
+  outstandingBalance: Scalars['Float']['output'];
+  payments: Array<VisitPayment>;
+};
+
+export type VisitInvoiceLineItem = {
+  __typename?: 'VisitInvoiceLineItem';
+  chargeDomain?: Maybe<ChargeDomain>;
+  chargeName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  invoiceId: Scalars['ID']['output'];
+  organizationId: Scalars['ID']['output'];
+  quantity: Scalars['Int']['output'];
+  totalAmount: Scalars['Float']['output'];
+  unitPrice: Scalars['Float']['output'];
+  visitCharge?: Maybe<VisitCharge>;
+  visitChargeId: Scalars['ID']['output'];
+};
+
+export enum VisitInvoiceStatus {
+  Draft = 'DRAFT',
+  Issued = 'ISSUED',
+  Paid = 'PAID',
+  PartiallyPaid = 'PARTIALLY_PAID'
+}
 
 export type VisitNote = {
   __typename?: 'VisitNote';
@@ -2223,6 +2561,35 @@ export type VisitPaginationResult = {
   total: Scalars['Int']['output'];
 };
 
+export type VisitPayment = {
+  __typename?: 'VisitPayment';
+  allocations: Array<VisitPaymentAllocation>;
+  amountPaid: Scalars['Float']['output'];
+  confirmedAt?: Maybe<Scalars['DateTime']['output']>;
+  currency: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  invoiceId?: Maybe<Scalars['ID']['output']>;
+  notes?: Maybe<Scalars['String']['output']>;
+  organizationId: Scalars['ID']['output'];
+  paidAt: Scalars['DateTime']['output'];
+  paymentMethod: PaymentMethod;
+  receivedByStaffId: Scalars['ID']['output'];
+  reference?: Maybe<Scalars['String']['output']>;
+  status: PaymentStatus;
+  visitId: Scalars['ID']['output'];
+};
+
+export type VisitPaymentAllocation = {
+  __typename?: 'VisitPaymentAllocation';
+  amountAllocated: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  organizationId: Scalars['ID']['output'];
+  payment: VisitPayment;
+  paymentId: Scalars['ID']['output'];
+  visitCharge: VisitCharge;
+  visitChargeId: Scalars['ID']['output'];
+};
+
 export type VisitPrescription = {
   __typename?: 'VisitPrescription';
   createdAt: Scalars['DateTime']['output'];
@@ -2239,6 +2606,7 @@ export type VisitPrescription = {
   startDate?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   visit: Visit;
+  visitCharge?: Maybe<VisitCharge>;
   visitId: Scalars['ID']['output'];
 };
 
@@ -2822,6 +3190,13 @@ export type CreateVisitChargeMutationVariables = Exact<{
 
 
 export type CreateVisitChargeMutation = { __typename?: 'Mutation', createVisitCharge: { __typename?: 'VisitCharge', id: string, visitId: string, quantity: number, unitPrice: number } };
+
+export type UpdateVisitChargeMutationVariables = Exact<{
+  data: UpdateVisitChargeInput;
+}>;
+
+
+export type UpdateVisitChargeMutation = { __typename?: 'Mutation', updateVisitCharge: { __typename?: 'VisitCharge', id: string, visitId: string, quantity: number, unitPrice: number } };
 
 export type UpdateVisitComplaintMutationVariables = Exact<{
   data: UpdateVisitComplaintInput;
@@ -3427,6 +3802,157 @@ export type ChangeStaffPasswordMutationVariables = Exact<{
 
 export type ChangeStaffPasswordMutation = { __typename?: 'Mutation', changeStaffPassword: { __typename?: 'AuthResponse', accessToken: string, refreshToken?: string | null } };
 
+export type GetVisitChargeSummaryQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitChargeSummaryQuery = { __typename?: 'Query', visitChargeSummary: { __typename?: 'VisitChargeSummary', total: number, lockedCharges: Array<{ __typename?: 'VisitCharge', id: string, visitId: string, chargeCatalogId?: string | null, chargeName: string, description?: string | null, quantity: number, unitPrice: number, totalAmount?: number | null, overrideReason?: string | null, status: VisitChargeStatus, chargeType: VisitChargeType, billingType?: BillingType | null, chargeDomain?: ChargeDomain | null, organizationId: string, notes?: string | null, chargeCatalog?: { __typename?: 'ChargeCatalog', id: string, name: string } | null, createdBy: { __typename?: 'Staff', id: string, userCode: number, fullName: string } }>, editableCharges: Array<{ __typename?: 'VisitCharge', id: string, visitId: string, chargeCatalogId?: string | null, chargeName: string, description?: string | null, quantity: number, unitPrice: number, totalAmount?: number | null, overrideReason?: string | null, status: VisitChargeStatus, chargeType: VisitChargeType, billingType?: BillingType | null, chargeDomain?: ChargeDomain | null, organizationId: string, notes?: string | null, chargeCatalog?: { __typename?: 'ChargeCatalog', id: string, name: string } | null, createdBy: { __typename?: 'Staff', id: string, userCode: number, fullName: string } }> } };
+
+export type GetVisitChargeTotalQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitChargeTotalQuery = { __typename?: 'Query', visitChargeTotal: number };
+
+export type GetUnbilledPrescriptionsQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetUnbilledPrescriptionsQuery = { __typename?: 'Query', unbilledPrescriptions: Array<{ __typename?: 'VisitPrescription', id: string, visitId: string, drug: string, dose?: string | null, route?: string | null, frequency?: string | null, isProvidedInHouse: boolean, startDate?: string | null, endDate?: string | null, notes?: string | null, prescribingDoctorId: string, createdAt: string, updatedAt: string, visitCharge?: { __typename?: 'VisitCharge', id: string } | null, prescribingDoctor: { __typename?: 'Staff', id: string, userCode: number, fullName: string } }> };
+
+export type CreateChargeFromPrescriptionMutationVariables = Exact<{
+  prescriptionId: Scalars['ID']['input'];
+  unitPrice: Scalars['Float']['input'];
+}>;
+
+
+export type CreateChargeFromPrescriptionMutation = { __typename?: 'Mutation', createChargeFromPrescription: { __typename?: 'VisitCharge', id: string, visitId: string, chargeName: string, description?: string | null, quantity: number, unitPrice: number, totalAmount?: number | null, status: VisitChargeStatus, chargeType: VisitChargeType, billingType?: BillingType | null, chargeDomain?: ChargeDomain | null, organizationId: string, notes?: string | null } };
+
+export type GetLatestVisitInvoiceQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetLatestVisitInvoiceQuery = { __typename?: 'Query', latestVisitInvoice?: { __typename?: 'VisitInvoice', id: string, visitId: string, invoiceNumber: string, status: VisitInvoiceStatus, subtotal: number, discountTotal: number, totalPayable: number, totalPaid: number, outstandingBalance: number, issuedAt?: string | null, lockedAt?: string | null, organizationId: string } | null };
+
+export type GetVisitInvoicesQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitInvoicesQuery = { __typename?: 'Query', visitInvoices: Array<{ __typename?: 'VisitInvoice', id: string, visitId: string, invoiceNumber: string, status: VisitInvoiceStatus, subtotal: number, discountTotal: number, totalPayable: number, totalPaid: number, outstandingBalance: number, issuedAt?: string | null, lockedAt?: string | null, organizationId: string }> };
+
+export type GenerateVisitInvoiceMutationVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GenerateVisitInvoiceMutation = { __typename?: 'Mutation', generateVisitInvoice: { __typename?: 'VisitInvoice', id: string, visitId: string, invoiceNumber: string, status: VisitInvoiceStatus, subtotal: number, discountTotal: number, totalPayable: number, issuedAt?: string | null, lockedAt?: string | null, organizationId: string } };
+
+export type IssueVisitInvoiceMutationVariables = Exact<{
+  invoiceId: Scalars['ID']['input'];
+}>;
+
+
+export type IssueVisitInvoiceMutation = { __typename?: 'Mutation', issueVisitInvoice: { __typename?: 'VisitInvoice', id: string, visitId: string, invoiceNumber: string, status: VisitInvoiceStatus, subtotal: number, discountTotal: number, totalPayable: number, issuedAt?: string | null, lockedAt?: string | null, organizationId: string } };
+
+export type GetVisitCurrentTotalsQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitCurrentTotalsQuery = { __typename?: 'Query', visitCurrentTotals: { __typename?: 'VisitCurrentTotals', subtotal: number, discountTotal: number, surchargeTotal: number, totalPayable: number, totalPaid: number, outstandingBalance: number } };
+
+export type GetVisitPaymentsQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitPaymentsQuery = { __typename?: 'Query', visitPayments: Array<{ __typename?: 'VisitPayment', id: string, visitId: string, invoiceId?: string | null, organizationId: string, amountPaid: number, currency: string, paymentMethod: PaymentMethod, status: PaymentStatus, paidAt: string, confirmedAt?: string | null, receivedByStaffId: string, reference?: string | null, notes?: string | null, allocations: Array<{ __typename?: 'VisitPaymentAllocation', id: string, visitChargeId: string, organizationId: string, amountAllocated: number, visitCharge: { __typename?: 'VisitCharge', id: string, chargeName: string, totalAmount?: number | null, status: VisitChargeStatus } }> }> };
+
+export type CreateVisitPaymentMutationVariables = Exact<{
+  data: CreateVisitPaymentInput;
+}>;
+
+
+export type CreateVisitPaymentMutation = { __typename?: 'Mutation', createVisitPayment: { __typename?: 'VisitPayment', id: string, visitId: string, invoiceId?: string | null, organizationId: string, amountPaid: number, currency: string, paymentMethod: PaymentMethod, status: PaymentStatus, paidAt: string, confirmedAt?: string | null, receivedByStaffId: string, reference?: string | null, notes?: string | null, allocations: Array<{ __typename?: 'VisitPaymentAllocation', id: string, visitChargeId: string, amountAllocated: number, visitCharge: { __typename?: 'VisitCharge', id: string, chargeName: string, totalAmount?: number | null, status: VisitChargeStatus } }> } };
+
+export type ConfirmVisitPaymentMutationVariables = Exact<{
+  paymentId: Scalars['ID']['input'];
+}>;
+
+
+export type ConfirmVisitPaymentMutation = { __typename?: 'Mutation', confirmVisitPayment: { __typename?: 'VisitPayment', id: string, status: PaymentStatus, confirmedAt?: string | null } };
+
+export type FailVisitPaymentMutationVariables = Exact<{
+  paymentId: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+}>;
+
+
+export type FailVisitPaymentMutation = { __typename?: 'Mutation', failVisitPayment: { __typename?: 'VisitPayment', id: string, status: PaymentStatus, notes?: string | null } };
+
+export type RefundVisitPaymentMutationVariables = Exact<{
+  paymentId: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+}>;
+
+
+export type RefundVisitPaymentMutation = { __typename?: 'Mutation', refundVisitPayment: { __typename?: 'VisitPayment', id: string, status: PaymentStatus, notes?: string | null } };
+
+export type GetBillingAdjustmentsQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetBillingAdjustmentsQuery = { __typename?: 'Query', billingAdjustments: Array<{ __typename?: 'BillingAdjustment', id: string, visitId: string, invoiceId?: string | null, visitChargeId?: string | null, appliedOn: AdjustmentAppliedOn, type: AdjustmentType, method: AdjustmentMethod, value?: number | null, amount?: number | null, currency: string, reason: string, status: AdjustmentStatus, requestedByStaffId: string, approvedByStaffId?: string | null, appliedAt?: string | null, organizationId: string, notes?: string | null, direction?: AdjustmentDirection | null, reversesAdjustmentId?: string | null, reversesAdjustment?: { __typename?: 'BillingAdjustment', id: string, type: AdjustmentType, direction?: AdjustmentDirection | null, value?: number | null, amount?: number | null, method: AdjustmentMethod } | null }> };
+
+export type RequestBillingAdjustmentMutationVariables = Exact<{
+  data: CreateBillingAdjustmentInput;
+}>;
+
+
+export type RequestBillingAdjustmentMutation = { __typename?: 'Mutation', requestBillingAdjustment: { __typename?: 'BillingAdjustment', id: string, visitId: string, invoiceId?: string | null, visitChargeId?: string | null, appliedOn: AdjustmentAppliedOn, type: AdjustmentType, method: AdjustmentMethod, value?: number | null, amount?: number | null, currency: string, reason: string, status: AdjustmentStatus, requestedByStaffId: string, organizationId: string, notes?: string | null, direction?: AdjustmentDirection | null, reversesAdjustmentId?: string | null } };
+
+export type ApproveBillingAdjustmentMutationVariables = Exact<{
+  adjustmentId: Scalars['ID']['input'];
+}>;
+
+
+export type ApproveBillingAdjustmentMutation = { __typename?: 'Mutation', approveBillingAdjustment: { __typename?: 'BillingAdjustment', id: string, status: AdjustmentStatus, approvedByStaffId?: string | null } };
+
+export type RejectBillingAdjustmentMutationVariables = Exact<{
+  adjustmentId: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+}>;
+
+
+export type RejectBillingAdjustmentMutation = { __typename?: 'Mutation', rejectBillingAdjustment: { __typename?: 'BillingAdjustment', id: string, status: AdjustmentStatus, notes?: string | null } };
+
+export type ApplyBillingAdjustmentMutationVariables = Exact<{
+  adjustmentId: Scalars['ID']['input'];
+}>;
+
+
+export type ApplyBillingAdjustmentMutation = { __typename?: 'Mutation', applyBillingAdjustment: { __typename?: 'BillingAdjustment', id: string, status: AdjustmentStatus, appliedAt?: string | null } };
+
+export type GetVisitInvoiceDetailQueryVariables = Exact<{
+  invoiceId: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitInvoiceDetailQuery = { __typename?: 'Query', visitInvoiceDetail: { __typename?: 'VisitInvoiceDetail', outstandingBalance: number, invoice: { __typename?: 'VisitInvoice', id: string, visitId: string, invoiceNumber: string, status: VisitInvoiceStatus, subtotal: number, discountTotal: number, totalPayable: number, issuedAt?: string | null, lockedAt?: string | null, organizationId: string }, lineItems: Array<{ __typename?: 'VisitInvoiceLineItem', id: string, invoiceId: string, visitChargeId: string, chargeName: string, quantity: number, unitPrice: number, totalAmount: number, chargeDomain?: ChargeDomain | null, organizationId: string, visitCharge?: { __typename?: 'VisitCharge', id: string, status: VisitChargeStatus } | null }>, adjustmentSnapshots: Array<{ __typename?: 'VisitInvoiceAdjustmentSnapshot', id: string, invoiceId: string, billingAdjustmentId: string, type: AdjustmentType, method: AdjustmentMethod, value?: number | null, amount?: number | null, direction?: AdjustmentDirection | null, resolvedAmount: number, reason: string, organizationId: string, billingAdjustment?: { __typename?: 'BillingAdjustment', id: string, status: AdjustmentStatus } | null }>, payments: Array<{ __typename?: 'VisitPayment', id: string, visitId: string, invoiceId?: string | null, organizationId: string, amountPaid: number, currency: string, paymentMethod: PaymentMethod, status: PaymentStatus, paidAt: string, confirmedAt?: string | null, receivedByStaffId: string, reference?: string | null, notes?: string | null, allocations: Array<{ __typename?: 'VisitPaymentAllocation', id: string, visitChargeId: string, amountAllocated: number, visitCharge: { __typename?: 'VisitCharge', id: string, chargeName: string, totalAmount?: number | null, status: VisitChargeStatus } }> }> } };
+
+export type GetVisitChargeBalancesQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitChargeBalancesQuery = { __typename?: 'Query', visitChargeBalances: Array<{ __typename?: 'VisitChargeBalance', visitChargeId: string, totalAmount: number, effectiveTotal: number, amountPaid: number, remaining: number }> };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -3472,6 +3998,7 @@ export const VisitComplaintsDocument = {"kind":"Document","definitions":[{"kind"
 export const VisitComplaintByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"VisitComplaintById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitComplaintById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"complaint"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"recordedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<VisitComplaintByIdQuery, VisitComplaintByIdQueryVariables>;
 export const CreateVisitComplaintDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVisitComplaint"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitComplaintInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVisitComplaint"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"complaint"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"recordedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateVisitComplaintMutation, CreateVisitComplaintMutationVariables>;
 export const CreateVisitChargeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVisitCharge"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitChargeInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVisitCharge"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}}]}}]}}]} as unknown as DocumentNode<CreateVisitChargeMutation, CreateVisitChargeMutationVariables>;
+export const UpdateVisitChargeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitCharge"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitChargeInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitCharge"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}}]}}]}}]} as unknown as DocumentNode<UpdateVisitChargeMutation, UpdateVisitChargeMutationVariables>;
 export const UpdateVisitComplaintDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitComplaint"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitComplaintInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitComplaint"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"complaint"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<UpdateVisitComplaintMutation, UpdateVisitComplaintMutationVariables>;
 export const LogoutDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"Logout"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"logout"}}]}}]} as unknown as DocumentNode<LogoutMutation, LogoutMutationVariables>;
 export const VisitDiagnosesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"VisitDiagnoses"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitDiagnoses"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"diagnosisCode"}},{"kind":"Field","name":{"kind":"Name","value":"diagnosis"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"diagnosedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<VisitDiagnosesQuery, VisitDiagnosesQueryVariables>;
@@ -3558,3 +4085,24 @@ export const CreateVisitTaskDocument = {"kind":"Document","definitions":[{"kind"
 export const UpdateVisitTaskDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitTask"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitTaskInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitTask"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"taskType"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"dueAt"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailSent"}},{"kind":"Field","name":{"kind":"Name","value":"createdByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateVisitTaskMutation, UpdateVisitTaskMutationVariables>;
 export const UpdateVisitTaskStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVisitTaskStatus"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVisitTaskStatusInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVisitTaskStatus"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"taskType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"dueAt"}},{"kind":"Field","name":{"kind":"Name","value":"isEmailSent"}},{"kind":"Field","name":{"kind":"Name","value":"completedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateVisitTaskStatusMutation, UpdateVisitTaskStatusMutationVariables>;
 export const ChangeStaffPasswordDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ChangeStaffPassword"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateStaffPasswordInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"changeStaffPassword"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<ChangeStaffPasswordMutation, ChangeStaffPasswordMutationVariables>;
+export const GetVisitChargeSummaryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitChargeSummary"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitChargeSummary"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"lockedCharges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"overrideReason"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"chargeType"}},{"kind":"Field","name":{"kind":"Name","value":"billingType"}},{"kind":"Field","name":{"kind":"Name","value":"chargeDomain"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalog"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"editableCharges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"overrideReason"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"chargeType"}},{"kind":"Field","name":{"kind":"Name","value":"billingType"}},{"kind":"Field","name":{"kind":"Name","value":"chargeDomain"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalog"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetVisitChargeSummaryQuery, GetVisitChargeSummaryQueryVariables>;
+export const GetVisitChargeTotalDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitChargeTotal"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitChargeTotal"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}]}]}}]} as unknown as DocumentNode<GetVisitChargeTotalQuery, GetVisitChargeTotalQueryVariables>;
+export const GetUnbilledPrescriptionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUnbilledPrescriptions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"unbilledPrescriptions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"drug"}},{"kind":"Field","name":{"kind":"Name","value":"dose"}},{"kind":"Field","name":{"kind":"Name","value":"route"}},{"kind":"Field","name":{"kind":"Name","value":"frequency"}},{"kind":"Field","name":{"kind":"Name","value":"isProvidedInHouse"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"prescribingDoctorId"}},{"kind":"Field","name":{"kind":"Name","value":"visitCharge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"prescribingDoctor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}}]} as unknown as DocumentNode<GetUnbilledPrescriptionsQuery, GetUnbilledPrescriptionsQueryVariables>;
+export const CreateChargeFromPrescriptionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateChargeFromPrescription"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"prescriptionId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"unitPrice"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createChargeFromPrescription"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"prescriptionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"prescriptionId"}}},{"kind":"Argument","name":{"kind":"Name","value":"unitPrice"},"value":{"kind":"Variable","name":{"kind":"Name","value":"unitPrice"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"chargeType"}},{"kind":"Field","name":{"kind":"Name","value":"billingType"}},{"kind":"Field","name":{"kind":"Name","value":"chargeDomain"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}}]}}]}}]} as unknown as DocumentNode<CreateChargeFromPrescriptionMutation, CreateChargeFromPrescriptionMutationVariables>;
+export const GetLatestVisitInvoiceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetLatestVisitInvoice"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"latestVisitInvoice"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"subtotal"}},{"kind":"Field","name":{"kind":"Name","value":"discountTotal"}},{"kind":"Field","name":{"kind":"Name","value":"totalPayable"}},{"kind":"Field","name":{"kind":"Name","value":"totalPaid"}},{"kind":"Field","name":{"kind":"Name","value":"outstandingBalance"}},{"kind":"Field","name":{"kind":"Name","value":"issuedAt"}},{"kind":"Field","name":{"kind":"Name","value":"lockedAt"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<GetLatestVisitInvoiceQuery, GetLatestVisitInvoiceQueryVariables>;
+export const GetVisitInvoicesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitInvoices"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitInvoices"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"subtotal"}},{"kind":"Field","name":{"kind":"Name","value":"discountTotal"}},{"kind":"Field","name":{"kind":"Name","value":"totalPayable"}},{"kind":"Field","name":{"kind":"Name","value":"totalPaid"}},{"kind":"Field","name":{"kind":"Name","value":"outstandingBalance"}},{"kind":"Field","name":{"kind":"Name","value":"issuedAt"}},{"kind":"Field","name":{"kind":"Name","value":"lockedAt"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<GetVisitInvoicesQuery, GetVisitInvoicesQueryVariables>;
+export const GenerateVisitInvoiceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"GenerateVisitInvoice"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"generateVisitInvoice"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"subtotal"}},{"kind":"Field","name":{"kind":"Name","value":"discountTotal"}},{"kind":"Field","name":{"kind":"Name","value":"totalPayable"}},{"kind":"Field","name":{"kind":"Name","value":"issuedAt"}},{"kind":"Field","name":{"kind":"Name","value":"lockedAt"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<GenerateVisitInvoiceMutation, GenerateVisitInvoiceMutationVariables>;
+export const IssueVisitInvoiceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"IssueVisitInvoice"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"invoiceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"issueVisitInvoice"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"invoiceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"invoiceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"subtotal"}},{"kind":"Field","name":{"kind":"Name","value":"discountTotal"}},{"kind":"Field","name":{"kind":"Name","value":"totalPayable"}},{"kind":"Field","name":{"kind":"Name","value":"issuedAt"}},{"kind":"Field","name":{"kind":"Name","value":"lockedAt"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<IssueVisitInvoiceMutation, IssueVisitInvoiceMutationVariables>;
+export const GetVisitCurrentTotalsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitCurrentTotals"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitCurrentTotals"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subtotal"}},{"kind":"Field","name":{"kind":"Name","value":"discountTotal"}},{"kind":"Field","name":{"kind":"Name","value":"surchargeTotal"}},{"kind":"Field","name":{"kind":"Name","value":"totalPayable"}},{"kind":"Field","name":{"kind":"Name","value":"totalPaid"}},{"kind":"Field","name":{"kind":"Name","value":"outstandingBalance"}}]}}]}}]} as unknown as DocumentNode<GetVisitCurrentTotalsQuery, GetVisitCurrentTotalsQueryVariables>;
+export const GetVisitPaymentsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitPayments"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitPayments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"amountPaid"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"paidAt"}},{"kind":"Field","name":{"kind":"Name","value":"confirmedAt"}},{"kind":"Field","name":{"kind":"Name","value":"receivedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"reference"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"allocations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"amountAllocated"}},{"kind":"Field","name":{"kind":"Name","value":"visitCharge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetVisitPaymentsQuery, GetVisitPaymentsQueryVariables>;
+export const CreateVisitPaymentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVisitPayment"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitPaymentInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVisitPayment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"amountPaid"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"paidAt"}},{"kind":"Field","name":{"kind":"Name","value":"confirmedAt"}},{"kind":"Field","name":{"kind":"Name","value":"receivedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"reference"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"allocations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}},{"kind":"Field","name":{"kind":"Name","value":"amountAllocated"}},{"kind":"Field","name":{"kind":"Name","value":"visitCharge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateVisitPaymentMutation, CreateVisitPaymentMutationVariables>;
+export const ConfirmVisitPaymentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ConfirmVisitPayment"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paymentId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"confirmVisitPayment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"paymentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paymentId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"confirmedAt"}}]}}]}}]} as unknown as DocumentNode<ConfirmVisitPaymentMutation, ConfirmVisitPaymentMutationVariables>;
+export const FailVisitPaymentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"FailVisitPayment"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paymentId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"reason"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"failVisitPayment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"paymentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paymentId"}}},{"kind":"Argument","name":{"kind":"Name","value":"reason"},"value":{"kind":"Variable","name":{"kind":"Name","value":"reason"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}}]}}]}}]} as unknown as DocumentNode<FailVisitPaymentMutation, FailVisitPaymentMutationVariables>;
+export const RefundVisitPaymentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefundVisitPayment"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paymentId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"reason"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refundVisitPayment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"paymentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paymentId"}}},{"kind":"Argument","name":{"kind":"Name","value":"reason"},"value":{"kind":"Variable","name":{"kind":"Name","value":"reason"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}}]}}]}}]} as unknown as DocumentNode<RefundVisitPaymentMutation, RefundVisitPaymentMutationVariables>;
+export const GetBillingAdjustmentsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetBillingAdjustments"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"billingAdjustments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}},{"kind":"Field","name":{"kind":"Name","value":"appliedOn"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"method"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"requestedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"approvedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"appliedAt"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"direction"}},{"kind":"Field","name":{"kind":"Name","value":"reversesAdjustmentId"}},{"kind":"Field","name":{"kind":"Name","value":"reversesAdjustment"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"direction"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"method"}}]}}]}}]}}]} as unknown as DocumentNode<GetBillingAdjustmentsQuery, GetBillingAdjustmentsQueryVariables>;
+export const RequestBillingAdjustmentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RequestBillingAdjustment"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateBillingAdjustmentInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"requestBillingAdjustment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}},{"kind":"Field","name":{"kind":"Name","value":"appliedOn"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"method"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"requestedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"direction"}},{"kind":"Field","name":{"kind":"Name","value":"reversesAdjustmentId"}}]}}]}}]} as unknown as DocumentNode<RequestBillingAdjustmentMutation, RequestBillingAdjustmentMutationVariables>;
+export const ApproveBillingAdjustmentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ApproveBillingAdjustment"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"adjustmentId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"approveBillingAdjustment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"adjustmentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"adjustmentId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"approvedByStaffId"}}]}}]}}]} as unknown as DocumentNode<ApproveBillingAdjustmentMutation, ApproveBillingAdjustmentMutationVariables>;
+export const RejectBillingAdjustmentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RejectBillingAdjustment"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"adjustmentId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"reason"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rejectBillingAdjustment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"adjustmentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"adjustmentId"}}},{"kind":"Argument","name":{"kind":"Name","value":"reason"},"value":{"kind":"Variable","name":{"kind":"Name","value":"reason"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}}]}}]}}]} as unknown as DocumentNode<RejectBillingAdjustmentMutation, RejectBillingAdjustmentMutationVariables>;
+export const ApplyBillingAdjustmentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ApplyBillingAdjustment"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"adjustmentId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"applyBillingAdjustment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"adjustmentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"adjustmentId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"appliedAt"}}]}}]}}]} as unknown as DocumentNode<ApplyBillingAdjustmentMutation, ApplyBillingAdjustmentMutationVariables>;
+export const GetVisitInvoiceDetailDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitInvoiceDetail"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"invoiceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitInvoiceDetail"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"invoiceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"invoiceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"outstandingBalance"}},{"kind":"Field","name":{"kind":"Name","value":"invoice"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"subtotal"}},{"kind":"Field","name":{"kind":"Name","value":"discountTotal"}},{"kind":"Field","name":{"kind":"Name","value":"totalPayable"}},{"kind":"Field","name":{"kind":"Name","value":"issuedAt"}},{"kind":"Field","name":{"kind":"Name","value":"lockedAt"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"lineItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"chargeDomain"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"visitCharge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"adjustmentSnapshots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"billingAdjustmentId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"method"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"direction"}},{"kind":"Field","name":{"kind":"Name","value":"resolvedAmount"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"billingAdjustment"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"payments"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"amountPaid"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"paidAt"}},{"kind":"Field","name":{"kind":"Name","value":"confirmedAt"}},{"kind":"Field","name":{"kind":"Name","value":"receivedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"reference"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"allocations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}},{"kind":"Field","name":{"kind":"Name","value":"amountAllocated"}},{"kind":"Field","name":{"kind":"Name","value":"visitCharge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetVisitInvoiceDetailQuery, GetVisitInvoiceDetailQueryVariables>;
+export const GetVisitChargeBalancesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitChargeBalances"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitChargeBalances"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"effectiveTotal"}},{"kind":"Field","name":{"kind":"Name","value":"amountPaid"}},{"kind":"Field","name":{"kind":"Name","value":"remaining"}}]}}]}}]} as unknown as DocumentNode<GetVisitChargeBalancesQuery, GetVisitChargeBalancesQueryVariables>;

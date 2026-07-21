@@ -644,6 +644,15 @@ mutation CreateVisitCharge($data: CreateVisitChargeInput!) {
   }
 }
 
+mutation UpdateVisitCharge($data: UpdateVisitChargeInput!) {
+  updateVisitCharge(data: $data) {
+    id
+    visitId
+    quantity
+    unitPrice
+  }
+}
+
 mutation UpdateVisitComplaint($data: UpdateVisitComplaintInput!) {
   updateVisitComplaint(data: $data) {
     id
@@ -2785,3 +2794,451 @@ mutation ChangeStaffPassword($input: UpdateStaffPasswordInput!) {
     refreshToken
   }
 }
+
+# ============================================================
+# Visit Billing Summary (VisitBillingSummaryResolver)
+# ============================================================
+
+query GetVisitChargeSummary($visitId: ID!) {
+  visitChargeSummary(visitId: $visitId) {
+    total
+    lockedCharges {
+      id
+      visitId
+      chargeCatalogId
+      chargeName
+      description
+      quantity
+      unitPrice
+      totalAmount
+      overrideReason
+      status
+      chargeType
+      billingType
+      chargeDomain
+      organizationId
+      notes
+      chargeCatalog {
+        id
+        name
+      }
+      createdBy {
+        id
+        userCode
+        fullName
+      }
+    }
+    editableCharges {
+      id
+      visitId
+      chargeCatalogId
+      chargeName
+      description
+      quantity
+      unitPrice
+      totalAmount
+      overrideReason
+      status
+      chargeType
+      billingType
+      chargeDomain
+      organizationId
+      notes
+      chargeCatalog {
+        id
+        name
+      }
+      createdBy {
+        id
+        userCode
+        fullName
+      }
+    }
+  }
+}
+
+query GetVisitChargeTotal($visitId: ID!) {
+  visitChargeTotal(visitId: $visitId)
+}
+
+query GetUnbilledPrescriptions($visitId: ID!) {
+  unbilledPrescriptions(visitId: $visitId) {
+    id
+    visitId
+    drug
+    dose
+    route
+    frequency
+    isProvidedInHouse
+    startDate
+    endDate
+    notes
+    prescribingDoctorId
+    visitCharge {
+      id
+    }
+    createdAt
+    updatedAt
+    prescribingDoctor {
+      id
+      userCode
+      fullName
+    }
+  }
+}
+
+mutation CreateChargeFromPrescription($prescriptionId: ID!, $unitPrice: Float!) {
+  createChargeFromPrescription(
+    prescriptionId: $prescriptionId
+    unitPrice: $unitPrice
+  ) {
+    id
+    visitId
+    chargeName
+    description
+    quantity
+    unitPrice
+    totalAmount
+    status
+    chargeType
+    billingType
+    chargeDomain
+    organizationId
+    notes
+  }
+}
+
+# ============================================================
+# Visit Invoices (VisitBillingResolver)
+# ============================================================
+
+query GetLatestVisitInvoice($visitId: ID!) {
+  latestVisitInvoice(visitId: $visitId) {
+    id
+    visitId
+    invoiceNumber
+    status
+    subtotal
+    discountTotal
+    totalPayable
+    totalPaid
+    outstandingBalance
+    issuedAt
+    lockedAt
+    organizationId
+  }
+}
+
+query GetVisitInvoices($visitId: ID!) {
+  visitInvoices(visitId: $visitId) {
+    id
+    visitId
+    invoiceNumber
+    status
+    subtotal
+    discountTotal
+    totalPayable
+    totalPaid
+    outstandingBalance
+    issuedAt
+    lockedAt
+    organizationId
+  }
+}
+
+mutation GenerateVisitInvoice($visitId: ID!) {
+  generateVisitInvoice(visitId: $visitId) {
+    id
+    visitId
+    invoiceNumber
+    status
+    subtotal
+    discountTotal
+    totalPayable
+    issuedAt
+    lockedAt
+    organizationId
+  }
+}
+
+mutation IssueVisitInvoice($invoiceId: ID!) {
+  issueVisitInvoice(invoiceId: $invoiceId) {
+    id
+    visitId
+    invoiceNumber
+    status
+    subtotal
+    discountTotal
+    totalPayable
+    issuedAt
+    lockedAt
+    organizationId
+  }
+}
+
+query GetVisitCurrentTotals($visitId: ID!) {
+  visitCurrentTotals(visitId: $visitId) {
+    subtotal
+    discountTotal
+    surchargeTotal
+    totalPayable
+    totalPaid
+    outstandingBalance
+  }
+}
+
+# ============================================================
+# Visit Payments (VisitBillingResolver)
+# ============================================================
+
+query GetVisitPayments($visitId: ID!) {
+  visitPayments(visitId: $visitId) {
+    id
+    visitId
+    invoiceId
+    organizationId
+    amountPaid
+    currency
+    paymentMethod
+    status
+    paidAt
+    confirmedAt
+    receivedByStaffId
+    reference
+    notes
+    allocations {
+      id
+      visitChargeId
+      organizationId
+      amountAllocated
+      visitCharge {
+        id
+        chargeName
+        totalAmount
+        status
+      }
+    }
+  }
+}
+
+mutation CreateVisitPayment($data: CreateVisitPaymentInput!) {
+  createVisitPayment(data: $data) {
+    id
+    visitId
+    invoiceId
+    organizationId
+    amountPaid
+    currency
+    paymentMethod
+    status
+    paidAt
+    confirmedAt
+    receivedByStaffId
+    reference
+    notes
+    allocations {
+      id
+      visitChargeId
+      amountAllocated
+      visitCharge {
+        id
+        chargeName
+        totalAmount
+        status
+      }
+    }
+  }
+}
+
+mutation ConfirmVisitPayment($paymentId: ID!) {
+  confirmVisitPayment(paymentId: $paymentId) {
+    id
+    status
+    confirmedAt
+  }
+}
+
+mutation FailVisitPayment($paymentId: ID!, $reason: String!) {
+  failVisitPayment(paymentId: $paymentId, reason: $reason) {
+    id
+    status
+    notes
+  }
+}
+
+mutation RefundVisitPayment($paymentId: ID!, $reason: String!) {
+  refundVisitPayment(paymentId: $paymentId, reason: $reason) {
+    id
+    status
+    notes
+  }
+}
+
+# ============================================================
+# Billing Adjustments (VisitBillingResolver)
+# ============================================================
+
+query GetBillingAdjustments($visitId: ID!) {
+  billingAdjustments(visitId: $visitId) {
+    id
+    visitId
+    invoiceId
+    visitChargeId
+    appliedOn
+    type
+    method
+    value
+    amount
+    currency
+    reason
+    status
+    requestedByStaffId
+    approvedByStaffId
+    appliedAt
+    organizationId
+    notes
+    direction
+    reversesAdjustmentId
+    reversesAdjustment {
+      id
+      type
+      direction
+      value
+      amount
+      method
+    }
+  }
+}
+
+mutation RequestBillingAdjustment($data: CreateBillingAdjustmentInput!) {
+  requestBillingAdjustment(data: $data) {
+    id
+    visitId
+    invoiceId
+    visitChargeId
+    appliedOn
+    type
+    method
+    value
+    amount
+    currency
+    reason
+    status
+    requestedByStaffId
+    organizationId
+    notes
+    direction
+    reversesAdjustmentId
+  }
+}
+
+mutation ApproveBillingAdjustment($adjustmentId: ID!) {
+  approveBillingAdjustment(adjustmentId: $adjustmentId) {
+    id
+    status
+    approvedByStaffId
+  }
+}
+
+mutation RejectBillingAdjustment($adjustmentId: ID!, $reason: String!) {
+  rejectBillingAdjustment(adjustmentId: $adjustmentId, reason: $reason) {
+    id
+    status
+    notes
+  }
+}
+
+mutation ApplyBillingAdjustment($adjustmentId: ID!) {
+  applyBillingAdjustment(adjustmentId: $adjustmentId) {
+    id
+    status
+    appliedAt
+  }
+}
+
+query GetVisitInvoiceDetail($invoiceId: ID!) {
+  visitInvoiceDetail(invoiceId: $invoiceId) {
+    outstandingBalance
+    invoice {
+      id
+      visitId
+      invoiceNumber
+      status
+      subtotal
+      discountTotal
+      totalPayable
+      issuedAt
+      lockedAt
+      organizationId
+    }
+    lineItems {
+      id
+      invoiceId
+      visitChargeId
+      chargeName
+      quantity
+      unitPrice
+      totalAmount
+      chargeDomain
+      organizationId
+      visitCharge {
+        id
+        status
+      }
+    }
+    adjustmentSnapshots {
+      id
+      invoiceId
+      billingAdjustmentId
+      type
+      method
+      value
+      amount
+      direction
+      resolvedAmount
+      reason
+      organizationId
+      billingAdjustment {
+        id
+        status
+      }
+    }
+    payments {
+      id
+      visitId
+      invoiceId
+      organizationId
+      amountPaid
+      currency
+      paymentMethod
+      status
+      paidAt
+      confirmedAt
+      receivedByStaffId
+      reference
+      notes
+      allocations {
+        id
+        visitChargeId
+        amountAllocated
+        visitCharge {
+          id
+          chargeName
+          totalAmount
+          status
+        }
+      }
+    }
+  }
+}
+
+query GetVisitChargeBalances($visitId: ID!) {
+  visitChargeBalances(visitId: $visitId) {
+    visitChargeId
+    totalAmount
+    effectiveTotal
+    amountPaid
+    remaining
+  }
+}
+ 
