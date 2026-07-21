@@ -21,7 +21,7 @@ import VisitBedAllocationSection from '../components/visit-bed-allocation/VisitB
 import VisitTasksSection from '../components/visit-tasks/VisitTasksSection';
 import VisitNoteBoard from '../components/visit-note-positions/VisitNoteBoard';
 import Link from 'next/link';
-import { ClipboardList, FlaskConical } from 'lucide-react';
+import { ClipboardList, FlaskConical, Receipt } from 'lucide-react';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -74,6 +74,16 @@ export default async function VisitDetailPage({ params }: Props) {
                   <FlaskConical size={13} />
                 </div>
                 View lab requests
+              </Link>
+
+              <Link
+                href={`/dashboard/visits/${visit.id}/billing`}
+                className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] border border-[#E8E6E0] bg-white px-4 text-[13px] font-medium text-[#2C2C2A] transition hover:border-[#1D9E75]/30 hover:bg-[#F0FAF5] hover:text-[#1D9E75]"
+              >
+                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-[#F0FAF5] text-[#1D9E75]">
+                  <Receipt size={13} />
+                </div>
+                View billing
               </Link>
             </div>
           </div>
