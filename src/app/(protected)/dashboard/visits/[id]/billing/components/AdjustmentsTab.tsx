@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Modal, Select, Radio, Input, message } from 'antd';
 import {
+  AlertTriangle,
   CheckCircle2,
   FileText,
   Loader2,
@@ -34,10 +35,19 @@ const TYPE_OPTIONS = [
   { value: 'CORRECTION', label: 'Correction' },
   { value: 'ADJUSTMENT_REVERSAL', label: 'Reversal (undo another adjustment)' },
 ];
+const REDUCING_TYPES = ['DISCOUNT', 'WAIVER', 'WRITE_OFF', 'INSURANCE'];
+
+function wouldBeReducing(type: string, direction?: string): boolean {
+  if (type === 'CORRECTION') {
+    return direction === 'DECREASE';
+  }
+  return REDUCING_TYPES.includes(type);
+}
 
 interface FormState {
-  appliedOn: 'INVOICE' | 'CHARGE';
+  appliedOn: 'INVOICE' | 'CHARGE' | 'MULTIPLE_CHARGES';
   visitChargeId?: string;
+  visitChargeIds?: string[];
   type: string;
   method: 'PERCENTAGE' | 'FLAT';
   value?: string;
@@ -131,6 +141,100 @@ export default function AdjustmentsTab({
     [charges, balances]
   );
 
+  const selectedSingleCharge = useMemo(
+    () => payableCharges.find((c) => c.id === form.visitChargeId),
+    [payableCharges, form.visitChargeId]
+  );
+
+  const singleChargeRemaining = selectedSingleCharge
+    ? getRemaining(selectedSingleCharge.id, Number(selectedSingleCharge.totalAmount ?? 0))
+    : 0;
+
+  const singleResolvedAmount = useMemo(() => {
+    if (
+      form.appliedOn !== 'CHARGE' ||
+      !selectedSingleCharge ||
+      form.type === AdjustmentType.AdjustmentReversal
+    ) {
+      return 0;
+    }
+
+    const rawTotal = Number(selectedSingleCharge.totalAmount ?? 0);
+
+    return form.method === AdjustmentMethod.Flat
+      ? Number(form.amount || 0)
+      : (Number(form.value || 0) / 100) * rawTotal;
+  }, [form.appliedOn, form.method, form.amount, form.value, form.type, selectedSingleCharge]);
+
+  const exceedsSingleChargeCeiling =
+    form.appliedOn === 'CHARGE' &&
+    !!selectedSingleCharge &&
+    wouldBeReducing(form.type, form.direction) &&
+    singleResolvedAmount > singleChargeRemaining + 0.01;
+
+  const selectedMultiCharges = useMemo(
+    () =>
+      payableCharges.filter((c) => form.visitChargeIds?.includes(c.id)),
+    [payableCharges, form.visitChargeIds]
+  );
+
+  const combinedRemaining = useMemo(
+    () =>
+      selectedMultiCharges.reduce(
+        (sum, c) => sum + getRemaining(c.id, Number(c.totalAmount ?? 0)),
+        0
+      ),
+    [selectedMultiCharges, balances]
+  );
+
+  const combinedRawTotal = useMemo(
+    () =>
+      selectedMultiCharges.reduce(
+        (sum, c) => sum + Number(c.totalAmount ?? 0),
+        0
+      ),
+    [selectedMultiCharges]
+  );
+
+  const previewResolvedTotal =
+    form.type !== AdjustmentType.AdjustmentReversal && combinedRawTotal > 0
+      ? form.method === AdjustmentMethod.Flat
+        ? Number(form.amount || 0)
+        : (Number(form.value || 0) / 100) * combinedRawTotal
+      : 0;
+
+  const sharePreview = (charge: ChargeRow): number => {
+    if (combinedRawTotal <= 0) return 0;
+    return previewResolvedTotal * (Number(charge.totalAmount ?? 0) / combinedRawTotal);
+  };
+
+  const exceedsMultiChargeCeiling =
+    form.appliedOn === 'MULTIPLE_CHARGES' &&
+    selectedMultiCharges.length > 0 &&
+    wouldBeReducing(form.type, form.direction) &&
+    previewResolvedTotal > combinedRemaining + 0.01;
+
+  const ceilingExceeded = exceedsSingleChargeCeiling || exceedsMultiChargeCeiling;
+
+  const ceilingWarningText = (): string | null => {
+    if (exceedsSingleChargeCeiling && selectedSingleCharge) {
+      return (
+        `This would exceed the remaining balance of ${formatCurrency(
+          singleChargeRemaining
+        )} on "${selectedSingleCharge.chargeName}".`
+      );
+    }
+
+    if (exceedsMultiChargeCeiling) {
+      return (
+        `This would exceed the combined remaining balance of ` +
+        `${formatCurrency(combinedRemaining)} across the selected charges.`
+      );
+    }
+
+    return null;
+  };
+
   const reversibleAdjustments = useMemo(
     () =>
       adjustments.filter(
@@ -147,6 +251,13 @@ export default function AdjustmentsTab({
       charges.find((c) => c.id === visitChargeId)?.chargeName ??
       'Charge no longer available'
     );
+  };
+
+  const getMultiChargeNames = (a: Adjustment): string[] => {
+    const links = (a as { chargeLinks?: { visitCharge?: { chargeName?: string } }[] })
+      .chargeLinks;
+    if (!links || links.length === 0) return [];
+    return links.map((l) => l.visitCharge?.chargeName ?? 'Unknown charge');
   };
 
   const openRequestForm = () => {
@@ -184,6 +295,21 @@ export default function AdjustmentsTab({
       return;
     }
 
+    if (
+      form.appliedOn === 'MULTIPLE_CHARGES' &&
+      (!form.visitChargeIds || form.visitChargeIds.length === 0)
+    ) {
+      message.error('Select at least one charge');
+      return;
+    }
+
+    if (ceilingExceeded) {
+      message.error(
+        ceilingWarningText() ?? 'This exceeds the remaining balance'
+      );
+      return;
+    }
+
     const body: Record<string, unknown> = {
       visitId,
       appliedOn: form.appliedOn,
@@ -192,6 +318,8 @@ export default function AdjustmentsTab({
       notes: form.notes?.trim() || undefined,
       visitChargeId:
         form.appliedOn === 'CHARGE' ? form.visitChargeId : undefined,
+      visitChargeIds:
+        form.appliedOn === 'MULTIPLE_CHARGES' ? form.visitChargeIds : undefined,
     };
 
     if (form.type === AdjustmentType.AdjustmentReversal) {
@@ -317,6 +445,11 @@ export default function AdjustmentsTab({
                   ? getChargeName(a.visitChargeId)
                   : null;
 
+              const multiChargeNames =
+                a.appliedOn === 'MULTIPLE_CHARGES'
+                  ? getMultiChargeNames(a)
+                  : [];
+
               return (
                 <div key={a.id} className="px-4 py-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -340,7 +473,11 @@ export default function AdjustmentsTab({
                         · Applied on{' '}
                         {a.appliedOn === 'CHARGE' && chargeName
                           ? `charge: ${chargeName}`
-                          : 'whole invoice'}
+                          : a.appliedOn === 'MULTIPLE_CHARGES'
+                            ? multiChargeNames.length > 0
+                              ? `${multiChargeNames.length} charges: ${multiChargeNames.join(', ')}`
+                              : `${a.chargeLinks?.length ?? 0} charges`
+                            : 'whole invoice'}
                       </p>
 
                       <p className="mt-1 text-sm text-slate-500">
@@ -438,6 +575,8 @@ export default function AdjustmentsTab({
         onOk={submitRequest}
         okText="Submit"
         confirmLoading={submitting}
+        okButtonProps={{ disabled: ceilingExceeded }}
+        width={form.appliedOn === 'MULTIPLE_CHARGES' ? 640 : undefined}
       >
         <div className="space-y-4 py-2">
           {form.type !== AdjustmentType.AdjustmentReversal && (
@@ -466,6 +605,9 @@ export default function AdjustmentsTab({
                 >
                   <Radio.Button value="INVOICE">Whole invoice</Radio.Button>
                   <Radio.Button value="CHARGE">Specific charge</Radio.Button>
+                  <Radio.Button value="MULTIPLE_CHARGES">
+                    Multiple charges
+                  </Radio.Button>
                 </Radio.Group>
               </div>
 
@@ -493,6 +635,66 @@ export default function AdjustmentsTab({
                         : undefined
                     }
                   />
+                </div>
+              )}
+
+              {form.appliedOn === 'MULTIPLE_CHARGES' && (
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+                    Charges
+                  </label>
+                  <Select
+                    mode="multiple"
+                    className="w-full"
+                    placeholder="Select two or more charges"
+                    value={form.visitChargeIds}
+                    onChange={(v) =>
+                      setForm((f) => ({ ...f, visitChargeIds: v }))
+                    }
+                    options={payableCharges.map((c) => ({
+                      value: c.id,
+                      label: `${c.chargeName} — ${formatCurrency(
+                        getRemaining(c.id, Number(c.totalAmount ?? 0))
+                      )} remaining`,
+                    }))}
+                    notFoundContent={
+                      payableCharges.length === 0
+                        ? 'All charges on this visit are fully paid'
+                        : undefined
+                    }
+                  />
+
+                  {selectedMultiCharges.length > 0 && (
+                    <div className="mt-2.5 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-semibold text-slate-600">
+                          Combined remaining
+                        </span>
+                        <span className="font-bold text-slate-800">
+                          {formatCurrency(combinedRemaining)}
+                        </span>
+                      </div>
+
+                      {previewResolvedTotal > 0 && (
+                        <div className="mt-2 space-y-1 border-t border-slate-200 pt-2">
+                          <p className="text-[11px] font-medium uppercase text-slate-400">
+                            Preview — how this splits across the selected charges
+                          </p>
+                          {selectedMultiCharges.map((c) => (
+                            <div
+                              key={c.id}
+                              className="flex items-center justify-between text-xs text-slate-600"
+                            >
+                              <span>{c.chargeName}</span>
+                              <span className="font-medium text-blue-700">
+                                {formatCurrency(sharePreview(c))}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -531,7 +733,8 @@ export default function AdjustmentsTab({
               {form.method === AdjustmentMethod.Flat ? (
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
-                    Amount
+                    Amount{' '}
+                    {form.appliedOn === 'MULTIPLE_CHARGES' && '(combined, across all selected charges)'}
                   </label>
                   <Input
                     type="number"
@@ -554,6 +757,15 @@ export default function AdjustmentsTab({
                       setForm((f) => ({ ...f, value: e.target.value }))
                     }
                   />
+                </div>
+              )}
+              {ceilingExceeded && (
+                <div className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 px-3.5 py-3">
+                  <AlertTriangle
+                    size={15}
+                    className="mt-0.5 shrink-0 text-red-600"
+                  />
+                  <p className="text-xs text-red-700">{ceilingWarningText()}</p>
                 </div>
               )}
             </>
@@ -581,8 +793,9 @@ export default function AdjustmentsTab({
                 }))}
               />
               <p className="mt-1.5 text-xs text-slate-400">
-                Method, amount, and direction are derived automatically from
-                the adjustment being reversed.
+                Method, amount, direction, and (for multi-charge originals)
+                the linked charges are all derived automatically from the
+                adjustment being reversed.
               </p>
             </div>
           )}
