@@ -30,22 +30,19 @@ const TYPE_OPTIONS = [
   { value: 'DISCOUNT', label: 'Discount' },
   { value: 'WAIVER', label: 'Waiver' },
   { value: 'WRITE_OFF', label: 'Write-off' },
-  { value: 'SURCHARGE', label: 'Surcharge' },
-  { value: 'INSURANCE', label: 'Insurance' },
-  { value: 'CORRECTION', label: 'Correction' },
-  { value: 'ADJUSTMENT_REVERSAL', label: 'Reversal (undo another adjustment)' },
 ];
+
 const REDUCING_TYPES = ['DISCOUNT', 'WAIVER', 'WRITE_OFF', 'INSURANCE'];
 
 function wouldBeReducing(type: string, direction?: string): boolean {
-  if (type === 'CORRECTION') {
+  if (type === 'CORRECTION' || type === 'ADJUSTMENT_REVERSAL') {
     return direction === 'DECREASE';
   }
   return REDUCING_TYPES.includes(type);
 }
 
 interface FormState {
-  appliedOn: 'INVOICE' | 'CHARGE' | 'MULTIPLE_CHARGES';
+  appliedOn: 'CHARGE' | 'MULTIPLE_CHARGES';
   visitChargeId?: string;
   visitChargeIds?: string[];
   type: string;
@@ -59,7 +56,7 @@ interface FormState {
 }
 
 const EMPTY_FORM: FormState = {
-  appliedOn: 'INVOICE',
+  appliedOn: 'CHARGE',
   type: 'DISCOUNT',
   method: 'FLAT',
   reason: '',
@@ -71,6 +68,16 @@ interface ChargeBalance {
   effectiveTotal: number;
   amountPaid: number;
   remaining: number;
+}
+
+interface CurrentTotals {
+  outstandingBalance: number;
+}
+
+interface SettlementImpact {
+  fullySettles: boolean;
+  createsCredit: boolean;
+  creditAmount: number;
 }
 
 export default function AdjustmentsTab({
@@ -91,9 +98,13 @@ export default function AdjustmentsTab({
   const [rejectTarget, setRejectTarget] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
 
+  const [confirmApplyTarget, setConfirmApplyTarget] = useState<string | null>(null);
+  const [confirmApplyImpact, setConfirmApplyImpact] = useState<SettlementImpact | null>(null);
+
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   const [balances, setBalances] = useState<Record<string, ChargeBalance>>({});
+  const [currentTotals, setCurrentTotals] = useState<CurrentTotals | null>(null);
 
   const refreshBalances = async () => {
     const res = await clientFetch(
@@ -111,6 +122,17 @@ export default function AdjustmentsTab({
     }
   };
 
+  const refreshCurrentTotals = async () => {
+    const res = await clientFetch(
+      `/api/visit-invoice/current-totals?visitId=${visitId}`,
+      { cache: 'no-store' }
+    );
+    const json = await res.json();
+    if (res.ok && json.totals) {
+      setCurrentTotals(json.totals);
+    }
+  };
+
   const refresh = async () => {
     const res = await clientFetch(
       `/api/billing-adjustment/list?visitId=${visitId}`,
@@ -125,6 +147,7 @@ export default function AdjustmentsTab({
   useEffect(() => {
     refresh();
     refreshBalances();
+    refreshCurrentTotals();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
@@ -151,11 +174,7 @@ export default function AdjustmentsTab({
     : 0;
 
   const singleResolvedAmount = useMemo(() => {
-    if (
-      form.appliedOn !== 'CHARGE' ||
-      !selectedSingleCharge ||
-      form.type === AdjustmentType.AdjustmentReversal
-    ) {
+    if (form.appliedOn !== 'CHARGE' || !selectedSingleCharge) {
       return 0;
     }
 
@@ -164,7 +183,7 @@ export default function AdjustmentsTab({
     return form.method === AdjustmentMethod.Flat
       ? Number(form.amount || 0)
       : (Number(form.value || 0) / 100) * rawTotal;
-  }, [form.appliedOn, form.method, form.amount, form.value, form.type, selectedSingleCharge]);
+  }, [form.appliedOn, form.method, form.amount, form.value, selectedSingleCharge]);
 
   const exceedsSingleChargeCeiling =
     form.appliedOn === 'CHARGE' &&
@@ -197,7 +216,7 @@ export default function AdjustmentsTab({
   );
 
   const previewResolvedTotal =
-    form.type !== AdjustmentType.AdjustmentReversal && combinedRawTotal > 0
+    combinedRawTotal > 0
       ? form.method === AdjustmentMethod.Flat
         ? Number(form.amount || 0)
         : (Number(form.value || 0) / 100) * combinedRawTotal
@@ -218,11 +237,9 @@ export default function AdjustmentsTab({
 
   const ceilingWarningText = (): string | null => {
     if (exceedsSingleChargeCeiling && selectedSingleCharge) {
-      return (
-        `This would exceed the remaining balance of ${formatCurrency(
-          singleChargeRemaining
-        )} on "${selectedSingleCharge.chargeName}".`
-      );
+      return `This would exceed the remaining balance of ${formatCurrency(
+        singleChargeRemaining
+      )} on "${selectedSingleCharge.chargeName}".`;
     }
 
     if (exceedsMultiChargeCeiling) {
@@ -240,6 +257,7 @@ export default function AdjustmentsTab({
       adjustments.filter(
         (a) =>
           a.status === 'APPLIED' &&
+          a.type !== 'ADJUSTMENT_REVERSAL' &&
           !adjustments.some((other) => other.reversesAdjustmentId === a.id)
       ),
     [adjustments]
@@ -258,6 +276,49 @@ export default function AdjustmentsTab({
       .chargeLinks;
     if (!links || links.length === 0) return [];
     return links.map((l) => l.visitCharge?.chargeName ?? 'Unknown charge');
+  };
+
+  const resolveAdjustmentAmount = (a: Adjustment): number => {
+    let baseAmount = 0;
+
+    if (a.appliedOn === 'CHARGE') {
+      const charge = charges.find((c) => c.id === a.visitChargeId);
+      baseAmount = Number(charge?.totalAmount ?? 0);
+    } else if (a.appliedOn === 'MULTIPLE_CHARGES') {
+      const links = (a as { chargeLinks?: { visitCharge?: { totalAmount?: number } }[] })
+        .chargeLinks ?? [];
+      baseAmount = links.reduce(
+        (sum, l) => sum + Number(l.visitCharge?.totalAmount ?? 0),
+        0
+      );
+    }
+
+    return a.method === 'FLAT'
+      ? Number(a.amount ?? 0)
+      : (Number(a.value ?? 0) / 100) * baseAmount;
+  };
+
+  const getSettlementImpact = (a: Adjustment): SettlementImpact | null => {
+    if (!currentTotals) return null;
+
+    const resolved = resolveAdjustmentAmount(a);
+    const reducing = wouldBeReducing(a.type, a.direction ?? undefined);
+
+    const resultingOutstanding = reducing
+      ? currentTotals.outstandingBalance - resolved
+      : currentTotals.outstandingBalance + resolved;
+
+    const fullySettles =
+      resultingOutstanding <= 0.01 && resultingOutstanding > -0.01;
+    const createsCredit = resultingOutstanding < -0.01;
+
+    if (!fullySettles && !createsCredit) return null;
+
+    return {
+      fullySettles,
+      createsCredit,
+      creditAmount: createsCredit ? Math.abs(resultingOutstanding) : 0,
+    };
   };
 
   const openRequestForm = () => {
@@ -290,12 +351,17 @@ export default function AdjustmentsTab({
       return;
     }
 
-    if (form.appliedOn === 'CHARGE' && !form.visitChargeId) {
+    if (
+      form.type !== 'ADJUSTMENT_REVERSAL' &&
+      form.appliedOn === 'CHARGE' &&
+      !form.visitChargeId
+    ) {
       message.error('Select which charge this applies to');
       return;
     }
 
     if (
+      form.type !== 'ADJUSTMENT_REVERSAL' &&
       form.appliedOn === 'MULTIPLE_CHARGES' &&
       (!form.visitChargeIds || form.visitChargeIds.length === 0)
     ) {
@@ -385,10 +451,28 @@ export default function AdjustmentsTab({
       }
 
       message.success('Done');
-      await Promise.all([refresh(), refreshBalances()]);
+      await Promise.all([refresh(), refreshBalances(), refreshCurrentTotals()]);
     } finally {
       setActionLoadingId(null);
     }
+  };
+
+  const handleApplyClick = (a: Adjustment) => {
+    const impact = getSettlementImpact(a);
+    if (impact) {
+      setConfirmApplyImpact(impact);
+      setConfirmApplyTarget(a.id);
+    } else {
+      runAction(a.id, 'apply');
+    }
+  };
+
+  const confirmApply = async () => {
+    if (!confirmApplyTarget) return;
+    const id = confirmApplyTarget;
+    setConfirmApplyTarget(null);
+    setConfirmApplyImpact(null);
+    await runAction(id, 'apply');
   };
 
   const submitReject = async () => {
@@ -428,8 +512,8 @@ export default function AdjustmentsTab({
             No adjustments yet
           </h3>
           <p className="mt-1 max-w-sm text-sm text-slate-500">
-            Discounts, waivers, corrections, and reversals for this visit
-            will appear here.
+            Discounts, waivers, and write-offs for this visit will appear
+            here.
           </p>
         </div>
       ) : (
@@ -526,7 +610,7 @@ export default function AdjustmentsTab({
                         <button
                           type="button"
                           disabled={actionLoadingId === a.id}
-                          onClick={() => runAction(a.id, 'apply')}
+                          onClick={() => handleApplyClick(a)}
                           className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-700 disabled:opacity-60"
                         >
                           {actionLoadingId === a.id ? (
@@ -538,16 +622,18 @@ export default function AdjustmentsTab({
                         </button>
                       )}
 
-                      {a.status === 'APPLIED' && !alreadyReversed && (
-                        <button
-                          type="button"
-                          onClick={() => openReversalForm(a.id)}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700"
-                        >
-                          <RotateCcw size={13} />
-                          Reverse
-                        </button>
-                      )}
+                      {a.status === 'APPLIED' &&
+                        !alreadyReversed &&
+                        a.type !== 'ADJUSTMENT_REVERSAL' && (
+                          <button
+                            type="button"
+                            onClick={() => openReversalForm(a.id)}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700"
+                          >
+                            <RotateCcw size={13} />
+                            Reverse
+                          </button>
+                        )}
 
                       {a.status === 'REJECTED' && (
                         <span className="inline-flex items-center gap-1.5 text-xs text-slate-400">
@@ -603,7 +689,6 @@ export default function AdjustmentsTab({
                     setForm((f) => ({ ...f, appliedOn: e.target.value }))
                   }
                 >
-                  <Radio.Button value="INVOICE">Whole invoice</Radio.Button>
                   <Radio.Button value="CHARGE">Specific charge</Radio.Button>
                   <Radio.Button value="MULTIPLE_CHARGES">
                     Multiple charges
@@ -698,23 +783,6 @@ export default function AdjustmentsTab({
                 </div>
               )}
 
-              {form.type === AdjustmentType.Correction && (
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
-                    Direction
-                  </label>
-                  <Radio.Group
-                    value={form.direction}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, direction: e.target.value }))
-                    }
-                  >
-                    <Radio.Button value="INCREASE">Increase bill</Radio.Button>
-                    <Radio.Button value="DECREASE">Decrease bill</Radio.Button>
-                  </Radio.Group>
-                </div>
-              )}
-
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
                   Method
@@ -759,6 +827,7 @@ export default function AdjustmentsTab({
                   />
                 </div>
               )}
+
               {ceilingExceeded && (
                 <div className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 px-3.5 py-3">
                   <AlertTriangle
@@ -831,6 +900,42 @@ export default function AdjustmentsTab({
           value={rejectReason}
           onChange={(e) => setRejectReason(e.target.value)}
         />
+      </Modal>
+
+      <Modal
+        title={
+          confirmApplyImpact?.createsCredit
+            ? 'This will create a credit balance'
+            : 'This will fully settle the visit'
+        }
+        open={!!confirmApplyTarget}
+        onCancel={() => {
+          setConfirmApplyTarget(null);
+          setConfirmApplyImpact(null);
+        }}
+        onOk={confirmApply}
+        okText={confirmApplyImpact?.createsCredit ? 'Yes, proceed' : 'Yes, apply it'}
+        okButtonProps={{ danger: true }}
+      >
+        <div className="flex items-start gap-2.5">
+          <AlertTriangle size={18} className="mt-0.5 shrink-0 text-red-600" />
+          {confirmApplyImpact?.createsCredit ? (
+            <p className="text-sm text-slate-700">
+              Applying this adjustment will overshoot past zero, leaving a
+              credit balance of {formatCurrency(confirmApplyImpact.creditAmount)}{' '}
+              owed back to the patient. This does not get refunded
+              automatically — it will need to be processed separately once
+              applied. Please confirm you want to proceed.
+            </p>
+          ) : (
+            <p className="text-sm text-slate-700">
+              Applying this adjustment will bring this visit's outstanding
+              balance to ₦0.00. There is no direct way to undo this — the
+              only path back is a separate, tracked reversal. Please confirm
+              you want to proceed.
+            </p>
+          )}
+        </div>
       </Modal>
     </div>
   );

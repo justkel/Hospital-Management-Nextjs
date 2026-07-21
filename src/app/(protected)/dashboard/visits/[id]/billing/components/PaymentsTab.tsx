@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Modal, Select, Checkbox, Input, message } from 'antd';
 import {
+  AlertTriangle,
   Banknote,
   CheckCircle2,
   Loader2,
-  RotateCcw,
   Wallet,
   XCircle,
 } from 'lucide-react';
@@ -46,6 +46,10 @@ interface ChargeBalance {
   remaining: number;
 }
 
+interface CurrentTotals {
+  outstandingBalance: number;
+}
+
 export default function PaymentsTab({
   visitId,
   payments,
@@ -70,15 +74,15 @@ export default function PaymentsTab({
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const [reasonTarget, setReasonTarget] = useState<{
-    id: string;
-    action: 'fail' | 'refund';
-  } | null>(null);
-  const [reason, setReason] = useState('');
+  const [failTarget, setFailTarget] = useState<string | null>(null);
+  const [failReason, setFailReason] = useState('');
+
+  const [confirmSettleTarget, setConfirmSettleTarget] = useState<string | null>(null);
 
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   const [balances, setBalances] = useState<Record<string, ChargeBalance>>({});
+  const [currentTotals, setCurrentTotals] = useState<CurrentTotals | null>(null);
 
   const canAttachInvoice = !!latestInvoice && latestInvoice.status !== 'DRAFT';
 
@@ -95,6 +99,17 @@ export default function PaymentsTab({
         map[b.visitChargeId] = b;
       }
       setBalances(map);
+    }
+  };
+
+  const refreshCurrentTotals = async () => {
+    const res = await clientFetch(
+      `/api/visit-invoice/current-totals?visitId=${visitId}`,
+      { cache: 'no-store' }
+    );
+    const json = await res.json();
+    if (res.ok && json.totals) {
+      setCurrentTotals(json.totals);
     }
   };
 
@@ -122,6 +137,7 @@ export default function PaymentsTab({
   useEffect(() => {
     refreshPayments();
     refreshBalances();
+    refreshCurrentTotals();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
@@ -150,6 +166,11 @@ export default function PaymentsTab({
       ),
     [selectedChargeIds, amounts]
   );
+
+  const wouldFullySettleOnConfirm = (payment: PaymentRow): boolean => {
+    if (!currentTotals) return false;
+    return Number(payment.amountPaid) >= currentTotals.outstandingBalance - 0.01;
+  };
 
   const openForm = () => {
     setSelectedChargeIds([]);
@@ -269,34 +290,45 @@ export default function PaymentsTab({
         refreshPayments(),
         refreshInvoice(),
         refreshBalances(),
+        refreshCurrentTotals(),
       ]);
     } finally {
       setActionLoadingId(null);
     }
   };
 
-  const submitReasonAction = async () => {
-    if (!reasonTarget) return;
+  const handleConfirmClick = (payment: PaymentRow) => {
+    if (wouldFullySettleOnConfirm(payment)) {
+      setConfirmSettleTarget(payment.id);
+    } else {
+      confirmPayment(payment.id);
+    }
+  };
 
-    if (!reason.trim()) {
+  const confirmSettle = async () => {
+    if (!confirmSettleTarget) return;
+    const id = confirmSettleTarget;
+    setConfirmSettleTarget(null);
+    await confirmPayment(id);
+  };
+
+  const submitFailReason = async () => {
+    if (!failTarget) return;
+
+    if (!failReason.trim()) {
       message.error('A reason is required');
       return;
     }
 
-    setActionLoadingId(reasonTarget.id);
+    setActionLoadingId(failTarget);
 
     try {
-      const path =
-        reasonTarget.action === 'fail'
-          ? '/api/visit-payment/fail'
-          : '/api/visit-payment/refund';
-
-      const res = await clientFetch(path, {
+      const res = await clientFetch('/api/visit-payment/fail', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          paymentId: reasonTarget.id,
-          reason: reason.trim(),
+          paymentId: failTarget,
+          reason: failReason.trim(),
         }),
       });
 
@@ -308,12 +340,13 @@ export default function PaymentsTab({
       }
 
       message.success('Done');
-      setReasonTarget(null);
-      setReason('');
+      setFailTarget(null);
+      setFailReason('');
       await Promise.all([
         refreshPayments(),
         refreshInvoice(),
         refreshBalances(),
+        refreshCurrentTotals(),
       ]);
     } finally {
       setActionLoadingId(null);
@@ -392,7 +425,7 @@ export default function PaymentsTab({
                         <button
                           type="button"
                           disabled={actionLoadingId === p.id}
-                          onClick={() => confirmPayment(p.id)}
+                          onClick={() => handleConfirmClick(p)}
                           className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-emerald-700 disabled:opacity-60"
                         >
                           {actionLoadingId === p.id ? (
@@ -405,29 +438,13 @@ export default function PaymentsTab({
                         <button
                           type="button"
                           disabled={actionLoadingId === p.id}
-                          onClick={() =>
-                            setReasonTarget({ id: p.id, action: 'fail' })
-                          }
+                          onClick={() => setFailTarget(p.id)}
                           className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 transition hover:bg-red-100 disabled:opacity-60"
                         >
                           <XCircle size={13} />
                           Fail
                         </button>
                       </>
-                    )}
-
-                    {p.status === 'SUCCESS' && (
-                      <button
-                        type="button"
-                        disabled={actionLoadingId === p.id}
-                        onClick={() =>
-                          setReasonTarget({ id: p.id, action: 'refund' })
-                        }
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700 disabled:opacity-60"
-                      >
-                        <RotateCcw size={13} />
-                        Refund
-                      </button>
                     )}
                   </div>
                 </div>
@@ -576,17 +593,12 @@ export default function PaymentsTab({
         </div>
       </Modal>
 
-
       <Modal
-        title={
-          reasonTarget?.action === 'fail'
-            ? 'Mark payment as failed'
-            : 'Refund payment'
-        }
-        open={!!reasonTarget}
-        onCancel={() => setReasonTarget(null)}
-        onOk={submitReasonAction}
-        okText={reasonTarget?.action === 'fail' ? 'Mark failed' : 'Refund'}
+        title="Mark payment as failed"
+        open={!!failTarget}
+        onCancel={() => setFailTarget(null)}
+        onOk={submitFailReason}
+        okText="Mark failed"
         okButtonProps={{ danger: true }}
       >
         <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
@@ -594,9 +606,29 @@ export default function PaymentsTab({
         </label>
         <Input.TextArea
           rows={2}
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
+          value={failReason}
+          onChange={(e) => setFailReason(e.target.value)}
         />
+      </Modal>
+
+      <Modal
+        title="This will fully settle the visit"
+        open={!!confirmSettleTarget}
+        onCancel={() => setConfirmSettleTarget(null)}
+        onOk={confirmSettle}
+        okText="Yes, confirm it"
+        okButtonProps={{ danger: true }}
+      >
+        <div className="flex items-start gap-2.5">
+          <AlertTriangle size={18} className="mt-0.5 shrink-0 text-red-600" />
+          <p className="text-sm text-slate-700">
+            Confirming this payment will bring this visit's outstanding
+            balance to ₦0.00. There is no refund option in this system — the
+            only way to correct a mistaken confirmation is through a
+            separate, tracked billing adjustment. Please confirm you want
+            to proceed.
+          </p>
+        </div>
       </Modal>
     </div>
   );
