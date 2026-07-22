@@ -319,6 +319,7 @@ export default function BillingClient({
             {activeTab === 'payments' && (
               <PaymentsTab
                 visitId={visit.id}
+                patientId={visit.patientId}
                 payments={payments}
                 charges={charges}
                 latestInvoice={latestInvoice}

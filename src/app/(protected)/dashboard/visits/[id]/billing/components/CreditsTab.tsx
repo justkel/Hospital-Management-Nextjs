@@ -36,7 +36,13 @@ function formatDateTime(value?: string | null) {
   });
 }
 
-const REFUND_METHODS = ['CASH', 'POS', 'CARD', 'TRANSFER', 'INSURANCE', 'WALLET'];
+const BASE_RESOLUTION_METHODS = [
+  'CASH',
+  'POS',
+  'CARD',
+  'TRANSFER',
+  'INSURANCE',
+];
 
 interface FormState {
   amount: string;
@@ -76,6 +82,12 @@ export default function CreditsTab({
 
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
+  const [walletEnabled, setWalletEnabled] = useState(false);
+
+  const resolutionMethods = walletEnabled
+    ? [...BASE_RESOLUTION_METHODS, 'PATIENT_WALLET']
+    : BASE_RESOLUTION_METHODS;
+
   const refreshBalance = async () => {
     const res = await clientFetch(
       `/api/visit-credit/balance?visitId=${visitId}`,
@@ -98,9 +110,24 @@ export default function CreditsTab({
     }
   };
 
+  const refreshFeatureFlags = async () => {
+    const res = await clientFetch('/api/feature-flag/list', {
+      cache: 'no-store',
+    });
+    const json = await res.json();
+    if (res.ok && json.flags) {
+      const walletFlag = json.flags.find(
+        (f: { flagKey: string; enabled: boolean }) =>
+          f.flagKey === 'PATIENT_WALLET'
+      );
+      setWalletEnabled(!!walletFlag?.enabled);
+    }
+  };
+
   useEffect(() => {
     refreshBalance();
     refreshCredits();
+    refreshFeatureFlags();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
@@ -307,7 +334,7 @@ export default function CreditsTab({
                       </span>
                       <StatusBadge status={c.status} />
                       <span className="rounded-full border !border-slate-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-slate-500">
-                        {c.method}
+                        {c.method.replace(/_/g, ' ')}
                       </span>
                     </div>
 
@@ -411,15 +438,34 @@ export default function CreditsTab({
 
           <div>
             <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
-              Method
+              {form.method === 'PATIENT_WALLET'
+                ? "Resolution — sends this amount to the patient's wallet"
+                : 'Method'}
             </label>
             <Select
               className="w-full"
               value={form.method}
               onChange={(v) => setForm((f) => ({ ...f, method: v }))}
-              options={REFUND_METHODS.map((m) => ({ value: m, label: m }))}
+              options={resolutionMethods.map((m) => ({
+                value: m,
+                label: m === 'PATIENT_WALLET' ? 'Patient Wallet' : m,
+              }))}
             />
           </div>
+
+          {form.method === 'PATIENT_WALLET' && (
+            <div className="flex items-start gap-2.5 rounded-lg border !border-blue-200 !bg-blue-50 px-3.5 py-3">
+              <AlertTriangle
+                size={15}
+                className="mt-0.5 shrink-0 !text-blue-600"
+              />
+              <p className="text-xs !text-blue-800">
+                This moves the amount into the patient's wallet instead of
+                refunding it directly. Once confirmed, it cannot be paid out
+                as cash — it can only be spent on a future visit charge.
+              </p>
+            </div>
+          )}
 
           <div>
             <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">

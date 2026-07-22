@@ -36,7 +36,7 @@ function formatDateTime(value?: string | null) {
   });
 }
 
-const PAYMENT_METHODS = ['CASH', 'POS', 'CARD', 'TRANSFER', 'INSURANCE', 'WALLET'];
+const BASE_PAYMENT_METHODS = ['CASH', 'POS', 'CARD', 'TRANSFER', 'INSURANCE'];
 
 interface ChargeBalance {
   visitChargeId: string;
@@ -52,6 +52,7 @@ interface CurrentTotals {
 
 export default function PaymentsTab({
   visitId,
+  patientId,
   payments,
   charges,
   latestInvoice,
@@ -59,6 +60,7 @@ export default function PaymentsTab({
   onLatestInvoiceChange,
 }: {
   visitId: string;
+  patientId: string;
   payments: PaymentRow[];
   charges: ChargeRow[];
   latestInvoice: InvoiceRow | null;
@@ -84,7 +86,14 @@ export default function PaymentsTab({
   const [balances, setBalances] = useState<Record<string, ChargeBalance>>({});
   const [currentTotals, setCurrentTotals] = useState<CurrentTotals | null>(null);
 
+  const [walletEnabled, setWalletEnabled] = useState(false);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+
   const canAttachInvoice = !!latestInvoice && latestInvoice.status !== 'DRAFT';
+
+  const paymentMethods = walletEnabled
+    ? [...BASE_PAYMENT_METHODS, 'WALLET']
+    : BASE_PAYMENT_METHODS;
 
   const refreshBalances = async () => {
     const res = await clientFetch(
@@ -134,12 +143,45 @@ export default function PaymentsTab({
     }
   };
 
+  const refreshFeatureFlags = async () => {
+    const res = await clientFetch('/api/feature-flag/list', {
+      cache: 'no-store',
+    });
+    const json = await res.json();
+    if (res.ok && json.flags) {
+      const walletFlag = json.flags.find(
+        (f: { flagKey: string; enabled: boolean }) =>
+          f.flagKey === 'PATIENT_WALLET'
+      );
+      setWalletEnabled(!!walletFlag?.enabled);
+    }
+  };
+
+  const refreshWalletBalance = async () => {
+    const res = await clientFetch(
+      `/api/patient-wallet/balance?patientId=${patientId}`,
+      { cache: 'no-store' }
+    );
+    const json = await res.json();
+    if (res.ok && json.balance !== undefined) {
+      setWalletBalance(json.balance);
+    }
+  };
+
   useEffect(() => {
     refreshPayments();
     refreshBalances();
     refreshCurrentTotals();
+    refreshFeatureFlags();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
+
+  useEffect(() => {
+    if (walletEnabled) {
+      refreshWalletBalance();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletEnabled, patientId]);
 
   const getRemaining = (chargeId: string, totalAmount: number): number => {
     const b = balances[chargeId];
@@ -166,6 +208,11 @@ export default function PaymentsTab({
       ),
     [selectedChargeIds, amounts]
   );
+
+  const exceedsWalletBalance =
+    paymentMethod === 'WALLET' &&
+    walletBalance !== null &&
+    totalEntered > walletBalance + 0.01;
 
   const wouldFullySettleOnConfirm = (payment: PaymentRow): boolean => {
     if (!currentTotals) return false;
@@ -212,6 +259,15 @@ export default function PaymentsTab({
 
     if (totalEntered <= 0) {
       message.error('Enter at least one non-zero allocation amount');
+      return;
+    }
+
+    if (exceedsWalletBalance) {
+      message.error(
+        `This exceeds the patient's current wallet balance of ${formatCurrency(
+          walletBalance
+        )}`
+      );
       return;
     }
 
@@ -291,6 +347,7 @@ export default function PaymentsTab({
         refreshInvoice(),
         refreshBalances(),
         refreshCurrentTotals(),
+        refreshWalletBalance(),
       ]);
     } finally {
       setActionLoadingId(null);
@@ -461,6 +518,7 @@ export default function PaymentsTab({
         onOk={submitPayment}
         okText="Record payment"
         confirmLoading={submitting}
+        okButtonProps={{ disabled: exceedsWalletBalance }}
         width={560}
       >
         <div className="space-y-4 py-2">
@@ -555,9 +613,50 @@ export default function PaymentsTab({
               className="w-full"
               value={paymentMethod}
               onChange={setPaymentMethod}
-              options={PAYMENT_METHODS.map((m) => ({ value: m, label: m }))}
+              options={paymentMethods.map((m) => ({ value: m, label: m }))}
             />
           </div>
+
+          {paymentMethod === 'WALLET' && (
+            <div
+              className={`rounded-lg border px-4 py-3 ${
+                exceedsWalletBalance
+                  ? '!border-red-200 !bg-red-50'
+                  : '!border-blue-200 !bg-blue-50'
+              }`}
+            >
+              <div className="flex items-center justify-between text-sm">
+                <span
+                  className={`font-medium ${
+                    exceedsWalletBalance ? '!text-red-700' : '!text-blue-700'
+                  }`}
+                >
+                  Patient wallet balance
+                </span>
+                <span
+                  className={`font-bold ${
+                    exceedsWalletBalance ? '!text-red-800' : '!text-blue-900'
+                  }`}
+                >
+                  {walletBalance === null
+                    ? 'Loading…'
+                    : formatCurrency(walletBalance)}
+                </span>
+              </div>
+
+              {exceedsWalletBalance && (
+                <div className="mt-2 flex items-start gap-2">
+                  <AlertTriangle
+                    size={14}
+                    className="mt-0.5 shrink-0 !text-red-600"
+                  />
+                  <p className="text-xs !text-red-700">
+                    This exceeds the patient's current wallet balance.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {canAttachInvoice && (
             <Checkbox

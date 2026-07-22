@@ -2,6 +2,9 @@ import {
   GetPatientByIdDocument,
   GetPatientByIdQuery,
   GetPatientByIdQueryVariables,
+  GetPatientWalletBalanceDocument,
+  GetPatientWalletBalanceQuery,
+  GetPatientWalletBalanceQueryVariables,
   PatientStatus,
 } from '@/shared/graphql/generated/graphql';
 import { graphqlFetch } from '@/shared/graphql/fetcher';
@@ -10,7 +13,7 @@ import SystemInformation from '@/app/(protected)/admins/staff/components/SystemI
 import EditPatientButton from '../components/EditPatientButton';
 import CreateVisitModal from '../components/CreateVisitModal';
 import Link from 'next/link';
-import { AlertTriangle, UserX, History } from 'lucide-react';
+import { AlertTriangle, UserX, History, Wallet } from 'lucide-react';
 
 interface Props {
   params: Promise<{
@@ -34,13 +37,26 @@ function calculateAge(dateOfBirth?: string | null) {
   return age;
 }
 
+function formatWalletBalance(amount: number) {
+  return `₦${amount.toLocaleString('en-NG', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
 export default async function PatientDetailPage({ params }: Props) {
   const { id } = await params;
 
-  const data = await graphqlFetch<
-    GetPatientByIdQuery,
-    GetPatientByIdQueryVariables
-  >(GetPatientByIdDocument, { id });
+  const [data, walletBalanceRes] = await Promise.all([
+    graphqlFetch<GetPatientByIdQuery, GetPatientByIdQueryVariables>(
+      GetPatientByIdDocument,
+      { id }
+    ),
+    graphqlFetch<
+      GetPatientWalletBalanceQuery,
+      GetPatientWalletBalanceQueryVariables
+    >(GetPatientWalletBalanceDocument, { patientId: id }),
+  ]);
 
   if (!data?.patientById) {
     return <SessionGuard needsRefresh />;
@@ -48,6 +64,7 @@ export default async function PatientDetailPage({ params }: Props) {
 
   const patient = data.patientById;
   const age = calculateAge(patient.dateOfBirth);
+  const walletBalance = walletBalanceRes?.patientWalletBalance ?? 0;
 
   const duplicatePatients =
     patient.likelyDuplicatePatientIds?.length
@@ -121,6 +138,18 @@ export default async function PatientDetailPage({ params }: Props) {
               >
                 <History size={14} />
                 Visit history
+              </Link>
+              <Link
+                href={`/dashboard/patients/${id}/wallet`}
+                className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium text-white transition-colors hover:bg-white/[0.12]"
+              >
+                <Wallet size={14} />
+                Wallet
+                {walletBalance > 0.01 && (
+                  <span className="ml-0.5 rounded-full border border-[#5DCAA5]/30 bg-[#1D9E75]/20 px-1.5 py-0.5 text-[10px] font-semibold text-[#5DCAA5]">
+                    {formatWalletBalance(walletBalance)}
+                  </span>
+                )}
               </Link>
               <EditPatientButton patient={patient} />
               <CreateVisitModal patientId={patient.id} />
