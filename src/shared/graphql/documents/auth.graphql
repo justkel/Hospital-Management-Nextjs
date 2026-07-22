@@ -257,6 +257,7 @@ query GetVisitById($id: String!) {
       email
       phoneNumber
     }
+    patientId
     attendingStaffId
   }
 }
@@ -3303,6 +3304,97 @@ mutation ConfirmVisitCreditRefund($creditId: ID!) {
 
 mutation FailVisitCreditRefund($creditId: ID!, $reason: String!) {
   failVisitCreditRefund(creditId: $creditId, reason: $reason) {
+    id
+    status
+    notes
+  }
+}
+
+query GetOrganizationFeatureFlags {
+  organizationFeatureFlags {
+    flagKey
+    enabled
+  }
+}
+
+query GetOrganizationFeatureFlagHistory($flagKey: FeatureFlagKey) {
+  organizationFeatureFlagHistory(flagKey: $flagKey) {
+    id
+    organizationId
+    flagKey
+    enabled
+    reason
+    changedByStaffId
+    createdAt
+  }
+}
+
+mutation SetOrganizationFeatureFlag(
+  $flagKey: FeatureFlagKey!
+  $enabled: Boolean!
+  $reason: String!
+) {
+  setOrganizationFeatureFlag(
+    flagKey: $flagKey
+    enabled: $enabled
+    reason: $reason
+  ) {
+    id
+    flagKey
+    enabled
+    reason
+    changedByStaffId
+    createdAt
+  }
+}
+
+query GetPatientWalletBalance($patientId: ID!) {
+  patientWalletBalance(patientId: $patientId)
+}
+
+query GetPatientWalletTransactions($patientId: ID!) {
+  patientWalletTransactions(patientId: $patientId) {
+    id
+    patientId
+    visitId
+    visitCreditId
+    type
+    amount
+    status
+    reason
+    notes
+    requestedByStaffId
+    approvedByStaffId
+    confirmedAt
+    createdAt
+  }
+}
+
+mutation RequestWalletGrant($data: RequestWalletGrantInput!) {
+  requestWalletGrant(data: $data) {
+    id
+    patientId
+    type
+    amount
+    status
+    reason
+    notes
+    requestedByStaffId
+    createdAt
+  }
+}
+
+mutation ApproveWalletGrant($transactionId: ID!) {
+  approveWalletGrant(transactionId: $transactionId) {
+    id
+    status
+    approvedByStaffId
+    confirmedAt
+  }
+}
+
+mutation RejectWalletGrant($transactionId: ID!, $reason: String!) {
+  rejectWalletGrant(transactionId: $transactionId, reason: $reason) {
     id
     status
     notes
