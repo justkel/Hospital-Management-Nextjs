@@ -3091,21 +3091,30 @@ query GetBillingAdjustments($visitId: ID!) {
     amount
     currency
     reason
+    notes
     status
+    direction
+    reversesAdjustmentId
     requestedByStaffId
     approvedByStaffId
     appliedAt
     organizationId
-    notes
-    direction
-    reversesAdjustmentId
     reversesAdjustment {
       id
       type
-      direction
+      method
       value
       amount
-      method
+      direction
+    }
+    chargeLinks {
+      id
+      visitChargeId
+      visitCharge {
+        id
+        chargeName
+        totalAmount
+      }
     }
   }
 }
