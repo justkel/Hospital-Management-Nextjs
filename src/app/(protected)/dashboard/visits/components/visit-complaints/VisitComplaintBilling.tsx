@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import {
+  BillingType,
   ChargeDomain,
   VisitChargeType,
 } from '@/shared/graphql/generated/graphql';
@@ -60,6 +61,7 @@ export default function VisitComplaintBilling({
           visitId,
           chargeCatalogId,
           chargeType: VisitChargeType.Fixed,
+          billingType: BillingType.Fixed,
           chargeDomain: ChargeDomain.Consultation,
           quantity: 1,
           notes: 'Charge for consultation related to complaint',
