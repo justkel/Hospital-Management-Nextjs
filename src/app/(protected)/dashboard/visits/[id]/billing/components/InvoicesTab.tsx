@@ -167,13 +167,13 @@ export default function InvoicesTab({
 
   return (
     <div className="space-y-6 py-5">
-      <div className="overflow-hidden rounded-2xl border border-blue-200 bg-blue-50/40">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-200 px-5 py-4">
+      <div className="overflow-hidden rounded-2xl border !border-blue-200 !bg-blue-50/40">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b !border-blue-200 px-5 py-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-blue-700">
+            <p className="text-xs font-bold uppercase tracking-wide !text-blue-700">
               Current totals (live)
             </p>
-            <p className="mt-0.5 text-xs text-blue-600/80">
+            <p className="mt-0.5 text-xs !text-blue-600/80">
               Reflects charges and applied adjustments right now — not a
               real invoice, nothing here is ever printed.
             </p>
@@ -181,7 +181,7 @@ export default function InvoicesTab({
           <button
             type="button"
             onClick={refreshCurrentTotals}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white px-3 py-1.5 text-xs font-medium text-blue-700 transition hover:bg-blue-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border !border-blue-200 !bg-white px-3 py-1.5 text-xs font-medium !text-blue-700 transition hover:!bg-blue-50"
           >
             <RefreshCw size={12} />
             Refresh
@@ -190,51 +190,51 @@ export default function InvoicesTab({
 
         {currentTotals ? (
           <>
-            <div className="grid grid-cols-1 divide-y divide-blue-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            <div className="grid grid-cols-1 divide-y !divide-blue-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
               <div className="px-5 py-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-blue-600/70">
+                <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
                   Subtotal
                 </p>
-                <p className="mt-1 text-lg font-semibold text-slate-800">
+                <p className="mt-1 text-lg font-semibold !text-slate-800">
                   {formatCurrency(currentTotals.subtotal)}
                 </p>
               </div>
               <div className="px-5 py-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-blue-600/70">
+                <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
                   Discounts
                 </p>
-                <p className="mt-1 text-lg font-semibold text-emerald-600">
+                <p className="mt-1 text-lg font-semibold !text-emerald-600">
                   −{formatCurrency(currentTotals.discountTotal)}
                 </p>
               </div>
               <div className="px-5 py-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-blue-600/70">
+                <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
                   Total payable
                 </p>
-                <p className="mt-1 text-lg font-bold text-slate-900">
+                <p className="mt-1 text-lg font-bold !text-slate-900">
                   {formatCurrency(currentTotals.totalPayable)}
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 divide-x divide-blue-100 border-t border-blue-100">
+            <div className="grid grid-cols-2 divide-x !divide-blue-100 border-t !border-blue-100">
               <div className="px-5 py-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-blue-600/70">
+                <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
                   Total paid
                 </p>
-                <p className="mt-1 text-lg font-semibold text-emerald-600">
+                <p className="mt-1 text-lg font-semibold !text-emerald-600">
                   {formatCurrency(currentTotals.totalPaid)}
                 </p>
               </div>
               <div className="px-5 py-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-blue-600/70">
+                <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
                   Outstanding
                 </p>
                 <p
                   className={`mt-1 text-lg font-bold ${
                     currentTotals.outstandingBalance > 0.01
-                      ? 'text-amber-600'
-                      : 'text-emerald-600'
+                      ? '!text-amber-600'
+                      : '!text-emerald-600'
                   }`}
                 >
                   {formatCurrency(currentTotals.outstandingBalance)}
@@ -243,12 +243,12 @@ export default function InvoicesTab({
             </div>
 
             {isStale && (
-              <div className="flex items-start gap-2.5 border-t border-blue-200 bg-amber-50 px-5 py-3.5">
+              <div className="flex items-start gap-2.5 border-t !border-blue-200 !bg-amber-50 px-5 py-3.5">
                 <AlertTriangle
                   size={15}
-                  className="mt-0.5 shrink-0 text-amber-600"
+                  className="mt-0.5 shrink-0 !text-amber-600"
                 />
-                <p className="text-xs text-amber-800">
+                <p className="text-xs !text-amber-800">
                   This differs from the latest generated invoice (
                   {formatCurrency(latestInvoice?.totalPayable)}). Printing
                   that invoice now will still show its original figures —
@@ -259,14 +259,14 @@ export default function InvoicesTab({
             )}
           </>
         ) : (
-          <div className="px-5 py-6 text-center text-sm text-blue-600/60">
+          <div className="px-5 py-6 text-center text-sm !text-blue-600/60">
             Loading current totals…
           </div>
         )}
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="text-sm font-bold text-slate-800">
+        <h3 className="text-sm font-bold !text-slate-800">
           Latest invoice
         </h3>
 
@@ -275,7 +275,7 @@ export default function InvoicesTab({
             type="button"
             onClick={generate}
             disabled={generating}
-            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-2xl border !border-slate-200 !bg-white px-4 py-2.5 text-sm font-medium !text-slate-700 shadow-sm transition hover:!bg-slate-50 disabled:opacity-60"
           >
             {generating ? (
               <Loader2 size={14} className="animate-spin" />
@@ -290,7 +290,7 @@ export default function InvoicesTab({
               type="button"
               onClick={issue}
               disabled={issuing}
-              className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-2xl !bg-blue-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-blue-700 disabled:opacity-60"
             >
               {issuing ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -304,24 +304,24 @@ export default function InvoicesTab({
       </div>
 
       {!latestInvoice ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-100 bg-slate-50/60 px-6 py-16 text-center">
-          <Receipt size={32} className="text-slate-300" />
-          <h3 className="mt-4 text-base font-bold text-slate-700">
+        <div className="flex flex-col items-center justify-center rounded-2xl border !border-slate-100 !bg-slate-50/60 px-6 py-16 text-center">
+          <Receipt size={32} className="!text-slate-300" />
+          <h3 className="mt-4 text-base font-bold !text-slate-700">
             No invoice generated yet
           </h3>
-          <p className="mt-1 max-w-sm text-sm text-slate-500">
+          <p className="mt-1 max-w-sm text-sm !text-slate-500">
             Once charges and adjustments look right, generate the first
             invoice for this visit.
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-slate-200">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50 px-5 py-4">
+        <div className="overflow-hidden rounded-2xl border !border-slate-200">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b !border-slate-100 !bg-slate-50 px-5 py-4">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+              <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                 Invoice number
               </p>
-              <p className="font-mono text-lg font-bold text-slate-900">
+              <p className="font-mono text-lg font-bold !text-slate-900">
                 {latestInvoice.invoiceNumber}
               </p>
             </div>
@@ -332,13 +332,13 @@ export default function InvoicesTab({
               <Link
                 href={printHref(latestInvoice.id)}
                 target="_blank"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 !bg-white px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700"
               >
                 <Printer size={13} />
                 Print
                 {isStale && (
                   <span
-                    className="ml-0.5 h-1.5 w-1.5 rounded-full bg-amber-500"
+                    className="ml-0.5 h-1.5 w-1.5 rounded-full !bg-amber-500"
                     title="This invoice's figures differ from current totals"
                   />
                 )}
@@ -346,51 +346,51 @@ export default function InvoicesTab({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 divide-y divide-slate-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <div className="grid grid-cols-1 divide-y !divide-slate-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             <div className="px-5 py-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+              <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                 Subtotal
               </p>
-              <p className="mt-1 text-lg font-semibold text-slate-800">
+              <p className="mt-1 text-lg font-semibold !text-slate-800">
                 {formatCurrency(latestInvoice.subtotal)}
               </p>
             </div>
             <div className="px-5 py-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+              <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                 Discounts applied
               </p>
-              <p className="mt-1 text-lg font-semibold text-emerald-600">
+              <p className="mt-1 text-lg font-semibold !text-emerald-600">
                 −{formatCurrency(latestInvoice.discountTotal)}
               </p>
             </div>
             <div className="px-5 py-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+              <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                 Total payable
               </p>
-              <p className="mt-1 text-lg font-bold text-slate-900">
+              <p className="mt-1 text-lg font-bold !text-slate-900">
                 {formatCurrency(latestInvoice.totalPayable)}
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 divide-x divide-slate-100 border-t border-slate-100">
+          <div className="grid grid-cols-2 divide-x !divide-slate-100 border-t !border-slate-100">
             <div className="px-5 py-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+              <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                 Total paid
               </p>
-              <p className="mt-1 text-lg font-semibold text-emerald-600">
+              <p className="mt-1 text-lg font-semibold !text-emerald-600">
                 {formatCurrency(latestInvoice.totalPaid)}
               </p>
             </div>
             <div className="px-5 py-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+              <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                 Outstanding
               </p>
               <p
                 className={`mt-1 text-lg font-bold ${
                   Number(latestInvoice.outstandingBalance) > 0.01
-                    ? 'text-amber-600'
-                    : 'text-emerald-600'
+                    ? '!text-amber-600'
+                    : '!text-emerald-600'
                 }`}
               >
                 {formatCurrency(latestInvoice.outstandingBalance)}
@@ -398,7 +398,7 @@ export default function InvoicesTab({
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-4 border-t border-slate-100 px-5 py-3 text-xs text-slate-500">
+          <div className="flex flex-wrap gap-4 border-t !border-slate-100 px-5 py-3 text-xs !text-slate-500">
             <span>Issued: {formatDateTime(latestInvoice.issuedAt)}</span>
             <span>Locked: {formatDateTime(latestInvoice.lockedAt)}</span>
           </div>
@@ -407,33 +407,33 @@ export default function InvoicesTab({
 
       {invoices.length > 1 && (
         <div>
-          <h3 className="mb-3 text-sm font-bold text-slate-800">
+          <h3 className="mb-3 text-sm font-bold !text-slate-800">
             Invoice history ({invoices.length})
           </h3>
 
-          <div className="overflow-hidden rounded-xl border border-slate-200">
-            <div className="divide-y divide-slate-100">
+          <div className="overflow-hidden rounded-xl border !border-slate-200">
+            <div className="divide-y !divide-slate-100">
               {invoices.map((inv) => (
                 <div
                   key={inv.id}
                   className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
                 >
-                  <span className="font-mono text-sm font-medium text-slate-700">
+                  <span className="font-mono text-sm font-medium !text-slate-700">
                     {inv.invoiceNumber}
                   </span>
                   <StatusBadge status={inv.status} />
-                  <span className="text-sm font-semibold text-slate-800">
+                  <span className="text-sm font-semibold !text-slate-800">
                     {formatCurrency(inv.totalPayable)}
                   </span>
                   {Number(inv.outstandingBalance) > 0.01 && (
-                    <span className="text-xs font-medium text-amber-600">
+                    <span className="text-xs font-medium !text-amber-600">
                       {formatCurrency(inv.outstandingBalance)} owed
                     </span>
                   )}
                   <Link
                     href={printHref(inv.id)}
                     target="_blank"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                    className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 !bg-white px-2.5 py-1 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700"
                   >
                     <Printer size={12} />
                     Print

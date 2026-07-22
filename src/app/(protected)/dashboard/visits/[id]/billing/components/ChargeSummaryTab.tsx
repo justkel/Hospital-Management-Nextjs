@@ -218,13 +218,13 @@ export default function ChargeSummaryTab({
     return (
       <p className="mt-1 text-xs">
         {adjusted && (
-          <span className="text-blue-600">
+          <span className="!text-blue-600">
             Effective: {formatCurrency(b.effectiveTotal)} (after adjustment)
           </span>
         )}
-        {adjusted && hasPayment && <span className="text-slate-300"> · </span>}
+        {adjusted && hasPayment && <span className="!text-slate-300"> · </span>}
         {hasPayment && (
-          <span className="text-emerald-600">
+          <span className="!text-emerald-600">
             {formatCurrency(b.amountPaid)} paid ·{' '}
             {formatCurrency(b.remaining)} remaining
           </span>
@@ -240,7 +240,7 @@ export default function ChargeSummaryTab({
           type="button"
           onClick={refreshAll}
           disabled={refreshing}
-          className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 shadow-sm transition-all hover:bg-slate-50 disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-2xl border !border-slate-200 !bg-white px-4 py-2.5 text-sm font-medium !text-slate-600 shadow-sm transition-all hover:!bg-slate-50 disabled:opacity-60"
         >
           {refreshing && <Loader2 size={14} className="animate-spin" />}
           Refresh
@@ -248,24 +248,24 @@ export default function ChargeSummaryTab({
       </div>
 
       {unbilled.length > 0 && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50/50">
-          <div className="flex items-center gap-2 border-b border-amber-200 px-5 py-4">
-            <Pill size={16} className="text-amber-600" />
-            <h3 className="text-sm font-bold text-amber-900">
+        <div className="rounded-2xl border !border-amber-200 !bg-amber-50/50">
+          <div className="flex items-center gap-2 border-b !border-amber-200 px-5 py-4">
+            <Pill size={16} className="!text-amber-600" />
+            <h3 className="text-sm font-bold !text-amber-900">
               {unbilled.length} in-house prescription
               {unbilled.length === 1 ? '' : 's'} still need pricing
             </h3>
           </div>
 
-          <div className="divide-y divide-amber-100">
+          <div className="divide-y !divide-amber-100">
             {unbilled.map((p) => (
               <div
                 key={p.id}
                 className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="min-w-0">
-                  <p className="font-semibold text-slate-800">{p.drug}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="font-semibold !text-slate-800">{p.drug}</p>
+                  <p className="text-xs !text-slate-500">
                     {[p.dose, p.route, p.frequency].filter(Boolean).join(' · ') ||
                       'No dosage details'}
                     {' · '}
@@ -281,13 +281,13 @@ export default function ChargeSummaryTab({
                       value={priceInput}
                       onChange={(e) => setPriceInput(e.target.value)}
                       placeholder="Unit price"
-                      className="w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+                      className="w-32 rounded-lg border !border-slate-300 px-3 py-2 text-sm focus:!border-blue-400 focus:outline-none"
                     />
                     <button
                       type="button"
                       onClick={savePricing}
                       disabled={savingPrice}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
+                      className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-sm font-medium !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
                     >
                       {savingPrice ? (
                         <Loader2 size={14} className="animate-spin" />
@@ -300,7 +300,7 @@ export default function ChargeSummaryTab({
                       type="button"
                       onClick={cancelPricing}
                       disabled={savingPrice}
-                      className="inline-flex items-center rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+                      className="inline-flex items-center rounded-lg border !border-slate-200 px-3 py-2 text-sm font-medium !text-slate-600 transition hover:!bg-slate-50"
                     >
                       <X size={14} />
                     </button>
@@ -309,7 +309,7 @@ export default function ChargeSummaryTab({
                   <button
                     type="button"
                     onClick={() => startPricing(p.id)}
-                    className="inline-flex items-center gap-1.5 self-start rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm font-medium text-amber-700 transition hover:bg-amber-50 sm:self-auto"
+                    className="inline-flex items-center gap-1.5 self-start rounded-lg border !border-amber-300 !bg-white px-3 py-2 text-sm font-medium !text-amber-700 transition hover:!bg-amber-50 sm:self-auto"
                   >
                     <Pencil size={14} />
                     Set price &amp; bill
@@ -323,27 +323,27 @@ export default function ChargeSummaryTab({
 
       <div>
         <div className="mb-3 flex items-center gap-2">
-          <Lock size={15} className="text-slate-400" />
-          <h3 className="text-sm font-bold text-slate-800">
+          <Lock size={15} className="!text-slate-400" />
+          <h3 className="text-sm font-bold !text-slate-800">
             Locked charges ({summary.lockedCharges.length})
           </h3>
         </div>
 
         {summary.lockedCharges.length === 0 ? (
-          <p className="rounded-xl border border-slate-100 bg-slate-50/60 px-4 py-6 text-center text-sm text-slate-400">
+          <p className="rounded-xl border !border-slate-100 !bg-slate-50/60 px-4 py-6 text-center text-sm !text-slate-400">
             No fixed charges recorded yet.
           </p>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-slate-200">
-            <div className="divide-y divide-slate-100">
+          <div className="overflow-hidden rounded-xl border !border-slate-200">
+            <div className="divide-y !divide-slate-100">
               {summary.lockedCharges.map((c) => (
                 <div
                   key={c.id}
                   className="flex flex-col gap-2 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0">
-                    <p className="font-medium text-slate-800">{c.chargeName}</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="font-medium !text-slate-800">{c.chargeName}</p>
+                    <p className="text-xs !text-slate-500">
                       {c.chargeDomain} · Qty {c.quantity} ·{' '}
                       {formatCurrency(c.unitPrice)} each
                     </p>
@@ -351,7 +351,7 @@ export default function ChargeSummaryTab({
                   </div>
                   <div className="flex items-center gap-3">
                     <StatusBadge status={c.status} />
-                    <span className="font-semibold text-slate-900">
+                    <span className="font-semibold !text-slate-900">
                       {formatCurrency(c.totalAmount)}
                     </span>
                   </div>
@@ -364,24 +364,24 @@ export default function ChargeSummaryTab({
 
       <div>
         <div className="mb-3 flex items-center gap-2">
-          <Pencil size={15} className="text-blue-500" />
-          <h3 className="text-sm font-bold text-slate-800">
+          <Pencil size={15} className="!text-blue-500" />
+          <h3 className="text-sm font-bold !text-slate-800">
             Editable charges ({summary.editableCharges.length})
           </h3>
         </div>
 
         {summary.editableCharges.length === 0 ? (
-          <p className="rounded-xl border border-slate-100 bg-slate-50/60 px-4 py-6 text-center text-sm text-slate-400">
+          <p className="rounded-xl border !border-slate-100 !bg-slate-50/60 px-4 py-6 text-center text-sm !text-slate-400">
             No variable charges recorded yet.
           </p>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-slate-200">
-            <div className="divide-y divide-slate-100">
+          <div className="overflow-hidden rounded-xl border !border-slate-200">
+            <div className="divide-y !divide-slate-100">
               {summary.editableCharges.map((c) => (
                 <div key={c.id} className="px-4 py-3.5">
                   {editingChargeId === c.id ? (
                     <div className="flex flex-col gap-2">
-                      <p className="font-medium text-slate-800">
+                      <p className="font-medium !text-slate-800">
                         {c.chargeName}
                       </p>
                       <div className="flex flex-wrap items-center gap-2">
@@ -390,20 +390,20 @@ export default function ChargeSummaryTab({
                           autoFocus
                           value={editUnitPrice}
                           onChange={(e) => setEditUnitPrice(e.target.value)}
-                          className="w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+                          className="w-32 rounded-lg border !border-slate-300 px-3 py-2 text-sm focus:!border-blue-400 focus:outline-none"
                         />
                         <input
                           type="text"
                           value={editReason}
                           onChange={(e) => setEditReason(e.target.value)}
                           placeholder="Reason for price change"
-                          className="min-w-[220px] flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+                          className="min-w-[220px] flex-1 rounded-lg border !border-slate-300 px-3 py-2 text-sm focus:!border-blue-400 focus:outline-none"
                         />
                         <button
                           type="button"
                           onClick={saveEdit}
                           disabled={savingEdit}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
+                          className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-sm font-medium !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
                         >
                           {savingEdit ? (
                             <Loader2 size={14} className="animate-spin" />
@@ -416,7 +416,7 @@ export default function ChargeSummaryTab({
                           type="button"
                           onClick={cancelEdit}
                           disabled={savingEdit}
-                          className="inline-flex items-center rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+                          className="inline-flex items-center rounded-lg border !border-slate-200 px-3 py-2 text-sm font-medium !text-slate-600 transition hover:!bg-slate-50"
                         >
                           <X size={14} />
                         </button>
@@ -425,10 +425,10 @@ export default function ChargeSummaryTab({
                   ) : (
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0">
-                        <p className="font-medium text-slate-800">
+                        <p className="font-medium !text-slate-800">
                           {c.chargeName}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs !text-slate-500">
                           {c.chargeDomain} · Qty {c.quantity} ·{' '}
                           {formatCurrency(c.unitPrice)} each
                         </p>
@@ -436,13 +436,13 @@ export default function ChargeSummaryTab({
                       </div>
                       <div className="flex items-center gap-3">
                         <StatusBadge status={c.status} />
-                        <span className="font-semibold text-slate-900">
+                        <span className="font-semibold !text-slate-900">
                           {formatCurrency(c.totalAmount)}
                         </span>
                         <button
                           type="button"
                           onClick={() => startEdit(c)}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                          className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700"
                         >
                           <Pencil size={12} />
                           Edit
@@ -457,11 +457,11 @@ export default function ChargeSummaryTab({
         )}
       </div>
 
-      <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
-        <span className="text-sm font-semibold text-slate-600">
+      <div className="flex items-center justify-between rounded-xl border !border-slate-200 !bg-slate-50 px-5 py-4">
+        <span className="text-sm font-semibold !text-slate-600">
           Running total
         </span>
-        <span className="text-xl font-bold text-slate-900">
+        <span className="text-xl font-bold !text-slate-900">
           {formatCurrency(summary.total)}
         </span>
       </div>

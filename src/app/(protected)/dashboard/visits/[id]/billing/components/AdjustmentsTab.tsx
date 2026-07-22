@@ -491,14 +491,14 @@ export default function AdjustmentsTab({
   return (
     <div className="space-y-5 py-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-slate-800">
+        <h3 className="text-sm font-bold !text-slate-800">
           {adjustments.length} adjustment{adjustments.length === 1 ? '' : 's'}
         </h3>
 
         <button
           type="button"
           onClick={openRequestForm}
-          className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
+          className="inline-flex items-center gap-2 rounded-2xl !bg-blue-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-blue-700"
         >
           <FileText size={15} />
           Request adjustment
@@ -506,19 +506,19 @@ export default function AdjustmentsTab({
       </div>
 
       {adjustments.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-100 bg-slate-50/60 px-6 py-16 text-center">
-          <FileText size={32} className="text-slate-300" />
-          <h3 className="mt-4 text-base font-bold text-slate-700">
+        <div className="flex flex-col items-center justify-center rounded-2xl border !border-slate-100 !bg-slate-50/60 px-6 py-16 text-center">
+          <FileText size={32} className="!text-slate-300" />
+          <h3 className="mt-4 text-base font-bold !text-slate-700">
             No adjustments yet
           </h3>
-          <p className="mt-1 max-w-sm text-sm text-slate-500">
+          <p className="mt-1 max-w-sm text-sm !text-slate-500">
             Discounts, waivers, and write-offs for this visit will appear
             here.
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-slate-200">
-          <div className="divide-y divide-slate-100">
+        <div className="overflow-hidden rounded-xl border !border-slate-200">
+          <div className="divide-y !divide-slate-100">
             {adjustments.map((a) => {
               const alreadyReversed = adjustments.some(
                 (other) => other.reversesAdjustmentId === a.id
@@ -539,18 +539,18 @@ export default function AdjustmentsTab({
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold text-slate-800">
+                        <span className="font-semibold !text-slate-800">
                           {a.type.replace(/_/g, ' ')}
                         </span>
                         <StatusBadge status={a.status} />
                         {a.direction && (
-                          <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-bold uppercase text-slate-500">
+                          <span className="rounded-full border !border-slate-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-slate-500">
                             {a.direction}
                           </span>
                         )}
                       </div>
 
-                      <p className="mt-1 text-sm text-slate-600">
+                      <p className="mt-1 text-sm !text-slate-600">
                         {a.method === 'FLAT'
                           ? formatCurrency(a.amount)
                           : `${a.value}%`}{' '}
@@ -564,12 +564,12 @@ export default function AdjustmentsTab({
                             : 'whole invoice'}
                       </p>
 
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="mt-1 text-sm !text-slate-500">
                         {a.reason}
                       </p>
 
                       {a.reversesAdjustment && (
-                        <p className="mt-1 text-xs text-slate-400">
+                        <p className="mt-1 text-xs !text-slate-400">
                           Reverses: {a.reversesAdjustment.type} ·{' '}
                           {a.reversesAdjustment.method === 'FLAT'
                             ? formatCurrency(a.reversesAdjustment.amount)
@@ -585,7 +585,7 @@ export default function AdjustmentsTab({
                             type="button"
                             disabled={actionLoadingId === a.id}
                             onClick={() => runAction(a.id, 'approve')}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-60"
+                            className="inline-flex items-center gap-1.5 rounded-lg border !border-emerald-300 !bg-emerald-50 px-3 py-2 text-xs font-bold !text-emerald-700 transition hover:!bg-emerald-100 disabled:opacity-60"
                           >
                             {actionLoadingId === a.id ? (
                               <Loader2 size={13} className="animate-spin" />
@@ -598,7 +598,7 @@ export default function AdjustmentsTab({
                             type="button"
                             disabled={actionLoadingId === a.id}
                             onClick={() => setRejectTarget(a.id)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 transition hover:bg-red-100 disabled:opacity-60"
+                            className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
                           >
                             <ThumbsDown size={13} />
                             Reject
@@ -611,7 +611,7 @@ export default function AdjustmentsTab({
                           type="button"
                           disabled={actionLoadingId === a.id}
                           onClick={() => handleApplyClick(a)}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-700 disabled:opacity-60"
+                          className="inline-flex items-center gap-1.5 rounded-lg !bg-blue-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-blue-700 disabled:opacity-60"
                         >
                           {actionLoadingId === a.id ? (
                             <Loader2 size={13} className="animate-spin" />
@@ -628,7 +628,7 @@ export default function AdjustmentsTab({
                           <button
                             type="button"
                             onClick={() => openReversalForm(a.id)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700"
+                            className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-2 text-xs font-bold !text-slate-600 transition hover:!border-orange-300 hover:!bg-orange-50 hover:!text-orange-700"
                           >
                             <RotateCcw size={13} />
                             Reverse
@@ -636,7 +636,7 @@ export default function AdjustmentsTab({
                         )}
 
                       {a.status === 'REJECTED' && (
-                        <span className="inline-flex items-center gap-1.5 text-xs text-slate-400">
+                        <span className="inline-flex items-center gap-1.5 text-xs !text-slate-400">
                           <XCircle size={13} />
                           Rejected
                         </span>
@@ -668,7 +668,7 @@ export default function AdjustmentsTab({
           {form.type !== AdjustmentType.AdjustmentReversal && (
             <>
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+                <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
                   Type
                 </label>
                 <Select
@@ -680,7 +680,7 @@ export default function AdjustmentsTab({
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+                <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
                   Applied on
                 </label>
                 <Radio.Group
@@ -698,7 +698,7 @@ export default function AdjustmentsTab({
 
               {form.appliedOn === 'CHARGE' && (
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+                  <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
                     Charge
                   </label>
                   <Select
@@ -725,7 +725,7 @@ export default function AdjustmentsTab({
 
               {form.appliedOn === 'MULTIPLE_CHARGES' && (
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+                  <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
                     Charges
                   </label>
                   <Select
@@ -750,28 +750,28 @@ export default function AdjustmentsTab({
                   />
 
                   {selectedMultiCharges.length > 0 && (
-                    <div className="mt-2.5 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div className="mt-2.5 rounded-lg border !border-slate-200 !bg-slate-50 p-3">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-slate-600">
+                        <span className="font-semibold !text-slate-600">
                           Combined remaining
                         </span>
-                        <span className="font-bold text-slate-800">
+                        <span className="font-bold !text-slate-800">
                           {formatCurrency(combinedRemaining)}
                         </span>
                       </div>
 
                       {previewResolvedTotal > 0 && (
-                        <div className="mt-2 space-y-1 border-t border-slate-200 pt-2">
-                          <p className="text-[11px] font-medium uppercase text-slate-400">
+                        <div className="mt-2 space-y-1 border-t !border-slate-200 pt-2">
+                          <p className="text-[11px] font-medium uppercase !text-slate-400">
                             Preview — how this splits across the selected charges
                           </p>
                           {selectedMultiCharges.map((c) => (
                             <div
                               key={c.id}
-                              className="flex items-center justify-between text-xs text-slate-600"
+                              className="flex items-center justify-between text-xs !text-slate-600"
                             >
                               <span>{c.chargeName}</span>
-                              <span className="font-medium text-blue-700">
+                              <span className="font-medium !text-blue-700">
                                 {formatCurrency(sharePreview(c))}
                               </span>
                             </div>
@@ -784,7 +784,7 @@ export default function AdjustmentsTab({
               )}
 
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+                <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
                   Method
                 </label>
                 <Radio.Group
@@ -800,7 +800,7 @@ export default function AdjustmentsTab({
 
               {form.method === AdjustmentMethod.Flat ? (
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+                  <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
                     Amount{' '}
                     {form.appliedOn === 'MULTIPLE_CHARGES' && '(combined, across all selected charges)'}
                   </label>
@@ -814,7 +814,7 @@ export default function AdjustmentsTab({
                 </div>
               ) : (
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+                  <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
                     Percentage
                   </label>
                   <Input
@@ -829,12 +829,12 @@ export default function AdjustmentsTab({
               )}
 
               {ceilingExceeded && (
-                <div className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 px-3.5 py-3">
+                <div className="flex items-start gap-2.5 rounded-lg border !border-red-200 !bg-red-50 px-3.5 py-3">
                   <AlertTriangle
                     size={15}
-                    className="mt-0.5 shrink-0 text-red-600"
+                    className="mt-0.5 shrink-0 !text-red-600"
                   />
-                  <p className="text-xs text-red-700">{ceilingWarningText()}</p>
+                  <p className="text-xs !text-red-700">{ceilingWarningText()}</p>
                 </div>
               )}
             </>
@@ -842,7 +842,7 @@ export default function AdjustmentsTab({
 
           {form.type === AdjustmentType.AdjustmentReversal && (
             <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+              <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
                 Adjustment to reverse
               </label>
               <Select
@@ -861,7 +861,7 @@ export default function AdjustmentsTab({
                   } · ${a.reason}`,
                 }))}
               />
-              <p className="mt-1.5 text-xs text-slate-400">
+              <p className="mt-1.5 text-xs !text-slate-400">
                 Method, amount, direction, and (for multi-charge originals)
                 the linked charges are all derived automatically from the
                 adjustment being reversed.
@@ -870,7 +870,7 @@ export default function AdjustmentsTab({
           )}
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
               Reason
             </label>
             <Input.TextArea
@@ -892,7 +892,7 @@ export default function AdjustmentsTab({
         okText="Reject"
         okButtonProps={{ danger: true }}
       >
-        <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+        <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
           Reason
         </label>
         <Input.TextArea
@@ -918,9 +918,9 @@ export default function AdjustmentsTab({
         okButtonProps={{ danger: true }}
       >
         <div className="flex items-start gap-2.5">
-          <AlertTriangle size={18} className="mt-0.5 shrink-0 text-red-600" />
+          <AlertTriangle size={18} className="mt-0.5 shrink-0 !text-red-600" />
           {confirmApplyImpact?.createsCredit ? (
-            <p className="text-sm text-slate-700">
+            <p className="text-sm !text-slate-700">
               Applying this adjustment will overshoot past zero, leaving a
               credit balance of {formatCurrency(confirmApplyImpact.creditAmount)}{' '}
               owed back to the patient. This does not get refunded
@@ -928,7 +928,7 @@ export default function AdjustmentsTab({
               applied. Please confirm you want to proceed.
             </p>
           ) : (
-            <p className="text-sm text-slate-700">
+            <p className="text-sm !text-slate-700">
               Applying this adjustment will bring this visit's outstanding
               balance to ₦0.00. There is no direct way to undo this — the
               only path back is a separate, tracked reversal. Please confirm

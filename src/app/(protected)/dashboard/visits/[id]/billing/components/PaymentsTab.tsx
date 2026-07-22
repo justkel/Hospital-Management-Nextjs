@@ -356,14 +356,14 @@ export default function PaymentsTab({
   return (
     <div className="space-y-5 py-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-slate-800">
+        <h3 className="text-sm font-bold !text-slate-800">
           {payments.length} payment{payments.length === 1 ? '' : 's'}
         </h3>
 
         <button
           type="button"
           onClick={openForm}
-          className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700"
+          className="inline-flex items-center gap-2 rounded-2xl !bg-emerald-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-emerald-700"
         >
           <Banknote size={15} />
           Record payment
@@ -371,33 +371,33 @@ export default function PaymentsTab({
       </div>
 
       {payments.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-100 bg-slate-50/60 px-6 py-16 text-center">
-          <Wallet size={32} className="text-slate-300" />
-          <h3 className="mt-4 text-base font-bold text-slate-700">
+        <div className="flex flex-col items-center justify-center rounded-2xl border !border-slate-100 !bg-slate-50/60 px-6 py-16 text-center">
+          <Wallet size={32} className="!text-slate-300" />
+          <h3 className="mt-4 text-base font-bold !text-slate-700">
             No payments recorded yet
           </h3>
-          <p className="mt-1 max-w-sm text-sm text-slate-500">
+          <p className="mt-1 max-w-sm text-sm !text-slate-500">
             Payments made toward this visit's charges will appear here.
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-slate-200">
-          <div className="divide-y divide-slate-100">
+        <div className="overflow-hidden rounded-xl border !border-slate-200">
+          <div className="divide-y !divide-slate-100">
             {payments.map((p) => (
               <div key={p.id} className="px-4 py-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-lg font-bold text-slate-900">
+                      <span className="text-lg font-bold !text-slate-900">
                         {formatCurrency(p.amountPaid)}
                       </span>
                       <StatusBadge status={p.status} />
-                      <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-bold uppercase text-slate-500">
+                      <span className="rounded-full border !border-slate-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-slate-500">
                         {p.paymentMethod}
                       </span>
                     </div>
 
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs !text-slate-500">
                       Paid: {formatDateTime(p.paidAt)}
                       {p.confirmedAt &&
                         ` · Confirmed: ${formatDateTime(p.confirmedAt)}`}
@@ -409,7 +409,7 @@ export default function PaymentsTab({
                         {p.allocations.map((alloc) => (
                           <span
                             key={alloc.id}
-                            className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-600"
+                            className="inline-flex items-center gap-1 rounded-full border !border-slate-200 !bg-white px-2.5 py-1 text-xs !text-slate-600"
                           >
                             {alloc.visitCharge?.chargeName} ·{' '}
                             {formatCurrency(alloc.amountAllocated)}
@@ -426,7 +426,7 @@ export default function PaymentsTab({
                           type="button"
                           disabled={actionLoadingId === p.id}
                           onClick={() => handleConfirmClick(p)}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+                          className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
                         >
                           {actionLoadingId === p.id ? (
                             <Loader2 size={13} className="animate-spin" />
@@ -439,7 +439,7 @@ export default function PaymentsTab({
                           type="button"
                           disabled={actionLoadingId === p.id}
                           onClick={() => setFailTarget(p.id)}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 transition hover:bg-red-100 disabled:opacity-60"
+                          className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
                         >
                           <XCircle size={13} />
                           Fail
@@ -465,12 +465,12 @@ export default function PaymentsTab({
       >
         <div className="space-y-4 py-2">
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
               Charges to pay for
             </label>
-            <div className="max-h-56 space-y-2 overflow-y-auto rounded-lg border border-slate-200 p-3">
+            <div className="max-h-56 space-y-2 overflow-y-auto rounded-lg border !border-slate-200 p-3">
               {payableCharges.length === 0 ? (
-                <p className="text-sm text-slate-400">
+                <p className="text-sm !text-slate-400">
                   {charges.length === 0
                     ? 'No charges available on this visit.'
                     : 'All charges on this visit are fully paid.'}
@@ -500,17 +500,17 @@ export default function PaymentsTab({
                           toggleCharge(c.id, e.target.checked)
                         }
                       >
-                        <span className="text-sm text-slate-700">
+                        <span className="text-sm !text-slate-700">
                           {c.chargeName} — {formatCurrency(remaining)}{' '}
                           remaining
                           {adjusted && (
-                            <span className="ml-1.5 text-xs text-blue-600">
+                            <span className="ml-1.5 text-xs !text-blue-600">
                               (adjusted from{' '}
                               {formatCurrency(balance!.totalAmount)})
                             </span>
                           )}
                           {amountPaid > 0 && (
-                            <span className="ml-1.5 text-xs text-emerald-600">
+                            <span className="ml-1.5 text-xs !text-emerald-600">
                               ({formatCurrency(amountPaid)} already paid)
                             </span>
                           )}
@@ -528,7 +528,7 @@ export default function PaymentsTab({
                               [c.id]: e.target.value,
                             }))
                           }
-                          className="w-28 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-blue-400 focus:outline-none"
+                          className="w-28 rounded-lg border !border-slate-300 px-2 py-1.5 text-sm focus:!border-blue-400 focus:outline-none"
                         />
                       )}
                     </div>
@@ -538,17 +538,17 @@ export default function PaymentsTab({
             </div>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3">
-            <span className="text-sm font-medium text-slate-600">
+          <div className="flex items-center justify-between rounded-lg !bg-slate-50 px-4 py-3">
+            <span className="text-sm font-medium !text-slate-600">
               Total amount
             </span>
-            <span className="text-lg font-bold text-slate-900">
+            <span className="text-lg font-bold !text-slate-900">
               {formatCurrency(totalEntered)}
             </span>
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
               Payment method
             </label>
             <Select
@@ -564,14 +564,14 @@ export default function PaymentsTab({
               checked={attachInvoice}
               onChange={(e) => setAttachInvoice(e.target.checked)}
             >
-              <span className="text-sm text-slate-700">
+              <span className="text-sm !text-slate-700">
                 Attach to invoice {latestInvoice?.invoiceNumber}
               </span>
             </Checkbox>
           )}
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
               Reference (optional)
             </label>
             <Input
@@ -581,7 +581,7 @@ export default function PaymentsTab({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
               Notes (optional)
             </label>
             <Input.TextArea
@@ -601,7 +601,7 @@ export default function PaymentsTab({
         okText="Mark failed"
         okButtonProps={{ danger: true }}
       >
-        <label className="mb-1.5 block text-xs font-semibold uppercase text-slate-500">
+        <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
           Reason
         </label>
         <Input.TextArea
@@ -620,8 +620,8 @@ export default function PaymentsTab({
         okButtonProps={{ danger: true }}
       >
         <div className="flex items-start gap-2.5">
-          <AlertTriangle size={18} className="mt-0.5 shrink-0 text-red-600" />
-          <p className="text-sm text-slate-700">
+          <AlertTriangle size={18} className="mt-0.5 shrink-0 !text-red-600" />
+          <p className="text-sm !text-slate-700">
             Confirming this payment will bring this visit's outstanding
             balance to ₦0.00. There is no refund option in this system — the
             only way to correct a mistaken confirmation is through a

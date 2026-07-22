@@ -51,7 +51,7 @@ export default function InvoicePrintClient({ detail }: { detail: Detail }) {
           <button
             type="button"
             onClick={() => window.print()}
-            className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
+            className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:bg-slate-800"
           >
             <Printer size={15} />
             Print invoice
