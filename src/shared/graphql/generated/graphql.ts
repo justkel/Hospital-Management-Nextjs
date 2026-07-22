@@ -523,6 +523,15 @@ export type CreateVisitComplaintInput = {
   visitId: Scalars['ID']['input'];
 };
 
+export type CreateVisitCreditInput = {
+  amount: Scalars['Float']['input'];
+  method: PaymentMethod;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  reason: Scalars['String']['input'];
+  visitChargeId?: InputMaybe<Scalars['ID']['input']>;
+  visitId: Scalars['ID']['input'];
+};
+
 export type CreateVisitDiagnosisInput = {
   chargeCatalogId?: InputMaybe<Scalars['ID']['input']>;
   diagnosis: Scalars['String']['input'];
@@ -625,6 +634,12 @@ export type CreateWardInput = {
   name: Scalars['String']['input'];
   wardClass: WardClass;
 };
+
+export enum CreditRefundStatus {
+  Failed = 'FAILED',
+  Pending = 'PENDING',
+  Success = 'SUCCESS'
+}
 
 export type DelayTheatreBookingInput = {
   delayReason: Scalars['String']['input'];
@@ -748,6 +763,7 @@ export type Mutation = {
   cloneGlobalCategoryToOrganization: BillingCatalogueCategory;
   completeLabRequest: LabRequest;
   completeTheatreProcedure: TheatreBooking;
+  confirmVisitCreditRefund: VisitCredit;
   confirmVisitPayment: VisitPayment;
   createBed: Bed;
   createBedAllocation: VisitBedAllocation;
@@ -767,6 +783,7 @@ export type Mutation = {
   createVisit: Visit;
   createVisitCharge: VisitCharge;
   createVisitComplaint: VisitComplaint;
+  createVisitCreditRefund: VisitCredit;
   createVisitDiagnosis: VisitDiagnosis;
   createVisitNote: VisitNote;
   createVisitPayment: VisitPayment;
@@ -778,6 +795,7 @@ export type Mutation = {
   createWard: Ward;
   createWardIncident: WardIncident;
   delayTheatreBooking: TheatreBooking;
+  failVisitCreditRefund: VisitCredit;
   failVisitPayment: VisitPayment;
   generateVisitInvoice: VisitInvoice;
   issueVisitInvoice: VisitInvoice;
@@ -880,6 +898,11 @@ export type MutationCompleteTheatreProcedureArgs = {
 };
 
 
+export type MutationConfirmVisitCreditRefundArgs = {
+  creditId: Scalars['ID']['input'];
+};
+
+
 export type MutationConfirmVisitPaymentArgs = {
   paymentId: Scalars['ID']['input'];
 };
@@ -976,6 +999,11 @@ export type MutationCreateVisitComplaintArgs = {
 };
 
 
+export type MutationCreateVisitCreditRefundArgs = {
+  data: CreateVisitCreditInput;
+};
+
+
 export type MutationCreateVisitDiagnosisArgs = {
   data: CreateVisitDiagnosisInput;
 };
@@ -1028,6 +1056,12 @@ export type MutationCreateWardIncidentArgs = {
 
 export type MutationDelayTheatreBookingArgs = {
   data: DelayTheatreBookingInput;
+};
+
+
+export type MutationFailVisitCreditRefundArgs = {
+  creditId: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
 };
 
 
@@ -1423,6 +1457,8 @@ export type Query = {
   visitChargeTotal: Scalars['Float']['output'];
   visitComplaintById: VisitComplaint;
   visitComplaints: Array<VisitComplaint>;
+  visitCreditBalance: Scalars['Float']['output'];
+  visitCredits: Array<VisitCredit>;
   visitCurrentTotals: VisitCurrentTotals;
   visitDiagnoses: Array<VisitDiagnosis>;
   visitDiagnosisById: VisitDiagnosis;
@@ -1659,6 +1695,16 @@ export type QueryVisitComplaintByIdArgs = {
 
 
 export type QueryVisitComplaintsArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitCreditBalanceArgs = {
+  visitId: Scalars['ID']['input'];
+};
+
+
+export type QueryVisitCreditsArgs = {
   visitId: Scalars['ID']['input'];
 };
 
@@ -2447,6 +2493,24 @@ export type VisitComplaint = {
   id: Scalars['ID']['output'];
   recordedByStaffId: Scalars['ID']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  visitId: Scalars['ID']['output'];
+};
+
+export type VisitCredit = {
+  __typename?: 'VisitCredit';
+  amount: Scalars['Float']['output'];
+  confirmedAt?: Maybe<Scalars['DateTime']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  method: PaymentMethod;
+  notes?: Maybe<Scalars['String']['output']>;
+  organizationId: Scalars['ID']['output'];
+  processedByStaffId: Scalars['ID']['output'];
+  reason: Scalars['String']['output'];
+  status: CreditRefundStatus;
+  updatedAt: Scalars['DateTime']['output'];
+  visitCharge?: Maybe<VisitCharge>;
+  visitChargeId?: Maybe<Scalars['ID']['output']>;
   visitId: Scalars['ID']['output'];
 };
 
@@ -3965,6 +4029,42 @@ export type GetVisitChargeBalancesQueryVariables = Exact<{
 
 export type GetVisitChargeBalancesQuery = { __typename?: 'Query', visitChargeBalances: Array<{ __typename?: 'VisitChargeBalance', visitChargeId: string, totalAmount: number, effectiveTotal: number, amountPaid: number, remaining: number }> };
 
+export type GetVisitCreditBalanceQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitCreditBalanceQuery = { __typename?: 'Query', visitCreditBalance: number };
+
+export type GetVisitCreditsQueryVariables = Exact<{
+  visitId: Scalars['ID']['input'];
+}>;
+
+
+export type GetVisitCreditsQuery = { __typename?: 'Query', visitCredits: Array<{ __typename?: 'VisitCredit', id: string, visitId: string, visitChargeId?: string | null, amount: number, method: PaymentMethod, reason: string, notes?: string | null, status: CreditRefundStatus, processedByStaffId: string, createdAt: string, confirmedAt?: string | null, organizationId: string, visitCharge?: { __typename?: 'VisitCharge', id: string, chargeName: string } | null }> };
+
+export type CreateVisitCreditRefundMutationVariables = Exact<{
+  data: CreateVisitCreditInput;
+}>;
+
+
+export type CreateVisitCreditRefundMutation = { __typename?: 'Mutation', createVisitCreditRefund: { __typename?: 'VisitCredit', id: string, visitId: string, visitChargeId?: string | null, amount: number, method: PaymentMethod, reason: string, notes?: string | null, status: CreditRefundStatus, processedByStaffId: string, createdAt: string, confirmedAt?: string | null, organizationId: string } };
+
+export type ConfirmVisitCreditRefundMutationVariables = Exact<{
+  creditId: Scalars['ID']['input'];
+}>;
+
+
+export type ConfirmVisitCreditRefundMutation = { __typename?: 'Mutation', confirmVisitCreditRefund: { __typename?: 'VisitCredit', id: string, status: CreditRefundStatus, confirmedAt?: string | null } };
+
+export type FailVisitCreditRefundMutationVariables = Exact<{
+  creditId: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+}>;
+
+
+export type FailVisitCreditRefundMutation = { __typename?: 'Mutation', failVisitCreditRefund: { __typename?: 'VisitCredit', id: string, status: CreditRefundStatus, notes?: string | null } };
+
 
 export const StaffLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StaffLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"StaffLoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"staffLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<StaffLoginMutation, StaffLoginMutationVariables>;
 export const RefreshTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RefreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"refreshToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<RefreshTokenMutation, RefreshTokenMutationVariables>;
@@ -4118,3 +4218,8 @@ export const RejectBillingAdjustmentDocument = {"kind":"Document","definitions":
 export const ApplyBillingAdjustmentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ApplyBillingAdjustment"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"adjustmentId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"applyBillingAdjustment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"adjustmentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"adjustmentId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"appliedAt"}}]}}]}}]} as unknown as DocumentNode<ApplyBillingAdjustmentMutation, ApplyBillingAdjustmentMutationVariables>;
 export const GetVisitInvoiceDetailDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitInvoiceDetail"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"invoiceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitInvoiceDetail"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"invoiceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"invoiceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"outstandingBalance"}},{"kind":"Field","name":{"kind":"Name","value":"invoice"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"subtotal"}},{"kind":"Field","name":{"kind":"Name","value":"discountTotal"}},{"kind":"Field","name":{"kind":"Name","value":"totalPayable"}},{"kind":"Field","name":{"kind":"Name","value":"issuedAt"}},{"kind":"Field","name":{"kind":"Name","value":"lockedAt"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"lineItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"chargeDomain"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"visitCharge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"adjustmentSnapshots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"billingAdjustmentId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"method"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"direction"}},{"kind":"Field","name":{"kind":"Name","value":"resolvedAmount"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"billingAdjustment"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"payments"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"amountPaid"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"paidAt"}},{"kind":"Field","name":{"kind":"Name","value":"confirmedAt"}},{"kind":"Field","name":{"kind":"Name","value":"receivedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"reference"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"allocations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}},{"kind":"Field","name":{"kind":"Name","value":"amountAllocated"}},{"kind":"Field","name":{"kind":"Name","value":"visitCharge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetVisitInvoiceDetailQuery, GetVisitInvoiceDetailQueryVariables>;
 export const GetVisitChargeBalancesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitChargeBalances"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitChargeBalances"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"effectiveTotal"}},{"kind":"Field","name":{"kind":"Name","value":"amountPaid"}},{"kind":"Field","name":{"kind":"Name","value":"remaining"}}]}}]}}]} as unknown as DocumentNode<GetVisitChargeBalancesQuery, GetVisitChargeBalancesQueryVariables>;
+export const GetVisitCreditBalanceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitCreditBalance"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitCreditBalance"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}]}]}}]} as unknown as DocumentNode<GetVisitCreditBalanceQuery, GetVisitCreditBalanceQueryVariables>;
+export const GetVisitCreditsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitCredits"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visitCredits"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}},{"kind":"Field","name":{"kind":"Name","value":"visitCharge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"method"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"processedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"confirmedAt"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<GetVisitCreditsQuery, GetVisitCreditsQueryVariables>;
+export const CreateVisitCreditRefundDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVisitCreditRefund"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVisitCreditInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVisitCreditRefund"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"method"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"processedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"confirmedAt"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}}]}}]} as unknown as DocumentNode<CreateVisitCreditRefundMutation, CreateVisitCreditRefundMutationVariables>;
+export const ConfirmVisitCreditRefundDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ConfirmVisitCreditRefund"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"creditId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"confirmVisitCreditRefund"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"creditId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"creditId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"confirmedAt"}}]}}]}}]} as unknown as DocumentNode<ConfirmVisitCreditRefundMutation, ConfirmVisitCreditRefundMutationVariables>;
+export const FailVisitCreditRefundDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"FailVisitCreditRefund"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"creditId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"reason"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"failVisitCreditRefund"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"creditId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"creditId"}}},{"kind":"Argument","name":{"kind":"Name","value":"reason"},"value":{"kind":"Variable","name":{"kind":"Name","value":"reason"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}}]}}]}}]} as unknown as DocumentNode<FailVisitCreditRefundMutation, FailVisitCreditRefundMutationVariables>;

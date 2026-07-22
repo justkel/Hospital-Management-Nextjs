@@ -3251,3 +3251,60 @@ query GetVisitChargeBalances($visitId: ID!) {
   }
 }
  
+query GetVisitCreditBalance($visitId: ID!) {
+  visitCreditBalance(visitId: $visitId)
+}
+
+query GetVisitCredits($visitId: ID!) {
+  visitCredits(visitId: $visitId) {
+    id
+    visitId
+    visitChargeId
+    visitCharge {
+      id
+      chargeName
+    }
+    amount
+    method
+    reason
+    notes
+    status
+    processedByStaffId
+    createdAt
+    confirmedAt
+    organizationId
+  }
+}
+
+mutation CreateVisitCreditRefund($data: CreateVisitCreditInput!) {
+  createVisitCreditRefund(data: $data) {
+    id
+    visitId
+    visitChargeId
+    amount
+    method
+    reason
+    notes
+    status
+    processedByStaffId
+    createdAt
+    confirmedAt
+    organizationId
+  }
+}
+
+mutation ConfirmVisitCreditRefund($creditId: ID!) {
+  confirmVisitCreditRefund(creditId: $creditId) {
+    id
+    status
+    confirmedAt
+  }
+}
+
+mutation FailVisitCreditRefund($creditId: ID!, $reason: String!) {
+  failVisitCreditRefund(creditId: $creditId, reason: $reason) {
+    id
+    status
+    notes
+  }
+}
