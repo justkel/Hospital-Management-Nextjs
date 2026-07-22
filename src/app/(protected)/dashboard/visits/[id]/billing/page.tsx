@@ -21,6 +21,12 @@ import {
   GetVisitPaymentsDocument,
   GetVisitPaymentsQuery,
   GetVisitPaymentsQueryVariables,
+  GetVisitCreditBalanceDocument,
+  GetVisitCreditBalanceQuery,
+  GetVisitCreditBalanceQueryVariables,
+  GetVisitCreditsDocument,
+  GetVisitCreditsQuery,
+  GetVisitCreditsQueryVariables,
 } from '@/shared/graphql/generated/graphql';
 
 import { graphqlFetch } from '@/shared/graphql/fetcher';
@@ -41,6 +47,8 @@ export default async function VisitBillingPage({ params }: Props) {
     latestInvoiceRes,
     invoicesRes,
     paymentsRes,
+    creditBalanceRes,
+    creditsRes,
   ] = await Promise.all([
     graphqlFetch<GetVisitByIdQuery, GetVisitByIdQueryVariables>(
       GetVisitByIdDocument,
@@ -70,6 +78,14 @@ export default async function VisitBillingPage({ params }: Props) {
       GetVisitPaymentsDocument,
       { visitId: id }
     ),
+    graphqlFetch<
+      GetVisitCreditBalanceQuery,
+      GetVisitCreditBalanceQueryVariables
+    >(GetVisitCreditBalanceDocument, { visitId: id }),
+    graphqlFetch<GetVisitCreditsQuery, GetVisitCreditsQueryVariables>(
+      GetVisitCreditsDocument,
+      { visitId: id }
+    ),
   ]);
 
   if (!visitRes?.visit) {
@@ -92,6 +108,8 @@ export default async function VisitBillingPage({ params }: Props) {
         initialLatestInvoice={latestInvoiceRes?.latestVisitInvoice ?? null}
         initialInvoices={invoicesRes?.visitInvoices ?? []}
         initialPayments={paymentsRes?.visitPayments ?? []}
+        initialCredits={creditsRes?.visitCredits ?? []}
+        initialCreditBalance={creditBalanceRes?.visitCreditBalance ?? 0}
       />
     </SessionGuard>
   );

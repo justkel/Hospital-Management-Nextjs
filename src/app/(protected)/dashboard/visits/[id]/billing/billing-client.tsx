@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Tabs } from 'antd';
 import {
   Activity,
+  AlertTriangle,
   FileText,
   Receipt,
   Wallet,
@@ -16,14 +17,15 @@ import {
   GetUnbilledPrescriptionsQuery,
   GetBillingAdjustmentsQuery,
   GetLatestVisitInvoiceQuery,
-  GetVisitInvoicesQuery,
   GetVisitPaymentsQuery,
+  GetVisitCreditsQuery,
 } from '@/shared/graphql/generated/graphql';
 
 import ChargeSummaryTab from './components/ChargeSummaryTab';
 import AdjustmentsTab from './components/AdjustmentsTab';
 import InvoicesTab from './components/InvoicesTab';
 import PaymentsTab from './components/PaymentsTab';
+import CreditsTab from './components/CreditsTab';
 
 export type ChargeSummary = NonNullable<
   GetVisitChargeSummaryQuery['visitChargeSummary']
@@ -36,6 +38,7 @@ export type InvoiceRow = NonNullable<
   GetLatestVisitInvoiceQuery['latestVisitInvoice']
 >;
 export type PaymentRow = GetVisitPaymentsQuery['visitPayments'][number];
+export type CreditRow = GetVisitCreditsQuery['visitCredits'][number];
 
 function formatCurrency(amount: number | string | null | undefined) {
   const n = Number(amount ?? 0);
@@ -53,6 +56,8 @@ export default function BillingClient({
   initialLatestInvoice,
   initialInvoices,
   initialPayments,
+  initialCredits,
+  initialCreditBalance,
 }: {
   visit: GetVisitByIdQuery['visit'];
   initialSummary: ChargeSummary;
@@ -61,6 +66,8 @@ export default function BillingClient({
   initialLatestInvoice: InvoiceRow | null;
   initialInvoices: InvoiceRow[];
   initialPayments: PaymentRow[];
+  initialCredits: CreditRow[];
+  initialCreditBalance: number;
 }) {
   const [summary, setSummary] = useState<ChargeSummary>(initialSummary);
   const [unbilled, setUnbilled] = useState<UnbilledPrescription[]>(
@@ -73,6 +80,10 @@ export default function BillingClient({
   );
   const [invoices, setInvoices] = useState<InvoiceRow[]>(initialInvoices);
   const [payments, setPayments] = useState<PaymentRow[]>(initialPayments);
+  const [credits, setCredits] = useState<CreditRow[]>(initialCredits);
+  const [creditBalance, setCreditBalance] = useState<number>(
+    initialCreditBalance
+  );
 
   const [activeTab, setActiveTab] = useState('summary');
 
@@ -86,6 +97,8 @@ export default function BillingClient({
   ).length;
 
   const outstandingPrescriptions = unbilled.length;
+
+  const hasCreditBalance = creditBalance > 0.01;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
@@ -107,6 +120,30 @@ export default function BillingClient({
                 record payments for this visit — all in one place.
               </p>
             </div>
+
+            {hasCreditBalance && (
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle size={20} className="shrink-0 text-amber-600" />
+                  <div>
+                    <p className="text-sm font-bold text-amber-900">
+                      This visit has a credit balance of{' '}
+                      {formatCurrency(creditBalance)}
+                    </p>
+                    <p className="text-xs text-amber-700">
+                      Money is owed back — process it from the Credits tab.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('credits')}
+                  className="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-bold text-amber-700 transition hover:bg-amber-100"
+                >
+                  Go to Credits
+                </button>
+              </div>
+            )}
 
             <div className="mb-6 h-px bg-slate-100" />
 
@@ -235,6 +272,29 @@ export default function BillingClient({
                       latestInvoice={latestInvoice}
                       onPaymentsChange={setPayments}
                       onLatestInvoiceChange={setLatestInvoice}
+                    />
+                  ),
+                },
+                {
+                  key: 'credits',
+                  label: (
+                    <span>
+                      Credits
+                      {hasCreditBalance && (
+                        <span className="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-100 px-1.5 text-[11px] font-bold text-amber-700">
+                          !
+                        </span>
+                      )}
+                    </span>
+                  ),
+                  children: (
+                    <CreditsTab
+                      visitId={visit.id}
+                      charges={charges}
+                      credits={credits}
+                      creditBalance={creditBalance}
+                      onCreditsChange={setCredits}
+                      onCreditBalanceChange={setCreditBalance}
                     />
                   ),
                 },
