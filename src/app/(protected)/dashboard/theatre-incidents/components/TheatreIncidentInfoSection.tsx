@@ -12,7 +12,6 @@ import {
     Pencil,
     Building2,
     ShieldCheck,
-    ShieldX,
     CalendarClock,
 } from 'lucide-react';
 

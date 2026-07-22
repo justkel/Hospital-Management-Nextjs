@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, useState, useEffect } from 'react';
-import { Menu, Avatar, Dropdown, Modal } from 'antd';
+import { Avatar, Dropdown, Modal } from 'antd';
 import {
     DashboardOutlined, TeamOutlined, FileTextOutlined,
     SettingOutlined, LogoutOutlined, UserOutlined,

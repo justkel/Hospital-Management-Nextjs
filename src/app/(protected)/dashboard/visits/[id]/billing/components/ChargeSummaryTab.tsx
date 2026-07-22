@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { message } from 'antd';
+import { Select, message } from 'antd';
 import {
   CheckCircle2,
   Lock,
@@ -31,6 +31,27 @@ interface ChargeBalance {
   remaining: number;
 }
 
+interface ChargeExtras {
+  description?: string | null;
+  notes?: string | null;
+  overrideReason?: string | null;
+  billingType?: string | null;
+  chargeType?: string | null;
+  createdBy?: { fullName?: string | null } | null;
+  chargeCatalog?: { name?: string | null } | null;
+}
+
+const OVERRIDE_REASON_OPTIONS = [
+  'Manual override',
+  'Insurance negotiated rate',
+  'Staff or family discount',
+  'Compassionate / charity waiver',
+  'Price correction',
+  'Promotional rate',
+];
+
+const OTHER_REASON = 'Other (specify)';
+
 export default function ChargeSummaryTab({
   visitId,
   summary,
@@ -51,6 +72,7 @@ export default function ChargeSummaryTab({
   const [editingChargeId, setEditingChargeId] = useState<string | null>(null);
   const [editUnitPrice, setEditUnitPrice] = useState('');
   const [editReason, setEditReason] = useState('');
+  const [editReasonOther, setEditReasonOther] = useState('');
   const [savingEdit, setSavingEdit] = useState(false);
 
   const [pricingPrescriptionId, setPricingPrescriptionId] = useState<
@@ -115,18 +137,23 @@ export default function ChargeSummaryTab({
     setEditingChargeId(charge.id);
     setEditUnitPrice(String(charge.unitPrice));
     setEditReason('');
+    setEditReasonOther('');
   };
 
   const cancelEdit = () => {
     setEditingChargeId(null);
     setEditUnitPrice('');
     setEditReason('');
+    setEditReasonOther('');
   };
 
   const saveEdit = async () => {
     if (!editingChargeId) return;
 
-    if (!editReason.trim()) {
+    const finalReason =
+      editReason === OTHER_REASON ? editReasonOther.trim() : editReason;
+
+    if (!finalReason) {
       message.error('A reason is required to change a charge\'s price');
       return;
     }
@@ -140,7 +167,7 @@ export default function ChargeSummaryTab({
         body: JSON.stringify({
           visitChargeId: editingChargeId,
           unitPrice: Number(editUnitPrice),
-          overrideReason: editReason.trim(),
+          overrideReason: finalReason,
         }),
       });
 
@@ -230,6 +257,58 @@ export default function ChargeSummaryTab({
           </span>
         )}
       </p>
+    );
+  };
+
+  const renderChargeMeta = (charge: ChargeRow) => {
+    const extras = charge as ChargeRow & ChargeExtras;
+
+    const hasAny =
+      extras.description ||
+      extras.overrideReason ||
+      extras.notes ||
+      extras.billingType ||
+      extras.chargeCatalog?.name ||
+      extras.createdBy?.fullName;
+
+    if (!hasAny) return null;
+
+    return (
+      <div className="mt-1.5 space-y-1">
+        {extras.description && (
+          <p className="text-xs !text-slate-600">{extras.description}</p>
+        )}
+
+        {extras.overrideReason && (
+          <p className="text-xs !text-amber-700">
+            Price override reason: {extras.overrideReason}
+          </p>
+        )}
+
+        {extras.notes && (
+          <p className="text-xs !text-slate-400">{extras.notes}</p>
+        )}
+
+        {(extras.billingType || extras.chargeCatalog?.name || extras.createdBy?.fullName) && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            {extras.billingType && (
+              <span className="rounded-full border !border-slate-200 !bg-white px-2 py-0.5 text-[10px] font-bold uppercase !text-slate-500">
+                {extras.billingType}
+              </span>
+            )}
+            {extras.chargeCatalog?.name && (
+              <span className="text-[11px] !text-slate-400">
+                Catalog: {extras.chargeCatalog.name}
+              </span>
+            )}
+            {extras.createdBy?.fullName && (
+              <span className="text-[11px] !text-slate-400">
+                Added by {extras.createdBy.fullName}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -348,6 +427,7 @@ export default function ChargeSummaryTab({
                       {formatCurrency(c.unitPrice)} each
                     </p>
                     {renderBalanceNote(c.id)}
+                    {renderChargeMeta(c)}
                   </div>
                   <div className="flex items-center gap-3">
                     <StatusBadge status={c.status} />
@@ -392,12 +472,18 @@ export default function ChargeSummaryTab({
                           onChange={(e) => setEditUnitPrice(e.target.value)}
                           className="w-32 rounded-lg border !border-slate-300 px-3 py-2 text-sm focus:!border-blue-400 focus:outline-none"
                         />
-                        <input
-                          type="text"
-                          value={editReason}
-                          onChange={(e) => setEditReason(e.target.value)}
+                        <Select
+                          className="min-w-[220px] flex-1"
                           placeholder="Reason for price change"
-                          className="min-w-[220px] flex-1 rounded-lg border !border-slate-300 px-3 py-2 text-sm focus:!border-blue-400 focus:outline-none"
+                          value={editReason || undefined}
+                          onChange={(v) => setEditReason(v)}
+                          options={[
+                            ...OVERRIDE_REASON_OPTIONS.map((r) => ({
+                              value: r,
+                              label: r,
+                            })),
+                            { value: OTHER_REASON, label: OTHER_REASON },
+                          ]}
                         />
                         <button
                           type="button"
@@ -421,6 +507,17 @@ export default function ChargeSummaryTab({
                           <X size={14} />
                         </button>
                       </div>
+
+                      {editReason === OTHER_REASON && (
+                        <input
+                          type="text"
+                          autoFocus
+                          value={editReasonOther}
+                          onChange={(e) => setEditReasonOther(e.target.value)}
+                          placeholder="Specify the reason"
+                          className="min-w-[220px] rounded-lg border !border-slate-300 px-3 py-2 text-sm focus:!border-blue-400 focus:outline-none"
+                        />
+                      )}
                     </div>
                   ) : (
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -433,6 +530,7 @@ export default function ChargeSummaryTab({
                           {formatCurrency(c.unitPrice)} each
                         </p>
                         {renderBalanceNote(c.id)}
+                        {renderChargeMeta(c)}
                       </div>
                       <div className="flex items-center gap-3">
                         <StatusBadge status={c.status} />

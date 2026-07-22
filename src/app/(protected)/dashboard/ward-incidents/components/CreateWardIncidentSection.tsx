@@ -8,7 +8,6 @@ import {
   CreateWardIncidentInput,
   GetWardsQuery,
   WardIncidentSeverity,
-  WardIncidentStatus,
   WardIncidentType,
 } from '@/shared/graphql/generated/graphql';
 

@@ -96,7 +96,7 @@ export default function UpdateWardIncidentDrawer({
                 reset();
             }}
             placement="right"
-            width="100%"
+            size={520}
             className="md:!max-w-[600px]"
             title={
                 <div className="flex flex-col">

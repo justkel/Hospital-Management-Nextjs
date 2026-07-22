@@ -119,7 +119,7 @@ export default function UpdateWardDrawer({
       open={open}
       onClose={onClose}
       title={null}
-      width={520}
+      size={520}
       styles={{
         body: {
           padding: 0,

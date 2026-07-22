@@ -139,7 +139,6 @@ export default function TheatreAvailabilityBoard({
 function DayColumn({
   day,
   slots,
-  onEditRequest,
 }: {
   day: number;
   slots: Availability[];

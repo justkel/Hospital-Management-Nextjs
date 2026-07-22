@@ -26,7 +26,6 @@ import {
     FileText,
     Hash,
     ShieldAlert,
-    Stethoscope,
     TimerReset,
     User2,
     XCircle,

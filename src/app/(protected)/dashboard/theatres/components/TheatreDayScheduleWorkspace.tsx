@@ -213,10 +213,6 @@ function formatBookingDateTime(iso: string, includeDate = false) {
         : time;
 }
 
-function overlapMinutes(aStart: number, aEnd: number, bStart: number, bEnd: number): number {
-    return Math.max(0, Math.min(aEnd, bEnd) - Math.max(aStart, bStart));
-}
-
 function formatMinutesRange(startMin: number, endMin: number): string {
     const fmt = (mins: number) => {
         const h = Math.floor(mins / 60) % 24;
