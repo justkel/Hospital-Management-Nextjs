@@ -3180,6 +3180,31 @@ query GetVisitInvoiceDetail($invoiceId: ID!) {
       issuedAt
       lockedAt
       organizationId
+
+      visit {
+        id
+        visitType
+        visitDateTime
+        patient {
+          id
+          fullName
+          dateOfBirth
+          gender
+        }
+      }
+      organization {
+        id
+        name
+        email
+        phoneNumber
+        website
+        address {
+          addressLine1
+          city
+          state
+          country
+        }
+      }
     }
     lineItems {
       id

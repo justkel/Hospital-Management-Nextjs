@@ -44,6 +44,27 @@ export default function InvoicePrintClient({ detail }: { detail: Detail }) {
 
   const successfulPayments = payments.filter((p) => p.status === 'SUCCESS');
 
+  const organization = invoice.organization;
+  const visit = invoice.visit;
+  const patient = visit?.patient;
+
+  const organizationAddress = [
+    organization?.address?.addressLine1,
+    organization?.address?.city,
+    organization?.address?.state,
+    organization?.address?.country,
+  ]
+    .filter(Boolean)
+    .join(', ');
+
+  const organizationContact = [
+    organization?.phoneNumber,
+    organization?.email,
+    organization?.website,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
   return (
     <div className="min-h-screen bg-slate-100 py-8 print:bg-white print:py-0">
       <div className="mx-auto max-w-3xl">
@@ -59,6 +80,24 @@ export default function InvoicePrintClient({ detail }: { detail: Detail }) {
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-8 print:rounded-none print:border-0 print:p-0 sm:p-10">
+          {organization && (
+            <div className="mb-6 border-b border-slate-200 pb-6 print:border-slate-300">
+              <h2 className="text-xl font-bold text-slate-900">
+                {organization.name}
+              </h2>
+              {organizationAddress && (
+                <p className="mt-1 text-xs text-slate-500">
+                  {organizationAddress}
+                </p>
+              )}
+              {organizationContact && (
+                <p className="mt-0.5 text-xs text-slate-500">
+                  {organizationContact}
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="mb-8 flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-6">
             <div>
               <h1 className="text-2xl font-bold text-slate-900">Invoice</h1>
@@ -78,6 +117,34 @@ export default function InvoicePrintClient({ detail }: { detail: Detail }) {
               </p>
             </div>
           </div>
+
+          {(patient || visit) && (
+            <div className="mb-8 grid grid-cols-1 gap-4 rounded-xl bg-slate-50 p-4 sm:grid-cols-2 print:border print:border-slate-200 print:bg-white">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                  Billed to
+                </p>
+                <p className="mt-1 text-sm font-bold text-slate-800">
+                  {patient?.fullName ?? '—'}
+                </p>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  {patient?.gender ? `${patient.gender} · ` : ''}
+                  DOB: {formatDate(patient?.dateOfBirth)}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                  Visit
+                </p>
+                <p className="mt-1 text-sm font-bold text-slate-800">
+                  {visit?.visitType?.replace(/_/g, ' ') ?? '—'}
+                </p>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  {formatDate(visit?.visitDateTime)}
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="mb-8">
             <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-500">
