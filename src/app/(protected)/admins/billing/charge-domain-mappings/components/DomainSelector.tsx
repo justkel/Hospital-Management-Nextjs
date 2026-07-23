@@ -20,6 +20,16 @@ interface Props {
   >;
 }
 
+const AVAILABLE_DOMAINS: ChargeDomain[] = [
+  ChargeDomain.Bed,
+  ChargeDomain.Consultation,
+  ChargeDomain.Diagnosis,
+  ChargeDomain.Lab,
+  ChargeDomain.Other,
+  ChargeDomain.Procedure,
+  ChargeDomain.Vitals,
+];
+
 export default function DomainSelector({
   selectedDomain,
   grouped,
@@ -34,20 +44,22 @@ export default function DomainSelector({
 
       <Select
         size="large"
-        showSearch={{ optionFilterProp: 'label' }}
+        showSearch={{
+          optionFilterProp: 'label',
+        }}
         placeholder="Choose billing domain"
         className="w-full"
         value={selectedDomain ?? undefined}
-        onChange={value => {
+        onChange={(value: ChargeDomain) => {
           setSelectedDomain(value);
 
           const existing =
-            grouped[value]?.map(m => m.chargeCatalogId) || [];
+            grouped[value]?.map((m) => m.chargeCatalogId) || [];
 
           setSelectedCatalogIds(existing);
         }}
-        options={Object.values(ChargeDomain).map(domain => ({
-          label: domain.replace(/_/g, ' '),
+        options={AVAILABLE_DOMAINS.map((domain) => ({
+          label: domain.replace(/_/g, ' ').toUpperCase(),
           value: domain,
         }))}
       />
