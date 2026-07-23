@@ -52,6 +52,18 @@ const OVERRIDE_REASON_OPTIONS = [
 
 const OTHER_REASON = 'Other (specify)';
 
+const PAYMENT_STATE_STYLES: Record<string, string> = {
+  PAID: '!bg-emerald-50 !text-emerald-700 !border-emerald-200',
+  PARTIAL: '!bg-orange-50 !text-orange-700 !border-orange-200',
+  UNPAID: '!bg-slate-100 !text-slate-500 !border-slate-200',
+};
+
+const PAYMENT_STATE_LABELS: Record<string, string> = {
+  PAID: 'Fully paid',
+  PARTIAL: 'Partially paid',
+  UNPAID: 'Unpaid',
+};
+
 export default function ChargeSummaryTab({
   visitId,
   summary,
@@ -260,6 +272,30 @@ export default function ChargeSummaryTab({
     );
   };
 
+  const getPaymentState = (chargeId: string, status: string): string | null => {
+    if (status === 'WAIVED' || status === 'CANCELLED') return null;
+
+    const b = balances[chargeId];
+    if (!b) return null;
+
+    if (b.remaining <= 0.01 && b.effectiveTotal > 0.01) return 'PAID';
+    if (b.amountPaid > 0.01) return 'PARTIAL';
+    return 'UNPAID';
+  };
+
+  const renderPaymentStateBadge = (chargeId: string, status: string) => {
+    const state = getPaymentState(chargeId, status);
+    if (!state) return null;
+
+    return (
+      <span
+        className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide ${PAYMENT_STATE_STYLES[state]}`}
+      >
+        {PAYMENT_STATE_LABELS[state]}
+      </span>
+    );
+  };
+
   const renderChargeMeta = (charge: ChargeRow) => {
     const extras = charge as ChargeRow & ChargeExtras;
 
@@ -429,8 +465,9 @@ export default function ChargeSummaryTab({
                     {renderBalanceNote(c.id)}
                     {renderChargeMeta(c)}
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2">
                     <StatusBadge status={c.status} />
+                    {renderPaymentStateBadge(c.id, c.status)}
                     <span className="font-semibold !text-slate-900">
                       {formatCurrency(c.totalAmount)}
                     </span>
@@ -532,8 +569,9 @@ export default function ChargeSummaryTab({
                         {renderBalanceNote(c.id)}
                         {renderChargeMeta(c)}
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
                         <StatusBadge status={c.status} />
+                        {renderPaymentStateBadge(c.id, c.status)}
                         <span className="font-semibold !text-slate-900">
                           {formatCurrency(c.totalAmount)}
                         </span>
