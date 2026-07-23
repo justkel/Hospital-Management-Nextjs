@@ -134,41 +134,44 @@ export default function AuditFilters({ filters, onChange }: Props) {
         <FilterField label="Action" icon={<TagIcon size={12} />}>
           <Select
             allowClear
-            showSearch
+            showSearch={{
+              optionFilterProp: 'label',
+            }}
             loading={loadingActions}
             placeholder="All actions"
             className="w-full"
             value={filters.action}
             onChange={value => onChange({ ...filters, action: value || undefined })}
             options={actions.map(a => ({ label: a, value: a }))}
-            optionFilterProp="label"
           />
         </FilterField>
 
         <FilterField label="Entity" icon={<Database size={12} />}>
           <Select
             allowClear
-            showSearch
+            showSearch={{
+              optionFilterProp: 'label',
+            }}
             loading={loadingEntities}
             placeholder="All entities"
             className="w-full"
             value={filters.entity}
             onChange={value => onChange({ ...filters, entity: value || undefined })}
             options={entities.map(e => ({ label: e, value: e }))}
-            optionFilterProp="label"
           />
         </FilterField>
 
         <FilterField label="Actor" icon={<UserRound size={12} />}>
           <Select
             allowClear
-            showSearch
+            showSearch={{
+              optionFilterProp: 'label',
+            }}
             loading={loadingActors}
             placeholder="All actors"
             className="w-full"
             value={filters.actorId}
             onChange={value => onChange({ ...filters, actorId: value || undefined })}
-            optionFilterProp="label"
             options={actorIds.map(id => {
               const staff = staffMap[id];
               return {
