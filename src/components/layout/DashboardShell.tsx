@@ -229,7 +229,7 @@ export default function DashboardShell({
                                 <NavItem icon={<TeamOutlined />} label="Staff"
                                     href="/admins/staff" active={selectedKey === 'staff'} onClick={close} />
 
-                                <NavItem icon={<CreditCardOutlined />} label="Billing" />
+                                <NavItem icon={<CreditCardOutlined />} label="Charge Catalogs" />
                                 <div className="ml-3 mt-0.5 border-l border-[#E8E6E0] pl-3">
                                     <NavItem icon={<span className="h-1 w-1 rounded-full bg-[#D3D1C7]" />} label="Global"
                                         href="/admins/billing/global" active={selectedKey === 'billing-global'} onClick={close} />
