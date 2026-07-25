@@ -4,6 +4,7 @@ import { clientFetch } from '@/lib/clientFetch';
 import { useEffect, useState } from 'react';
 import { Input, Button, message } from 'antd';
 import { CheckOutlined, EditOutlined } from '@ant-design/icons';
+import { scheduledFetch } from '@/lib/requestScheduler';
 
 interface Complaint {
   id: string;
@@ -21,13 +22,17 @@ export default function VisitComplaintList({ visitId, refreshKey }: Props) {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState<string>('');
+  const FETCH_PRIORITY = 2;
 
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
         setLoading(true);
 
-        const res = await clientFetch(`/api/visit-complaints/by-visit/${visitId}`);
+        const res = await scheduledFetch(
+          () => clientFetch(`/api/visit-complaints/by-visit/${visitId}`),
+          FETCH_PRIORITY
+        );
         const json = await res.json();
 
         if (!res.ok) {

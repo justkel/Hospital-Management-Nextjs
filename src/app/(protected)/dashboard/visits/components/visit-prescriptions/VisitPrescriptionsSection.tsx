@@ -6,6 +6,7 @@ import VisitPrescriptionForm from './VisitPrescriptionForm';
 import VisitPrescriptionsList from './VisitPrescriptionsList';
 import { VisitPrescription } from '@/shared/graphql/generated/graphql';
 import PrescriptionPrint from './components/PrescriptionPrint';
+import { scheduledFetch } from '@/lib/requestScheduler';
 
 interface Props {
     visitId: string;
@@ -29,6 +30,8 @@ export default function VisitPrescriptionsSection({ visitId }: Props) {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [form, setForm] = useState(initialForm);
 
+    const FETCH_PRIORITY = 4;
+
     const buildPayload = (form: typeof initialForm) => ({
         ...form,
         startDate: form.startDate || undefined,
@@ -42,8 +45,9 @@ export default function VisitPrescriptionsSection({ visitId }: Props) {
     const fetchPrescriptions = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await clientFetch(
-                `/api/visit-prescription/list?visitId=${visitId}`
+            const res = await scheduledFetch(
+                () => clientFetch(`/api/visit-prescription/list?visitId=${visitId}`),
+                FETCH_PRIORITY
             );
 
             const json = await res.json();

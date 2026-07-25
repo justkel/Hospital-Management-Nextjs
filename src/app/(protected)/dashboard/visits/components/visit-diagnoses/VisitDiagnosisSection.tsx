@@ -6,6 +6,7 @@ import VisitDiagnosisForm from './VisitDiagnosisForm';
 import VisitDiagnosisList from './VisitDiagnosisList';
 import { useBilling } from '@/hooks/billing/useBilling';
 import { ChargeDomain, VisitDiagnosesQuery } from '@/shared/graphql/generated/graphql';
+import { scheduledFetch } from '@/lib/requestScheduler';
 
 interface Props {
     visitId: string;
@@ -39,11 +40,15 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
 
     const { catalogs } = useBilling(ChargeDomain.Diagnosis);
 
+    const FETCH_PRIORITY = 3;
+
     const fetchDiagnoses = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await clientFetch(
-                `/api/visit-diagnosis/list?visitId=${visitId}`
+
+            const res = await scheduledFetch(
+                () => clientFetch(`/api/visit-diagnosis/list?visitId=${visitId}`),
+                FETCH_PRIORITY
             );
 
             if (!res.ok) throw new Error('Failed to fetch diagnoses');

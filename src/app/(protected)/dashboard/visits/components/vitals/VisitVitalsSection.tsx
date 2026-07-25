@@ -6,6 +6,7 @@ import VisitVitalForm from './VisitVitalForm';
 import VisitVitalsList from './VisitVitalsList';
 import { useBilling } from '@/hooks/billing/useBilling';
 import { ChargeDomain } from '@/shared/graphql/generated/graphql';
+import { scheduledFetch } from '@/lib/requestScheduler';
 
 export interface VisitVital {
   id: string;
@@ -62,12 +63,15 @@ export default function VisitVitalsSection({ visitId }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<VitalFormValues>(initialForm);
   const { catalogs } = useBilling(ChargeDomain.Vitals);
+  const FETCH_PRIORITY = 1;
 
   const fetchVitals = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await clientFetch(
-        `/api/visit-vital/list?visitId=${visitId}`
+
+      const res = await scheduledFetch(
+        () => clientFetch(`/api/visit-vital/list?visitId=${visitId}`),
+        FETCH_PRIORITY
       );
 
       if (!res.ok) throw new Error('Failed to fetch vitals');

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { message } from 'antd';
 import { clientFetch } from '@/lib/clientFetch';
+import { scheduledFetch } from '@/lib/requestScheduler';
 import {
   GetVisitTasksByVisitQuery,
   VisitTaskStatus,
@@ -18,6 +19,8 @@ interface TaskPayload {
   dueAt?: string;
 }
 
+const FETCH_PRIORITY = 6;
+
 export function useVisitTasks(visitId: string) {
   const [tasks, setTasks] = useState<VisitTaskItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +30,11 @@ export function useVisitTasks(visitId: string) {
   const fetchTasks = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await clientFetch(`/api/visit-task/list?visitId=${visitId}`);
+      const res = await scheduledFetch(
+        () => clientFetch(`/api/visit-task/list?visitId=${visitId}`),
+        FETCH_PRIORITY
+      );
+
       if (!res.ok) throw new Error('Failed to fetch tasks');
 
       const json: { visitTasks: VisitTaskItem[] } = await res.json();

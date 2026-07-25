@@ -15,6 +15,7 @@ import TransferBedAllocationDrawer from './TransferBedAllocationDrawer';
 import BedJourneyTimeline from './BedJourneyTimeline';
 import { ACTIVE_STATUSES } from './bedAllocationStatus';
 import { Skeleton } from 'antd';
+import { scheduledFetch } from '@/lib/requestScheduler';
 
 export type BedAllocationItem =
   GetBedAllocationsByVisitQuery['bedAllocationsByVisit'][number];
@@ -33,11 +34,14 @@ export default function VisitBedAllocationsSection({ visitId }: Props) {
 
   const { catalogs } = useBilling(ChargeDomain.Bed);
 
+  const FETCH_PRIORITY = 5;
+
   const fetchAllocations = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await clientFetch(
-        `/api/bed-allocation/list?visitId=${visitId}`
+      const res = await scheduledFetch(
+        () => clientFetch(`/api/bed-allocation/list?visitId=${visitId}`),
+        FETCH_PRIORITY
       );
 
       if (!res.ok) throw new Error('Failed to fetch bed allocations');

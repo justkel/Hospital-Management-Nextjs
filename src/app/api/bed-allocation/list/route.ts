@@ -8,10 +8,8 @@ import {
   GetBedAllocationsByVisitQueryVariables,
 } from '@/shared/graphql/generated/graphql';
 
-import {
-  GraphQLErrorShape,
-  handleGraphQLError,
-} from '@/lib/handle-graphql-error';
+import { handleGraphQLError } from '@/lib/handle-graphql-error';
+import { parseGatewayResponse } from '@/lib/gateway-response';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
@@ -51,10 +49,10 @@ export async function GET(req: Request) {
       }),
     });
 
-    const json: {
-      data?: GetBedAllocationsByVisitQuery;
-      errors?: GraphQLErrorShape[];
-    } = await res.json();
+    const parsed = await parseGatewayResponse<GetBedAllocationsByVisitQuery>(res);
+    if (!parsed.ok) return parsed.response;
+
+    const { json } = parsed;
 
     const errorResponse = handleGraphQLError(json.errors);
     if (errorResponse) return errorResponse;
