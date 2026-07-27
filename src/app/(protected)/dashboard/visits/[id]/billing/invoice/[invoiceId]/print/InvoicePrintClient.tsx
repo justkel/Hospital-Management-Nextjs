@@ -39,10 +39,21 @@ function isReducing(snapshot: AdjustmentSnapshot): boolean {
 }
 
 export default function InvoicePrintClient({ detail }: { detail: Detail }) {
-  const { invoice, lineItems, adjustmentSnapshots, payments, outstandingBalance } =
-    detail;
+  const {
+    invoice,
+    lineItems,
+    adjustmentSnapshots,
+    payments,
+    credits,
+    balancePayments,
+    outstandingBalance,
+  } = detail;
 
   const successfulPayments = payments.filter((p) => p.status === 'SUCCESS');
+  const successfulCredits = credits.filter((c) => c.status === 'SUCCESS');
+  const successfulBalancePayments = balancePayments.filter(
+    (p) => p.status === 'SUCCESS'
+  );
 
   const organization = invoice.organization;
   const visit = invoice.visit;
@@ -281,6 +292,80 @@ export default function InvoicePrintClient({ detail }: { detail: Detail }) {
               </table>
             )}
           </div>
+
+          {successfulBalancePayments.length > 0 && (
+            <div className="mb-8">
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-500">
+                Balance payments
+              </h2>
+              <p className="mb-2 text-xs text-slate-400">
+                Paid against the visit's overall balance, not a specific
+                charge above.
+              </p>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-400">
+                    <th className="py-2 font-medium">Date</th>
+                    <th className="py-2 font-medium">Method</th>
+                    <th className="py-2 font-medium">Reason</th>
+                    <th className="py-2 text-right font-medium">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {successfulBalancePayments.map((p) => (
+                    <tr key={p.id} className="border-b border-slate-100">
+                      <td className="py-2.5 text-slate-600">
+                        {formatDate(p.paidAt)}
+                      </td>
+                      <td className="py-2.5 text-slate-600">
+                        {p.paymentMethod}
+                      </td>
+                      <td className="py-2.5 text-slate-500">{p.reason}</td>
+                      <td className="py-2.5 text-right font-medium text-slate-800">
+                        {formatCurrency(p.amountPaid)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {successfulCredits.length > 0 && (
+            <div className="mb-8">
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-500">
+                Refunds
+              </h2>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-400">
+                    <th className="py-2 font-medium">Date</th>
+                    <th className="py-2 font-medium">Method</th>
+                    <th className="py-2 font-medium">Reason</th>
+                    <th className="py-2 text-right font-medium">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {successfulCredits.map((c) => (
+                    <tr key={c.id} className="border-b border-slate-100">
+                      <td className="py-2.5 text-slate-600">
+                        {formatDate(c.confirmedAt)}
+                      </td>
+                      <td className="py-2.5 text-slate-600">
+                        {c.method.replace(/_/g, ' ')}
+                        {c.visitCharge?.chargeName &&
+                          ` · ${c.visitCharge.chargeName}`}
+                      </td>
+                      <td className="py-2.5 text-slate-500">{c.reason}</td>
+                      <td className="py-2.5 text-right font-medium text-red-600">
+                        −{formatCurrency(c.amount)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           <div
             className={`flex items-center justify-between rounded-xl px-5 py-4 ${
