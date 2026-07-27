@@ -3512,3 +3512,64 @@ mutation RefundVisitBalancePayment($id: ID!, $reason: String!) {
     notes
   }
 }
+
+query GetPatientWalletTransactionsPaginated(
+  $patientId: ID!
+  $pagination: PatientWalletTransactionPaginationInput!
+) {
+  patientWalletTransactionsPaginated(
+    patientId: $patientId
+    pagination: $pagination
+  ) {
+    items {
+      id
+      patientId
+      visitId
+      visitCreditId
+      type
+      amount
+      paymentMethod
+      status
+      reason
+      notes
+      requestedByStaffId
+      approvedByStaffId
+      confirmedAt
+      createdAt
+    }
+    total
+    page
+    pageCount
+  }
+}
+
+mutation CreateWalletTopUp($data: CreateWalletTopUpInput!) {
+  createWalletTopUp(data: $data) {
+    id
+    patientId
+    type
+    amount
+    paymentMethod
+    status
+    reason
+    notes
+    requestedByStaffId
+    createdAt
+  }
+}
+
+mutation ConfirmWalletTopUp($transactionId: ID!) {
+  confirmWalletTopUp(transactionId: $transactionId) {
+    id
+    status
+    confirmedAt
+  }
+}
+
+mutation FailWalletTopUp($transactionId: ID!, $reason: String!) {
+  failWalletTopUp(transactionId: $transactionId, reason: $reason) {
+    id
+    status
+    notes
+  }
+}
