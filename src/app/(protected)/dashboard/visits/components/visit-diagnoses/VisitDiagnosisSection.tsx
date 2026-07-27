@@ -7,6 +7,7 @@ import VisitDiagnosisList from './VisitDiagnosisList';
 import { useBilling } from '@/hooks/billing/useBilling';
 import { ChargeDomain, VisitDiagnosesQuery } from '@/shared/graphql/generated/graphql';
 import { scheduledFetch } from '@/lib/requestScheduler';
+import { useInView } from '@/lib/useInView';
 
 interface Props {
     visitId: string;
@@ -28,11 +29,15 @@ const initialForm: DiagnosisFormValues = {
     chargeCatalogId: '',
 };
 
+const FETCH_PRIORITY = 3;
+
 export default function VisitDiagnosisSection({ visitId }: Props) {
+    const { ref, inView } = useInView<HTMLDivElement>();
+
     const [diagnoses, setDiagnoses] = useState<
         VisitDiagnosesQuery['visitDiagnoses']
     >([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -40,14 +45,15 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
 
     const { catalogs } = useBilling(ChargeDomain.Diagnosis);
 
-    const FETCH_PRIORITY = 3;
-
     const fetchDiagnoses = useCallback(async () => {
         setLoading(true);
         try {
-
             const res = await scheduledFetch(
-                () => clientFetch(`/api/visit-diagnosis/list?visitId=${visitId}`),
+                () => clientFetch(
+                    `/api/visit-diagnosis/list?visitId=${visitId}`,
+                    {},
+                    { skipRateLimitRetry: true }
+                ),
                 FETCH_PRIORITY
             );
 
@@ -63,8 +69,9 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
     }, [visitId]);
 
     useEffect(() => {
+        if (!inView) return;
         fetchDiagnoses();
-    }, [fetchDiagnoses]);
+    }, [inView, visitId]);
 
     const resetForm = () => {
         setForm(initialForm);
@@ -139,7 +146,7 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
     const isEditing = useMemo(() => !!editingId, [editingId]);
 
     return (
-        <div className="space-y-10">
+        <div ref={ref} className="space-y-10">
             <h2 className="text-xl font-semibold text-gray-900">
                 Visit Diagnosis
             </h2>
@@ -164,7 +171,7 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
 
             <VisitDiagnosisList
                 diagnoses={diagnoses}
-                loading={loading}
+                loading={!inView || loading}
                 onEdit={handleEdit}
             />
         </div>

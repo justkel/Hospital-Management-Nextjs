@@ -70,7 +70,11 @@ export default function VisitVitalsSection({ visitId }: Props) {
     try {
 
       const res = await scheduledFetch(
-        () => clientFetch(`/api/visit-vital/list?visitId=${visitId}`),
+        () => clientFetch(
+          `/api/visit-vital/list?visitId=${visitId}`,
+          {},
+          { skipRateLimitRetry: true }
+        ),
         FETCH_PRIORITY
       );
 

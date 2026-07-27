@@ -5,6 +5,7 @@ import { Skeleton } from 'antd';
 import { ClipboardCheck, Plus } from 'lucide-react';
 import { VisitTaskStatus } from '@/shared/graphql/generated/graphql';
 import { useVisitTasks, VisitTaskItem } from './useVisitTasks';
+import { useInView } from '@/lib/useInView';
 import VisitTaskForm from './VisitTaskForm';
 import VisitTaskCard from './VisitTaskCard';
 
@@ -13,6 +14,8 @@ interface Props {
 }
 
 export default function VisitTasksSection({ visitId }: Props) {
+  const { ref, inView } = useInView<HTMLElement>();
+
   const {
     tasks,
     loading,
@@ -21,7 +24,7 @@ export default function VisitTasksSection({ visitId }: Props) {
     createTask,
     updateTask,
     updateStatus,
-  } = useVisitTasks(visitId);
+  } = useVisitTasks(visitId, inView);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<VisitTaskItem | null>(null);
@@ -43,7 +46,7 @@ export default function VisitTasksSection({ visitId }: Props) {
   }, [tasks]);
 
   return (
-    <section className="space-y-5">
+    <section ref={ref} className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
@@ -69,7 +72,7 @@ export default function VisitTasksSection({ visitId }: Props) {
         </button>
       </div>
 
-      {loading ? (
+      {!inView || loading ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <Skeleton active paragraph={{ rows: 3 }} />
         </div>

@@ -3,6 +3,7 @@
 type ErrorResponse = {
   error?: string;
   code?: string;
+  retryAfter?: number;
 };
 
 const forceLogoutCodes = [
@@ -55,21 +56,56 @@ async function refreshSession(): Promise<boolean> {
   return refreshPromise;
 }
 
+function wait(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const DEFAULT_RETRY_AFTER_SECONDS = 5;
+const MAX_RETRY_AFTER_SECONDS = 30; // cap so a bad/huge value can't hang a request indefinitely
+
 export async function clientFetch(
   input: RequestInfo,
-  init: RequestInit = {}
+  init: RequestInit = {},
+  options: { skipRateLimitRetry?: boolean } = {}
 ): Promise<Response> {
   const res = await fetch(input, {
     ...init,
     credentials: 'include',
   });
 
-  if (!res.ok && res.status !== 401) {
+  if (res.status === 429) {
+    // Callers that manage their own coordinated backoff (e.g. the
+    // request scheduler, which pauses ALL in-flight/queued requests
+    // together rather than each retrying independently) opt out here.
+    // Without this, concurrent calls would each wait and retry on
+    // their own schedule, recreating the exact burst a coordinator
+    // is meant to prevent.
+    if (options.skipRateLimitRetry) return res;
+
+    if ((init as RequestInit & { _retry429?: boolean })._retry429) {
+      return res;
+    }
+
     const json: ErrorResponse = await res
       .clone()
       .json()
       .catch(() => ({}));
 
+    const retryAfterSeconds = Math.min(
+      json.retryAfter ?? DEFAULT_RETRY_AFTER_SECONDS,
+      MAX_RETRY_AFTER_SECONDS
+    );
+
+    await wait(retryAfterSeconds * 1000);
+
+    return fetch(input, {
+      ...init,
+      credentials: 'include',
+      _retry429: true,
+    } as RequestInit);
+  }
+
+  if (!res.ok && res.status !== 401) {
     return res;
   }
 

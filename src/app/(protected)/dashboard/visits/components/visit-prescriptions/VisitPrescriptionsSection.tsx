@@ -7,6 +7,7 @@ import VisitPrescriptionsList from './VisitPrescriptionsList';
 import { VisitPrescription } from '@/shared/graphql/generated/graphql';
 import PrescriptionPrint from './components/PrescriptionPrint';
 import { scheduledFetch } from '@/lib/requestScheduler';
+import { useInView } from '@/lib/useInView';
 
 interface Props {
     visitId: string;
@@ -23,14 +24,16 @@ const initialForm = {
     notes: '',
 };
 
+const FETCH_PRIORITY = 4;
+
 export default function VisitPrescriptionsSection({ visitId }: Props) {
+    const { ref, inView } = useInView<HTMLDivElement>();
+
     const [prescriptions, setPrescriptions] = useState<VisitPrescription[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [form, setForm] = useState(initialForm);
-
-    const FETCH_PRIORITY = 4;
 
     const buildPayload = (form: typeof initialForm) => ({
         ...form,
@@ -46,7 +49,11 @@ export default function VisitPrescriptionsSection({ visitId }: Props) {
         setLoading(true);
         try {
             const res = await scheduledFetch(
-                () => clientFetch(`/api/visit-prescription/list?visitId=${visitId}`),
+                () => clientFetch(
+                    `/api/visit-prescription/list?visitId=${visitId}`,
+                    {},
+                    { skipRateLimitRetry: true }
+                ),
                 FETCH_PRIORITY
             );
 
@@ -60,8 +67,9 @@ export default function VisitPrescriptionsSection({ visitId }: Props) {
     }, [visitId]);
 
     useEffect(() => {
+        if (!inView) return;
         fetchPrescriptions();
-    }, [fetchPrescriptions]);
+    }, [inView, visitId]);
 
     const resetForm = () => {
         setForm(initialForm);
@@ -123,7 +131,7 @@ export default function VisitPrescriptionsSection({ visitId }: Props) {
     const isEditing = useMemo(() => !!editingId, [editingId]);
 
     return (
-        <div className="space-y-8">
+        <div ref={ref} className="space-y-8">
             <h2 className="text-xl font-semibold text-gray-900">
                 Visit Prescriptions
             </h2>
@@ -140,7 +148,7 @@ export default function VisitPrescriptionsSection({ visitId }: Props) {
 
             <VisitPrescriptionsList
                 prescriptions={prescriptions}
-                loading={loading}
+                loading={!inView || loading}
                 onEdit={handleEdit}
             />
 

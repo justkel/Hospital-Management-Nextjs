@@ -16,6 +16,7 @@ import BedJourneyTimeline from './BedJourneyTimeline';
 import { ACTIVE_STATUSES } from './bedAllocationStatus';
 import { Skeleton } from 'antd';
 import { scheduledFetch } from '@/lib/requestScheduler';
+import { useInView } from '@/lib/useInView';
 
 export type BedAllocationItem =
   GetBedAllocationsByVisitQuery['bedAllocationsByVisit'][number];
@@ -24,9 +25,13 @@ interface Props {
   visitId: string;
 }
 
+const FETCH_PRIORITY = 5;
+
 export default function VisitBedAllocationsSection({ visitId }: Props) {
+  const { ref, inView } = useInView<HTMLDivElement>();
+
   const [allocations, setAllocations] = useState<BedAllocationItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [transferring, setTransferring] = useState(false);
@@ -34,13 +39,15 @@ export default function VisitBedAllocationsSection({ visitId }: Props) {
 
   const { catalogs } = useBilling(ChargeDomain.Bed);
 
-  const FETCH_PRIORITY = 5;
-
   const fetchAllocations = useCallback(async () => {
     setLoading(true);
     try {
       const res = await scheduledFetch(
-        () => clientFetch(`/api/bed-allocation/list?visitId=${visitId}`),
+        () => clientFetch(
+          `/api/bed-allocation/list?visitId=${visitId}`,
+          {},
+          { skipRateLimitRetry: true }
+        ),
         FETCH_PRIORITY
       );
 
@@ -56,8 +63,9 @@ export default function VisitBedAllocationsSection({ visitId }: Props) {
   }, [visitId]);
 
   useEffect(() => {
+    if (!inView) return;
     fetchAllocations();
-  }, [fetchAllocations]);
+  }, [inView, visitId]);
 
   const activeAllocation = useMemo(
     () => allocations.find(a => ACTIVE_STATUSES.includes(a.status)),
@@ -183,15 +191,17 @@ export default function VisitBedAllocationsSection({ visitId }: Props) {
     }
   };
 
+  const showLoading = !inView || loading;
+
   return (
-    <div className="space-y-6">
+    <div ref={ref} className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold tracking-tight text-slate-900">
           Bed allocation
         </h2>
       </div>
 
-      {loading ? (
+      {showLoading ? (
         <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
           <Skeleton active paragraph={{ rows: 3 }} />
         </div>
@@ -211,7 +221,7 @@ export default function VisitBedAllocationsSection({ visitId }: Props) {
         />
       )}
 
-      <BedJourneyTimeline allocations={allocations} loading={loading} />
+      <BedJourneyTimeline allocations={allocations} loading={showLoading} />
 
       {activeAllocation && (
         <TransferBedAllocationDrawer

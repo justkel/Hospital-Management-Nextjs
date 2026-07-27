@@ -21,9 +21,9 @@ interface TaskPayload {
 
 const FETCH_PRIORITY = 6;
 
-export function useVisitTasks(visitId: string) {
+export function useVisitTasks(visitId: string, enabled = true) {
   const [tasks, setTasks] = useState<VisitTaskItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [submitting, setSubmitting] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
@@ -31,7 +31,11 @@ export function useVisitTasks(visitId: string) {
     setLoading(true);
     try {
       const res = await scheduledFetch(
-        () => clientFetch(`/api/visit-task/list?visitId=${visitId}`),
+        () => clientFetch(
+          `/api/visit-task/list?visitId=${visitId}`,
+          {},
+          { skipRateLimitRetry: true }
+        ),
         FETCH_PRIORITY
       );
 
@@ -48,8 +52,9 @@ export function useVisitTasks(visitId: string) {
   }, [visitId]);
 
   useEffect(() => {
+    if (!enabled) return;
     fetchTasks();
-  }, [fetchTasks]);
+  }, [enabled, visitId]);
 
   const createTask = useCallback(
     async (payload: TaskPayload): Promise<boolean> => {

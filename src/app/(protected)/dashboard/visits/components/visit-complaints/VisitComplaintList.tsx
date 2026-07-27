@@ -30,7 +30,11 @@ export default function VisitComplaintList({ visitId, refreshKey }: Props) {
         setLoading(true);
 
         const res = await scheduledFetch(
-          () => clientFetch(`/api/visit-complaints/by-visit/${visitId}`),
+          () => clientFetch(
+            `/api/visit-complaints/by-visit/${visitId}`,
+            {},
+            { skipRateLimitRetry: true }
+          ),
           FETCH_PRIORITY
         );
         const json = await res.json();
