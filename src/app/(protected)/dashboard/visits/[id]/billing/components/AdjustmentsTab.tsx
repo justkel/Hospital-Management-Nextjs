@@ -17,6 +17,8 @@ import { clientFetch } from '@/lib/clientFetch';
 import StatusBadge from './StatusBadge';
 import type { Adjustment, ChargeRow } from '../billing-client';
 import { AdjustmentMethod, AdjustmentType } from '@/shared/graphql/generated/graphql';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 function formatCurrency(amount: number | string | null | undefined) {
   const n = Number(amount ?? 0);
@@ -581,28 +583,30 @@ export default function AdjustmentsTab({
                     <div className="flex flex-wrap gap-2">
                       {a.status === 'REQUESTED' && (
                         <>
-                          <button
-                            type="button"
-                            disabled={actionLoadingId === a.id}
-                            onClick={() => runAction(a.id, 'approve')}
-                            className="inline-flex items-center gap-1.5 rounded-lg border !border-emerald-300 !bg-emerald-50 px-3 py-2 text-xs font-bold !text-emerald-700 transition hover:!bg-emerald-100 disabled:opacity-60"
-                          >
-                            {actionLoadingId === a.id ? (
-                              <Loader2 size={13} className="animate-spin" />
-                            ) : (
-                              <ThumbsUp size={13} />
-                            )}
-                            Approve
-                          </button>
-                          <button
-                            type="button"
-                            disabled={actionLoadingId === a.id}
-                            onClick={() => setRejectTarget(a.id)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
-                          >
-                            <ThumbsDown size={13} />
-                            Reject
-                          </button>
+                          <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR]}>
+                            <button
+                              type="button"
+                              disabled={actionLoadingId === a.id}
+                              onClick={() => runAction(a.id, 'approve')}
+                              className="inline-flex items-center gap-1.5 rounded-lg border !border-emerald-300 !bg-emerald-50 px-3 py-2 text-xs font-bold !text-emerald-700 transition hover:!bg-emerald-100 disabled:opacity-60"
+                            >
+                              {actionLoadingId === a.id ? (
+                                <Loader2 size={13} className="animate-spin" />
+                              ) : (
+                                <ThumbsUp size={13} />
+                              )}
+                              Approve
+                            </button>
+                            <button
+                              type="button"
+                              disabled={actionLoadingId === a.id}
+                              onClick={() => setRejectTarget(a.id)}
+                              className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
+                            >
+                              <ThumbsDown size={13} />
+                              Reject
+                            </button>
+                          </HasRoles>
                         </>
                       )}
 
@@ -854,11 +858,10 @@ export default function AdjustmentsTab({
                 }
                 options={reversibleAdjustments.map((a) => ({
                   value: a.id,
-                  label: `${a.type.replace(/_/g, ' ')} · ${
-                    a.method === 'FLAT'
+                  label: `${a.type.replace(/_/g, ' ')} · ${a.method === 'FLAT'
                       ? formatCurrency(a.amount)
                       : `${a.value}%`
-                  } · ${a.reason}`,
+                    } · ${a.reason}`,
                 }))}
               />
               <p className="mt-1.5 text-xs !text-slate-400">
