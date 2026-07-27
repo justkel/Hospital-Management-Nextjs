@@ -3425,3 +3425,59 @@ mutation RejectWalletGrant($transactionId: ID!, $reason: String!) {
     notes
   }
 }
+
+query GetVisitBalancePayments($visitId: ID!) {
+  visitBalancePayments(visitId: $visitId) {
+    id
+    visitId
+    amountPaid
+    paymentMethod
+    status
+    paidAt
+    confirmedAt
+    receivedByStaffId
+    reference
+    reason
+    notes
+    createdAt
+  }
+}
+
+mutation CreateVisitBalancePayment($data: CreateVisitBalancePaymentInput!) {
+  createVisitBalancePayment(data: $data) {
+    id
+    visitId
+    amountPaid
+    paymentMethod
+    status
+    paidAt
+    reference
+    reason
+    notes
+    createdAt
+  }
+}
+
+mutation ConfirmVisitBalancePayment($id: ID!) {
+  confirmVisitBalancePayment(id: $id) {
+    id
+    status
+    confirmedAt
+  }
+}
+
+mutation FailVisitBalancePayment($id: ID!, $reason: String!) {
+  failVisitBalancePayment(id: $id, reason: $reason) {
+    id
+    status
+    notes
+  }
+}
+
+mutation RefundVisitBalancePayment($id: ID!, $reason: String!) {
+  refundVisitBalancePayment(id: $id, reason: $reason) {
+    id
+    status
+    notes
+  }
+}
