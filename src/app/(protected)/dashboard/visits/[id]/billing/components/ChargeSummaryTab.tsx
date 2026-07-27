@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Select, message } from 'antd';
 import {
+  AlertTriangle,
   CheckCircle2,
   Lock,
   Loader2,
@@ -65,6 +66,12 @@ const PAYMENT_STATE_LABELS: Record<string, string> = {
   UNPAID: 'Unpaid',
   OVERPAID: 'Overpaid',
 };
+
+function isUnpriced(charge: ChargeRow): boolean {
+  return (
+    Number(charge.totalAmount ?? 0) <= 0.01 && charge.status !== 'WAIVED'
+  );
+}
 
 export default function ChargeSummaryTab({
   visitId,
@@ -356,6 +363,9 @@ export default function ChargeSummaryTab({
     );
   };
 
+  const allCharges = [...summary.lockedCharges, ...summary.editableCharges];
+  const unpricedCount = allCharges.filter(isUnpriced).length;
+
   return (
     <div className="space-y-8 py-5">
       <div className="flex items-center justify-end">
@@ -369,6 +379,21 @@ export default function ChargeSummaryTab({
           Refresh
         </button>
       </div>
+
+      {unpricedCount > 0 && (
+        <div className="flex items-start gap-2.5 rounded-2xl border !border-amber-200 !bg-amber-50/60 px-5 py-4">
+          <AlertTriangle size={18} className="mt-0.5 shrink-0 !text-amber-600" />
+          <p className="text-sm !text-amber-900">
+            <span className="font-bold">
+              {unpricedCount} charge{unpricedCount === 1 ? '' : 's'} on this
+              visit currently show{unpricedCount === 1 ? 's' : ''}{' '}
+              {formatCurrency(0)}.
+            </span>{' '}
+            Ignore this if that's intentional — otherwise, update the price
+            before generating an invoice.
+          </p>
+        </div>
+      )}
 
       {unbilled.length > 0 && (
         <div className="rounded-2xl border !border-amber-200 !bg-amber-50/50">
@@ -403,7 +428,7 @@ export default function ChargeSummaryTab({
                       autoFocus
                       value={priceInput}
                       onChange={(e) => setPriceInput(e.target.value)}
-                      placeholder="Total Price"
+                      placeholder="Unit price"
                       className="w-32 rounded-lg border !border-slate-300 px-3 py-2 text-sm focus:!border-blue-400 focus:outline-none"
                     />
                     <button
