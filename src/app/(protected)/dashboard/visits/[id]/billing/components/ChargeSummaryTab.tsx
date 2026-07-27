@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';
+import { useHasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 import StatusBadge from './StatusBadge';
 import type { ChargeRow, ChargeSummary, UnbilledPrescription } from '../billing-client';
 
@@ -101,6 +103,7 @@ export default function ChargeSummaryTab({
   >(null);
   const [priceInput, setPriceInput] = useState('');
   const [savingPrice, setSavingPrice] = useState(false);
+  const hasAdmin = useHasRoles([Roles.ADMIN, Roles.DOCTOR]);
 
   const refreshBalances = async () => {
     const res = await clientFetch(
@@ -454,14 +457,15 @@ export default function ChargeSummaryTab({
                     </button>
                   </div>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => startPricing(p.id)}
-                    className="inline-flex items-center gap-1.5 self-start rounded-lg border !border-amber-300 !bg-white px-3 py-2 text-sm font-medium !text-amber-700 transition hover:!bg-amber-50 sm:self-auto"
-                  >
-                    <Pencil size={14} />
-                    Set price &amp; bill
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => startPricing(p.id)}
+                      className="inline-flex items-center gap-1.5 self-start rounded-lg border !border-amber-300 !bg-white px-3 py-2 text-sm font-medium !text-amber-700 transition hover:!bg-amber-50 sm:self-auto"
+                      disabled={!hasAdmin}
+                    >
+                      <Pencil size={14} />
+                      Set price &amp; bill
+                    </button>
                 )}
               </div>
             ))}
@@ -608,14 +612,15 @@ export default function ChargeSummaryTab({
                         <span className="font-semibold !text-slate-900">
                           {formatCurrency(c.totalAmount)}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => startEdit(c)}
-                          className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700"
-                        >
-                          <Pencil size={12} />
-                          Edit
-                        </button>
+                          <button
+                            type="button"
+                            onClick={() => startEdit(c)}
+                            className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700"
+                            disabled={!hasAdmin}
+                          >
+                            <Pencil size={12} />
+                            Edit
+                          </button>
                       </div>
                     </div>
                   )}
