@@ -14,13 +14,7 @@ import {
 } from 'lucide-react';
 
 import {
-  GetVisitByIdQuery,
-  GetVisitChargeSummaryQuery,
-  GetUnbilledPrescriptionsQuery,
-  GetBillingAdjustmentsQuery,
-  GetLatestVisitInvoiceQuery,
-  GetVisitPaymentsQuery,
-  GetVisitCreditsQuery,
+  GetVisitBillingPageQuery,
 } from '@/shared/graphql/generated/graphql';
 
 import ChargeSummaryTab from './components/ChargeSummaryTab';
@@ -30,17 +24,17 @@ import PaymentsTab from './components/PaymentsTab';
 import CreditsTab from './components/CreditsTab';
 
 export type ChargeSummary = NonNullable<
-  GetVisitChargeSummaryQuery['visitChargeSummary']
+  GetVisitBillingPageQuery['visitChargeSummary']
 >;
 export type ChargeRow = ChargeSummary['lockedCharges'][number];
 export type UnbilledPrescription =
-  GetUnbilledPrescriptionsQuery['unbilledPrescriptions'][number];
-export type Adjustment = GetBillingAdjustmentsQuery['billingAdjustments'][number];
+  GetVisitBillingPageQuery['unbilledPrescriptions'][number];
+export type Adjustment = GetVisitBillingPageQuery['billingAdjustments'][number];
 export type InvoiceRow = NonNullable<
-  GetLatestVisitInvoiceQuery['latestVisitInvoice']
+  GetVisitBillingPageQuery['latestVisitInvoice']
 >;
-export type PaymentRow = GetVisitPaymentsQuery['visitPayments'][number];
-export type CreditRow = GetVisitCreditsQuery['visitCredits'][number];
+export type PaymentRow = GetVisitBillingPageQuery['visitPayments'][number];
+export type CreditRow = GetVisitBillingPageQuery['visitCredits'][number];
 
 function formatCurrency(amount: number | string | null | undefined) {
   const n = Number(amount ?? 0);
@@ -71,7 +65,7 @@ export default function BillingClient({
   initialCredits,
   initialCreditBalance,
 }: {
-  visit: GetVisitByIdQuery['visit'];
+  visit: GetVisitBillingPageQuery['visit'];
   initialSummary: ChargeSummary;
   initialUnbilled: UnbilledPrescription[];
   initialAdjustments: Adjustment[];

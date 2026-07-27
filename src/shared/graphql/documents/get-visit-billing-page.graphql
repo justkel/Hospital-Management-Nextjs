@@ -1,0 +1,221 @@
+query GetVisitBillingPage($id: String!, $visitId: ID!) {
+  visit(id: $id) {
+    id
+    visitType
+    status
+    visitDateTime
+    closedAt
+
+    patient {
+      id
+      fullName
+      email
+      phoneNumber
+    }
+    patientId
+    attendingStaffId
+  }
+
+  visitChargeSummary(visitId: $visitId) {
+    total
+    lockedCharges {
+      id
+      visitId
+      chargeCatalogId
+      chargeName
+      description
+      quantity
+      unitPrice
+      totalAmount
+      overrideReason
+      status
+      chargeType
+      billingType
+      chargeDomain
+      organizationId
+      notes
+      chargeCatalog {
+        id
+        name
+      }
+      createdBy {
+        id
+        userCode
+        fullName
+      }
+    }
+    editableCharges {
+      id
+      visitId
+      chargeCatalogId
+      chargeName
+      description
+      quantity
+      unitPrice
+      totalAmount
+      overrideReason
+      status
+      chargeType
+      billingType
+      chargeDomain
+      organizationId
+      notes
+      chargeCatalog {
+        id
+        name
+      }
+      createdBy {
+        id
+        userCode
+        fullName
+      }
+    }
+  }
+
+  unbilledPrescriptions(visitId: $visitId) {
+    id
+    visitId
+    drug
+    dose
+    route
+    frequency
+    isProvidedInHouse
+    startDate
+    endDate
+    notes
+    prescribingDoctorId
+    createdAt
+    updatedAt
+
+    visitCharge {
+      id
+    }
+
+    prescribingDoctor {
+      id
+      userCode
+      fullName
+    }
+  }
+
+  billingAdjustments(visitId: $visitId) {
+    id
+    visitId
+    invoiceId
+    visitChargeId
+    appliedOn
+    type
+    method
+    value
+    amount
+    currency
+    reason
+    notes
+    status
+    direction
+    reversesAdjustmentId
+    requestedByStaffId
+    approvedByStaffId
+    appliedAt
+    organizationId
+
+    reversesAdjustment {
+      id
+      type
+      method
+      value
+      amount
+      direction
+    }
+
+    chargeLinks {
+      id
+
+      visitCharge {
+        id
+        chargeName
+        totalAmount
+      }
+    }
+  }
+
+  latestVisitInvoice(visitId: $visitId) {
+    id
+    visitId
+    invoiceNumber
+    status
+    subtotal
+    discountTotal
+    totalPayable
+    totalPaid
+    outstandingBalance
+    issuedAt
+    lockedAt
+    organizationId
+  }
+
+  visitInvoices(visitId: $visitId) {
+    id
+    visitId
+    invoiceNumber
+    status
+    subtotal
+    discountTotal
+    totalPayable
+    totalPaid
+    outstandingBalance
+    issuedAt
+    lockedAt
+    organizationId
+  }
+
+  visitPayments(visitId: $visitId) {
+    id
+    visitId
+    invoiceId
+    organizationId
+    amountPaid
+    currency
+    paymentMethod
+    status
+    paidAt
+    confirmedAt
+    receivedByStaffId
+    reference
+    notes
+
+    allocations {
+      id
+      amountAllocated
+
+      visitCharge {
+        id
+        chargeName
+        totalAmount
+        status
+      }
+    }
+  }
+
+  visitCredits(visitId: $visitId) {
+    id
+    visitId
+    amount
+    method
+    reason
+    notes
+    status
+    processedByStaffId
+    createdAt
+    confirmedAt
+    organizationId
+
+    visitCharge {
+      id
+      chargeName
+    }
+    visitChargeId
+  }
+
+  visitCreditBalance(visitId: $visitId)
+}
