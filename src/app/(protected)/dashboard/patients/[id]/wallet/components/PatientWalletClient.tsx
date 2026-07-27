@@ -1,14 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Modal, Input, Select, message } from 'antd';
+import { useState } from 'react';
+import { Modal, Input, Select, Pagination, message } from 'antd';
 import {
   AlertTriangle,
   ArrowDownCircle,
   ArrowUpCircle,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
   CircleDollarSign,
   Filter,
   Gift,
@@ -22,18 +20,12 @@ import {
 } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';
+import { useUrlFilters } from '@/hooks/useUrlFilters';
 import StatusBadge from '@/app/(protected)/dashboard/visits/[id]/billing/components/StatusBadge';
 import type { GetPatientWalletTransactionsPaginatedQuery } from '@/shared/graphql/generated/graphql';
 
 export type WalletTransactionRow =
   GetPatientWalletTransactionsPaginatedQuery['patientWalletTransactionsPaginated']['items'][number];
-
-interface PaginatedTransactions {
-  items: WalletTransactionRow[];
-  total: number;
-  page: number;
-  pageCount: number;
-}
 
 function formatCurrency(amount: number | string | null | undefined) {
   const n = Number(amount ?? 0);
@@ -126,6 +118,13 @@ const EMPTY_TOPUP_FORM: TopUpForm = {
 
 const PAGE_SIZE = 20;
 
+interface PaginatedTransactions {
+  items: WalletTransactionRow[];
+  total: number;
+  page: number;
+  pageCount: number;
+}
+
 export default function PatientWalletClient({
   patientId,
   initialBalance,
@@ -135,14 +134,24 @@ export default function PatientWalletClient({
   initialBalance: number;
   initialPaginated: PaginatedTransactions;
 }) {
+  const { searchParams, update } = useUrlFilters();
+
   const [balance, setBalance] = useState<number>(initialBalance);
-  const [paginated, setPaginated] =
-    useState<PaginatedTransactions>(initialPaginated);
+  const [transactions, setTransactions] = useState<WalletTransactionRow[]>(
+    initialPaginated.items
+  );
+  const [page, setPage] = useState(initialPaginated.page);
+  const [total, setTotal] = useState(initialPaginated.total);
+  const [limit, setLimit] = useState(
+    Number(searchParams.get('limit')) || PAGE_SIZE
+  );
   const [refreshing, setRefreshing] = useState(false);
 
-  const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
+  const [typeFilter, setTypeFilter] = useState<string | undefined>(
+    searchParams.get('type') ?? undefined
+  );
   const [statusFilter, setStatusFilter] = useState<string | undefined>(
-    undefined
+    searchParams.get('status') ?? undefined
   );
 
   const [grantFormOpen, setGrantFormOpen] = useState(false);
@@ -172,55 +181,71 @@ export default function PatientWalletClient({
     }
   };
 
-  const refreshTransactions = async (targetPage?: number) => {
+  async function fetchTransactions(
+    nextPage: number,
+    nextLimit: number,
+    nextType: string | undefined,
+    nextStatus: string | undefined
+  ) {
     setRefreshing(true);
 
     try {
       const params = new URLSearchParams({
         patientId,
-        page: String(targetPage ?? paginated.page),
-        limit: String(PAGE_SIZE),
+        page: String(nextPage),
+        limit: String(nextLimit),
       });
 
-      if (typeFilter) params.set('type', typeFilter);
-      if (statusFilter) params.set('status', statusFilter);
+      if (nextType) params.set('type', nextType);
+      if (nextStatus) params.set('status', nextStatus);
 
       const res = await clientFetch(
         `/api/patient-wallet/transactions-paginated?${params.toString()}`,
         { cache: 'no-store' }
       );
-      const json = await res.json();
 
-      if (res.ok && json.transactions) {
-        setPaginated(json.transactions);
-      }
+      const json = await res.json();
+      if (!res.ok || !json.transactions) return;
+
+      setPage(json.transactions.page);
+      setTotal(json.transactions.total);
+      setTransactions(json.transactions.items);
     } finally {
       setRefreshing(false);
     }
-  };
+  }
 
-  useEffect(() => {
-    refreshBalance();
-    refreshTransactions(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [patientId]);
+  function applyFilters(next: {
+    page: number;
+    limit: number;
+    type?: string;
+    status?: string;
+  }) {
+    setTypeFilter(next.type);
+    setStatusFilter(next.status);
+    setLimit(next.limit);
 
-  useEffect(() => {
-    refreshTransactions(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [typeFilter, statusFilter]);
+    update({
+      type: next.type || undefined,
+      status: next.status || undefined,
+      page: next.page,
+      limit: next.limit,
+    });
+
+    fetchTransactions(next.page, next.limit, next.type, next.status);
+  }
+
+  // Re-fetches at whatever page/filters are currently active - used
+  // after grant/top-up actions, which shouldn't reset the user back to
+  // page 1 or clear their filters.
+  const refreshCurrent = () =>
+    fetchTransactions(page, limit, typeFilter, statusFilter);
 
   const clearFilters = () => {
-    setTypeFilter(undefined);
-    setStatusFilter(undefined);
+    applyFilters({ page: 1, limit, type: undefined, status: undefined });
   };
 
   const hasActiveFilters = !!typeFilter || !!statusFilter;
-
-  const goToPage = (page: number) => {
-    if (page < 1 || page > paginated.pageCount) return;
-    refreshTransactions(page);
-  };
 
   // --- Grants ---
 
@@ -263,7 +288,7 @@ export default function PatientWalletClient({
 
       message.success('Grant requested');
       setGrantFormOpen(false);
-      await refreshTransactions();
+      await refreshCurrent();
     } finally {
       setSubmittingGrant(false);
     }
@@ -287,7 +312,7 @@ export default function PatientWalletClient({
       }
 
       message.success('Grant approved');
-      await Promise.all([refreshTransactions(), refreshBalance()]);
+      await Promise.all([refreshCurrent(), refreshBalance()]);
     } finally {
       setActionLoadingId(null);
     }
@@ -323,7 +348,7 @@ export default function PatientWalletClient({
       message.success('Grant rejected');
       setRejectTarget(null);
       setRejectReason('');
-      await refreshTransactions();
+      await refreshCurrent();
     } finally {
       setActionLoadingId(null);
     }
@@ -369,9 +394,11 @@ export default function PatientWalletClient({
         return;
       }
 
-      message.success('Top-up recorded — confirm it once the money is in hand');
+      message.success(
+        'Top-up recorded — confirm it once the money is in hand'
+      );
       setTopUpFormOpen(false);
-      await refreshTransactions();
+      await refreshCurrent();
     } finally {
       setSubmittingTopUp(false);
     }
@@ -395,7 +422,7 @@ export default function PatientWalletClient({
       }
 
       message.success('Top-up confirmed');
-      await Promise.all([refreshTransactions(), refreshBalance()]);
+      await Promise.all([refreshCurrent(), refreshBalance()]);
     } finally {
       setActionLoadingId(null);
     }
@@ -431,13 +458,11 @@ export default function PatientWalletClient({
       message.success('Done');
       setTopUpFailTarget(null);
       setTopUpFailReason('');
-      await refreshTransactions();
+      await refreshCurrent();
     } finally {
       setActionLoadingId(null);
     }
   };
-
-  const transactions = paginated.items;
 
   return (
     <div className="min-h-screen !bg-gradient-to-br from-slate-50 via-white to-blue-50">
@@ -496,7 +521,7 @@ export default function PatientWalletClient({
         <div>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-sm font-bold !text-slate-800">
-              {paginated.total} transaction{paginated.total === 1 ? '' : 's'}
+              {total} transaction{total === 1 ? '' : 's'}
             </h2>
 
             <div className="flex flex-wrap items-center gap-2">
@@ -510,7 +535,9 @@ export default function PatientWalletClient({
                 className="w-36"
                 size="small"
                 value={typeFilter}
-                onChange={(v) => setTypeFilter(v)}
+                onChange={(v) =>
+                  applyFilters({ page: 1, limit, type: v, status: statusFilter })
+                }
                 options={TYPE_FILTER_OPTIONS}
               />
               <Select
@@ -519,7 +546,9 @@ export default function PatientWalletClient({
                 className="w-36"
                 size="small"
                 value={statusFilter}
-                onChange={(v) => setStatusFilter(v)}
+                onChange={(v) =>
+                  applyFilters({ page: 1, limit, type: typeFilter, status: v })
+                }
                 options={STATUS_FILTER_OPTIONS}
               />
               {hasActiveFilters && (
@@ -696,33 +725,22 @@ export default function PatientWalletClient({
             </div>
           )}
 
-          {paginated.pageCount > 1 && (
-            <div className="mt-4 flex items-center justify-between rounded-xl border !border-slate-200 !bg-white px-4 py-3">
-              <span className="text-xs !text-slate-500">
-                Page {paginated.page} of {paginated.pageCount}
-              </span>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  disabled={paginated.page <= 1 || refreshing}
-                  onClick={() => goToPage(paginated.page - 1)}
-                  className="inline-flex items-center gap-1 rounded-lg border !border-slate-200 !bg-white px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <ChevronLeft size={13} />
-                  Previous
-                </button>
-                <button
-                  type="button"
-                  disabled={paginated.page >= paginated.pageCount || refreshing}
-                  onClick={() => goToPage(paginated.page + 1)}
-                  className="inline-flex items-center gap-1 rounded-lg border !border-slate-200 !bg-white px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Next
-                  <ChevronRight size={13} />
-                </button>
-              </div>
-            </div>
-          )}
+          <div className="flex justify-center pt-4">
+            <Pagination
+              current={page}
+              pageSize={limit}
+              total={total}
+              showSizeChanger
+              onChange={(p, l) => {
+                applyFilters({
+                  page: p,
+                  limit: l,
+                  type: typeFilter,
+                  status: statusFilter,
+                });
+              }}
+            />
+          </div>
         </div>
       </div>
 
