@@ -56,12 +56,14 @@ const PAYMENT_STATE_STYLES: Record<string, string> = {
   PAID: '!bg-emerald-50 !text-emerald-700 !border-emerald-200',
   PARTIAL: '!bg-orange-50 !text-orange-700 !border-orange-200',
   UNPAID: '!bg-slate-100 !text-slate-500 !border-slate-200',
+  OVERPAID: '!bg-purple-50 !text-purple-700 !border-purple-200',
 };
 
 const PAYMENT_STATE_LABELS: Record<string, string> = {
   PAID: 'Fully paid',
   PARTIAL: 'Partially paid',
   UNPAID: 'Unpaid',
+  OVERPAID: 'Overpaid',
 };
 
 export default function ChargeSummaryTab({
@@ -278,9 +280,15 @@ export default function ChargeSummaryTab({
     const b = balances[chargeId];
     if (!b) return null;
 
-    if (b.remaining <= 0.01 && b.effectiveTotal > 0.01) return 'PAID';
-    if (b.amountPaid > 0.01) return 'PARTIAL';
-    return 'UNPAID';
+    const hasPayment = b.amountPaid > 0.01;
+
+    if (!hasPayment) {
+      return b.remaining <= 0.01 ? null : 'UNPAID';
+    }
+
+    if (b.amountPaid > b.effectiveTotal + 0.01) return 'OVERPAID';
+    if (b.remaining <= 0.01) return 'PAID';
+    return 'PARTIAL';
   };
 
   const renderPaymentStateBadge = (chargeId: string, status: string) => {
@@ -395,7 +403,7 @@ export default function ChargeSummaryTab({
                       autoFocus
                       value={priceInput}
                       onChange={(e) => setPriceInput(e.target.value)}
-                      placeholder="Unit price"
+                      placeholder="Total Price"
                       className="w-32 rounded-lg border !border-slate-300 px-3 py-2 text-sm focus:!border-blue-400 focus:outline-none"
                     />
                     <button
