@@ -168,7 +168,7 @@ export default function VisitComplaintBilling({
                   <option value="">Select consultation charge type</option>
                   {catalogs?.map((cat) => (
                     <option key={cat.id} value={cat.id}>
-                      {cat.name}
+                      {`${cat.name} — ₦${cat.unitPrice.toLocaleString()}`}
                     </option>
                   ))}
                 </select>

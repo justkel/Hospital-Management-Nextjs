@@ -13,7 +13,7 @@ import {
 
 import { clientFetch } from '@/lib/clientFetch';
 
-import { ChargeCatalogOption } from '../../visits/components/vitals/VisitVitalsSection';
+import { ChargeCatalogOption } from '@/hooks/billing/useBilling';
 
 import ProcedureDrawerHeader from './ProcedureDrawerHeader';
 import ProcedureForm from './ProcedureForm';

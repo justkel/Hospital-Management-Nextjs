@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChargeDomain } from '@/shared/graphql/generated/graphql';
 import { useVisitChargeExists } from '@/hooks/billing/useVisitChargeExists';
+import { ChargeCatalogOption } from '@/hooks/billing/useBilling';
 
 interface Props {
   form: DiagnosisFormValues;
   setForm: React.Dispatch<React.SetStateAction<DiagnosisFormValues>>;
   submitting: boolean;
-  catalogs: { id: string; name: string }[];
+  catalogs: ChargeCatalogOption[];
   isEditing: boolean;
   onCreate: () => Promise<void>;
   onUpdate: () => void;
@@ -169,9 +170,9 @@ export default function VisitDiagnosisForm({
                 }
               >
                 <option value="">Select diagnosis charge type</option>
-                {catalogs?.map(cat => (
+                {catalogs?.map((cat) => (
                   <option key={cat.id} value={cat.id}>
-                    {cat.name}
+                    {`${cat.name} — ₦${cat.unitPrice.toLocaleString()}`}
                   </option>
                 ))}
               </select>

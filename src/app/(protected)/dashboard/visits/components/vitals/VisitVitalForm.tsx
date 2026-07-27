@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { ChargeCatalogOption, VitalFormValues } from './VisitVitalsSection';
+import { VitalFormValues } from './VisitVitalsSection';
+import { ChargeCatalogOption } from '@/hooks/billing/useBilling';
 import { ChargeDomain } from '@/shared/graphql/generated/graphql';
 import { useVisitChargeExists } from '@/hooks/billing/useVisitChargeExists';
 
@@ -174,9 +175,9 @@ export default function VisitVitalForm({
                 }
               >
                 <option value="">Select vital charge type</option>
-                {catalogs?.map(cat => (
+                {catalogs?.map((cat) => (
                   <option key={cat.id} value={cat.id}>
-                    {cat.name}
+                    {`${cat.name} — ₦${cat.unitPrice.toLocaleString()}`}
                   </option>
                 ))}
               </select>

@@ -7,7 +7,7 @@ import {
     VisitProcedurePriority,
 } from '@/shared/graphql/generated/graphql';
 
-import { ChargeCatalogOption } from '../../visits/components/vitals/VisitVitalsSection';
+import { ChargeCatalogOption } from '@/hooks/billing/useBilling';
 
 export default function ProcedureForm({
     form,
@@ -178,12 +178,11 @@ export default function ProcedureForm({
                         [&_.ant-select-selection-item]:!leading-5
                         [&_.ant-select-selection-placeholder]:!leading-5
                     "
-                    options={catalogs?.map(
-                        (c: any) => ({
-                            value: c.id,
-                            label: c.name,
-                        })
-                    )}
+                    options={catalogs?.map(cat => ({
+                        value: cat.id,
+                        label: `${cat.name} — ₦${cat.unitPrice.toLocaleString()}`,
+                    }))}
+
                 />
             </div>
 

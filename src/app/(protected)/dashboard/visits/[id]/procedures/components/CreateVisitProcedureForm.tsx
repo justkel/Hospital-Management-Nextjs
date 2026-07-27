@@ -15,6 +15,7 @@ import {
   PlusCircle,
   AlertTriangle,
 } from 'lucide-react';
+import { ChargeCatalogOption } from '@/hooks/billing/useBilling';
 
 export default function CreateVisitProcedureForm({
   visitId,
@@ -22,7 +23,7 @@ export default function CreateVisitProcedureForm({
   onCreated,
 }: {
   visitId: string;
-  catalogs: any[];
+  catalogs: ChargeCatalogOption[];
   onCreated: () => Promise<void>;
 }) {
   const [loading, setLoading] = useState(false);
@@ -162,14 +163,16 @@ export default function CreateVisitProcedureForm({
                 value={form.procedureCatalogId ?? ''}
                 onChange={e => setCatalog(e.target.value)}
                 className={`h-10 w-full rounded-lg border px-3 text-sm outline-none transition
-                  ${disableCatalog
+    ${disableCatalog
                     ? 'cursor-not-allowed bg-slate-50 text-slate-400'
                     : 'border-slate-200 bg-white focus:border-blue-400 focus:ring-3 focus:ring-blue-100'
                   }`}
               >
                 <option value="">Select a procedure catalog…</option>
                 {catalogs?.map((c: any) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                  <option key={c.id} value={c.id}>
+                    {`${c.name} — ₦${c.unitPrice.toLocaleString()}`}
+                  </option>
                 ))}
               </select>
             </div>
