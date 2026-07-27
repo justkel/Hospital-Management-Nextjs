@@ -22,6 +22,7 @@ import VisitTasksSection from '../components/visit-tasks/VisitTasksSection';
 import VisitNoteBoard from '../components/visit-note-positions/VisitNoteBoard';
 import Link from 'next/link';
 import { ClipboardList, FlaskConical, Receipt } from 'lucide-react';
+import VisitOtherChargeSection from '../components/VisitOtherChargeSection';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -113,6 +114,7 @@ export default async function VisitDetailPage({ params }: Props) {
           <VisitPrescriptionsSection visitId={visit.id} />
           <VisitBedAllocationSection visitId={visit.id} />
           <VisitTasksSection visitId={visit.id} />
+          <VisitOtherChargeSection visitId={visit.id} />
 
         </div>
 
