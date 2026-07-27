@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StickyNote, Plus, X } from 'lucide-react';
 import { useVisitNotes } from './useVisitNotes';
 import { useVisitNotePositions } from './useVisitNotePositions';
@@ -23,6 +23,21 @@ export default function VisitNoteBoard({ visitId }: Props) {
   const [boardOpen, setBoardOpen] = useState(true);
   const [composing, setComposing] = useState(false);
   const [draft, setDraft] = useState('');
+
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const checkScreen = () => setIsDesktop(window.innerWidth >= 768);
+
+    checkScreen();
+    window.addEventListener('resize', checkScreen);
+
+    return () => window.removeEventListener('resize', checkScreen);
+  }, []);
+
+  if (!isDesktop) {
+    return null;
+  }
 
   const handleCreate = async () => {
     if (!draft.trim()) return;
