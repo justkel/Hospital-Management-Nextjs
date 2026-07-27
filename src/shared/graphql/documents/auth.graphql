@@ -3264,6 +3264,37 @@ query GetVisitInvoiceDetail($invoiceId: ID!) {
         }
       }
     }
+    credits {
+      id
+      visitId
+      visitChargeId
+      amount
+      method
+      status
+      reason
+      notes
+      processedByStaffId
+      confirmedAt
+      organizationId
+      visitCharge {
+        id
+        chargeName
+      }
+    }
+    balancePayments {
+      id
+      visitId
+      amountPaid
+      paymentMethod
+      status
+      paidAt
+      confirmedAt
+      receivedByStaffId
+      reference
+      reason
+      notes
+      organizationId
+    }
   }
 }
 
