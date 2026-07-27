@@ -1209,11 +1209,7 @@ export default function PaymentsTab({
         <div className="flex items-start gap-2.5">
           <AlertTriangle size={18} className="mt-0.5 shrink-0 !text-red-600" />
           <p className="text-sm !text-slate-700">
-            Confirming this payment will bring this visit's outstanding
-            balance to ₦0.00. There is no refund option in this system — the
-            only way to correct a mistaken confirmation is through a
-            separate, tracked billing adjustment. Please confirm you want
-            to proceed.
+            Confirming this payment will bring this visit's outstanding balance to ₦0.00. This can't be undone directly — if it turns out to be a mistake, the way to correct it is a credit refund (Credits tab), which records the excess as money owed back to the patient. Please confirm you want to proceed.
           </p>
         </div>
       </Modal>
