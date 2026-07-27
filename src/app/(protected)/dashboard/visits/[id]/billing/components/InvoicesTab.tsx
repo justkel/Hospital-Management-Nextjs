@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   FileCheck2,
   FilePlus2,
+  Info,
   Loader2,
   Printer,
   Receipt,
@@ -159,11 +160,21 @@ export default function InvoicesTab({
     }
   };
 
-  const isStale =
+  const totalPayableChanged =
     !!latestInvoice &&
     !!currentTotals &&
     Math.abs(Number(latestInvoice.totalPayable) - currentTotals.totalPayable) >
       0.01;
+
+  const outstandingChanged =
+    !!latestInvoice &&
+    !!currentTotals &&
+    Math.abs(
+      Number(latestInvoice.outstandingBalance ?? 0) -
+        currentTotals.outstandingBalance
+    ) > 0.01;
+
+  const isStale = totalPayableChanged || outstandingChanged;
 
   return (
     <div className="space-y-6 py-5">
@@ -242,7 +253,7 @@ export default function InvoicesTab({
               </div>
             </div>
 
-            {isStale && (
+            {totalPayableChanged && (
               <div className="flex items-start gap-2.5 border-t !border-blue-200 !bg-amber-50 px-5 py-3.5">
                 <AlertTriangle
                   size={15}
@@ -264,6 +275,26 @@ export default function InvoicesTab({
           </div>
         )}
       </div>
+
+      {outstandingChanged && (
+        <div className="flex items-start gap-2.5 rounded-2xl border !border-sky-200 !bg-sky-50 px-5 py-4">
+          <Info size={18} className="mt-0.5 shrink-0 !text-sky-600" />
+          <div>
+            <p className="text-sm font-bold !text-sky-900">
+              The latest invoice shows{' '}
+              {formatCurrency(latestInvoice?.outstandingBalance)} outstanding,
+              but current totals show{' '}
+              {formatCurrency(currentTotals?.outstandingBalance)}.
+            </p>
+            <p className="mt-0.5 text-xs !text-sky-700">
+              This usually just means a payment was recorded after this
+              invoice was generated — the invoice keeps the figures it had
+              at the time, on purpose. Generate a new invoice if you want
+              its outstanding balance to reflect what's owed right now.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-sm font-bold !text-slate-800">
