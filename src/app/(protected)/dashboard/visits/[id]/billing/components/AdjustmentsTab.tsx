@@ -17,7 +17,7 @@ import { clientFetch } from '@/lib/clientFetch';
 import StatusBadge from './StatusBadge';
 import type { Adjustment, ChargeRow } from '../billing-client';
 import { AdjustmentMethod, AdjustmentType } from '@/shared/graphql/generated/graphql';
-import { HasRoles } from '@/components/auth/HasRoles';
+import { HasRoles, useHasRoles } from '@/components/auth/HasRoles';
 import { Roles } from '@/shared/utils/enums/roles';
 
 function formatCurrency(amount: number | string | null | undefined) {
@@ -96,6 +96,7 @@ export default function AdjustmentsTab({
   const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
+  const hasAdmin = useHasRoles([Roles.ADMIN, Roles.DOCTOR]);
 
   const [rejectTarget, setRejectTarget] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
@@ -607,6 +608,7 @@ export default function AdjustmentsTab({
                               Reject
                             </button>
                           </HasRoles>
+                          {!hasAdmin && a.status === 'REQUESTED' && <span>Submitted for review</span>}
                         </>
                       )}
 
