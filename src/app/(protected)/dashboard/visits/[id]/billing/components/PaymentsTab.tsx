@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   Banknote,
   CheckCircle2,
+  Landmark,
   Loader2,
   Wallet,
   XCircle,
@@ -50,6 +51,19 @@ interface CurrentTotals {
   outstandingBalance: number;
 }
 
+interface BalancePaymentRow {
+  id: string;
+  amountPaid: number;
+  paymentMethod: string;
+  status: string;
+  paidAt: string;
+  confirmedAt?: string | null;
+  reference?: string | null;
+  reason: string;
+  notes?: string | null;
+  createdAt: string;
+}
+
 export default function PaymentsTab({
   visitId,
   patientId,
@@ -80,6 +94,7 @@ export default function PaymentsTab({
   const [failReason, setFailReason] = useState('');
 
   const [confirmSettleTarget, setConfirmSettleTarget] = useState<string | null>(null);
+  const [confirmSettleType, setConfirmSettleType] = useState<'payment' | 'balance'>('payment');
 
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
@@ -88,6 +103,19 @@ export default function PaymentsTab({
 
   const [walletEnabled, setWalletEnabled] = useState(false);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
+
+  // Balance payments — for the shortfall-with-no-charge-capacity case.
+  const [balancePayments, setBalancePayments] = useState<BalancePaymentRow[]>([]);
+  const [balanceFormOpen, setBalanceFormOpen] = useState(false);
+  const [balanceAmount, setBalanceAmount] = useState('');
+  const [balanceMethod, setBalanceMethod] = useState('CASH');
+  const [balanceReason, setBalanceReason] = useState('');
+  const [balanceReference, setBalanceReference] = useState('');
+  const [balanceNotes, setBalanceNotes] = useState('');
+  const [submittingBalance, setSubmittingBalance] = useState(false);
+  const [balanceFailTarget, setBalanceFailTarget] = useState<string | null>(null);
+  const [balanceFailReason, setBalanceFailReason] = useState('');
+  const [balanceActionLoadingId, setBalanceActionLoadingId] = useState<string | null>(null);
 
   const canAttachInvoice = !!latestInvoice && latestInvoice.status !== 'DRAFT';
 
@@ -132,6 +160,17 @@ export default function PaymentsTab({
     }
   };
 
+  const refreshBalancePayments = async () => {
+    const res = await clientFetch(
+      `/api/visit-balance-payment/list?visitId=${visitId}`,
+      { cache: 'no-store' }
+    );
+    const json = await res.json();
+    if (res.ok && json.payments) {
+      setBalancePayments(json.payments);
+    }
+  };
+
   const refreshInvoice = async () => {
     const res = await clientFetch(
       `/api/visit-invoice/latest?visitId=${visitId}`,
@@ -170,6 +209,7 @@ export default function PaymentsTab({
 
   useEffect(() => {
     refreshPayments();
+    refreshBalancePayments();
     refreshBalances();
     refreshCurrentTotals();
     refreshFeatureFlags();
@@ -214,9 +254,14 @@ export default function PaymentsTab({
     walletBalance !== null &&
     totalEntered > walletBalance + 0.01;
 
-  const wouldFullySettleOnConfirm = (payment: PaymentRow): boolean => {
+  const showBalancePaymentPrompt =
+    charges.length > 0 &&
+    payableCharges.length === 0 &&
+    (currentTotals?.outstandingBalance ?? 0) > 0.01;
+
+  const wouldFullySettle = (amount: number): boolean => {
     if (!currentTotals) return false;
-    return Number(payment.amountPaid) >= currentTotals.outstandingBalance - 0.01;
+    return amount >= currentTotals.outstandingBalance - 0.01;
   };
 
   const openForm = () => {
@@ -355,7 +400,8 @@ export default function PaymentsTab({
   };
 
   const handleConfirmClick = (payment: PaymentRow) => {
-    if (wouldFullySettleOnConfirm(payment)) {
+    if (wouldFullySettle(Number(payment.amountPaid))) {
+      setConfirmSettleType('payment');
       setConfirmSettleTarget(payment.id);
     } else {
       confirmPayment(payment.id);
@@ -365,8 +411,14 @@ export default function PaymentsTab({
   const confirmSettle = async () => {
     if (!confirmSettleTarget) return;
     const id = confirmSettleTarget;
+    const type = confirmSettleType;
     setConfirmSettleTarget(null);
-    await confirmPayment(id);
+
+    if (type === 'balance') {
+      await confirmBalancePayment(id);
+    } else {
+      await confirmPayment(id);
+    }
   };
 
   const submitFailReason = async () => {
@@ -410,6 +462,170 @@ export default function PaymentsTab({
     }
   };
 
+  // --- Balance payments ---
+
+  const balanceExceedsOutstanding =
+    !!currentTotals &&
+    Number(balanceAmount || 0) > currentTotals.outstandingBalance + 0.01;
+
+  const balanceExceedsWallet =
+    balanceMethod === 'WALLET' &&
+    walletBalance !== null &&
+    Number(balanceAmount || 0) > walletBalance + 0.01;
+
+  const openBalanceForm = () => {
+    setBalanceAmount(
+      currentTotals ? String(currentTotals.outstandingBalance) : ''
+    );
+    setBalanceMethod('CASH');
+    setBalanceReason('');
+    setBalanceReference('');
+    setBalanceNotes('');
+    setBalanceFormOpen(true);
+  };
+
+  const submitBalancePayment = async () => {
+    if (!balanceAmount || Number(balanceAmount) <= 0) {
+      message.error('Enter a valid amount');
+      return;
+    }
+
+    if (!balanceReason.trim()) {
+      message.error(
+        "A reason is required — this payment isn't tied to a specific charge"
+      );
+      return;
+    }
+
+    if (balanceExceedsOutstanding) {
+      message.error(
+        `This exceeds the visit's current outstanding balance of ${formatCurrency(
+          currentTotals?.outstandingBalance
+        )}`
+      );
+      return;
+    }
+
+    if (balanceExceedsWallet) {
+      message.error(
+        `This exceeds the patient's current wallet balance of ${formatCurrency(
+          walletBalance
+        )}`
+      );
+      return;
+    }
+
+    setSubmittingBalance(true);
+
+    try {
+      const res = await clientFetch('/api/visit-balance-payment/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          visitId,
+          amountPaid: Number(balanceAmount),
+          paymentMethod: balanceMethod,
+          reason: balanceReason.trim(),
+          reference: balanceReference.trim() || undefined,
+          notes: balanceNotes.trim() || undefined,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        message.error(json.error || 'Failed to record balance payment');
+        return;
+      }
+
+      message.success('Balance payment recorded');
+      setBalanceFormOpen(false);
+      await refreshBalancePayments();
+    } finally {
+      setSubmittingBalance(false);
+    }
+  };
+
+  const confirmBalancePayment = async (id: string) => {
+    setBalanceActionLoadingId(id);
+
+    try {
+      const res = await clientFetch('/api/visit-balance-payment/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        message.error(json.error || 'Failed to confirm balance payment');
+        return;
+      }
+
+      message.success('Balance payment confirmed');
+      await Promise.all([
+        refreshBalancePayments(),
+        refreshInvoice(),
+        refreshBalances(),
+        refreshCurrentTotals(),
+        refreshWalletBalance(),
+      ]);
+    } finally {
+      setBalanceActionLoadingId(null);
+    }
+  };
+
+  const handleBalanceConfirmClick = (payment: BalancePaymentRow) => {
+    if (wouldFullySettle(Number(payment.amountPaid))) {
+      setConfirmSettleType('balance');
+      setConfirmSettleTarget(payment.id);
+    } else {
+      confirmBalancePayment(payment.id);
+    }
+  };
+
+  const submitBalanceFailReason = async () => {
+    if (!balanceFailTarget) return;
+
+    if (!balanceFailReason.trim()) {
+      message.error('A reason is required');
+      return;
+    }
+
+    setBalanceActionLoadingId(balanceFailTarget);
+
+    try {
+      const res = await clientFetch('/api/visit-balance-payment/fail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: balanceFailTarget,
+          reason: balanceFailReason.trim(),
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        message.error(json.error || 'Action failed');
+        return;
+      }
+
+      message.success('Done');
+      setBalanceFailTarget(null);
+      setBalanceFailReason('');
+      await Promise.all([
+        refreshBalancePayments(),
+        refreshInvoice(),
+        refreshBalances(),
+        refreshCurrentTotals(),
+      ]);
+    } finally {
+      setBalanceActionLoadingId(null);
+    }
+  };
+
   return (
     <div className="space-y-5 py-5">
       <div className="flex items-center justify-between">
@@ -426,6 +642,37 @@ export default function PaymentsTab({
           Record payment
         </button>
       </div>
+
+      {showBalancePaymentPrompt && (
+        <div className="flex flex-col gap-3 rounded-2xl border !border-amber-200 !bg-amber-50/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <AlertTriangle
+              size={18}
+              className="mt-0.5 shrink-0 !text-amber-600"
+            />
+            <div>
+              <p className="text-sm font-bold !text-amber-900">
+                This visit still owes{' '}
+                {formatCurrency(currentTotals?.outstandingBalance)}, but
+                every charge is already fully allocated.
+              </p>
+              <p className="mt-0.5 text-xs !text-amber-700">
+                This can happen after charges move up and down again
+                following a refund. Record a payment against the visit's
+                overall balance instead.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={openBalanceForm}
+            className="inline-flex shrink-0 items-center gap-2 rounded-2xl border !border-amber-300 !bg-white px-4 py-2.5 text-sm font-medium !text-amber-700 shadow-sm transition hover:!bg-amber-50"
+          >
+            <Landmark size={15} />
+            Record balance payment
+          </button>
+        </div>
+      )}
 
       {payments.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border !border-slate-100 !bg-slate-50/60 px-6 py-16 text-center">
@@ -507,6 +754,80 @@ export default function PaymentsTab({
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {balancePayments.length > 0 && (
+        <div>
+          <div className="mb-3 flex items-center gap-2">
+            <Landmark size={15} className="!text-amber-500" />
+            <h3 className="text-sm font-bold !text-slate-800">
+              {balancePayments.length} balance payment
+              {balancePayments.length === 1 ? '' : 's'}
+            </h3>
+          </div>
+
+          <div className="overflow-hidden rounded-xl border !border-amber-200">
+            <div className="divide-y !divide-amber-100">
+              {balancePayments.map((p) => (
+                <div key={p.id} className="px-4 py-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-lg font-bold !text-slate-900">
+                          {formatCurrency(p.amountPaid)}
+                        </span>
+                        <StatusBadge status={p.status} />
+                        <span className="rounded-full border !border-amber-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-amber-700">
+                          {p.paymentMethod}
+                        </span>
+                      </div>
+
+                      <p className="mt-1 text-xs !text-slate-500">
+                        Paid: {formatDateTime(p.paidAt)}
+                        {p.confirmedAt &&
+                          ` · Confirmed: ${formatDateTime(p.confirmedAt)}`}
+                        {p.reference && ` · Ref: ${p.reference}`}
+                      </p>
+
+                      <p className="mt-1 text-sm !text-slate-600">
+                        {p.reason}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {p.status === 'PENDING' && (
+                        <>
+                          <button
+                            type="button"
+                            disabled={balanceActionLoadingId === p.id}
+                            onClick={() => handleBalanceConfirmClick(p)}
+                            className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
+                          >
+                            {balanceActionLoadingId === p.id ? (
+                              <Loader2 size={13} className="animate-spin" />
+                            ) : (
+                              <CheckCircle2 size={13} />
+                            )}
+                            Confirm
+                          </button>
+                          <button
+                            type="button"
+                            disabled={balanceActionLoadingId === p.id}
+                            onClick={() => setBalanceFailTarget(p.id)}
+                            className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
+                          >
+                            <XCircle size={13} />
+                            Fail
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -693,6 +1014,155 @@ export default function PaymentsTab({
       </Modal>
 
       <Modal
+        title="Record balance payment"
+        open={balanceFormOpen}
+        onCancel={() => setBalanceFormOpen(false)}
+        onOk={submitBalancePayment}
+        okText="Record balance payment"
+        confirmLoading={submittingBalance}
+        okButtonProps={{
+          disabled: balanceExceedsOutstanding || balanceExceedsWallet,
+        }}
+      >
+        <div className="space-y-4 py-2">
+          <div className="flex items-start gap-2.5 rounded-lg border !border-amber-200 !bg-amber-50 px-3.5 py-3">
+            <AlertTriangle
+              size={15}
+              className="mt-0.5 shrink-0 !text-amber-600"
+            />
+            <p className="text-xs !text-amber-800">
+              This payment applies against the visit's overall balance, not
+              a specific charge. Use it only when the visit genuinely owes
+              money but no charge has room left to attach a normal payment
+              to.
+            </p>
+          </div>
+
+          <div className="rounded-lg !bg-slate-50 px-4 py-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium !text-slate-600">
+                Current outstanding balance
+              </span>
+              <span className="font-bold !text-slate-900">
+                {formatCurrency(currentTotals?.outstandingBalance)}
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+              Amount
+            </label>
+            <Input
+              type="number"
+              max={currentTotals?.outstandingBalance}
+              value={balanceAmount}
+              onChange={(e) => setBalanceAmount(e.target.value)}
+            />
+          </div>
+
+          {balanceExceedsOutstanding && (
+            <div className="flex items-start gap-2.5 rounded-lg border !border-red-200 !bg-red-50 px-3.5 py-3">
+              <AlertTriangle
+                size={15}
+                className="mt-0.5 shrink-0 !text-red-600"
+              />
+              <p className="text-xs !text-red-700">
+                This exceeds the visit's current outstanding balance of{' '}
+                {formatCurrency(currentTotals?.outstandingBalance)}.
+              </p>
+            </div>
+          )}
+
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+              Payment method
+            </label>
+            <Select
+              className="w-full"
+              value={balanceMethod}
+              onChange={setBalanceMethod}
+              options={paymentMethods.map((m) => ({ value: m, label: m }))}
+            />
+          </div>
+
+          {balanceMethod === 'WALLET' && (
+            <div
+              className={`rounded-lg border px-4 py-3 ${
+                balanceExceedsWallet
+                  ? '!border-red-200 !bg-red-50'
+                  : '!border-blue-200 !bg-blue-50'
+              }`}
+            >
+              <div className="flex items-center justify-between text-sm">
+                <span
+                  className={`font-medium ${
+                    balanceExceedsWallet ? '!text-red-700' : '!text-blue-700'
+                  }`}
+                >
+                  Patient wallet balance
+                </span>
+                <span
+                  className={`font-bold ${
+                    balanceExceedsWallet ? '!text-red-800' : '!text-blue-900'
+                  }`}
+                >
+                  {walletBalance === null
+                    ? 'Loading…'
+                    : formatCurrency(walletBalance)}
+                </span>
+              </div>
+
+              {balanceExceedsWallet && (
+                <div className="mt-2 flex items-start gap-2">
+                  <AlertTriangle
+                    size={14}
+                    className="mt-0.5 shrink-0 !text-red-600"
+                  />
+                  <p className="text-xs !text-red-700">
+                    This exceeds the patient's current wallet balance.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+              Reason
+            </label>
+            <Input.TextArea
+              rows={2}
+              value={balanceReason}
+              onChange={(e) => setBalanceReason(e.target.value)}
+              placeholder="Why is this payment not tied to a specific charge?"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+              Reference (optional)
+            </label>
+            <Input
+              value={balanceReference}
+              onChange={(e) => setBalanceReference(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+              Notes (optional)
+            </label>
+            <Input.TextArea
+              rows={2}
+              value={balanceNotes}
+              onChange={(e) => setBalanceNotes(e.target.value)}
+            />
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
         title="Mark payment as failed"
         open={!!failTarget}
         onCancel={() => setFailTarget(null)}
@@ -707,6 +1177,24 @@ export default function PaymentsTab({
           rows={2}
           value={failReason}
           onChange={(e) => setFailReason(e.target.value)}
+        />
+      </Modal>
+
+      <Modal
+        title="Mark balance payment as failed"
+        open={!!balanceFailTarget}
+        onCancel={() => setBalanceFailTarget(null)}
+        onOk={submitBalanceFailReason}
+        okText="Mark failed"
+        okButtonProps={{ danger: true }}
+      >
+        <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+          Reason
+        </label>
+        <Input.TextArea
+          rows={2}
+          value={balanceFailReason}
+          onChange={(e) => setBalanceFailReason(e.target.value)}
         />
       </Modal>
 
