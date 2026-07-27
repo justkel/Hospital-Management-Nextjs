@@ -3,13 +3,15 @@ import {
   GetPatientWalletBalanceDocument,
   GetPatientWalletBalanceQuery,
   GetPatientWalletBalanceQueryVariables,
-  GetPatientWalletTransactionsDocument,
-  GetPatientWalletTransactionsQuery,
-  GetPatientWalletTransactionsQueryVariables,
+  GetPatientWalletTransactionsPaginatedDocument,
+  GetPatientWalletTransactionsPaginatedQuery,
+  GetPatientWalletTransactionsPaginatedQueryVariables,
 } from '@/shared/graphql/generated/graphql';
 
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 import PatientWalletClient from './components/PatientWalletClient';
+
+const PAGE_SIZE = 20;
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -24,9 +26,12 @@ export default async function PatientWalletPage({ params }: Props) {
       GetPatientWalletBalanceQueryVariables
     >(GetPatientWalletBalanceDocument, { patientId: id }),
     graphqlFetch<
-      GetPatientWalletTransactionsQuery,
-      GetPatientWalletTransactionsQueryVariables
-    >(GetPatientWalletTransactionsDocument, { patientId: id }),
+      GetPatientWalletTransactionsPaginatedQuery,
+      GetPatientWalletTransactionsPaginatedQueryVariables
+    >(GetPatientWalletTransactionsPaginatedDocument, {
+      patientId: id,
+      pagination: { page: 1, limit: PAGE_SIZE },
+    }),
   ]);
 
   if (balanceRes?.patientWalletBalance === undefined) {
@@ -38,7 +43,14 @@ export default async function PatientWalletPage({ params }: Props) {
       <PatientWalletClient
         patientId={id}
         initialBalance={balanceRes.patientWalletBalance}
-        initialTransactions={transactionsRes?.patientWalletTransactions ?? []}
+        initialPaginated={
+          transactionsRes?.patientWalletTransactionsPaginated ?? {
+            items: [],
+            total: 0,
+            page: 1,
+            pageCount: 1,
+          }
+        }
       />
     </SessionGuard>
   );

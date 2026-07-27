@@ -1,27 +1,39 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Modal, Input, message } from 'antd';
+import { Modal, Input, Select, message } from 'antd';
 import {
   AlertTriangle,
   ArrowDownCircle,
   ArrowUpCircle,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   CircleDollarSign,
+  Filter,
   Gift,
   Loader2,
+  PlusCircle,
   ThumbsDown,
   ThumbsUp,
   Wallet,
+  X,
   XCircle,
 } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';
 import StatusBadge from '@/app/(protected)/dashboard/visits/[id]/billing/components/StatusBadge';
-import type { GetPatientWalletTransactionsQuery } from '@/shared/graphql/generated/graphql';
+import type { GetPatientWalletTransactionsPaginatedQuery } from '@/shared/graphql/generated/graphql';
 
 export type WalletTransactionRow =
-  GetPatientWalletTransactionsQuery['patientWalletTransactions'][number];
+  GetPatientWalletTransactionsPaginatedQuery['patientWalletTransactionsPaginated']['items'][number];
+
+interface PaginatedTransactions {
+  items: WalletTransactionRow[];
+  total: number;
+  page: number;
+  pageCount: number;
+}
 
 function formatCurrency(amount: number | string | null | undefined) {
   const n = Number(amount ?? 0);
@@ -66,7 +78,30 @@ const TYPE_META: Record<
     icon: ArrowUpCircle,
     badgeClass: '!bg-slate-100 !text-slate-600',
   },
+  TOP_UP: {
+    label: 'Wallet top-up',
+    sign: '+',
+    icon: PlusCircle,
+    badgeClass: '!bg-violet-100 !text-violet-700',
+  },
 };
+
+const TYPE_FILTER_OPTIONS = [
+  { value: 'GRANT', label: 'Grant' },
+  { value: 'TRANSFER_IN', label: 'Transfer in' },
+  { value: 'SPEND', label: 'Spend' },
+  { value: 'TOP_UP', label: 'Top-up' },
+];
+
+const STATUS_FILTER_OPTIONS = [
+  { value: 'REQUESTED', label: 'Requested' },
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'CONFIRMED', label: 'Confirmed' },
+  { value: 'REJECTED', label: 'Rejected' },
+  { value: 'FAILED', label: 'Failed' },
+];
+
+const TOP_UP_METHODS = ['CASH', 'POS', 'CARD', 'TRANSFER', 'INSURANCE'];
 
 interface GrantForm {
   amount: string;
@@ -76,18 +111,39 @@ interface GrantForm {
 
 const EMPTY_GRANT_FORM: GrantForm = { amount: '', reason: '' };
 
+interface TopUpForm {
+  amount: string;
+  paymentMethod: string;
+  reason: string;
+  notes?: string;
+}
+
+const EMPTY_TOPUP_FORM: TopUpForm = {
+  amount: '',
+  paymentMethod: 'CASH',
+  reason: '',
+};
+
+const PAGE_SIZE = 20;
+
 export default function PatientWalletClient({
   patientId,
   initialBalance,
-  initialTransactions,
+  initialPaginated,
 }: {
   patientId: string;
   initialBalance: number;
-  initialTransactions: WalletTransactionRow[];
+  initialPaginated: PaginatedTransactions;
 }) {
   const [balance, setBalance] = useState<number>(initialBalance);
-  const [transactions, setTransactions] =
-    useState<WalletTransactionRow[]>(initialTransactions);
+  const [paginated, setPaginated] =
+    useState<PaginatedTransactions>(initialPaginated);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(
+    undefined
+  );
 
   const [grantFormOpen, setGrantFormOpen] = useState(false);
   const [grantForm, setGrantForm] = useState<GrantForm>(EMPTY_GRANT_FORM);
@@ -95,6 +151,13 @@ export default function PatientWalletClient({
 
   const [rejectTarget, setRejectTarget] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+
+  const [topUpFormOpen, setTopUpFormOpen] = useState(false);
+  const [topUpForm, setTopUpForm] = useState<TopUpForm>(EMPTY_TOPUP_FORM);
+  const [submittingTopUp, setSubmittingTopUp] = useState(false);
+
+  const [topUpFailTarget, setTopUpFailTarget] = useState<string | null>(null);
+  const [topUpFailReason, setTopUpFailReason] = useState('');
 
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
@@ -109,22 +172,57 @@ export default function PatientWalletClient({
     }
   };
 
-  const refreshTransactions = async () => {
-    const res = await clientFetch(
-      `/api/patient-wallet/list?patientId=${patientId}`,
-      { cache: 'no-store' }
-    );
-    const json = await res.json();
-    if (res.ok && json.transactions) {
-      setTransactions(json.transactions);
+  const refreshTransactions = async (targetPage?: number) => {
+    setRefreshing(true);
+
+    try {
+      const params = new URLSearchParams({
+        patientId,
+        page: String(targetPage ?? paginated.page),
+        limit: String(PAGE_SIZE),
+      });
+
+      if (typeFilter) params.set('type', typeFilter);
+      if (statusFilter) params.set('status', statusFilter);
+
+      const res = await clientFetch(
+        `/api/patient-wallet/transactions-paginated?${params.toString()}`,
+        { cache: 'no-store' }
+      );
+      const json = await res.json();
+
+      if (res.ok && json.transactions) {
+        setPaginated(json.transactions);
+      }
+    } finally {
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
     refreshBalance();
-    refreshTransactions();
+    refreshTransactions(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientId]);
+
+  useEffect(() => {
+    refreshTransactions(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [typeFilter, statusFilter]);
+
+  const clearFilters = () => {
+    setTypeFilter(undefined);
+    setStatusFilter(undefined);
+  };
+
+  const hasActiveFilters = !!typeFilter || !!statusFilter;
+
+  const goToPage = (page: number) => {
+    if (page < 1 || page > paginated.pageCount) return;
+    refreshTransactions(page);
+  };
+
+  // --- Grants ---
 
   const openGrantForm = () => {
     setGrantForm(EMPTY_GRANT_FORM);
@@ -231,6 +329,116 @@ export default function PatientWalletClient({
     }
   };
 
+  // --- Top-ups ---
+
+  const openTopUpForm = () => {
+    setTopUpForm(EMPTY_TOPUP_FORM);
+    setTopUpFormOpen(true);
+  };
+
+  const submitTopUp = async () => {
+    if (!topUpForm.amount || Number(topUpForm.amount) <= 0) {
+      message.error('Enter a valid amount');
+      return;
+    }
+
+    if (!topUpForm.reason.trim()) {
+      message.error('A reason is required');
+      return;
+    }
+
+    setSubmittingTopUp(true);
+
+    try {
+      const res = await clientFetch('/api/patient-wallet/top-up/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patientId,
+          amount: Number(topUpForm.amount),
+          paymentMethod: topUpForm.paymentMethod,
+          reason: topUpForm.reason.trim(),
+          notes: topUpForm.notes?.trim() || undefined,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        message.error(json.error || 'Failed to record top-up');
+        return;
+      }
+
+      message.success('Top-up recorded — confirm it once the money is in hand');
+      setTopUpFormOpen(false);
+      await refreshTransactions();
+    } finally {
+      setSubmittingTopUp(false);
+    }
+  };
+
+  const confirmTopUp = async (transactionId: string) => {
+    setActionLoadingId(transactionId);
+
+    try {
+      const res = await clientFetch('/api/patient-wallet/top-up/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactionId }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        message.error(json.error || 'Failed to confirm top-up');
+        return;
+      }
+
+      message.success('Top-up confirmed');
+      await Promise.all([refreshTransactions(), refreshBalance()]);
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const submitTopUpFail = async () => {
+    if (!topUpFailTarget) return;
+
+    if (!topUpFailReason.trim()) {
+      message.error('A reason is required');
+      return;
+    }
+
+    setActionLoadingId(topUpFailTarget);
+
+    try {
+      const res = await clientFetch('/api/patient-wallet/top-up/fail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transactionId: topUpFailTarget,
+          reason: topUpFailReason.trim(),
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        message.error(json.error || 'Action failed');
+        return;
+      }
+
+      message.success('Done');
+      setTopUpFailTarget(null);
+      setTopUpFailReason('');
+      await refreshTransactions();
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const transactions = paginated.items;
+
   return (
     <div className="min-h-screen !bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 space-y-6">
@@ -243,8 +451,8 @@ export default function PatientWalletClient({
             Wallet balance
           </h1>
           <p className="mt-1.5 max-w-lg text-sm leading-relaxed !text-slate-500">
-            Goodwill grants, credit transferred in from visits, and spending
-            toward future charges — all recorded here.
+            Goodwill grants, wallet top-ups, credit transferred in from
+            visits, and spending toward future charges — all recorded here.
           </p>
         </div>
 
@@ -264,36 +472,99 @@ export default function PatientWalletClient({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={openGrantForm}
-              className="inline-flex items-center gap-2 rounded-2xl !bg-blue-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-blue-700"
-            >
-              <Gift size={15} />
-              Request grant
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={openTopUpForm}
+                className="inline-flex items-center gap-2 rounded-2xl !bg-violet-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-violet-700"
+              >
+                <PlusCircle size={15} />
+                Top up wallet
+              </button>
+              <button
+                type="button"
+                onClick={openGrantForm}
+                className="inline-flex items-center gap-2 rounded-2xl !bg-blue-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-blue-700"
+              >
+                <Gift size={15} />
+                Request grant
+              </button>
+            </div>
           </div>
         </div>
 
         <div>
-          <h2 className="mb-3 text-sm font-bold !text-slate-800">
-            {transactions.length} transaction
-            {transactions.length === 1 ? '' : 's'}
-          </h2>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-sm font-bold !text-slate-800">
+              {paginated.total} transaction{paginated.total === 1 ? '' : 's'}
+            </h2>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1.5 text-xs font-medium !text-slate-400">
+                <Filter size={13} />
+                Filter
+              </div>
+              <Select
+                allowClear
+                placeholder="Type"
+                className="w-36"
+                size="small"
+                value={typeFilter}
+                onChange={(v) => setTypeFilter(v)}
+                options={TYPE_FILTER_OPTIONS}
+              />
+              <Select
+                allowClear
+                placeholder="Status"
+                className="w-36"
+                size="small"
+                value={statusFilter}
+                onChange={(v) => setStatusFilter(v)}
+                options={STATUS_FILTER_OPTIONS}
+              />
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="inline-flex items-center gap-1 rounded-lg border !border-slate-200 !bg-white px-2.5 py-1 text-xs font-medium !text-slate-500 transition hover:!bg-slate-50"
+                >
+                  <X size={12} />
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
 
           {transactions.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl border !border-slate-100 !bg-slate-50/60 px-6 py-16 text-center">
               <Wallet size={32} className="!text-slate-300" />
               <h3 className="mt-4 text-base font-bold !text-slate-700">
-                No wallet activity yet
+                {hasActiveFilters
+                  ? 'No transactions match these filters'
+                  : 'No wallet activity yet'}
               </h3>
               <p className="mt-1 max-w-sm text-sm !text-slate-500">
-                Grants, transfers, and spends for this patient will appear
-                here.
+                {hasActiveFilters
+                  ? 'Try a different type or status, or clear the filters.'
+                  : 'Grants, top-ups, transfers, and spends for this patient will appear here.'}
               </p>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 !bg-white px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!bg-slate-50"
+                >
+                  <X size={12} />
+                  Clear filters
+                </button>
+              )}
             </div>
           ) : (
-            <div className="overflow-hidden rounded-xl border !border-slate-200">
+            <div
+              className={`overflow-hidden rounded-xl border !border-slate-200 transition-opacity ${
+                refreshing ? 'opacity-60' : 'opacity-100'
+              }`}
+            >
               <div className="divide-y !divide-slate-100">
                 {transactions.map((t) => {
                   const meta = TYPE_META[t.type] ?? {
@@ -327,6 +598,11 @@ export default function PatientWalletClient({
                                 {formatCurrency(t.amount)}
                               </span>
                               <StatusBadge status={t.status} />
+                              {t.paymentMethod && (
+                                <span className="rounded-full border !border-slate-200 !bg-white px-2 py-0.5 text-[10px] font-bold uppercase !text-slate-500">
+                                  {t.paymentMethod}
+                                </span>
+                              )}
                             </div>
 
                             <p className="mt-1 text-sm !text-slate-600">
@@ -372,6 +648,33 @@ export default function PatientWalletClient({
                           </div>
                         )}
 
+                        {t.type === 'TOP_UP' && t.status === 'PENDING' && (
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              disabled={actionLoadingId === t.id}
+                              onClick={() => confirmTopUp(t.id)}
+                              className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
+                            >
+                              {actionLoadingId === t.id ? (
+                                <Loader2 size={13} className="animate-spin" />
+                              ) : (
+                                <CheckCircle2 size={13} />
+                              )}
+                              Confirm
+                            </button>
+                            <button
+                              type="button"
+                              disabled={actionLoadingId === t.id}
+                              onClick={() => setTopUpFailTarget(t.id)}
+                              className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
+                            >
+                              <XCircle size={13} />
+                              Fail
+                            </button>
+                          </div>
+                        )}
+
                         {t.type === 'GRANT' && t.status === 'REJECTED' && (
                           <span className="inline-flex items-center gap-1.5 text-xs !text-slate-400">
                             <XCircle size={13} />
@@ -389,6 +692,34 @@ export default function PatientWalletClient({
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {paginated.pageCount > 1 && (
+            <div className="mt-4 flex items-center justify-between rounded-xl border !border-slate-200 !bg-white px-4 py-3">
+              <span className="text-xs !text-slate-500">
+                Page {paginated.page} of {paginated.pageCount}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={paginated.page <= 1 || refreshing}
+                  onClick={() => goToPage(paginated.page - 1)}
+                  className="inline-flex items-center gap-1 rounded-lg border !border-slate-200 !bg-white px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <ChevronLeft size={13} />
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  disabled={paginated.page >= paginated.pageCount || refreshing}
+                  onClick={() => goToPage(paginated.page + 1)}
+                  className="inline-flex items-center gap-1 rounded-lg border !border-slate-200 !bg-white px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Next
+                  <ChevronRight size={13} />
+                </button>
               </div>
             </div>
           )}
@@ -468,6 +799,100 @@ export default function PatientWalletClient({
           rows={2}
           value={rejectReason}
           onChange={(e) => setRejectReason(e.target.value)}
+        />
+      </Modal>
+
+      <Modal
+        title="Top up wallet"
+        open={topUpFormOpen}
+        onCancel={() => setTopUpFormOpen(false)}
+        onOk={submitTopUp}
+        okText="Record top-up"
+        confirmLoading={submittingTopUp}
+      >
+        <div className="space-y-4 py-2">
+          <div className="flex items-start gap-2.5 rounded-lg border !border-violet-200 !bg-violet-50 px-3.5 py-3">
+            <AlertTriangle
+              size={15}
+              className="mt-0.5 shrink-0 !text-violet-600"
+            />
+            <p className="text-xs !text-violet-800">
+              Records the patient handing over real money right now. It
+              needs confirming once received — no separate approval step.
+            </p>
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+              Amount
+            </label>
+            <Input
+              type="number"
+              value={topUpForm.amount}
+              onChange={(e) =>
+                setTopUpForm((f) => ({ ...f, amount: e.target.value }))
+              }
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+              Payment method
+            </label>
+            <Select
+              className="w-full"
+              value={topUpForm.paymentMethod}
+              onChange={(v) =>
+                setTopUpForm((f) => ({ ...f, paymentMethod: v }))
+              }
+              options={TOP_UP_METHODS.map((m) => ({ value: m, label: m }))}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+              Reason
+            </label>
+            <Input.TextArea
+              rows={2}
+              value={topUpForm.reason}
+              onChange={(e) =>
+                setTopUpForm((f) => ({ ...f, reason: e.target.value }))
+              }
+              placeholder="Why is the patient topping up?"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+              Notes (optional)
+            </label>
+            <Input.TextArea
+              rows={2}
+              value={topUpForm.notes}
+              onChange={(e) =>
+                setTopUpForm((f) => ({ ...f, notes: e.target.value }))
+              }
+            />
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        title="Mark top-up as failed"
+        open={!!topUpFailTarget}
+        onCancel={() => setTopUpFailTarget(null)}
+        onOk={submitTopUpFail}
+        okText="Mark failed"
+        okButtonProps={{ danger: true }}
+      >
+        <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+          Reason
+        </label>
+        <Input.TextArea
+          rows={2}
+          value={topUpFailReason}
+          onChange={(e) => setTopUpFailReason(e.target.value)}
         />
       </Modal>
     </div>
