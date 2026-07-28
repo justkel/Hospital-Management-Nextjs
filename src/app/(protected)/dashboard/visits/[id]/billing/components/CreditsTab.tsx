@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Modal, Select, Input, message } from 'antd';
 import {
   AlertTriangle,
@@ -8,6 +9,7 @@ import {
   CheckCircle2,
   CircleDollarSign,
   Loader2,
+  Wallet,
   XCircle,
 } from 'lucide-react';
 
@@ -36,6 +38,13 @@ function formatDateTime(value?: string | null) {
   });
 }
 
+function formatWalletBalance(amount: number) {
+  return `₦${amount.toLocaleString('en-NG', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
 const BASE_RESOLUTION_METHODS = [
   'CASH',
   'POS',
@@ -60,6 +69,7 @@ const EMPTY_FORM: FormState = {
 
 export default function CreditsTab({
   visitId,
+  patientId,
   charges,
   credits,
   creditBalance,
@@ -67,6 +77,7 @@ export default function CreditsTab({
   onCreditBalanceChange,
 }: {
   visitId: string;
+  patientId: string;
   charges: ChargeRow[];
   credits: CreditRow[];
   creditBalance: number;
@@ -83,6 +94,7 @@ export default function CreditsTab({
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   const [walletEnabled, setWalletEnabled] = useState(false);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
   const resolutionMethods = walletEnabled
     ? [...BASE_RESOLUTION_METHODS, 'PATIENT_WALLET']
@@ -124,12 +136,30 @@ export default function CreditsTab({
     }
   };
 
+  const refreshWalletBalance = async () => {
+    const res = await clientFetch(
+      `/api/patient-wallet/balance?patientId=${patientId}`,
+      { cache: 'no-store' }
+    );
+    const json = await res.json();
+    if (res.ok && json.balance !== undefined) {
+      setWalletBalance(json.balance);
+    }
+  };
+
   useEffect(() => {
     refreshBalance();
     refreshCredits();
     refreshFeatureFlags();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
+
+  useEffect(() => {
+    if (walletEnabled) {
+      refreshWalletBalance();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletEnabled, patientId]);
 
   const exceedsCreditBalance =
     Number(form.amount || 0) > creditBalance + 0.01;
@@ -208,7 +238,11 @@ export default function CreditsTab({
       }
 
       message.success('Refund confirmed');
-      await Promise.all([refreshCredits(), refreshBalance()]);
+      await Promise.all([
+        refreshCredits(),
+        refreshBalance(),
+        walletEnabled ? refreshWalletBalance() : Promise.resolve(),
+      ]);
     } finally {
       setActionLoadingId(null);
     }
@@ -257,24 +291,39 @@ export default function CreditsTab({
       'Charge no longer available'
     );
   };
+  console.log('patient id', patientId);
 
   return (
     <div className="space-y-5 py-5">
+      {walletEnabled && (
+        <div className="flex items-center justify-end">
+          <Link
+            href={`/dashboard/patients/${patientId}/wallet`}
+            className="inline-flex items-center gap-2 rounded-2xl border !border-slate-200 !bg-white px-4 py-2.5 text-sm font-medium !text-slate-600 shadow-sm transition-all hover:!border-blue-200 hover:!bg-blue-50 hover:!text-blue-700"
+          >
+            <Wallet size={15} />
+            Patient wallet
+            {walletBalance !== null && walletBalance > 0.01 && (
+              <span className="rounded-full border !border-emerald-200 !bg-emerald-50 px-2 py-0.5 text-[11px] font-bold !text-emerald-700">
+                {formatWalletBalance(walletBalance)}
+              </span>
+            )}
+          </Link>
+        </div>
+      )}
       <div
-        className={`overflow-hidden rounded-2xl border ${
-          creditBalance > 0.01
-            ? '!border-amber-200 !bg-amber-50/50'
-            : '!border-slate-200 !bg-slate-50/60'
-        }`}
+        className={`overflow-hidden rounded-2xl border ${creditBalance > 0.01
+          ? '!border-amber-200 !bg-amber-50/50'
+          : '!border-slate-200 !bg-slate-50/60'
+          }`}
       >
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-                creditBalance > 0.01
-                  ? '!bg-amber-100 !text-amber-700'
-                  : '!bg-slate-100 !text-slate-500'
-              }`}
+              className={`flex h-10 w-10 items-center justify-center rounded-xl ${creditBalance > 0.01
+                ? '!bg-amber-100 !text-amber-700'
+                : '!bg-slate-100 !text-slate-500'
+                }`}
             >
               <CircleDollarSign size={18} />
             </div>
@@ -283,9 +332,8 @@ export default function CreditsTab({
                 Current credit balance
               </p>
               <p
-                className={`text-lg font-bold ${
-                  creditBalance > 0.01 ? '!text-amber-700' : '!text-slate-700'
-                }`}
+                className={`text-lg font-bold ${creditBalance > 0.01 ? '!text-amber-700' : '!text-slate-700'
+                  }`}
               >
                 {formatCurrency(creditBalance)}
               </p>

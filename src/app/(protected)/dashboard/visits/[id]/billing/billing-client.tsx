@@ -351,6 +351,7 @@ export default function BillingClient({
             {activeTab === 'credits' && (
               <CreditsTab
                 visitId={visit.id}
+                patientId={visit.patientId}
                 charges={charges}
                 credits={credits}
                 creditBalance={creditBalance}
