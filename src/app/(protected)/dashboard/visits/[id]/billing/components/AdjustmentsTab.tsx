@@ -650,7 +650,7 @@ export default function AdjustmentsTab({
                     value: c.id,
                     label: `${c.chargeName} — ${formatCurrency(
                       getRemaining(c.id, Number(c.totalAmount ?? 0))
-                    )} remaining`,
+                    )} left (initial: ${formatCurrency(c.totalAmount)})`,
                   }))}
                   notFoundContent={
                     payableCharges.length === 0
@@ -701,6 +701,13 @@ export default function AdjustmentsTab({
                       setForm((f) => ({ ...f, value: e.target.value }))
                     }
                   />
+                  <p className="mt-1.5 text-xs !text-slate-400">
+                    This percentage is calculated against the charge's initial amount
+                    {selectedCharge
+                      ? ` (${formatCurrency(selectedCharge.totalAmount)})`
+                      : ''}
+                    , not its current remaining balance.
+                  </p>
                 </div>
               )}
 
@@ -731,8 +738,8 @@ export default function AdjustmentsTab({
                 options={reversibleAdjustments.map((a) => ({
                   value: a.id,
                   label: `${a.type.replace(/_/g, ' ')} · ${a.method === 'FLAT'
-                      ? formatCurrency(a.amount)
-                      : `${a.value}%`
+                    ? formatCurrency(a.amount)
+                    : `${a.value}%`
                     } · ${a.reason}`,
                 }))}
               />
