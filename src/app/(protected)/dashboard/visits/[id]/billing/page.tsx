@@ -7,6 +7,7 @@ import {
 
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 import BillingClient from './billing-client';
+import { Suspense } from 'react';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -32,23 +33,25 @@ export default async function VisitBillingPage({ params }: Props) {
 
   return (
     <SessionGuard needsRefresh={false}>
-      <BillingClient
-        visit={data.visit}
-        initialSummary={
-          data?.visitChargeSummary ?? {
-            lockedCharges: [],
-            editableCharges: [],
-            total: 0,
+      <Suspense fallback={null}>
+        <BillingClient
+          visit={data.visit}
+          initialSummary={
+            data?.visitChargeSummary ?? {
+              lockedCharges: [],
+              editableCharges: [],
+              total: 0,
+            }
           }
-        }
-        initialUnbilled={data?.unbilledPrescriptions ?? []}
-        initialAdjustments={data?.billingAdjustments ?? []}
-        initialLatestInvoice={data?.latestVisitInvoice ?? null}
-        initialInvoices={data?.visitInvoices ?? []}
-        initialPayments={data?.visitPayments ?? []}
-        initialCredits={data?.visitCredits ?? []}
-        initialCreditBalance={data?.visitCreditBalance ?? 0}
-      />
+          initialUnbilled={data?.unbilledPrescriptions ?? []}
+          initialAdjustments={data?.billingAdjustments ?? []}
+          initialLatestInvoice={data?.latestVisitInvoice ?? null}
+          initialInvoices={data?.visitInvoices ?? []}
+          initialPayments={data?.visitPayments ?? []}
+          initialCredits={data?.visitCredits ?? []}
+          initialCreditBalance={data?.visitCreditBalance ?? 0}
+        />
+      </Suspense>
     </SessionGuard>
   );
 }
