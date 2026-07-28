@@ -44,6 +44,10 @@ interface ChargeExtras {
   chargeCatalog?: { name?: string | null } | null;
 }
 
+interface CurrentTotals {
+  outstandingBalance: number;
+}
+
 const OVERRIDE_REASON_OPTIONS = [
   'Manual override',
   'Insurance negotiated rate',
@@ -60,6 +64,7 @@ const PAYMENT_STATE_STYLES: Record<string, string> = {
   PARTIAL: '!bg-orange-50 !text-orange-700 !border-orange-200',
   UNPAID: '!bg-slate-100 !text-slate-500 !border-slate-200',
   OVERPAID: '!bg-purple-50 !text-purple-700 !border-purple-200',
+  COVERED_BY_DISCOUNT: '!bg-violet-50 !text-violet-700 !border-violet-200',
 };
 
 const PAYMENT_STATE_LABELS: Record<string, string> = {
@@ -67,6 +72,7 @@ const PAYMENT_STATE_LABELS: Record<string, string> = {
   PARTIAL: 'Partially paid',
   UNPAID: 'Unpaid',
   OVERPAID: 'Overpaid',
+  COVERED_BY_DISCOUNT: 'Covered by discount',
 };
 
 function isUnpriced(charge: ChargeRow): boolean {
@@ -121,6 +127,20 @@ export default function ChargeSummaryTab({
     }
   };
 
+  // inside component
+  const [currentTotals, setCurrentTotals] = useState<CurrentTotals | null>(null);
+
+  const refreshCurrentTotals = async () => {
+    const res = await clientFetch(
+      `/api/visit-invoice/current-totals?visitId=${visitId}`,
+      { cache: 'no-store' }
+    );
+    const json = await res.json();
+    if (res.ok && json.totals) {
+      setCurrentTotals(json.totals);
+    }
+  };
+
   const refreshAll = async () => {
     setRefreshing(true);
 
@@ -146,7 +166,7 @@ export default function ChargeSummaryTab({
         onUnbilledChange(unbilledJson.prescriptions);
       }
 
-      await refreshBalances();
+      await Promise.all([refreshBalances(), refreshCurrentTotals()]);
     } finally {
       setRefreshing(false);
     }
@@ -292,6 +312,32 @@ export default function ChargeSummaryTab({
 
     const hasPayment = b.amountPaid > 0.01;
 
+    const wasDiscounted =
+      b.totalAmount > 0.01 && b.effectiveTotal < b.totalAmount - 0.01;
+
+    const discountedUnpaidCharges = Object.values(balances).filter(
+      (bal) =>
+        bal.totalAmount > 0.01 &&
+        bal.effectiveTotal < bal.totalAmount - 0.01 &&
+        bal.amountPaid <= 0.01
+    );
+
+    const coveredByVisitCredit =
+      wasDiscounted &&
+      !hasPayment &&
+      discountedUnpaidCharges.length === 1 &&
+      !!currentTotals &&
+      currentTotals.outstandingBalance <= 0.01;
+
+    if (
+      status === 'PENDING' &&
+      !hasPayment &&
+      wasDiscounted &&
+      (b.remaining <= 0.01 || coveredByVisitCredit)
+    ) {
+      return 'COVERED_BY_DISCOUNT';
+    }
+
     if (!hasPayment) {
       return b.remaining <= 0.01 ? null : 'UNPAID';
     }
@@ -383,6 +429,10 @@ export default function ChargeSummaryTab({
         </button>
       </div>
 
+      <p className="-mt-4 text-xs !text-slate-700">
+        Editing a charge's amount will automatically reverse any discounts applied to it.
+      </p>
+
       {unpricedCount > 0 && (
         <div className="flex items-start gap-2.5 rounded-2xl border !border-amber-200 !bg-amber-50/60 px-5 py-4">
           <AlertTriangle size={18} className="mt-0.5 shrink-0 !text-amber-600" />
@@ -457,15 +507,15 @@ export default function ChargeSummaryTab({
                     </button>
                   </div>
                 ) : (
-                    <button
-                      type="button"
-                      onClick={() => startPricing(p.id)}
-                      className="inline-flex items-center gap-1.5 self-start rounded-lg border !border-amber-300 !bg-white px-3 py-2 text-sm font-medium !text-amber-700 transition hover:!bg-amber-50 sm:self-auto"
-                      disabled={!hasAdmin}
-                    >
-                      <Pencil size={14} />
-                      Set price &amp; bill
-                    </button>
+                  <button
+                    type="button"
+                    onClick={() => startPricing(p.id)}
+                    className="inline-flex items-center gap-1.5 self-start rounded-lg border !border-amber-300 !bg-white px-3 py-2 text-sm font-medium !text-amber-700 transition hover:!bg-amber-50 sm:self-auto"
+                    disabled={!hasAdmin}
+                  >
+                    <Pencil size={14} />
+                    Set price &amp; bill
+                  </button>
                 )}
               </div>
             ))}
@@ -612,15 +662,15 @@ export default function ChargeSummaryTab({
                         <span className="font-semibold !text-slate-900">
                           {formatCurrency(c.totalAmount)}
                         </span>
-                          <button
-                            type="button"
-                            onClick={() => startEdit(c)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700"
-                            disabled={!hasAdmin}
-                          >
-                            <Pencil size={12} />
-                            Edit
-                          </button>
+                        <button
+                          type="button"
+                          onClick={() => startEdit(c)}
+                          className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700"
+                          disabled={!hasAdmin}
+                        >
+                          <Pencil size={12} />
+                          Edit
+                        </button>
                       </div>
                     </div>
                   )}
