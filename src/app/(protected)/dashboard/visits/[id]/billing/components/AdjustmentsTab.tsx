@@ -226,8 +226,9 @@ export default function AdjustmentsTab({
       : 0;
 
   const sharePreview = (charge: ChargeRow): number => {
-    if (combinedRawTotal <= 0) return 0;
-    return previewResolvedTotal * (Number(charge.totalAmount ?? 0) / combinedRawTotal);
+    if (combinedRemaining <= 0) return 0;
+    const chargeRemaining = getRemaining(charge.id, Number(charge.totalAmount ?? 0));
+    return previewResolvedTotal * (chargeRemaining / combinedRemaining);
   };
 
   const exceedsMultiChargeCeiling =
@@ -236,7 +237,41 @@ export default function AdjustmentsTab({
     wouldBeReducing(form.type, form.direction) &&
     previewResolvedTotal > combinedRemaining + 0.01;
 
-  const ceilingExceeded = exceedsSingleChargeCeiling || exceedsMultiChargeCeiling;
+  const exceedsVisitOutstandingCeiling = useMemo(() => {
+    if (!currentTotals || !wouldBeReducing(form.type, form.direction)) {
+      return false;
+    }
+
+    if (form.appliedOn === 'CHARGE') {
+      return (
+        !!selectedSingleCharge &&
+        singleResolvedAmount > currentTotals.outstandingBalance + 0.01
+      );
+    }
+
+    if (form.appliedOn === 'MULTIPLE_CHARGES') {
+      return (
+        selectedMultiCharges.length > 0 &&
+        previewResolvedTotal > currentTotals.outstandingBalance + 0.01
+      );
+    }
+
+    return false;
+  }, [
+    currentTotals,
+    form.type,
+    form.direction,
+    form.appliedOn,
+    selectedSingleCharge,
+    singleResolvedAmount,
+    selectedMultiCharges,
+    previewResolvedTotal,
+  ]);
+
+  const ceilingExceeded =
+    exceedsSingleChargeCeiling ||
+    exceedsMultiChargeCeiling ||
+    exceedsVisitOutstandingCeiling;
 
   const ceilingWarningText = (): string | null => {
     if (exceedsSingleChargeCeiling && selectedSingleCharge) {
@@ -249,6 +284,16 @@ export default function AdjustmentsTab({
       return (
         `This would exceed the combined remaining balance of ` +
         `${formatCurrency(combinedRemaining)} across the selected charges.`
+      );
+    }
+
+    if (exceedsVisitOutstandingCeiling && currentTotals) {
+      return (
+        `This would exceed the visit's actual outstanding balance of ` +
+        `${formatCurrency(currentTotals.outstandingBalance)}. The selected ` +
+        `charge${form.appliedOn === 'MULTIPLE_CHARGES' ? 's show' : ' shows'
+        } more remaining on its own, but existing credit elsewhere on this ` +
+        `visit means less is genuinely still owed.`
       );
     }
 
@@ -861,8 +906,8 @@ export default function AdjustmentsTab({
                 options={reversibleAdjustments.map((a) => ({
                   value: a.id,
                   label: `${a.type.replace(/_/g, ' ')} · ${a.method === 'FLAT'
-                      ? formatCurrency(a.amount)
-                      : `${a.value}%`
+                    ? formatCurrency(a.amount)
+                    : `${a.value}%`
                     } · ${a.reason}`,
                 }))}
               />
