@@ -210,6 +210,18 @@ query GetVisitBillingPage($id: String!, $visitId: ID!) {
     confirmedAt
     organizationId
 
+    visit {
+      id
+      visitType
+      visitDateTime
+      patient {
+        id
+        fullName
+        dateOfBirth
+        gender
+      }
+    }
+
     visitCharge {
       id
       chargeName

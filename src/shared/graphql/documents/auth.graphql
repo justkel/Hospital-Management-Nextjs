@@ -3321,6 +3321,17 @@ query GetVisitCredits($visitId: ID!) {
       id
       chargeName
     }
+    visit {
+      id
+      visitType
+      visitDateTime
+      patient {
+        id
+        fullName
+        dateOfBirth
+        gender
+      }
+    }
     amount
     method
     reason
