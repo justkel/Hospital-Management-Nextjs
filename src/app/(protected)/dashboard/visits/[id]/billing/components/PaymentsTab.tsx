@@ -249,6 +249,16 @@ export default function PaymentsTab({
     [selectedChargeIds, amounts]
   );
 
+  const outstandingMismatch = useMemo(() => {
+    if (!currentTotals) return null;
+    if (totalEntered <= currentTotals.outstandingBalance + 0.01) return null;
+
+    const collectible = currentTotals.outstandingBalance;
+    const creditCreated = totalEntered - collectible;
+
+    return { collectible, creditCreated };
+  }, [currentTotals, totalEntered]);
+
   const exceedsWalletBalance =
     paymentMethod === 'WALLET' &&
     walletBalance !== null &&
@@ -866,7 +876,7 @@ export default function PaymentsTab({
                   const adjusted =
                     balance &&
                     Math.abs(balance.effectiveTotal - balance.totalAmount) >
-                      0.01;
+                    0.01;
 
                   return (
                     <div
@@ -926,6 +936,26 @@ export default function PaymentsTab({
             </span>
           </div>
 
+          {outstandingMismatch && (
+            <div className="flex items-start gap-2.5 rounded-lg border !border-blue-200 !bg-blue-50 px-3.5 py-3">
+              <AlertTriangle size={15} className="mt-0.5 shrink-0 !text-blue-600" />
+              <p className="text-xs !text-blue-800">
+                The selected charges show {formatCurrency(totalEntered)} remaining
+                between them, but existing credit elsewhere on this visit means only{' '}
+                <span className="font-bold">
+                  {formatCurrency(outstandingMismatch.collectible)}
+                </span>{' '}
+                is genuinely still owed. This payment can still be recorded in full —{' '}
+                {formatCurrency(outstandingMismatch.collectible)} will settle the
+                outstanding balance, and the remaining{' '}
+                <span className="font-bold">
+                  {formatCurrency(outstandingMismatch.creditCreated)}
+                </span>{' '}
+                will need to be refunded to the patient as credit.
+              </p>
+            </div>
+          )}
+
           <div>
             <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
               Payment method
@@ -940,24 +970,21 @@ export default function PaymentsTab({
 
           {paymentMethod === 'WALLET' && (
             <div
-              className={`rounded-lg border px-4 py-3 ${
-                exceedsWalletBalance
-                  ? '!border-red-200 !bg-red-50'
-                  : '!border-blue-200 !bg-blue-50'
-              }`}
+              className={`rounded-lg border px-4 py-3 ${exceedsWalletBalance
+                ? '!border-red-200 !bg-red-50'
+                : '!border-blue-200 !bg-blue-50'
+                }`}
             >
               <div className="flex items-center justify-between text-sm">
                 <span
-                  className={`font-medium ${
-                    exceedsWalletBalance ? '!text-red-700' : '!text-blue-700'
-                  }`}
+                  className={`font-medium ${exceedsWalletBalance ? '!text-red-700' : '!text-blue-700'
+                    }`}
                 >
                   Patient wallet balance
                 </span>
                 <span
-                  className={`font-bold ${
-                    exceedsWalletBalance ? '!text-red-800' : '!text-blue-900'
-                  }`}
+                  className={`font-bold ${exceedsWalletBalance ? '!text-red-800' : '!text-blue-900'
+                    }`}
                 >
                   {walletBalance === null
                     ? 'Loading…'
@@ -1088,24 +1115,21 @@ export default function PaymentsTab({
 
           {balanceMethod === 'WALLET' && (
             <div
-              className={`rounded-lg border px-4 py-3 ${
-                balanceExceedsWallet
-                  ? '!border-red-200 !bg-red-50'
-                  : '!border-blue-200 !bg-blue-50'
-              }`}
+              className={`rounded-lg border px-4 py-3 ${balanceExceedsWallet
+                ? '!border-red-200 !bg-red-50'
+                : '!border-blue-200 !bg-blue-50'
+                }`}
             >
               <div className="flex items-center justify-between text-sm">
                 <span
-                  className={`font-medium ${
-                    balanceExceedsWallet ? '!text-red-700' : '!text-blue-700'
-                  }`}
+                  className={`font-medium ${balanceExceedsWallet ? '!text-red-700' : '!text-blue-700'
+                    }`}
                 >
                   Patient wallet balance
                 </span>
                 <span
-                  className={`font-bold ${
-                    balanceExceedsWallet ? '!text-red-800' : '!text-blue-900'
-                  }`}
+                  className={`font-bold ${balanceExceedsWallet ? '!text-red-800' : '!text-blue-900'
+                    }`}
                 >
                   {walletBalance === null
                     ? 'Loading…'
