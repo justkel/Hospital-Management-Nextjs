@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import {
   AlertTriangle,
   Activity,
@@ -16,6 +16,7 @@ import {
 import {
   GetVisitBillingPageQuery,
 } from '@/shared/graphql/generated/graphql';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 import ChargeSummaryTab from './components/ChargeSummaryTab';
 import AdjustmentsTab from './components/AdjustmentsTab';
@@ -45,6 +46,12 @@ function formatCurrency(amount: number | string | null | undefined) {
 }
 
 type TabKey = 'summary' | 'adjustments' | 'invoices' | 'payments' | 'credits';
+
+const TAB_KEYS: TabKey[] = ['summary', 'adjustments', 'invoices', 'payments', 'credits'];
+
+function isTabKey(value: string | null): value is TabKey {
+  return !!value && (TAB_KEYS as string[]).includes(value);
+}
 
 interface TabConfig {
   key: TabKey;
@@ -91,7 +98,26 @@ export default function BillingClient({
     initialCreditBalance
   );
 
-  const [activeTab, setActiveTab] = useState<TabKey>('summary');
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const tabParam = searchParams.get('tab');
+  const activeTab: TabKey = isTabKey(tabParam) ? tabParam : 'summary';
+
+  const setActiveTab = useCallback(
+    (tab: TabKey) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (tab === 'summary') {
+        params.delete('tab');
+      } else {
+        params.set('tab', tab);
+      }
+      const query = params.toString();
+      router.replace(`${pathname}${query ? `?${query}` : ''}`, { scroll: false });
+    },
+    [router, pathname, searchParams]
+  );
 
   const charges = useMemo(
     () => [...summary.lockedCharges, ...summary.editableCharges],
