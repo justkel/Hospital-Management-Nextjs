@@ -44,9 +44,7 @@ function wouldBeReducing(type: string, direction?: string): boolean {
 }
 
 interface FormState {
-  appliedOn: 'CHARGE' | 'MULTIPLE_CHARGES';
   visitChargeId?: string;
-  visitChargeIds?: string[];
   type: string;
   method: 'PERCENTAGE' | 'FLAT';
   value?: string;
@@ -58,7 +56,6 @@ interface FormState {
 }
 
 const EMPTY_FORM: FormState = {
-  appliedOn: 'CHARGE',
   type: 'DISCOUNT',
   method: 'FLAT',
   reason: '',
@@ -167,133 +164,58 @@ export default function AdjustmentsTab({
     [charges, balances]
   );
 
-  const selectedSingleCharge = useMemo(
+  const selectedCharge = useMemo(
     () => payableCharges.find((c) => c.id === form.visitChargeId),
     [payableCharges, form.visitChargeId]
   );
 
-  const singleChargeRemaining = selectedSingleCharge
-    ? getRemaining(selectedSingleCharge.id, Number(selectedSingleCharge.totalAmount ?? 0))
+  const chargeRemaining = selectedCharge
+    ? getRemaining(selectedCharge.id, Number(selectedCharge.totalAmount ?? 0))
     : 0;
 
-  const singleResolvedAmount = useMemo(() => {
-    if (form.appliedOn !== 'CHARGE' || !selectedSingleCharge) {
+  const resolvedAmount = useMemo(() => {
+    if (!selectedCharge) {
       return 0;
     }
 
-    const rawTotal = Number(selectedSingleCharge.totalAmount ?? 0);
+    const rawTotal = Number(selectedCharge.totalAmount ?? 0);
 
     return form.method === AdjustmentMethod.Flat
       ? Number(form.amount || 0)
       : (Number(form.value || 0) / 100) * rawTotal;
-  }, [form.appliedOn, form.method, form.amount, form.value, selectedSingleCharge]);
+  }, [form.method, form.amount, form.value, selectedCharge]);
 
-  const exceedsSingleChargeCeiling =
-    form.appliedOn === 'CHARGE' &&
-    !!selectedSingleCharge &&
+  const exceedsChargeCeiling =
+    !!selectedCharge &&
     wouldBeReducing(form.type, form.direction) &&
-    singleResolvedAmount > singleChargeRemaining + 0.01;
-
-  const selectedMultiCharges = useMemo(
-    () =>
-      payableCharges.filter((c) => form.visitChargeIds?.includes(c.id)),
-    [payableCharges, form.visitChargeIds]
-  );
-
-  const combinedRemaining = useMemo(
-    () =>
-      selectedMultiCharges.reduce(
-        (sum, c) => sum + getRemaining(c.id, Number(c.totalAmount ?? 0)),
-        0
-      ),
-    [selectedMultiCharges, balances]
-  );
-
-  const combinedRawTotal = useMemo(
-    () =>
-      selectedMultiCharges.reduce(
-        (sum, c) => sum + Number(c.totalAmount ?? 0),
-        0
-      ),
-    [selectedMultiCharges]
-  );
-
-  const previewResolvedTotal =
-    combinedRawTotal > 0
-      ? form.method === AdjustmentMethod.Flat
-        ? Number(form.amount || 0)
-        : (Number(form.value || 0) / 100) * combinedRawTotal
-      : 0;
-
-  const sharePreview = (charge: ChargeRow): number => {
-    if (combinedRemaining <= 0) return 0;
-    const chargeRemaining = getRemaining(charge.id, Number(charge.totalAmount ?? 0));
-    return previewResolvedTotal * (chargeRemaining / combinedRemaining);
-  };
-
-  const exceedsMultiChargeCeiling =
-    form.appliedOn === 'MULTIPLE_CHARGES' &&
-    selectedMultiCharges.length > 0 &&
-    wouldBeReducing(form.type, form.direction) &&
-    previewResolvedTotal > combinedRemaining + 0.01;
+    resolvedAmount > chargeRemaining + 0.01;
 
   const exceedsVisitOutstandingCeiling = useMemo(() => {
     if (!currentTotals || !wouldBeReducing(form.type, form.direction)) {
       return false;
     }
 
-    if (form.appliedOn === 'CHARGE') {
-      return (
-        !!selectedSingleCharge &&
-        singleResolvedAmount > currentTotals.outstandingBalance + 0.01
-      );
-    }
+    return (
+      !!selectedCharge &&
+      resolvedAmount > currentTotals.outstandingBalance + 0.01
+    );
+  }, [currentTotals, form.type, form.direction, selectedCharge, resolvedAmount]);
 
-    if (form.appliedOn === 'MULTIPLE_CHARGES') {
-      return (
-        selectedMultiCharges.length > 0 &&
-        previewResolvedTotal > currentTotals.outstandingBalance + 0.01
-      );
-    }
-
-    return false;
-  }, [
-    currentTotals,
-    form.type,
-    form.direction,
-    form.appliedOn,
-    selectedSingleCharge,
-    singleResolvedAmount,
-    selectedMultiCharges,
-    previewResolvedTotal,
-  ]);
-
-  const ceilingExceeded =
-    exceedsSingleChargeCeiling ||
-    exceedsMultiChargeCeiling ||
-    exceedsVisitOutstandingCeiling;
+  const ceilingExceeded = exceedsChargeCeiling || exceedsVisitOutstandingCeiling;
 
   const ceilingWarningText = (): string | null => {
-    if (exceedsSingleChargeCeiling && selectedSingleCharge) {
+    if (exceedsChargeCeiling && selectedCharge) {
       return `This would exceed the remaining balance of ${formatCurrency(
-        singleChargeRemaining
-      )} on "${selectedSingleCharge.chargeName}".`;
-    }
-
-    if (exceedsMultiChargeCeiling) {
-      return (
-        `This would exceed the combined remaining balance of ` +
-        `${formatCurrency(combinedRemaining)} across the selected charges.`
-      );
+        chargeRemaining
+      )} on "${selectedCharge.chargeName}".`;
     }
 
     if (exceedsVisitOutstandingCeiling && currentTotals) {
       return (
         `This would exceed the visit's actual outstanding balance of ` +
         `${formatCurrency(currentTotals.outstandingBalance)}. The selected ` +
-        `charge${form.appliedOn === 'MULTIPLE_CHARGES' ? 's show' : ' shows'
-        } more remaining on its own, but existing credit elsewhere on this ` +
-        `visit means less is genuinely still owed.`
+        `charge shows more remaining on its own, but existing credit ` +
+        `elsewhere on this visit means less is genuinely still owed.`
       );
     }
 
@@ -399,21 +321,8 @@ export default function AdjustmentsTab({
       return;
     }
 
-    if (
-      form.type !== 'ADJUSTMENT_REVERSAL' &&
-      form.appliedOn === 'CHARGE' &&
-      !form.visitChargeId
-    ) {
+    if (form.type !== 'ADJUSTMENT_REVERSAL' && !form.visitChargeId) {
       message.error('Select which charge this applies to');
-      return;
-    }
-
-    if (
-      form.type !== 'ADJUSTMENT_REVERSAL' &&
-      form.appliedOn === 'MULTIPLE_CHARGES' &&
-      (!form.visitChargeIds || form.visitChargeIds.length === 0)
-    ) {
-      message.error('Select at least one charge');
       return;
     }
 
@@ -426,14 +335,11 @@ export default function AdjustmentsTab({
 
     const body: Record<string, unknown> = {
       visitId,
-      appliedOn: form.appliedOn,
+      appliedOn: 'CHARGE',
       type: form.type,
       reason: form.reason.trim(),
       notes: form.notes?.trim() || undefined,
-      visitChargeId:
-        form.appliedOn === 'CHARGE' ? form.visitChargeId : undefined,
-      visitChargeIds:
-        form.appliedOn === 'MULTIPLE_CHARGES' ? form.visitChargeIds : undefined,
+      visitChargeId: form.visitChargeId,
     };
 
     if (form.type === AdjustmentType.AdjustmentReversal) {
@@ -713,7 +619,6 @@ export default function AdjustmentsTab({
         okText="Submit"
         confirmLoading={submitting}
         okButtonProps={{ disabled: ceilingExceeded }}
-        width={form.appliedOn === 'MULTIPLE_CHARGES' ? 640 : undefined}
       >
         <div className="space-y-4 py-2">
           {form.type !== AdjustmentType.AdjustmentReversal && (
@@ -732,107 +637,28 @@ export default function AdjustmentsTab({
 
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
-                  Applied on
+                  Charge
                 </label>
-                <Radio.Group
-                  value={form.appliedOn}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, appliedOn: e.target.value }))
+                <Select
+                  className="w-full"
+                  placeholder="Select a charge"
+                  value={form.visitChargeId}
+                  onChange={(v) =>
+                    setForm((f) => ({ ...f, visitChargeId: v }))
                   }
-                >
-                  <Radio.Button value="CHARGE">Specific charge</Radio.Button>
-                  <Radio.Button value="MULTIPLE_CHARGES">
-                    Multiple charges
-                  </Radio.Button>
-                </Radio.Group>
+                  options={payableCharges.map((c) => ({
+                    value: c.id,
+                    label: `${c.chargeName} — ${formatCurrency(
+                      getRemaining(c.id, Number(c.totalAmount ?? 0))
+                    )} remaining`,
+                  }))}
+                  notFoundContent={
+                    payableCharges.length === 0
+                      ? 'All charges on this visit are fully paid'
+                      : undefined
+                  }
+                />
               </div>
-
-              {form.appliedOn === 'CHARGE' && (
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
-                    Charge
-                  </label>
-                  <Select
-                    className="w-full"
-                    placeholder="Select a charge"
-                    value={form.visitChargeId}
-                    onChange={(v) =>
-                      setForm((f) => ({ ...f, visitChargeId: v }))
-                    }
-                    options={payableCharges.map((c) => ({
-                      value: c.id,
-                      label: `${c.chargeName} — ${formatCurrency(
-                        getRemaining(c.id, Number(c.totalAmount ?? 0))
-                      )} remaining`,
-                    }))}
-                    notFoundContent={
-                      payableCharges.length === 0
-                        ? 'All charges on this visit are fully paid'
-                        : undefined
-                    }
-                  />
-                </div>
-              )}
-
-              {form.appliedOn === 'MULTIPLE_CHARGES' && (
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
-                    Charges
-                  </label>
-                  <Select
-                    mode="multiple"
-                    className="w-full"
-                    placeholder="Select two or more charges"
-                    value={form.visitChargeIds}
-                    onChange={(v) =>
-                      setForm((f) => ({ ...f, visitChargeIds: v }))
-                    }
-                    options={payableCharges.map((c) => ({
-                      value: c.id,
-                      label: `${c.chargeName} — ${formatCurrency(
-                        getRemaining(c.id, Number(c.totalAmount ?? 0))
-                      )} remaining`,
-                    }))}
-                    notFoundContent={
-                      payableCharges.length === 0
-                        ? 'All charges on this visit are fully paid'
-                        : undefined
-                    }
-                  />
-
-                  {selectedMultiCharges.length > 0 && (
-                    <div className="mt-2.5 rounded-lg border !border-slate-200 !bg-slate-50 p-3">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold !text-slate-600">
-                          Combined remaining
-                        </span>
-                        <span className="font-bold !text-slate-800">
-                          {formatCurrency(combinedRemaining)}
-                        </span>
-                      </div>
-
-                      {previewResolvedTotal > 0 && (
-                        <div className="mt-2 space-y-1 border-t !border-slate-200 pt-2">
-                          <p className="text-[11px] font-medium uppercase !text-slate-400">
-                            Preview — how this splits across the selected charges
-                          </p>
-                          {selectedMultiCharges.map((c) => (
-                            <div
-                              key={c.id}
-                              className="flex items-center justify-between text-xs !text-slate-600"
-                            >
-                              <span>{c.chargeName}</span>
-                              <span className="font-medium !text-blue-700">
-                                {formatCurrency(sharePreview(c))}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
 
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
@@ -852,8 +678,7 @@ export default function AdjustmentsTab({
               {form.method === AdjustmentMethod.Flat ? (
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
-                    Amount{' '}
-                    {form.appliedOn === 'MULTIPLE_CHARGES' && '(combined, across all selected charges)'}
+                    Amount
                   </label>
                   <Input
                     type="number"
@@ -906,8 +731,8 @@ export default function AdjustmentsTab({
                 options={reversibleAdjustments.map((a) => ({
                   value: a.id,
                   label: `${a.type.replace(/_/g, ' ')} · ${a.method === 'FLAT'
-                    ? formatCurrency(a.amount)
-                    : `${a.value}%`
+                      ? formatCurrency(a.amount)
+                      : `${a.value}%`
                     } · ${a.reason}`,
                 }))}
               />
