@@ -1,7 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from 'next/link';
-import { VisitStatus } from '@/shared/graphql/generated/graphql';
+import { GetVisitByIdQuery } from '@/shared/graphql/generated/graphql';
 import { User, Stethoscope } from 'lucide-react';
+
+type Visit = GetVisitByIdQuery['visit'];
 
 const STATUS_DARK: Record<string, string> = {
   OPEN:       'bg-[#F0FAF5] text-[#1D9E75] border-[#1D9E75]/30',
@@ -20,7 +21,7 @@ function DarkBadge({ label, styles }: { label: string; styles: string }) {
   );
 }
 
-export default function VisitHeaderCard({ visit }: any) {
+export default function VisitHeaderCard({ visit }: { visit: Visit }) {
   const patient  = visit.patient;
   const isClosed = !!visit.closedAt;
   const initial  = patient?.fullName?.charAt(0)?.toUpperCase() ?? '?';

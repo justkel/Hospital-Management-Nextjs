@@ -1,6 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import CollapsibleSection from './CollapsibleSection';
 import { FileText } from 'lucide-react';
+import { GetVisitByIdQuery } from '@/shared/graphql/generated/graphql';
+
+type Visit = GetVisitByIdQuery['visit'];
 
 function formatDate(date?: string | null) {
   if (!date) return '—';
@@ -18,7 +20,7 @@ const STATUS_STYLES: Record<string, string> = {
   CLOSED:     'bg-[#F7F7F5] text-[#888780] border-[#E8E6E0]',
 };
 
-export default function VisitSummarySection({ visit }: any) {
+export default function VisitSummarySection({ visit }: { visit: Visit }) {
   const isClosed = !!visit.closedAt;
 
   return (

@@ -61,28 +61,28 @@ const TYPE_OPTIONS: {
   pill: string;
   ring: string;
 }[] = [
-  {
-    value: TheatreAvailabilityType.Regular,
-    label: 'Regular',
-    icon: Star,
-    pill: 'bg-cyan-50 border-cyan-300 text-cyan-700',
-    ring: 'ring-cyan-400',
-  },
-  {
-    value: TheatreAvailabilityType.Emergency,
-    label: 'Emergency',
-    icon: Flame,
-    pill: 'bg-rose-50 border-rose-300 text-rose-700',
-    ring: 'ring-rose-400',
-  },
-  {
-    value: TheatreAvailabilityType.SpecialSession,
-    label: 'Special',
-    icon: Zap,
-    pill: 'bg-violet-50 border-violet-300 text-violet-700',
-    ring: 'ring-violet-400',
-  },
-];
+    {
+      value: TheatreAvailabilityType.Regular,
+      label: 'Regular',
+      icon: Star,
+      pill: 'bg-cyan-50 border-cyan-300 text-cyan-700',
+      ring: 'ring-cyan-400',
+    },
+    {
+      value: TheatreAvailabilityType.Emergency,
+      label: 'Emergency',
+      icon: Flame,
+      pill: 'bg-rose-50 border-rose-300 text-rose-700',
+      ring: 'ring-rose-400',
+    },
+    {
+      value: TheatreAvailabilityType.SpecialSession,
+      label: 'Special',
+      icon: Zap,
+      pill: 'bg-violet-50 border-violet-300 text-violet-700',
+      ring: 'ring-violet-400',
+    },
+  ];
 
 function uid() {
   return Math.random().toString(36).slice(2, 10);
@@ -191,8 +191,11 @@ export default function TheatreAvailabilitySyncForm({
       setTimeout(() => {
         onSuccess();
       }, 800);
-    } catch (err: any) {
-      setError(err.message ?? 'Something went wrong.');
+    } catch (err) {
+      err instanceof Error
+        ? err.message
+        : 'Something went wrong';
+
     } finally {
       setSaving(false);
     }
@@ -210,35 +213,31 @@ export default function TheatreAvailabilitySyncForm({
               <button
                 key={d}
                 onClick={() => setSelectedDay(d)}
-                className={`group relative overflow-hidden rounded-2xl border px-4 py-3.5 text-left transition ${
-                  active
+                className={`group relative overflow-hidden rounded-2xl border px-4 py-3.5 text-left transition ${active
                     ? 'border-violet-300 bg-violet-600 shadow-lg shadow-violet-200'
                     : 'border-slate-200 bg-white hover:border-violet-200 hover:bg-violet-50/40'
-                }`}
+                  }`}
               >
                 <p
-                  className={`text-[10px] font-black uppercase tracking-widest ${
-                    active ? 'text-violet-200' : 'text-slate-400'
-                  }`}
+                  className={`text-[10px] font-black uppercase tracking-widest ${active ? 'text-violet-200' : 'text-slate-400'
+                    }`}
                 >
                   {DAY_SHORT[d]}
                 </p>
 
                 <p
-                  className={`mt-0.5 text-xs font-bold ${
-                    active ? 'text-white' : 'text-slate-700'
-                  }`}
+                  className={`mt-0.5 text-xs font-bold ${active ? 'text-white' : 'text-slate-700'
+                    }`}
                 >
                   {DAY_LABELS[d].slice(0, 3)}
                 </p>
 
                 {count > 0 && (
                   <span
-                    className={`absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-black ${
-                      active
+                    className={`absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-black ${active
                         ? 'bg-white/20 text-white'
                         : 'bg-violet-100 text-violet-700'
-                    }`}
+                      }`}
                   >
                     {count}
                   </span>
@@ -404,11 +403,10 @@ function SlotRow({
               <button
                 key={opt.value}
                 onClick={() => onChange({ type: opt.value })}
-                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide transition ${
-                  selected
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide transition ${selected
                     ? `${opt.pill} ring-2 ${opt.ring}`
                     : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300'
-                }`}
+                  }`}
               >
                 <OIcon size={9} />
                 {opt.label}

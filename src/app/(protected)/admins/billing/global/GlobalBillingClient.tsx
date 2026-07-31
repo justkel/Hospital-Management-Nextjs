@@ -1,7 +1,5 @@
 'use client';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { useState } from 'react';
 import { clientFetch } from '@/lib/clientFetch';
 import {
@@ -41,8 +39,8 @@ export default function GlobalBillingClient({ categories }: Props) {
       if (!res.ok) throw new Error(json.error || 'Clone failed');
 
       setFeedback('Category successfully cloned to your organization.');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
       setLoadingClone(false);
     }

@@ -7,7 +7,7 @@ import { FindAllLabRequestsQuery, LabPriority } from '@/shared/graphql/generated
 import CatalogDropdown from './CatalogDropdown';
 import SelectedCatalogSummary from './SelectedCatalogSummary';
 import PrioritySelector from './PrioritySelector';
-import DuplicateConfirmationModal from './DuplicateConfirmationModal';
+import DuplicateConfirmationModal, { DuplicateEntry } from './DuplicateConfirmationModal';
 import { ChargeCatalogOption } from '@/hooks/billing/useBilling';
 import RequestFeedback from './RequestFeedback';
 
@@ -15,6 +15,11 @@ const { useBreakpoint } = Grid;
 
 type LabRequestListItem =
     FindAllLabRequestsQuery['labRequests']['items'][number];
+
+type UpdateLabRequestOverrides = {
+    confirmDuplicate?: boolean;
+    duplicateReason?: string;
+};
 
 export default function UpdateLabRequestDrawer({
     open,
@@ -45,9 +50,9 @@ export default function UpdateLabRequestDrawer({
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    const [duplicates, setDuplicates] = useState<any[]>([]);
+    const [duplicates, setDuplicates] = useState<DuplicateEntry[]>([]);
     const [showDuplicateModal, setShowDuplicateModal] = useState(false);
-    const [previousRequests, setPreviousRequests] = useState<any[]>([]);
+    const [previousRequests, setPreviousRequests] = useState<unknown[]>([]);
 
     const feedbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -104,7 +109,7 @@ export default function UpdateLabRequestDrawer({
         }, 5000);
     };
 
-    const submitRequest = async (payload?: any) => {
+    const submitRequest = async (payload?: UpdateLabRequestOverrides) => {
         const res = await clientFetch('/api/lab-request/update', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -134,7 +139,7 @@ export default function UpdateLabRequestDrawer({
         await executeUpdate();
     };
 
-    const executeUpdate = async (payload?: any) => {
+    const executeUpdate = async (payload?: UpdateLabRequestOverrides) => {
         try {
             setLoading(true);
             setError(null);

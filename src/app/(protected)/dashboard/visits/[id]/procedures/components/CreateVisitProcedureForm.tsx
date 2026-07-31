@@ -65,7 +65,10 @@ export default function CreateVisitProcedureForm({
     }
   };
 
-  const setCustomField = (field: any, value: string) => {
+  const setCustomField = (
+    field: 'customProcedureName' | 'customProcedureCode',
+    value: string,
+  ) => {
     const updated = {
       ...form,
       [field]: value || undefined,
@@ -169,7 +172,7 @@ export default function CreateVisitProcedureForm({
                   }`}
               >
                 <option value="">Select a procedure catalog…</option>
-                {catalogs?.map((c: any) => (
+                {catalogs?.map((c: ChargeCatalogOption) => (
                   <option key={c.id} value={c.id}>
                     {`${c.name} — ₦${c.unitPrice.toLocaleString()}`}
                   </option>

@@ -1,16 +1,17 @@
 'use client';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
+type NewCategory = {
+  code: string;
+  name: string;
+  description: string;
+};
+
 interface Props {
-  newCategory: {
-    code: string;
-    name: string;
-    description: string;
-  };
-  setNewCategory: React.Dispatch<React.SetStateAction<any>>;
+  newCategory: NewCategory
+  setNewCategory: React.Dispatch<React.SetStateAction<NewCategory>>;
   createCategory: () => Promise<void> | void;
 }
 
@@ -114,7 +115,7 @@ export default function CreateCategoryCard({
                 placeholder="Code *"
                 value={newCategory.code}
                 onChange={(e) => {
-                  setNewCategory((prev: any) => ({
+                  setNewCategory((prev) => ({
                     ...prev,
                     code: e.target.value,
                   }));
@@ -136,7 +137,7 @@ export default function CreateCategoryCard({
                 placeholder="Name *"
                 value={newCategory.name}
                 onChange={(e) => {
-                  setNewCategory((prev: any) => ({
+                  setNewCategory((prev) => ({
                     ...prev,
                     name: e.target.value,
                   }));
@@ -157,7 +158,7 @@ export default function CreateCategoryCard({
               placeholder="Description (optional)"
               value={newCategory.description}
               onChange={(e) => {
-                setNewCategory((prev: any) => ({
+                setNewCategory((prev) => ({
                   ...prev,
                   description: e.target.value,
                 }));

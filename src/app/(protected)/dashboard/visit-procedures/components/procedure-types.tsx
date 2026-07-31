@@ -1,3 +1,5 @@
+import { LucideIcon } from "lucide-react";
+
 export const STATUS_CONFIG: Record<
     string,
     {
@@ -161,7 +163,7 @@ export function DetailRow({
     label,
     value,
 }: {
-    icon: any;
+    icon: LucideIcon;
     label: string;
     value?: string | number | null;
 }) {

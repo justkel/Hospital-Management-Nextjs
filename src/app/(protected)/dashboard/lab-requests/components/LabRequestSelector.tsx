@@ -8,8 +8,13 @@ import SelectedCatalogSummary from './SelectedCatalogSummary';
 import PrioritySelector from './PrioritySelector';
 import { LabRequestSelectorProps } from './types';
 import { ChargeCatalogOption } from '@/hooks/billing/useBilling';
-import DuplicateConfirmationModal from './DuplicateConfirmationModal';
+import DuplicateConfirmationModal, { DuplicateEntry } from './DuplicateConfirmationModal';
 import RequestFeedback from './RequestFeedback';
+
+type CreateLabRequestOverrides = {
+  confirmDuplicate?: boolean;
+  duplicateReason?: string;
+};
 
 export default function LabRequestSelector({
   catalogs,
@@ -28,10 +33,10 @@ export default function LabRequestSelector({
     LabPriority.Routine
   );
 
-  const [duplicates, setDuplicates] = useState<any[]>([]);
+  const [duplicates, setDuplicates] = useState<DuplicateEntry[]>([]);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
 
-  const [previousRequests, setPreviousRequests] = useState<any[]>([]);
+  const [previousRequests, setPreviousRequests] = useState<unknown[]>([]);
 
   const feedbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -90,7 +95,7 @@ export default function LabRequestSelector({
     };
   }, []);
 
-  const submitRequest = async (payload?: any) => {
+  const submitRequest = async (payload?: CreateLabRequestOverrides) => {
     const res = await clientFetch('/api/lab-request/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

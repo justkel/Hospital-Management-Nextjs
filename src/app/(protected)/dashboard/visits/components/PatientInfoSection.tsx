@@ -1,8 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import CollapsibleSection from './CollapsibleSection';
 import { User } from 'lucide-react';
+import { GetVisitByIdQuery } from '@/shared/graphql/generated/graphql';
+import type { ReactNode } from 'react';
 
-function Info({ label, value }: any) {
+type Patient = NonNullable<GetVisitByIdQuery['visit']>['patient'];
+
+function Info({ label, value }: { label: string; value?: ReactNode }) {
   return (
     <div>
       <p className="mb-0.5 text-[10px] font-medium uppercase tracking-[0.07em] text-[#B4B2A9]">{label}</p>
@@ -11,7 +14,7 @@ function Info({ label, value }: any) {
   );
 }
 
-export default function PatientInfoSection({ patient }: any) {
+export default function PatientInfoSection({ patient }: { patient?: Patient }) {
   return (
     <CollapsibleSection
       title="Patient information"

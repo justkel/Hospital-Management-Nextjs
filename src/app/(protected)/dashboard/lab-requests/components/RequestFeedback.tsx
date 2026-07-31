@@ -1,7 +1,7 @@
 'use client';
 
 type RequestFeedbackProps = {
-  previousRequests?: any[];
+  previousRequests?: unknown[];
   error?: string | null;
   success?: string | null;
 };

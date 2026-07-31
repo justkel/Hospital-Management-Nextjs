@@ -23,6 +23,9 @@ type LabRequestType =
 type LabResultsType =
   LabResultsByLabRequestQuery['labResultsByLabRequest'];  
 
+type LabResultItem = LabResultsType[number];
+type LabResultLineItem = NonNullable<LabResultItem['items']>[number];
+
 export default function generatePrintHTML(labRequest: LabRequestType, labResults: LabResultsType) {
   const patient = labRequest.visit?.patient;
   const org = labRequest?.organization;
@@ -199,7 +202,7 @@ export default function generatePrintHTML(labRequest: LabRequestType, labResults
 
     ${labResults
       .map(
-        (res: any) => `
+        (res: LabResultItem) => `
         <div class="test-title">${res.testName}</div>
 
         <table>
@@ -213,9 +216,8 @@ export default function generatePrintHTML(labRequest: LabRequestType, labResults
             </tr>
           </thead>
           <tbody>
-            ${res.items
-              .map(
-                (item: any) => `
+            ${res.items?.map(
+                (item: LabResultLineItem) => `
                 <tr>
                   <td>${item.parameter}</td>
                   <td><strong>${item.value ?? '-'}</strong></td>

@@ -55,8 +55,7 @@ export default function SystemInformation({ staffId }: Props) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function Info({ label, value }: { label: string; value?: any }) {
+function Info({ label, value }: { label: string; value?: string | number }) {
   return (
     <div className="text-sm mb-3">
       <p className="text-gray-500">{label}</p>

@@ -252,8 +252,11 @@ export default function TheatreDayScheduleWorkspace({
 
             setSchedule(json);
             setDayString(nextDay);
-        } catch (err: any) {
-            setError(err.message ?? 'Something went wrong.');
+        } catch (err) {
+            err instanceof Error
+                ? err.message
+                : 'Something went wrong';
+
         } finally {
             setLoading(false);
         }

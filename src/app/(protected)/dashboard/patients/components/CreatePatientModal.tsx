@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useRef } from 'react';
+import type { ReactNode } from 'react';
 import {
     BloodGroup,
     CreatePatientInput,
@@ -19,6 +19,8 @@ const NIGERIAN_STATES = [
 
 type ValidationErrors = Partial<Record<keyof CreatePatientInput, string>>;
 
+type AddressInput = NonNullable<CreatePatientInput['addresses']>[number];
+
 export default function CreatePatientModal({
     onClose,
     onCreate,
@@ -26,7 +28,7 @@ export default function CreatePatientModal({
     onClose: () => void;
     onCreate: (
         data: CreatePatientInput
-    ) => Promise<{ warning?: string; matches?: any[] }>;
+    ) => Promise<{ warning?: string; matches?: unknown[] }>;
 }) {
     const [form, setForm] = useState<CreatePatientInput>({
         gender: '',
@@ -54,11 +56,13 @@ export default function CreatePatientModal({
         setForm(prev => ({ ...prev, [key]: value }));
     }
 
-    function updateAddress(partial: any) {
+    function updateAddress(partial: Partial<AddressInput>) {
         if (isLocked) return;
         setForm(prev => ({
             ...prev,
-            addresses: [{ ...(prev.addresses?.[0] ?? {}), ...partial }],
+            addresses: [
+                { ...(prev.addresses?.[0] ?? {}), ...partial } as AddressInput,
+            ],
         }));
     }
 
@@ -226,7 +230,7 @@ export default function CreatePatientModal({
                     <Section title="Identity">
                         <Input disabled={isLocked} label="Full Name" onChange={v => update('fullName', v)} />
                         <Input disabled={isLocked} label="Date of Birth" type="date" onChange={v => update('dateOfBirth', v)} />
-                        <Select disabled={isLocked} label="Gender" options={['MALE', 'FEMALE']} onChange={v => update('gender', v as any)} />
+                        <Select disabled={isLocked} label="Gender" options={['MALE', 'FEMALE']} onChange={v => update('gender', v as string)} />
                     </Section>
 
                     <Section title="Contact">
@@ -287,7 +291,7 @@ export default function CreatePatientModal({
     );
 }
 
-function Section({ title, children }: { title: string; children: any }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
     return (
         <section className="space-y-4">
             <h3 className="text-lg font-semibold">{title}</h3>

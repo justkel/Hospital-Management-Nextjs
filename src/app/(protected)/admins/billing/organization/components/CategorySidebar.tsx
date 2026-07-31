@@ -1,32 +1,44 @@
 'use client';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo, useState } from 'react';
 import { Pencil, Search } from 'lucide-react';
+import {
+  GetOrganizationBillingCategoriesQuery,
+} from '@/shared/graphql/generated/graphql';
+
+type Category =
+  GetOrganizationBillingCategoriesQuery['organizationBillingCategories'][number];
+
+interface CategorySidebarProps {
+  categories: Category[];
+  selectedId: string | null;
+  setSelectedId: React.Dispatch<React.SetStateAction<string | null>>;
+  startEdit: (category: Category) => void;
+}
 
 export default function CategorySidebar({
   categories,
   selectedId,
   setSelectedId,
   startEdit,
-}: any) {
+}: CategorySidebarProps) {
   const [search, setSearch] = useState('');
 
   const filteredCategories = useMemo(() => {
     return [...categories]
       .sort((a, b) =>
-        a.code.localeCompare(b.code, undefined, { sensitivity: 'base' })
+        a.code.localeCompare(b.code, undefined, {
+          sensitivity: 'base',
+        })
       )
-      .filter(cat =>
+      .filter((cat) =>
         cat.code.toLowerCase().includes(search.toLowerCase())
       );
   }, [categories, search]);
 
   return (
     <div className="bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col h-[75vh]">
-
       <div className="sticky top-0 bg-white z-10 p-5 border-b border-gray-100 rounded-t-3xl space-y-4">
-
         <h3 className="text-sm font-semibold text-gray-600 tracking-wide">
           Categories
         </h3>
@@ -39,21 +51,20 @@ export default function CategorySidebar({
           <input
             placeholder="Search by code..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"
           />
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-
         {filteredCategories.length === 0 && (
           <div className="text-sm text-gray-400 px-2 py-10 text-center">
             No matching categories found.
           </div>
         )}
 
-        {filteredCategories.map((cat: any) => (
+        {filteredCategories.map((cat) => (
           <div
             key={cat.id}
             className="flex items-center gap-2 group rounded-2xl transition"

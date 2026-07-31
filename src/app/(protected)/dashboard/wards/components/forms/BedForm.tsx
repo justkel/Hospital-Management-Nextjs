@@ -38,6 +38,26 @@ type BedDraft = {
     isActive: boolean;
 };
 
+type InitialBed = {
+    id: string;
+    name: string;
+    class: BedClass;
+    status?: BedStatus;
+    isActive: boolean;
+};
+
+type BedFormProps = {
+    wardId: string;
+    onSuccess?: () => void;
+    mode?: 'create' | 'edit';
+    initial?: InitialBed;
+};
+
+type BedMutationResponse = {
+    error?: string;
+    message?: string;
+};
+
 const STATUS_STYLES: Record<string, string> = {
     AVAILABLE:
         'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -69,7 +89,7 @@ export default function BedForm({
     onSuccess,
     mode = 'create',
     initial,
-}: any) {
+}: BedFormProps) {
     const isEdit = mode === 'edit';
 
     const [beds, setBeds] = useState<BedDraft[]>(
@@ -105,16 +125,18 @@ export default function BedForm({
         [beds],
     );
 
-    function update(
+    function update<K extends keyof BedDraft>(
         index: number,
-        key: keyof BedDraft,
-        value: any,
+        key: K,
+        value: BedDraft[K],
     ) {
-        const copy = [...beds];
-
-        (copy[index] as any)[key] = value;
-
-        setBeds(copy);
+        setBeds(prev =>
+            prev.map((bed, i) =>
+                i === index
+                    ? { ...bed, [key]: value }
+                    : bed,
+            ),
+        );
     }
 
     function addRow() {
@@ -179,7 +201,7 @@ export default function BedForm({
                             body: JSON.stringify(payload),
                         });
 
-                        let json: any = null;
+                        let json: BedMutationResponse | null = null;
 
                         try {
                             json = await res.json();
@@ -193,12 +215,13 @@ export default function BedForm({
                                 json?.message ||
                                 'Operation failed';
                         }
-                    } catch (err: any) {
+                    } catch (err) {
                         failed++;
 
                         lastError =
-                            err?.message ||
-                            'Network error occurred';
+                            err instanceof Error
+                                ? err.message
+                                : 'Network error occurred';
                     }
                 }),
             );

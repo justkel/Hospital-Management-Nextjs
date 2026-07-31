@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {
   OrganizationChargeCatalogsQuery,
+  UpdateChargeCatalogInput,
 } from '@/shared/graphql/generated/graphql';
 
 import { Edit2, ToggleLeft, ToggleRight } from 'lucide-react';
@@ -10,10 +9,12 @@ import { useState } from 'react';
 type PaginationResult =
   OrganizationChargeCatalogsQuery['organizationChargeCatalogs'];
 
+type ChargeCatalogItem = PaginationResult['items'][number];
+
 interface Props {
   data: PaginationResult;
-  onEdit: (charge: any) => void;
-  onToggleActive?: (charge: any) => void;
+  onEdit: (charge: UpdateChargeCatalogInput) => void;
+  onToggleActive?: (charge: ChargeCatalogItem) => void;
 }
 
 export default function ChargeCatalogList({
@@ -112,8 +113,6 @@ export default function ChargeCatalogList({
                       description: charge.description ?? '',
                       currency: charge.currency,
                       isActive: charge.isActive,
-                      categoryId: charge.category?.id,
-                      catalogueItemId: charge.catalogueItem?.id,
                     })}
                     className={`
                       inline-flex items-center gap-1 text-sm font-medium
@@ -201,8 +200,6 @@ export default function ChargeCatalogList({
                     description: charge.description ?? '',
                     currency: charge.currency,
                     isActive: charge.isActive,
-                    categoryId: charge.category?.id,
-                    catalogueItemId: charge.catalogueItem?.id,
                   })
                 }
                 className="flex items-center gap-1 text-blue-600 text-sm font-medium"

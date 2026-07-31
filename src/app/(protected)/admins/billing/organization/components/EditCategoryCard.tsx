@@ -1,14 +1,29 @@
 'use client';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Pencil } from 'lucide-react';
+
+type EditCategory = {
+  categoryId: string;
+  code: string;
+  name: string;
+  description: string;
+};
+
+interface Props {
+  editCategory: EditCategory;
+  setEditCategory: React.Dispatch<
+    React.SetStateAction<EditCategory>
+  >;
+  updateCategory: () => Promise<void> | void;
+  cancel: () => void;
+}
 
 export default function EditCategoryCard({
   editCategory,
   setEditCategory,
   updateCategory,
   cancel,
-}: any) {
+}: Props) {
   return (
     <div className="bg-white rounded-3xl border border-emerald-100 shadow-sm overflow-hidden">
 
@@ -39,7 +54,7 @@ export default function EditCategoryCard({
             <input
               value={editCategory.code}
               onChange={e =>
-                setEditCategory((prev: any) => ({
+                setEditCategory((prev) => ({
                   ...prev,
                   code: e.target.value,
                 }))
@@ -55,7 +70,7 @@ export default function EditCategoryCard({
             <input
               value={editCategory.name}
               onChange={e =>
-                setEditCategory((prev: any) => ({
+                setEditCategory((prev) => ({
                   ...prev,
                   name: e.target.value,
                 }))
@@ -71,7 +86,7 @@ export default function EditCategoryCard({
             <textarea
               value={editCategory.description}
               onChange={e =>
-                setEditCategory((prev: any) => ({
+                setEditCategory((prev) => ({
                   ...prev,
                   description: e.target.value,
                 }))

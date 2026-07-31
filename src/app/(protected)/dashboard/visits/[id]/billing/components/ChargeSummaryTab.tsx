@@ -430,7 +430,7 @@ export default function ChargeSummaryTab({
       </div>
 
       <p className="-mt-4 text-xs !text-slate-700">
-        Editing a charge's amount will automatically reverse any discounts applied to it.
+        Editing a charge's amount will automatically reverse all discounts applied to it.
       </p>
 
       {unpricedCount > 0 && (

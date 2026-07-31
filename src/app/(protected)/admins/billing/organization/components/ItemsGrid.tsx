@@ -1,6 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export default function ItemsGrid({ selectedCategory }: any) {
-  if (selectedCategory.items.length === 0) {
+import type { Category } from '../OrganizationBillingClient';
+
+interface Props {
+  selectedCategory: Category;
+}
+
+export default function ItemsGrid({ selectedCategory }: Props) {
+  if (selectedCategory?.items?.length === 0) {
     return (
       <div className="bg-white rounded-3xl border border-dashed border-gray-200 p-12 text-center text-gray-400">
         No items in this category yet.
@@ -10,7 +15,7 @@ export default function ItemsGrid({ selectedCategory }: any) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-      {selectedCategory.items.map((item: any) => (
+      {selectedCategory.items?.map((item) => (
         <div
           key={item.id}
           className="group bg-white border border-gray-100 rounded-3xl p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200"

@@ -78,7 +78,7 @@ export function useInView<T extends HTMLElement = HTMLDivElement>(
     window.addEventListener('resize', onScrollOrResize, { passive: true });
 
     // Also check once on mount — covers the element already being on
-    // screen (or already past it) before any scroll/resize event fires.
+    // screen (or already past it) before a scroll/resize event fires.
     manualCheck();
 
     return () => {

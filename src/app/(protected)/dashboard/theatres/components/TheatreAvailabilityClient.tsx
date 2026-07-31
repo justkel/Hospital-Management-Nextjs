@@ -142,8 +142,11 @@ export default function TheatreAvailabilityClient() {
 
         setResult(json.theatres);
         setPage(p);
-      } catch (err: any) {
-        setError(err.message ?? 'Something went wrong.');
+      } catch (err) {
+        err instanceof Error
+          ? err.message
+          : 'Something went wrong';
+
       } finally {
         setLoading(false);
       }
@@ -265,9 +268,8 @@ export default function TheatreAvailabilityClient() {
                     <button
                       key={opt.value}
                       onClick={() => setPriority(opt.value)}
-                      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold transition active:scale-95 ${
-                        selected ? `${opt.active} !text-white` : `${opt.pill} hover:border-slate-300`
-                      }`}
+                      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold transition active:scale-95 ${selected ? `${opt.active} !text-white` : `${opt.pill} hover:border-slate-300`
+                        }`}
                     >
                       <Icon size={12} />
                       {opt.label}
@@ -369,11 +371,10 @@ export default function TheatreAvailabilityClient() {
                         <button
                           key={p}
                           onClick={() => search(p as number)}
-                          className={`h-10 w-10 rounded-full text-xs font-bold transition ${
-                            p === page
+                          className={`h-10 w-10 rounded-full text-xs font-bold transition ${p === page
                               ? 'bg-violet-600 text-white shadow-sm'
                               : 'border border-slate-200 bg-white text-slate-600 hover:border-violet-300 hover:text-violet-600'
-                          }`}
+                            }`}
                         >
                           {p}
                         </button>

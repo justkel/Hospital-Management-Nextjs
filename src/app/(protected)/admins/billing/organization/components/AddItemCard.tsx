@@ -1,15 +1,33 @@
 'use client';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
+import {
+  GetOrganizationBillingCategoriesQuery,
+} from '@/shared/graphql/generated/graphql';
+
+type Category =
+  GetOrganizationBillingCategoriesQuery['organizationBillingCategories'][number];
+
+type BillingItemInput = {
+  code: string;
+  name: string;
+  description: string;
+};
+
+interface AddItemCardProps {
+  selectedCategory: Category;
+  newItem: BillingItemInput;
+  setNewItem: React.Dispatch<React.SetStateAction<BillingItemInput>>;
+  createItem: () => Promise<void>;
+}
 
 export default function AddItemCard({
   selectedCategory,
   newItem,
   setNewItem,
   createItem,
-}: any) {
+}: AddItemCardProps) {
   const [errors, setErrors] = useState<{ code?: string; name?: string }>({});
   const [message, setMessage] = useState<{
     type: 'success' | 'error';
@@ -109,7 +127,7 @@ export default function AddItemCard({
             <input
               value={newItem.code}
               onChange={(e) => {
-                setNewItem((prev: any) => ({
+                setNewItem((prev) => ({
                   ...prev,
                   code: e.target.value,
                 }));
@@ -133,7 +151,7 @@ export default function AddItemCard({
             <input
               value={newItem.name}
               onChange={(e) => {
-                setNewItem((prev: any) => ({
+                setNewItem((prev) => ({
                   ...prev,
                   name: e.target.value,
                 }));
@@ -158,7 +176,7 @@ export default function AddItemCard({
               rows={4}
               value={newItem.description}
               onChange={(e) => {
-                setNewItem((prev: any) => ({
+                setNewItem((prev) => ({
                   ...prev,
                   description: e.target.value,
                 }));

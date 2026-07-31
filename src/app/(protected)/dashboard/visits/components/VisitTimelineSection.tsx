@@ -1,6 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import CollapsibleSection from './CollapsibleSection';
 import { GitBranch } from 'lucide-react';
+import { GetVisitByIdQuery } from '@/shared/graphql/generated/graphql';
+
+type Visit = GetVisitByIdQuery['visit'];
 
 function formatDate(date?: string | null) {
   if (!date) return '—';
@@ -22,7 +24,7 @@ function TimelineItem({ title, time, variant = 'default' }: { title: string; tim
   );
 }
 
-export default function VisitTimelineSection({ visit }: any) {
+export default function VisitTimelineSection({ visit }: { visit: Visit }) {
   return (
     <CollapsibleSection
       title="Visit timeline"

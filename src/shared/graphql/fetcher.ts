@@ -12,6 +12,16 @@ export class AuthError extends Error {
   }
 }
 
+type GraphQLErrorItem = {
+  message: string;
+  extensions?: {
+    code?: string;
+    originalError?: {
+      statusCode?: number;
+    };
+  };
+};
+
 export async function graphqlFetch<TData, TVariables>(
   document: TypedDocumentNode<TData, TVariables>,
   variables?: TVariables
@@ -34,7 +44,7 @@ export async function graphqlFetch<TData, TVariables>(
 
   const json: {
     data?: TData;
-    errors?: { message: string; extensions?: { code?: string } }[];
+    errors?: GraphQLErrorItem[];
   } = await res.json();
 
   if (!json.errors) return json.data!;
@@ -45,7 +55,7 @@ export async function graphqlFetch<TData, TVariables>(
     )
   );
 
-  const isNotFound = json.errors.some((e: any) => {
+  const isNotFound = json.errors.some((e: GraphQLErrorItem) => {
     return (
       e.extensions?.code === 'NOT_FOUND' ||
       e.extensions?.originalError?.statusCode === 404 ||

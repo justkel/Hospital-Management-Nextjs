@@ -5,11 +5,23 @@ import { useEffect, useMemo, useState } from 'react';
 import {
     StaffRole,
 } from '@/shared/graphql/generated/graphql';
+import { clientFetch } from '@/lib/clientFetch';
 
 type StaffOption = {
     id: string;
     label: string;
     role: string;
+};
+
+type RawStaffMember = {
+    id: string;
+    fullName: string;
+    userCode: string;
+    roles?: string[];
+};
+
+type StaffByRoleResponse = {
+    staff?: RawStaffMember[];
 };
 
 export function useProcedureAssignableStaff() {
@@ -27,11 +39,11 @@ export function useProcedureAssignableStaff() {
 
                 const [nursesRes, doctorsRes] =
                     await Promise.all([
-                        fetch(
+                        clientFetch(
                             `/api/staff/by-role?role=${StaffRole.Nurse}`
                         ),
 
-                        fetch(
+                        clientFetch(
                             `/api/staff/by-role?role=${StaffRole.Doctor}`
                         ),
                     ]);
@@ -39,7 +51,7 @@ export function useProcedureAssignableStaff() {
                 const [
                     nursesJson,
                     doctorsJson,
-                ] = await Promise.all([
+                ]: StaffByRoleResponse[] = await Promise.all([
                     nursesRes.json(),
                     doctorsRes.json(),
                 ]);
@@ -53,18 +65,18 @@ export function useProcedureAssignableStaff() {
                     new Map(
                         merged.map(
                             (
-                                item: any
+                                item: RawStaffMember
                             ) => [
                                 item.id,
                                 item,
-                            ]
+                            ] as const
                         )
                     ).values()
                 );
 
                 setStaff(
                     deduped.map(
-                        (item: any) => ({
+                        (item: RawStaffMember) => ({
                             id: item.id,
 
                             label: `${item.fullName} (${item.userCode})`,

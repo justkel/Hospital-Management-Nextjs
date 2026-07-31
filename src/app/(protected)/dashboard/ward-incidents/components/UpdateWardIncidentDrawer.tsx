@@ -4,18 +4,28 @@ import { useEffect, useState } from 'react';
 import { Drawer, Input, Select, Button, message, Divider } from 'antd';
 
 import {
+    GetWardIncidentByIdQuery,
     WardIncidentSeverity,
     WardIncidentStatus,
 } from '@/shared/graphql/generated/graphql';
 
 import { clientFetch } from '@/lib/clientFetch';
 
+type Incident = GetWardIncidentByIdQuery['wardIncidentById'];
+
+type UpdateWardIncidentDrawerProps = {
+    open: boolean;
+    incident: Incident | null;
+    onClose?: () => void;
+    onUpdated?: () => void;
+};
+
 export default function UpdateWardIncidentDrawer({
     open,
     incident,
     onClose,
     onUpdated,
-}: any) {
+}: UpdateWardIncidentDrawerProps) {
     const [notes, setNotes] = useState('');
     const [severity, setSeverity] = useState<WardIncidentSeverity | ''>('');
     const [status, setStatus] = useState<WardIncidentStatus | ''>('');
@@ -71,8 +81,13 @@ export default function UpdateWardIncidentDrawer({
             onUpdated?.();
             onClose?.();
             reset();
-        } catch (err: any) {
-            message.error(err?.message || 'Failed to update incident');
+        } catch (err) {
+            const errorMessage =
+                err instanceof Error
+                    ? err.message
+                    : 'Failed to update incident';
+
+            message.error(errorMessage);
         } finally {
             setLoading(false);
         }

@@ -12,18 +12,29 @@ import {
 } from 'antd';
 
 import {
+    GetTheatreIncidentByIdQuery,
     TheatreIncidentSeverity,
     TheatreIncidentStatus,
 } from '@/shared/graphql/generated/graphql';
 
 import { clientFetch } from '@/lib/clientFetch';
+import { useAppProps } from 'antd/es/app/context';
+
+type Incident = GetTheatreIncidentByIdQuery['theatreIncidentById'];
+
+type UpdateTheatreIncidentDrawerProps = {
+    open: boolean;
+    incident: Incident | null;
+    onClose?: () => void;
+    onUpdated?: () => void;
+};
 
 export default function UpdateTheatreIncidentDrawer({
     open,
     incident,
     onClose,
     onUpdated,
-}: any) {
+}: UpdateTheatreIncidentDrawerProps) {
     const [notes, setNotes] =
         useState('');
 
@@ -119,11 +130,13 @@ export default function UpdateTheatreIncidentDrawer({
             onClose?.();
 
             reset();
-        } catch (err: any) {
-            message.error(
-                err?.message ||
-                    'Failed to update incident',
-            );
+        } catch (err) {
+            const errorMessage =
+                err instanceof Error
+                    ? err.message
+                    : 'Failed to update incident';
+
+            message.error(errorMessage);
         } finally {
             setLoading(false);
         }

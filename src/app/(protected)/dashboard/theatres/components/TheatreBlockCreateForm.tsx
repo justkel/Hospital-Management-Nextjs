@@ -140,8 +140,11 @@ export default function TheatreBlockCreateForm({
 
             setSaved(true);
             setTimeout(() => onSuccess(), 800);
-        } catch (err: any) {
-            setError(err.message ?? 'Something went wrong.');
+        } catch (err) {
+            err instanceof Error
+                ? err.message
+                : 'Something went wrong';
+
         } finally {
             setSaving(false);
         }
@@ -162,8 +165,8 @@ export default function TheatreBlockCreateForm({
                                 key={opt.value}
                                 onClick={() => setType(opt.value)}
                                 className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition ${selected
-                                        ? `${opt.pill} ring-2 ${opt.ring}`
-                                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60'
+                                    ? `${opt.pill} ring-2 ${opt.ring}`
+                                    : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60'
                                     }`}
                             >
                                 <div

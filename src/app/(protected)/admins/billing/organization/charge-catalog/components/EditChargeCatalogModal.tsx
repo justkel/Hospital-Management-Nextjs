@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState } from 'react';
@@ -11,7 +10,7 @@ import { X } from 'lucide-react';
 interface Props {
   charge: UpdateChargeCatalogInput;
   onClose: () => void;
-  onUpdate: (data: any) => Promise<void>;
+  onUpdate: (data: UpdateChargeCatalogInput) => Promise<void>;
 }
 
 export default function EditChargeCatalogModal({

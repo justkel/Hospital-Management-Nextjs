@@ -1,7 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import CollapsibleSection from './CollapsibleSection';
 import SystemInformation from '@/app/(protected)/admins/staff/components/SystemInformation';
 import { Info as InfoIcon } from 'lucide-react';
+import { GetVisitByIdQuery } from '@/shared/graphql/generated/graphql';
+import type { ReactNode } from 'react';
+
+type Visit = GetVisitByIdQuery['visit'];
 
 function formatDate(date?: string | null) {
   if (!date) return '—';
@@ -11,7 +14,7 @@ function formatDate(date?: string | null) {
   });
 }
 
-function Info({ label, value }: any) {
+function Info({ label, value }: { label: string; value?: ReactNode }) {
   return (
     <div>
       <p className="mb-0.5 text-[10px] font-medium uppercase tracking-[0.07em] text-[#B4B2A9]">{label}</p>
@@ -28,7 +31,7 @@ const STATUS_STYLES: Record<string, string> = {
   CLOSED:     'bg-[#F7F7F5] text-[#888780] border-[#E8E6E0]',
 };
 
-export default function VisitInfoSection({ visit }: any) {
+export default function VisitInfoSection({ visit }: { visit: Visit }) {
   return (
     <CollapsibleSection
       title="Visit information"

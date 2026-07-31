@@ -39,34 +39,34 @@ const PRIORITY_OPTIONS: {
   ring: string;
   glow: string;
 }[] = [
-  {
-    value: TheatreBookingPriority.Elective,
-    label: 'Elective',
-    description: 'Routine scheduled procedure',
-    icon: Sparkles,
-    active: 'border-slate-500 bg-gradient-to-b from-slate-800/80 to-slate-900 text-slate-200',
-    ring: 'ring-slate-500/50',
-    glow: 'shadow-[0_0_0_1px_rgba(148,163,184,0.15)]',
-  },
-  {
-    value: TheatreBookingPriority.Urgent,
-    label: 'Urgent',
-    description: 'Requires scheduling within 24–72h',
-    icon: Zap,
-    active: 'border-amber-600 bg-gradient-to-b from-amber-900/60 to-amber-950 text-amber-200',
-    ring: 'ring-amber-500/50',
-    glow: 'shadow-[0_0_24px_-8px_rgba(245,158,11,0.5)]',
-  },
-  {
-    value: TheatreBookingPriority.Emergency,
-    label: 'Emergency',
-    description: 'Immediate — bypasses availability rules',
-    icon: Siren,
-    active: 'border-rose-600 bg-gradient-to-b from-rose-900/60 to-rose-950 text-rose-200',
-    ring: 'ring-rose-500/50',
-    glow: 'shadow-[0_0_24px_-8px_rgba(244,63,94,0.55)]',
-  },
-];
+    {
+      value: TheatreBookingPriority.Elective,
+      label: 'Elective',
+      description: 'Routine scheduled procedure',
+      icon: Sparkles,
+      active: 'border-slate-500 bg-gradient-to-b from-slate-800/80 to-slate-900 text-slate-200',
+      ring: 'ring-slate-500/50',
+      glow: 'shadow-[0_0_0_1px_rgba(148,163,184,0.15)]',
+    },
+    {
+      value: TheatreBookingPriority.Urgent,
+      label: 'Urgent',
+      description: 'Requires scheduling within 24–72h',
+      icon: Zap,
+      active: 'border-amber-600 bg-gradient-to-b from-amber-900/60 to-amber-950 text-amber-200',
+      ring: 'ring-amber-500/50',
+      glow: 'shadow-[0_0_24px_-8px_rgba(245,158,11,0.5)]',
+    },
+    {
+      value: TheatreBookingPriority.Emergency,
+      label: 'Emergency',
+      description: 'Immediate — bypasses availability rules',
+      icon: Siren,
+      active: 'border-rose-600 bg-gradient-to-b from-rose-900/60 to-rose-950 text-rose-200',
+      ring: 'ring-rose-500/50',
+      glow: 'shadow-[0_0_24px_-8px_rgba(244,63,94,0.55)]',
+    },
+  ];
 
 function toDatetimeLocal(d: Date) {
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -143,8 +143,11 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
       }
       setSaved(true);
       await onSuccess();
-    } catch (err: any) {
-      setError(err.message ?? 'Something went wrong.');
+    } catch (err) {
+      err instanceof Error
+        ? err.message
+        : 'Something went wrong';
+
     } finally {
       setSaving(false);
     }
@@ -179,11 +182,10 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
                 <button
                   key={opt.value}
                   onClick={() => setPriority(opt.value)}
-                  className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition ${
-                    sel
+                  className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition ${sel
                       ? `${opt.active} ring-1 ${opt.ring} ${opt.glow}`
                       : 'border-white/[0.07] bg-white/[0.02] hover:border-white/[0.14] hover:bg-white/[0.04]'
-                  }`}
+                    }`}
                 >
                   <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${sel ? 'bg-white/10' : 'bg-white/5'}`}>
                     <Icon size={15} className={sel ? '' : 'text-slate-500'} />

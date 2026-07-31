@@ -13,7 +13,7 @@ import AddItemCard from './components/AddItemCard';
 import ItemsGrid from './components/ItemsGrid';
 import Link from 'next/link';
 
-type Category =
+export type Category =
   GetOrganizationBillingCategoriesQuery['organizationBillingCategories'][number];
 
 interface Props {

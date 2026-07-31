@@ -36,56 +36,56 @@ const TYPE_OPTIONS: {
   pill: string;
   ring: string;
 }[] = [
-  {
-    value: TheatreBlockType.Maintenance,
-    label: 'Maintenance',
-    icon: Wrench,
-    pill: 'bg-amber-50 border-amber-300 text-amber-700',
-    ring: 'ring-amber-400',
-  },
-  {
-    value: TheatreBlockType.Cleaning,
-    label: 'Cleaning',
-    icon: Sparkles,
-    pill: 'bg-cyan-50 border-cyan-300 text-cyan-700',
-    ring: 'ring-cyan-400',
-  },
-  {
-    value: TheatreBlockType.EquipmentFailure,
-    label: 'Equipment Failure',
-    icon: TriangleAlert,
-    pill: 'bg-orange-50 border-orange-300 text-orange-700',
-    ring: 'ring-orange-400',
-  },
-  {
-    value: TheatreBlockType.InfectionControl,
-    label: 'Infection Control',
-    icon: Shield,
-    pill: 'bg-red-50 border-red-300 text-red-700',
-    ring: 'ring-red-400',
-  },
-  {
-    value: TheatreBlockType.Sterilization,
-    label: 'Sterilization',
-    icon: Thermometer,
-    pill: 'bg-violet-50 border-violet-300 text-violet-700',
-    ring: 'ring-violet-400',
-  },
-  {
-    value: TheatreBlockType.Reserved,
-    label: 'Reserved',
-    icon: Droplets,
-    pill: 'bg-blue-50 border-blue-300 text-blue-700',
-    ring: 'ring-blue-400',
-  },
-  {
-    value: TheatreBlockType.Other,
-    label: 'Other',
-    icon: Zap,
-    pill: 'bg-slate-50 border-slate-300 text-slate-600',
-    ring: 'ring-slate-400',
-  },
-];
+    {
+      value: TheatreBlockType.Maintenance,
+      label: 'Maintenance',
+      icon: Wrench,
+      pill: 'bg-amber-50 border-amber-300 text-amber-700',
+      ring: 'ring-amber-400',
+    },
+    {
+      value: TheatreBlockType.Cleaning,
+      label: 'Cleaning',
+      icon: Sparkles,
+      pill: 'bg-cyan-50 border-cyan-300 text-cyan-700',
+      ring: 'ring-cyan-400',
+    },
+    {
+      value: TheatreBlockType.EquipmentFailure,
+      label: 'Equipment Failure',
+      icon: TriangleAlert,
+      pill: 'bg-orange-50 border-orange-300 text-orange-700',
+      ring: 'ring-orange-400',
+    },
+    {
+      value: TheatreBlockType.InfectionControl,
+      label: 'Infection Control',
+      icon: Shield,
+      pill: 'bg-red-50 border-red-300 text-red-700',
+      ring: 'ring-red-400',
+    },
+    {
+      value: TheatreBlockType.Sterilization,
+      label: 'Sterilization',
+      icon: Thermometer,
+      pill: 'bg-violet-50 border-violet-300 text-violet-700',
+      ring: 'ring-violet-400',
+    },
+    {
+      value: TheatreBlockType.Reserved,
+      label: 'Reserved',
+      icon: Droplets,
+      pill: 'bg-blue-50 border-blue-300 text-blue-700',
+      ring: 'ring-blue-400',
+    },
+    {
+      value: TheatreBlockType.Other,
+      label: 'Other',
+      icon: Zap,
+      pill: 'bg-slate-50 border-slate-300 text-slate-600',
+      ring: 'ring-slate-400',
+    },
+  ];
 
 function toLocalDatetime(iso: string): string {
   const d = new Date(iso);
@@ -138,8 +138,11 @@ export default function TheatreBlockUpdateForm({
 
       setSaved(true);
       setTimeout(() => onSuccess(), 800);
-    } catch (err: any) {
-      setError(err.message ?? 'Something went wrong.');
+    } catch (err) {
+      err instanceof Error
+        ? err.message
+        : 'Something went wrong';
+
     } finally {
       setSaving(false);
     }
@@ -170,11 +173,10 @@ export default function TheatreBlockUpdateForm({
                 <button
                   key={opt.value}
                   onClick={() => setType(opt.value)}
-                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[11px] font-bold transition ${
-                    selected
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[11px] font-bold transition ${selected
                       ? `${opt.pill} ring-2 ${opt.ring}`
                       : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300'
-                  }`}
+                    }`}
                 >
                   <Icon size={11} />
                   {opt.label}

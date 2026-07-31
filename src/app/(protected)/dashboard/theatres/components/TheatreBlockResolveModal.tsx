@@ -34,34 +34,34 @@ const RESOLUTION_OPTIONS: {
   ring: string;
   bg: string;
 }[] = [
-  {
-    value: TheatreBlockStatus.Released,
-    label: 'Release',
-    description: 'Unblock the theatre immediately — end time will be set to now',
-    icon: Unlock,
-    pill: 'border-emerald-300 text-emerald-700',
-    ring: 'ring-emerald-400',
-    bg: 'bg-emerald-50',
-  },
-  {
-    value: TheatreBlockStatus.Completed,
-    label: 'Mark Completed',
-    description: 'Block ran its course and is now finished',
-    icon: CheckSquare,
-    pill: 'border-blue-300 text-blue-700',
-    ring: 'ring-blue-400',
-    bg: 'bg-blue-50',
-  },
-  {
-    value: TheatreBlockStatus.Cancelled,
-    label: 'Cancel',
-    description: 'Block is voided — it no longer applies',
-    icon: Trash2,
-    pill: 'border-slate-300 text-slate-600',
-    ring: 'ring-slate-400',
-    bg: 'bg-slate-50',
-  },
-];
+    {
+      value: TheatreBlockStatus.Released,
+      label: 'Release',
+      description: 'Unblock the theatre immediately — end time will be set to now',
+      icon: Unlock,
+      pill: 'border-emerald-300 text-emerald-700',
+      ring: 'ring-emerald-400',
+      bg: 'bg-emerald-50',
+    },
+    {
+      value: TheatreBlockStatus.Completed,
+      label: 'Mark Completed',
+      description: 'Block ran its course and is now finished',
+      icon: CheckSquare,
+      pill: 'border-blue-300 text-blue-700',
+      ring: 'ring-blue-400',
+      bg: 'bg-blue-50',
+    },
+    {
+      value: TheatreBlockStatus.Cancelled,
+      label: 'Cancel',
+      description: 'Block is voided — it no longer applies',
+      icon: Trash2,
+      pill: 'border-slate-300 text-slate-600',
+      ring: 'ring-slate-400',
+      bg: 'bg-slate-50',
+    },
+  ];
 
 export default function TheatreBlockResolveModal({
   block,
@@ -98,8 +98,11 @@ export default function TheatreBlockResolveModal({
 
       setSaved(true);
       setTimeout(() => onSuccess(), 800);
-    } catch (err: any) {
-      setError(err.message ?? 'Something went wrong.');
+    } catch (err) {
+      err instanceof Error
+        ? err.message
+        : 'Something went wrong';
+
     } finally {
       setSaving(false);
     }
@@ -138,16 +141,14 @@ export default function TheatreBlockResolveModal({
                 <button
                   key={opt.value}
                   onClick={() => setStatus(opt.value)}
-                  className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition ${
-                    sel
+                  className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition ${sel
                       ? `${opt.bg} ${opt.pill} ring-2 ${opt.ring}`
                       : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60'
-                  }`}
+                    }`}
                 >
                   <div
-                    className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${
-                      sel ? 'bg-white/60' : 'bg-slate-100'
-                    }`}
+                    className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${sel ? 'bg-white/60' : 'bg-slate-100'
+                      }`}
                   >
                     <Icon size={15} />
                   </div>
@@ -211,13 +212,12 @@ export default function TheatreBlockResolveModal({
             <button
               onClick={handleSubmit}
               disabled={saving || saved}
-              className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs font-bold !text-white shadow-sm transition disabled:opacity-60 active:scale-95 ${
-                selected.value === TheatreBlockStatus.Released
+              className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs font-bold !text-white shadow-sm transition disabled:opacity-60 active:scale-95 ${selected.value === TheatreBlockStatus.Released
                   ? 'bg-emerald-600 hover:bg-emerald-700'
                   : selected.value === TheatreBlockStatus.Completed
-                  ? 'bg-blue-600 hover:bg-blue-700'
-                  : 'bg-slate-600 hover:bg-slate-700'
-              }`}
+                    ? 'bg-blue-600 hover:bg-blue-700'
+                    : 'bg-slate-600 hover:bg-slate-700'
+                }`}
             >
               {saving ? (
                 <>

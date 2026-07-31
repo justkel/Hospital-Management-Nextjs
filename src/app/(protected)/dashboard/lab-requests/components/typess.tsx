@@ -1,4 +1,4 @@
-import { FlaskConical } from 'lucide-react';
+import { FlaskConical, LucideIcon } from 'lucide-react';
 
 export const PRIORITY_CONFIG: Record<string, { label: string; dot: string; badge: string }> = {
   STAT: {
@@ -58,7 +58,7 @@ export function DetailRow({
   label,
   value,
 }: {
-  icon: any;
+  icon: LucideIcon;
   label: string;
   value?: string | null;
 }) {

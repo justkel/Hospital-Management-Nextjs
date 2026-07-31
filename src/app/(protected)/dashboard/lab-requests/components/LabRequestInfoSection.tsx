@@ -2,7 +2,6 @@
 
 import { FindLabRequestByIdQuery } from '@/shared/graphql/generated/graphql';
 import { formatDateTime } from '@/utils/formatDateTime';
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {
   Activity,

@@ -97,8 +97,11 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
             await fetchDiagnoses();
             setError(null);
             resetForm();
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            err instanceof Error
+                ? err.message
+                : 'Something went wrong';
+
         } finally {
             setSubmitting(false);
         }
@@ -126,8 +129,11 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
             await fetchDiagnoses();
             setError(null);
             resetForm();
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            err instanceof Error
+                ? err.message
+                : 'Something went wrong';
+
         } finally {
             setSubmitting(false);
         }

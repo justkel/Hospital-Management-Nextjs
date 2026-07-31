@@ -223,8 +223,11 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
 
       setSaved(true);
       await onDone();
-    } catch (err: any) {
-      setError(err.message ?? 'Something went wrong.');
+    } catch (err) {
+      err instanceof Error
+        ? err.message
+        : 'Something went wrong';
+
     } finally {
       setSaving(false);
     }

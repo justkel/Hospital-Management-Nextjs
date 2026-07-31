@@ -8,21 +8,37 @@ import {
   CloseOutlined,
 } from '@ant-design/icons';
 import LabRequestSelector from './LabRequestSelector';
-import { VisitStatus } from '@/shared/graphql/generated/graphql';
+import {
+  GetVisitsByPatientUserCodeQuery,
+  VisitStatus,
+} from '@/shared/graphql/generated/graphql';
 import { formatDateTime } from '@/utils/formatDateTime';
+import { ChargeCatalogOption } from '@/hooks/billing/useBilling';
+
+type Visit =
+  GetVisitsByPatientUserCodeQuery['visitsByPatientUserCode'][number];
+
+type Patient = Visit['patient'];
+
+type PatientVisitCardProps = {
+  patient: Patient;
+  visits: Visit[];
+  catalogs: ChargeCatalogOption[];
+  onCreated?: () => void;
+};
 
 export default function PatientVisitCard({
   patient,
   visits,
   catalogs,
   onCreated,
-}: any) {
+}: PatientVisitCardProps) {
   const [showSelector, setShowSelector] = useState(false);
   const [visible, setVisible] = useState(true);
   const [selectorKey, setSelectorKey] = useState(0);
 
   const openVisit = useMemo(
-    () => visits.find((v: any) => v.status === VisitStatus.Open),
+    () => visits.find((v: Visit) => v.status === VisitStatus.Open),
     [visits]
   );
 
@@ -85,7 +101,7 @@ export default function PatientVisitCard({
         <h3 className="text-lg font-semibold mb-4">Available Visits</h3>
 
         <div className="grid gap-4">
-          {visits.map((v: any) => (
+          {visits.map((v: Visit) => (
             <div
               key={v.id}
               className="border border-gray-200 rounded-2xl p-5 bg-gray-50"

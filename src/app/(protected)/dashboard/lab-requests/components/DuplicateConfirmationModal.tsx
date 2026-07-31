@@ -3,11 +3,22 @@
 import { formatDateTime } from '@/utils/formatDateTime';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 
+export type DuplicateEntry = {
+  name: string;
+  createdAt: string;
+};
+
+type DuplicateConfirmationModalProps = {
+  duplicates: DuplicateEntry[];
+  onCancel: () => void;
+  onConfirm: () => void | Promise<void>;
+};
+
 export default function DuplicateConfirmationModal({
   duplicates,
   onCancel,
   onConfirm,
-}: any) {
+}: DuplicateConfirmationModalProps) {
   return (
     <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
       <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up">
@@ -27,7 +38,7 @@ export default function DuplicateConfirmationModal({
         </div>
 
         <div className="p-6 max-h-72 overflow-y-auto space-y-3">
-          {duplicates.map((item: any, idx: number) => (
+          {duplicates.map((item: DuplicateEntry, idx: number) => (
             <div
               key={idx}
               className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3"
