@@ -299,7 +299,7 @@ export default function InvoicePrintClient({ detail }: { detail: Detail }) {
                 Balance payments
               </h2>
               <p className="mb-2 text-xs text-slate-400">
-                Paid against the visit's overall balance, not a specific
+                Paid against the visit&apos;s overall balance, not a specific
                 charge above.
               </p>
               <table className="w-full text-sm">

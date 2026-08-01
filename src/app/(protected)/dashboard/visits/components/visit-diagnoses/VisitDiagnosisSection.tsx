@@ -71,7 +71,7 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
     useEffect(() => {
         if (!inView) return;
         fetchDiagnoses();
-    }, [inView, visitId]);
+    }, [inView, fetchDiagnoses]);
 
     const resetForm = () => {
         setForm(initialForm);
@@ -98,10 +98,11 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
             setError(null);
             resetForm();
         } catch (err) {
-            err instanceof Error
-                ? err.message
-                : 'Something went wrong';
-
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : 'Something went wrong'
+            );
         } finally {
             setSubmitting(false);
         }
@@ -130,10 +131,11 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
             setError(null);
             resetForm();
         } catch (err) {
-            err instanceof Error
-                ? err.message
-                : 'Something went wrong';
-
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : 'Something went wrong'
+            );
         } finally {
             setSubmitting(false);
         }

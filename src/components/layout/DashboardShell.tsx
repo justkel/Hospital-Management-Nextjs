@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState } from 'react';
 import { Avatar, Dropdown, Modal } from 'antd';
 import {
     DashboardOutlined, TeamOutlined, FileTextOutlined,
@@ -104,13 +104,6 @@ export default function DashboardShell({
         if (pathname.startsWith('/dashboard')) return 'dashboard';
         return '';
     })();
-
-    const defaultOpenKeys = selectedKey?.startsWith('billing') ? ['billing'] : [];
-    const [openKeys, setOpenKeys] = useState<string[]>(defaultOpenKeys);
-
-    useEffect(() => {
-        setOpenKeys(menuOpen ? defaultOpenKeys : []);
-    }, [menuOpen, selectedKey]);
 
     const handleLogout = async () => {
         try {

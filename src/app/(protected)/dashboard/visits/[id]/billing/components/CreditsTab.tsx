@@ -353,7 +353,7 @@ export default function CreditsTab({
 
         {creditBalance <= 0.01 && (
           <p className="border-t !border-slate-200 !bg-white/60 px-5 py-2.5 text-xs !text-slate-500">
-            This visit has no outstanding credit right now — there's nothing
+            This visit has no outstanding credit right now — there&apos;s nothing
             to refund.
           </p>
         )}
@@ -508,7 +508,7 @@ export default function CreditsTab({
                 className="mt-0.5 shrink-0 !text-blue-600"
               />
               <p className="text-xs !text-blue-800">
-                This moves the amount into the patient's wallet instead of
+                This moves the amount into the patient&apos;s wallet instead of
                 refunding it directly. Once confirmed, it cannot be paid out
                 as cash — it can only be spent on a future visit charge.
               </p>

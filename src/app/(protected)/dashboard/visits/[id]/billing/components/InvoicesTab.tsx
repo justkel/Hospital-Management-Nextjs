@@ -264,7 +264,7 @@ export default function InvoicesTab({
                   {formatCurrency(latestInvoice?.totalPayable)}). Printing
                   that invoice now will still show its original figures —
                   generate a new one first if you want the print to match
-                  what's shown here.
+                  what&apos;s shown here.
                 </p>
               </div>
             )}
@@ -290,7 +290,7 @@ export default function InvoicesTab({
               This usually just means a payment was recorded after this
               invoice was generated — the invoice keeps the figures it had
               at the time, on purpose. Generate a new invoice if you want
-              its outstanding balance to reflect what's owed right now.
+              its outstanding balance to reflect what&apos;s owed right now.
             </p>
           </div>
         </div>

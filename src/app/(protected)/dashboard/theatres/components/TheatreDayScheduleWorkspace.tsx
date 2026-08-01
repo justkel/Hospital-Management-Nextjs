@@ -253,10 +253,11 @@ export default function TheatreDayScheduleWorkspace({
             setSchedule(json);
             setDayString(nextDay);
         } catch (err) {
-            err instanceof Error
-                ? err.message
-                : 'Something went wrong';
-
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : 'Something went wrong'
+            );
         } finally {
             setLoading(false);
         }
@@ -273,7 +274,7 @@ export default function TheatreDayScheduleWorkspace({
 
     const theatre = schedule.theatre;
     const availability = schedule.availability ?? [];
-    const blocks = schedule.blocks ?? [];
+    const blocks = useMemo(() => schedule.blocks ?? [], [schedule.blocks]);
     const bookings = schedule.bookings ?? [];
     const statusConfig = STATUS_CONFIG[schedule.computedStatus];
     const StatusIcon = statusConfig.icon;

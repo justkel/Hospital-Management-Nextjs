@@ -109,7 +109,7 @@ export default function LabRequestSearchSection({
           <div className="text-5xl mb-4">🔍</div>
           <h3 className="text-lg font-semibold">No visits found</h3>
           <p className="text-gray-500 mt-1">
-            No patient visits matching "{debouncedSearch}"
+            No patient visits matching &quot;{debouncedSearch}&quot;
           </p>
         </div>
       )}

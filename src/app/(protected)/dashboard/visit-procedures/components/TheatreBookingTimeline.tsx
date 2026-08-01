@@ -277,7 +277,7 @@ function Empty({ onCreateRequest, bookingDisabled }: { onCreateRequest: () => vo
       </div>
       <p className="relative text-base font-black !text-white">No theatre bookings</p>
       <p className="relative mt-2 max-w-sm px-6 text-sm text-slate-500">
-        This procedure hasn't been allocated a theatre slot yet. Create a booking
+        This procedure hasn&apos;t been allocated a theatre slot yet. Create a booking
         to schedule operating time.
       </p>
       <button

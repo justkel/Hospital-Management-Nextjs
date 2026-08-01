@@ -139,10 +139,11 @@ export default function TheatreBlockUpdateForm({
       setSaved(true);
       setTimeout(() => onSuccess(), 800);
     } catch (err) {
-      err instanceof Error
-        ? err.message
-        : 'Something went wrong';
-
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Something went wrong'
+      );
     } finally {
       setSaving(false);
     }

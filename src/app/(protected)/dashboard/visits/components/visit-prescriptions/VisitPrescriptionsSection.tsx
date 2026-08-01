@@ -69,7 +69,7 @@ export default function VisitPrescriptionsSection({ visitId }: Props) {
     useEffect(() => {
         if (!inView) return;
         fetchPrescriptions();
-    }, [inView, visitId]);
+    }, [inView, fetchPrescriptions]);
 
     const resetForm = () => {
         setForm(initialForm);

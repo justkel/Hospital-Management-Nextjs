@@ -213,7 +213,7 @@ export default function LoginPage() {
 
           <div className="my-6 flex items-center gap-3">
             <div className="h-px flex-1 bg-[#D3D1C7]" />
-            <span className="text-[11px] uppercase tracking-[0.07em] text-[#B4B2A9]">What's included</span>
+            <span className="text-[11px] uppercase tracking-[0.07em] text-[#B4B2A9]">What&apos;s included</span>
             <div className="h-px flex-1 bg-[#D3D1C7]" />
           </div>
 

@@ -65,7 +65,7 @@ export default function VisitBedAllocationsSection({ visitId }: Props) {
   useEffect(() => {
     if (!inView) return;
     fetchAllocations();
-  }, [inView, visitId]);
+  }, [inView, fetchAllocations]);
 
   const activeAllocation = useMemo(
     () => allocations.find(a => ACTIVE_STATUSES.includes(a.status)),

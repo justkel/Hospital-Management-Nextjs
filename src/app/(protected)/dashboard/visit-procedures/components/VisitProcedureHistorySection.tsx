@@ -57,7 +57,7 @@ export default function VisitProcedureHistorySection({
 
     const [showDrawer, setShowDrawer] = useState(false);
 
-    async function fetchPage(nextPage: number, nextLimit = limit) {
+    async function fetchProceduresData(nextPage: number, nextLimit = limit) {
         const params = new URLSearchParams({
             page: String(nextPage),
             limit: String(nextLimit),
@@ -77,15 +77,35 @@ export default function VisitProcedureHistorySection({
 
         const json = await res.json();
 
-        if (!res.ok) return;
+        if (!res.ok) return null;
 
-        setPage(json.visitProcedures.page);
-        setTotal(json.visitProcedures.total);
-        setList(json.visitProcedures.items);
+        return json.visitProcedures as GetVisitProceduresQuery['visitProcedures'];
+    }
+
+    async function fetchPage(nextPage: number, nextLimit = limit) {
+        const visitProcedures = await fetchProceduresData(nextPage, nextLimit);
+        if (!visitProcedures) return;
+
+        setPage(visitProcedures.page);
+        setTotal(visitProcedures.total);
+        setList(visitProcedures.items);
     }
 
     useEffect(() => {
-        fetchPage(1, limit);
+        let ignore = false;
+
+        fetchProceduresData(1, limit).then(visitProcedures => {
+            if (ignore || !visitProcedures) return;
+
+            setPage(visitProcedures.page);
+            setTotal(visitProcedures.total);
+            setList(visitProcedures.items);
+        });
+
+        return () => {
+            ignore = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [statusFilter, priorityFilter]);
 
     const stats = useMemo(() => {

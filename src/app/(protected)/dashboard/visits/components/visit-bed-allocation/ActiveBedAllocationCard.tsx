@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { Modal } from 'antd';
 import {
   BedDouble,
@@ -18,21 +18,14 @@ import { STATUS_STYLES, formatStatusLabel } from './bedAllocationStatus';
 const MISTAKE_WINDOW_SECONDS = 5 * 60;
 
 function useMistakeWindowCountdown(allocatedAt: string) {
-  const [remaining, setRemaining] = useState(() =>
-    computeRemaining(allocatedAt)
-  );
+  const [, tick] = useReducer((n: number) => n + 1, 0);
 
   useEffect(() => {
-    setRemaining(computeRemaining(allocatedAt));
-
-    const interval = setInterval(() => {
-      setRemaining(computeRemaining(allocatedAt));
-    }, 1000);
-
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [allocatedAt]);
+  }, []);
 
-  return remaining;
+  return computeRemaining(allocatedAt);
 }
 
 function computeRemaining(allocatedAt: string) {

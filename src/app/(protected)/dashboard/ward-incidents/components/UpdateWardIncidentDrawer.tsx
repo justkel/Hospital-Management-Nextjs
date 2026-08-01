@@ -4,18 +4,22 @@ import { useEffect, useState } from 'react';
 import { Drawer, Input, Select, Button, message, Divider } from 'antd';
 
 import {
-    GetWardIncidentByIdQuery,
     WardIncidentSeverity,
     WardIncidentStatus,
 } from '@/shared/graphql/generated/graphql';
 
 import { clientFetch } from '@/lib/clientFetch';
 
-type Incident = GetWardIncidentByIdQuery['wardIncidentById'];
+type EditableWardIncident = {
+    id: string;
+    notes?: string | null;
+    severity?: WardIncidentSeverity | null;
+    status?: WardIncidentStatus | null;
+};
 
 type UpdateWardIncidentDrawerProps = {
     open: boolean;
-    incident: Incident | null;
+    incident: EditableWardIncident | null;
     onClose?: () => void;
     onUpdated?: () => void;
 };
@@ -37,7 +41,7 @@ export default function UpdateWardIncidentDrawer({
         setNotes(incident.notes ?? '');
         setSeverity(incident.severity ?? '');
         setStatus(incident.status ?? '');
-    }, [open, incident?.id]);
+    }, [open, incident]);
 
     function reset() {
         setNotes('');

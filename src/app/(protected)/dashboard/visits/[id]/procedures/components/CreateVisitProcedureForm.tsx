@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { message } from 'antd';
 import {
   CreateVisitProcedureInput,
@@ -46,8 +46,6 @@ export default function CreateVisitProcedureForm({
     !!form.customProcedureCode?.trim();
 
   const hasCatalog = !!form.procedureCatalogId;
-
-  const conflict = hasCustom && hasCatalog;
 
   const setCatalog = (value?: string) => {
     if (value) {

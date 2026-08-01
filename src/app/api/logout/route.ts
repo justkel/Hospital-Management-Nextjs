@@ -54,7 +54,7 @@ export async function POST() {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     cookieStore.delete('access_token');
     cookieStore.delete('refresh_token');
 

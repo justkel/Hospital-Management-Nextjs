@@ -48,7 +48,7 @@ export default function LabRequestHistorySection({
 
   const [showEditDrawer, setShowEditDrawer] = useState(false);
 
-  async function fetchPage(nextPage: number, nextLimit = limit) {
+  async function fetchRequestsData(nextPage: number, nextLimit = limit) {
     const params = new URLSearchParams({
       page: String(nextPage),
       limit: String(nextLimit),
@@ -62,15 +62,35 @@ export default function LabRequestHistorySection({
     );
 
     const json = await res.json();
-    if (!res.ok) return;
+    if (!res.ok) return null;
 
-    setPage(json.labRequests.page);
-    setTotal(json.labRequests.total);
-    setList(json.labRequests.items);
+    return json.labRequests as FindAllLabRequestsQuery['labRequests'];
+  }
+
+  async function fetchPage(nextPage: number, nextLimit = limit) {
+    const labRequests = await fetchRequestsData(nextPage, nextLimit);
+    if (!labRequests) return;
+
+    setPage(labRequests.page);
+    setTotal(labRequests.total);
+    setList(labRequests.items);
   }
 
   useEffect(() => {
-    fetchPage(1, limit);
+    let ignore = false;
+
+    fetchRequestsData(1, limit).then(labRequests => {
+      if (ignore || !labRequests) return;
+
+      setPage(labRequests.page);
+      setTotal(labRequests.total);
+      setList(labRequests.items);
+    });
+
+    return () => {
+      ignore = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, priorityFilter]);
 
   return (

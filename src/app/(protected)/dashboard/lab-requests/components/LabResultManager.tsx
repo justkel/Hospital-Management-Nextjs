@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { clientFetch } from '@/lib/clientFetch';
 import { LabRequestStatus, LabResult } from '@/shared/graphql/generated/graphql';
 import ResultCard from './ResultCard';
@@ -50,7 +50,7 @@ export default function LabResultManager({
 
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const fetchResults = async () => {
+  const fetchResults = useCallback(async () => {
     try {
       const res = await clientFetch(`/api/lab-result/list?labRequestId=${labRequestId}`);
       const json = await res.json();
@@ -59,11 +59,11 @@ export default function LabResultManager({
     } catch {
       setResults([]);
     }
-  };
+  }, [labRequestId]);
 
   useEffect(() => {
     fetchResults();
-  }, [labRequestId]);
+  }, [fetchResults]);
 
   const completedIds = useMemo(
     () => new Set(results.map(r => r.chargeCatalogId)),

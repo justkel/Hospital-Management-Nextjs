@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Modal, Select, Checkbox, Input, message } from 'antd';
 import {
   AlertTriangle,
@@ -223,10 +223,13 @@ export default function PaymentsTab({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletEnabled, patientId]);
 
-  const getRemaining = (chargeId: string, totalAmount: number): number => {
-    const b = balances[chargeId];
-    return b ? b.remaining : totalAmount;
-  };
+  const getRemaining = useCallback(
+    (chargeId: string, totalAmount: number): number => {
+      const b = balances[chargeId];
+      return b ? b.remaining : totalAmount;
+    },
+    [balances]
+  );
 
   const getAmountPaid = (chargeId: string): number => {
     return balances[chargeId]?.amountPaid ?? 0;
@@ -237,7 +240,7 @@ export default function PaymentsTab({
       charges.filter(
         (c) => getRemaining(c.id, Number(c.totalAmount ?? 0)) > 0.01
       ),
-    [charges, balances]
+    [charges, getRemaining]
   );
 
   const totalEntered = useMemo(
@@ -668,7 +671,7 @@ export default function PaymentsTab({
               </p>
               <p className="mt-0.5 text-xs !text-amber-700">
                 This can happen after charges move up and down again
-                following a refund. Record a payment against the visit's
+                following a refund. Record a payment against the visit&apos;s
                 overall balance instead.
               </p>
             </div>
@@ -691,7 +694,7 @@ export default function PaymentsTab({
             No payments recorded yet
           </h3>
           <p className="mt-1 max-w-sm text-sm !text-slate-500">
-            Payments made toward this visit's charges will appear here.
+            Payments made toward this visit&apos;s charges will appear here.
           </p>
         </div>
       ) : (
@@ -999,7 +1002,7 @@ export default function PaymentsTab({
                     className="mt-0.5 shrink-0 !text-red-600"
                   />
                   <p className="text-xs !text-red-700">
-                    This exceeds the patient's current wallet balance.
+                    This exceeds the patient&apos;s current wallet balance.
                   </p>
                 </div>
               )}
@@ -1058,7 +1061,7 @@ export default function PaymentsTab({
               className="mt-0.5 shrink-0 !text-amber-600"
             />
             <p className="text-xs !text-amber-800">
-              This payment applies against the visit's overall balance, not
+              This payment applies against the visit&apos;s overall balance, not
               a specific charge. Use it only when the visit genuinely owes
               money but no charge has room left to attach a normal payment
               to.
@@ -1095,7 +1098,7 @@ export default function PaymentsTab({
                 className="mt-0.5 shrink-0 !text-red-600"
               />
               <p className="text-xs !text-red-700">
-                This exceeds the visit's current outstanding balance of{' '}
+                This exceeds the visit&apos;s current outstanding balance of{' '}
                 {formatCurrency(currentTotals?.outstandingBalance)}.
               </p>
             </div>
@@ -1144,7 +1147,7 @@ export default function PaymentsTab({
                     className="mt-0.5 shrink-0 !text-red-600"
                   />
                   <p className="text-xs !text-red-700">
-                    This exceeds the patient's current wallet balance.
+                    This exceeds the patient&apos;s current wallet balance.
                   </p>
                 </div>
               )}
@@ -1233,7 +1236,7 @@ export default function PaymentsTab({
         <div className="flex items-start gap-2.5">
           <AlertTriangle size={18} className="mt-0.5 shrink-0 !text-red-600" />
           <p className="text-sm !text-slate-700">
-            Confirming this payment will bring this visit's outstanding balance to ₦0.00. This can't be undone directly — if it turns out to be a mistake, the way to correct it is a credit refund (Credits tab), which records the excess as money owed back to the patient. Please confirm you want to proceed.
+            Confirming this payment will bring this visit&apos;s outstanding balance to ₦0.00. This can&apos;t be undone directly — if it turns out to be a mistake, the way to correct it is a credit refund (Credits tab), which records the excess as money owed back to the patient. Please confirm you want to proceed.
           </p>
         </div>
       </Modal>

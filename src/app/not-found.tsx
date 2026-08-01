@@ -1,15 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import Lottie from 'lottie-react';
 import animationData from '@/animations/404 Error.json';
 
-export default function NotFound() {
-  const [ready, setReady] = useState(false);
+const emptySubscribe = () => () => {};
 
-  useEffect(() => {
-    setReady(true);
-  }, []);
+export default function NotFound() {
+  const ready = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   if (!ready) {
     return null;

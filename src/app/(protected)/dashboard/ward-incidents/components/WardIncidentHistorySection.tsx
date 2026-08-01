@@ -49,7 +49,7 @@ export default function WardIncidentHistorySection({
     const [editing, setEditing] = useState<Incident | null>(null);
     const [openDrawer, setOpenDrawer] = useState(false);
 
-    async function fetchPage(nextPage: number, nextLimit = limit) {
+    async function fetchIncidentsData(nextPage: number, nextLimit = limit) {
         const params = new URLSearchParams({
             page: String(nextPage),
             limit: String(nextLimit),
@@ -65,15 +65,35 @@ export default function WardIncidentHistorySection({
         );
 
         const json = await res.json();
-        if (!res.ok) return;
+        if (!res.ok) return null;
 
-        setList(json.wardIncidents.items);
-        setPage(json.wardIncidents.page);
-        setTotal(json.wardIncidents.total);
+        return json.wardIncidents as GetWardIncidentsQuery['wardIncidents'];
+    }
+
+    async function fetchPage(nextPage: number, nextLimit = limit) {
+        const wardIncidents = await fetchIncidentsData(nextPage, nextLimit);
+        if (!wardIncidents) return;
+
+        setList(wardIncidents.items);
+        setPage(wardIncidents.page);
+        setTotal(wardIncidents.total);
     }
 
     useEffect(() => {
-        fetchPage(1, limit);
+        let ignore = false;
+
+        fetchIncidentsData(1, limit).then(wardIncidents => {
+            if (ignore || !wardIncidents) return;
+
+            setList(wardIncidents.items);
+            setPage(wardIncidents.page);
+            setTotal(wardIncidents.total);
+        });
+
+        return () => {
+            ignore = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [severityFilter, statusFilter, typeFilter, wardIdFilter]);
 
     return (

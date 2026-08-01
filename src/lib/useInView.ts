@@ -30,7 +30,10 @@ export function useInView<T extends HTMLElement = HTMLDivElement>(
   const ref = useRef<T>(null);
   const [inView, setInView] = useState(false);
   const inViewRef = useRef(inView);
-  inViewRef.current = inView;
+
+  useEffect(() => {
+    inViewRef.current = inView;
+  }, [inView]);
 
   useEffect(() => {
     if (inView || !ref.current) return;

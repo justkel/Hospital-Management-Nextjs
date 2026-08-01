@@ -143,10 +143,11 @@ export default function TheatreAvailabilityClient() {
         setResult(json.theatres);
         setPage(p);
       } catch (err) {
-        err instanceof Error
-          ? err.message
-          : 'Something went wrong';
-
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Something went wrong',
+        );
       } finally {
         setLoading(false);
       }

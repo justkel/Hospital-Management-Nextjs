@@ -18,7 +18,6 @@ import {
 } from '@/shared/graphql/generated/graphql';
 
 import { clientFetch } from '@/lib/clientFetch';
-import { useAppProps } from 'antd/es/app/context';
 
 type Incident = GetTheatreIncidentByIdQuery['theatreIncidentById'];
 
@@ -63,7 +62,7 @@ export default function UpdateTheatreIncidentDrawer({
         setStatus(
             incident.status ?? '',
         );
-    }, [open, incident?.id]);
+    }, [open, incident]);
 
     function reset() {
         setNotes('');

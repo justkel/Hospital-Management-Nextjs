@@ -1,18 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
 type LogoutEvent = CustomEvent<{ message?: string }>;
 
+const emptySubscribe = () => () => {};
+
 export default function AuthOverlay() {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState('');
-  const [mounted, setMounted] = useState(false);
+
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   useEffect(() => {
-    setMounted(true);
-
     const handler = (e: Event) => {
       const event = e as LogoutEvent;
 

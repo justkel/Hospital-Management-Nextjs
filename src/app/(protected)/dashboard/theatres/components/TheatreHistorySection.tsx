@@ -72,7 +72,7 @@ export default function TheatreHistorySection({
   const [editingTheatre, setEditingTheatre] =
     useState<TheatreItem | null>(null);
 
-  async function fetchPage(
+  async function fetchTheatresData(
     nextPage: number,
     nextLimit = limit
   ) {
@@ -107,16 +107,39 @@ export default function TheatreHistorySection({
         'Failed to fetch theatres'
       );
 
-      return;
+      return null;
     }
 
-    updateList(json.theatres.items); 
-    setPage(json.theatres.page);
-    setTotal(json.theatres.total);
+    return json.theatres as GetTheatresQuery['theatres'];
+  }
+
+  async function fetchPage(
+    nextPage: number,
+    nextLimit = limit
+  ) {
+    const theatres = await fetchTheatresData(nextPage, nextLimit);
+    if (!theatres) return;
+
+    updateList(theatres.items);
+    setPage(theatres.page);
+    setTotal(theatres.total);
   }
 
   useEffect(() => {
-    fetchPage(1);
+    let ignore = false;
+
+    fetchTheatresData(1).then(theatres => {
+      if (ignore || !theatres) return;
+
+      updateList(theatres.items);
+      setPage(theatres.page);
+      setTotal(theatres.total);
+    });
+
+    return () => {
+      ignore = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [department, isActive]);
 
   return (

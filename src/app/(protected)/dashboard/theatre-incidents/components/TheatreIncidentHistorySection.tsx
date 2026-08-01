@@ -77,7 +77,7 @@ export default function TheatreIncidentHistorySection({
     const [openDrawer, setOpenDrawer] =
         useState(false);
 
-    async function fetchPage(
+    async function fetchIncidentsData(
         nextPage: number,
         nextLimit = limit,
     ) {
@@ -116,17 +116,35 @@ export default function TheatreIncidentHistorySection({
 
         const json = await res.json();
 
-        if (!res.ok) return;
+        if (!res.ok) return null;
 
-        setList(json.theatreIncidents.items);
+        return json.theatreIncidents as GetTheatreIncidentsQuery['theatreIncidents'];
+    }
 
-        setPage(json.theatreIncidents.page);
+    async function fetchPage(nextPage: number, nextLimit = limit) {
+        const theatreIncidents = await fetchIncidentsData(nextPage, nextLimit);
+        if (!theatreIncidents) return;
 
-        setTotal(json.theatreIncidents.total);
+        setList(theatreIncidents.items);
+        setPage(theatreIncidents.page);
+        setTotal(theatreIncidents.total);
     }
 
     useEffect(() => {
-        fetchPage(1, limit);
+        let ignore = false;
+
+        fetchIncidentsData(1, limit).then(theatreIncidents => {
+            if (ignore || !theatreIncidents) return;
+
+            setList(theatreIncidents.items);
+            setPage(theatreIncidents.page);
+            setTotal(theatreIncidents.total);
+        });
+
+        return () => {
+            ignore = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         severityFilter,
         statusFilter,

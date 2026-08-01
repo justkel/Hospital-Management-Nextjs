@@ -53,7 +53,7 @@ export default function WardHistorySection({
     const [editingWard, setEditingWard] =
         useState<WardItem | null>(null);
 
-    async function fetchPage(
+    async function fetchWardsData(
         nextPage: number,
         nextLimit = limit
     ) {
@@ -85,16 +85,39 @@ export default function WardHistorySection({
                 json.error || 'Failed to fetch wards'
             );
 
-            return;
+            return null;
         }
 
-        setList(json.wards.items);
-        setPage(json.wards.page);
-        setTotal(json.wards.total);
+        return json.wards as GetWardsQuery['wards'];
+    }
+
+    async function fetchPage(
+        nextPage: number,
+        nextLimit = limit
+    ) {
+        const wards = await fetchWardsData(nextPage, nextLimit);
+        if (!wards) return;
+
+        setList(wards.items);
+        setPage(wards.page);
+        setTotal(wards.total);
     }
 
     useEffect(() => {
-        fetchPage(1);
+        let ignore = false;
+
+        fetchWardsData(1).then(wards => {
+            if (ignore || !wards) return;
+
+            setList(wards.items);
+            setPage(wards.page);
+            setTotal(wards.total);
+        });
+
+        return () => {
+            ignore = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [department, wardClass, isActive]);
 
     return (

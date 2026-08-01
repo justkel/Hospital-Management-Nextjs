@@ -54,7 +54,7 @@ export function useVisitTasks(visitId: string, enabled = true) {
   useEffect(() => {
     if (!enabled) return;
     fetchTasks();
-  }, [enabled, visitId]);
+  }, [enabled, fetchTasks]);
 
   const createTask = useCallback(
     async (payload: TaskPayload): Promise<boolean> => {

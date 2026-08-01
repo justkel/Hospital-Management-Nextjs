@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Modal, Select, Radio, Input, message } from 'antd';
 import {
   AlertTriangle,
@@ -151,17 +151,20 @@ export default function AdjustmentsTab({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
-  const getRemaining = (chargeId: string, totalAmount: number): number => {
-    const b = balances[chargeId];
-    return b ? b.remaining : totalAmount;
-  };
+  const getRemaining = useCallback(
+    (chargeId: string, totalAmount: number): number => {
+      const b = balances[chargeId];
+      return b ? b.remaining : totalAmount;
+    },
+    [balances]
+  );
 
   const payableCharges = useMemo(
     () =>
       charges.filter(
         (c) => getRemaining(c.id, Number(c.totalAmount ?? 0)) > 0.01
       ),
-    [charges, balances]
+    [charges, getRemaining]
   );
 
   const selectedCharge = useMemo(
@@ -702,7 +705,7 @@ export default function AdjustmentsTab({
                     }
                   />
                   <p className="mt-1.5 text-xs !text-slate-400">
-                    This percentage is calculated against the charge's initial amount
+                    This percentage is calculated against the charge&apos;s initial amount
                     {selectedCharge
                       ? ` (${formatCurrency(selectedCharge.totalAmount)})`
                       : ''}
@@ -811,7 +814,7 @@ export default function AdjustmentsTab({
             </p>
           ) : (
             <p className="text-sm !text-slate-700">
-              Applying this adjustment will bring this visit's outstanding
+              Applying this adjustment will bring this visit&apos;s outstanding
               balance to ₦0.00. There is no direct way to undo this — the
               only path back is a separate, tracked reversal. Please confirm
               you want to proceed.

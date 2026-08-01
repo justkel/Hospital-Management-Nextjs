@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     message,
     Pagination,
@@ -67,7 +67,7 @@ export default function WardBedsSection({
     const [allocations, setAllocations] =
         useState<AllocationItem[]>([]);
 
-    async function fetchAllocations() {
+    const fetchAllocations = useCallback(async () => {
         try {
             const res = await clientFetch(
                 `/api/bed-allocation/by-ward?wardId=${wardId}`,
@@ -79,11 +79,11 @@ export default function WardBedsSection({
 
             setAllocations(json.bedAllocations ?? []);
         } catch {}
-    }
+    }, [wardId]);
 
     useEffect(() => {
         fetchAllocations();
-    }, [wardId]);
+    }, [fetchAllocations]);
 
     const allocationByBedId = useMemo(() => {
         const map = new Map<string, AllocationItem>();
@@ -95,73 +95,74 @@ export default function WardBedsSection({
         return map;
     }, [allocations]);
 
-    async function fetchBeds(
-        p = page,
-        l = limit,
-    ) {
-        try {
-            setLoading(true);
+    const fetchBeds = useCallback(
+        async (p = page, l = limit) => {
+            try {
+                setLoading(true);
 
-            const params =
-                new URLSearchParams({
-                    wardId,
-                    page: String(p),
-                    limit: String(l),
-                });
+                const params =
+                    new URLSearchParams({
+                        wardId,
+                        page: String(p),
+                        limit: String(l),
+                    });
 
-            if (classFilter) {
-                params.append(
-                    'class',
-                    classFilter,
+                if (classFilter) {
+                    params.append(
+                        'class',
+                        classFilter,
+                    );
+                }
+
+                if (statusFilter) {
+                    params.append(
+                        'status',
+                        statusFilter,
+                    );
+                }
+
+                if (
+                    typeof activeFilter ===
+                    'boolean'
+                ) {
+                    params.append(
+                        'isActive',
+                        String(activeFilter),
+                    );
+                }
+
+                const res = await clientFetch(
+                    `/api/bed/list?${params.toString()}`,
                 );
-            }
 
-            if (statusFilter) {
-                params.append(
-                    'status',
-                    statusFilter,
-                );
-            }
+                const json = await res.json();
 
-            if (
-                typeof activeFilter ===
-                'boolean'
-            ) {
-                params.append(
-                    'isActive',
-                    String(activeFilter),
-                );
-            }
+                if (!res.ok) {
+                    message.error(
+                        json?.error ||
+                        'Failed to load beds',
+                    );
 
-            const res = await clientFetch(
-                `/api/bed/list?${params.toString()}`,
-            );
+                    return;
+                }
 
-            const json = await res.json();
-
-            if (!res.ok) {
+                setBeds(json.beds.items || []);
+                setPage(json.beds.page);
+                setTotal(json.beds.total);
+            } catch {
                 message.error(
-                    json?.error ||
                     'Failed to load beds',
                 );
-
-                return;
+            } finally {
+                setLoading(false);
             }
-
-            setBeds(json.beds.items || []);
-            setPage(json.beds.page);
-            setTotal(json.beds.total);
-        } catch {
-            message.error(
-                'Failed to load beds',
-            );
-        } finally {
-            setLoading(false);
-        }
-    }
+        },
+        [wardId, classFilter, statusFilter, activeFilter, page, limit],
+    );
 
     useEffect(() => {
         fetchBeds(1);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         classFilter,
         statusFilter,

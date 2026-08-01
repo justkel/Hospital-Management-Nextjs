@@ -83,7 +83,7 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
   const [estimatedDuration, setEstimatedDuration] = useState('');
   const [notes, setNotes] = useState('');
   const [theatreId, setTheatreId] = useState('');
-  const [theatreSearch, setTheatreSearch] = useState('');
+  const [theatreSearch] = useState('');
   const [theatreOptions, setTheatreOptions] = useState<TheatreOption[]>([]);
   const [theatreName, setTheatreName] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
@@ -144,10 +144,11 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
       setSaved(true);
       await onSuccess();
     } catch (err) {
-      err instanceof Error
-        ? err.message
-        : 'Something went wrong';
-
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Something went wrong'
+      );
     } finally {
       setSaving(false);
     }

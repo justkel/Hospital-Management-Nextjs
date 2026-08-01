@@ -192,10 +192,11 @@ export default function TheatreAvailabilitySyncForm({
         onSuccess();
       }, 800);
     } catch (err) {
-      err instanceof Error
-        ? err.message
-        : 'Something went wrong';
-
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Something went wrong',
+      );
     } finally {
       setSaving(false);
     }
@@ -281,7 +282,7 @@ export default function TheatreAvailabilitySyncForm({
                   No slots for {DAY_LABELS[selectedDay]}
                 </p>
                 <p className="mt-1 text-xs text-slate-400">
-                  Click "Add Slot" to configure an operating window.
+                  Click &quot;Add Slot&quot; to configure an operating window.
                 </p>
               </div>
             ) : (

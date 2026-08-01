@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Pagination, message } from 'antd';
 
 import { clientFetch } from '@/lib/clientFetch';
@@ -26,20 +26,13 @@ export default function WardIncidentsSection({
     wardId: string;
     paginated?: GetWardIncidentsByWardQuery['wardIncidentsByWard'];
 }) {
-    if (!paginated) {
-        return (
-            <div className="text-center py-10 text-gray-500">
-                No incident data available
-            </div>
-        );
-    }
     const [list, setList] = useState<WardIncidentItem[]>(
-        paginated.items,
+        paginated?.items ?? [],
     );
 
-    const [page, setPage] = useState(paginated.page);
+    const [page, setPage] = useState(paginated?.page ?? 1);
 
-    const [total, setTotal] = useState(paginated.total);
+    const [total, setTotal] = useState(paginated?.total ?? 0);
 
     const [limit, setLimit] = useState(20);
 
@@ -47,36 +40,49 @@ export default function WardIncidentsSection({
     const [status, setStatus] = useState('');
     const [type, setType] = useState('');
 
-    async function fetchPage(nextPage: number, nextLimit = limit) {
-        const params = new URLSearchParams({
-            wardId,
-            page: String(nextPage),
-            limit: String(nextLimit),
-        });
+    const fetchPage = useCallback(
+        async (nextPage: number, nextLimit = limit) => {
+            const params = new URLSearchParams({
+                wardId,
+                page: String(nextPage),
+                limit: String(nextLimit),
+            });
 
-        if (severity) params.append('severity', severity);
-        if (status) params.append('status', status);
-        if (type) params.append('type', type);
+            if (severity) params.append('severity', severity);
+            if (status) params.append('status', status);
+            if (type) params.append('type', type);
 
-        const res = await clientFetch(
-            `/api/ward-incident/list-by-ward?${params.toString()}`,
-        );
+            const res = await clientFetch(
+                `/api/ward-incident/list-by-ward?${params.toString()}`,
+            );
 
-        const json = await res.json();
+            const json = await res.json();
 
-        if (!res.ok) {
-            message.error(json.error || 'Failed to fetch ward incidents');
-            return;
-        }
+            if (!res.ok) {
+                message.error(json.error || 'Failed to fetch ward incidents');
+                return;
+            }
 
-        setList(json.wardIncidents.items);
-        setPage(json.wardIncidents.page);
-        setTotal(json.wardIncidents.total);
-    }
+            setList(json.wardIncidents.items);
+            setPage(json.wardIncidents.page);
+            setTotal(json.wardIncidents.total);
+        },
+        [wardId, severity, status, type, limit],
+    );
 
     useEffect(() => {
+        if (!paginated) return;
         fetchPage(1);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [severity, status, type]);
+
+    if (!paginated) {
+        return (
+            <div className="text-center py-10 text-gray-500">
+                No incident data available
+            </div>
+        );
+    }
 
     return (
         <section className="space-y-6">
