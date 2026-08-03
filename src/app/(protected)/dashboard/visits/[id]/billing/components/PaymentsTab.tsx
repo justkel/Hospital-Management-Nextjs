@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Modal, Select, Checkbox, Input, message } from 'antd';
 import {
   AlertTriangle,
@@ -64,6 +64,9 @@ interface BalancePaymentRow {
   createdAt: string;
 }
 
+type TabKey = 'payments' | 'balance';
+const TAB_ORDER: TabKey[] = ['payments', 'balance'];
+
 export default function PaymentsTab({
   visitId,
   patientId,
@@ -81,6 +84,10 @@ export default function PaymentsTab({
   onPaymentsChange: (payments: PaymentRow[]) => void;
   onLatestInvoiceChange: (invoice: InvoiceRow | null) => void;
 }) {
+  const [activeTab, setActiveTab] = useState<TabKey>('payments');
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [indicator, setIndicator] = useState({ left: 0, width: 0 });
+
   const [formOpen, setFormOpen] = useState(false);
   const [selectedChargeIds, setSelectedChargeIds] = useState<string[]>([]);
   const [amounts, setAmounts] = useState<Record<string, string>>({});
@@ -222,6 +229,42 @@ export default function PaymentsTab({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletEnabled, patientId]);
+
+  useEffect(() => {
+    const index = TAB_ORDER.indexOf(activeTab);
+
+    const measure = () => {
+      const el = tabRefs.current[index];
+      if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
+    };
+
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [activeTab]);
+
+  const handleTabKeyDown = (
+    e: React.KeyboardEvent<HTMLButtonElement>,
+    index: number
+  ) => {
+    let nextIndex: number | null = null;
+
+    if (e.key === 'ArrowRight') {
+      nextIndex = (index + 1) % TAB_ORDER.length;
+    } else if (e.key === 'ArrowLeft') {
+      nextIndex = (index - 1 + TAB_ORDER.length) % TAB_ORDER.length;
+    } else if (e.key === 'Home') {
+      nextIndex = 0;
+    } else if (e.key === 'End') {
+      nextIndex = TAB_ORDER.length - 1;
+    }
+
+    if (nextIndex === null) return;
+
+    e.preventDefault();
+    setActiveTab(TAB_ORDER[nextIndex]);
+    tabRefs.current[nextIndex]?.focus();
+  };
 
   const getRemaining = useCallback(
     (chargeId: string, totalAmount: number): number => {
@@ -641,207 +684,330 @@ export default function PaymentsTab({
 
   return (
     <div className="space-y-5 py-5">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold !text-slate-800">
-          {payments.length} payment{payments.length === 1 ? '' : 's'}
-        </h3>
+      <div
+        role="tablist"
+        aria-label="Payment records"
+        className="relative grid grid-cols-2 gap-2 rounded-2xl border !border-slate-200 !bg-slate-50 p-1"
+      >
+        <span
+          aria-hidden="true"
+          style={{
+            transform: `translateX(${indicator.left}px)`,
+            width: indicator.width || undefined,
+          }}
+          className="absolute inset-y-1 left-0 rounded-xl !bg-white shadow-sm transition-[transform,width] duration-300 ease-out motion-reduce:transition-none"
+        />
 
         <button
+          ref={(el) => {
+            tabRefs.current[0] = el;
+          }}
+          role="tab"
+          id="payments-tab"
           type="button"
-          onClick={openForm}
-          className="inline-flex items-center gap-2 rounded-2xl !bg-emerald-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-emerald-700"
+          aria-selected={activeTab === 'payments'}
+          aria-controls="payments-panel"
+          tabIndex={activeTab === 'payments' ? 0 : -1}
+          onClick={() => setActiveTab('payments')}
+          onKeyDown={(e) => handleTabKeyDown(e, 0)}
+          className={`relative z-10 flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 sm:px-4 ${
+            activeTab === 'payments'
+              ? '!text-emerald-700'
+              : '!text-slate-500 hover:!text-slate-700'
+          }`}
         >
-          <Banknote size={15} />
-          Record payment
+          <Banknote size={15} className="shrink-0" />
+          <span className="truncate">Payments</span>
+          <span
+            className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+              activeTab === 'payments'
+                ? '!bg-emerald-100 !text-emerald-700'
+                : '!bg-slate-200 !text-slate-600'
+            }`}
+          >
+            {payments.length}
+          </span>
+        </button>
+
+        <button
+          ref={(el) => {
+            tabRefs.current[1] = el;
+          }}
+          role="tab"
+          id="balance-tab"
+          type="button"
+          aria-selected={activeTab === 'balance'}
+          aria-controls="balance-panel"
+          tabIndex={activeTab === 'balance' ? 0 : -1}
+          onClick={() => setActiveTab('balance')}
+          onKeyDown={(e) => handleTabKeyDown(e, 1)}
+          className={`relative z-10 flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 sm:px-4 ${
+            activeTab === 'balance'
+              ? '!text-amber-700'
+              : '!text-slate-500 hover:!text-slate-700'
+          }`}
+        >
+          <Landmark size={15} className="shrink-0" />
+          <span className="truncate">Balance</span>
+          <span
+            className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+              activeTab === 'balance'
+                ? '!bg-amber-100 !text-amber-700'
+                : '!bg-slate-200 !text-slate-600'
+            }`}
+          >
+            {balancePayments.length}
+          </span>
         </button>
       </div>
 
-      {showBalancePaymentPrompt && (
-        <div className="flex flex-col gap-3 rounded-2xl border !border-amber-200 !bg-amber-50/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3">
-            <AlertTriangle
-              size={18}
-              className="mt-0.5 shrink-0 !text-amber-600"
-            />
-            <div>
-              <p className="text-sm font-bold !text-amber-900">
-                This visit still owes{' '}
-                {formatCurrency(currentTotals?.outstandingBalance)}, but
-                every charge is already fully allocated.
-              </p>
-              <p className="mt-0.5 text-xs !text-amber-700">
-                This can happen after charges move up and down again
-                following a refund. Record a payment against the visit&apos;s
-                overall balance instead.
-              </p>
-            </div>
+      {activeTab === 'payments' && (
+        <div
+          role="tabpanel"
+          id="payments-panel"
+          aria-labelledby="payments-tab"
+          tabIndex={0}
+          className="space-y-5 focus:outline-none"
+        >
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="text-sm font-bold !text-slate-800">
+              {payments.length} payment{payments.length === 1 ? '' : 's'}
+            </h3>
+
+            <button
+              type="button"
+              onClick={openForm}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl !bg-emerald-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-emerald-700"
+            >
+              <Banknote size={15} />
+              Record payment
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={openBalanceForm}
-            className="inline-flex shrink-0 items-center gap-2 rounded-2xl border !border-amber-300 !bg-white px-4 py-2.5 text-sm font-medium !text-amber-700 shadow-sm transition hover:!bg-amber-50"
-          >
-            <Landmark size={15} />
-            Record balance payment
-          </button>
-        </div>
-      )}
 
-      {payments.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border !border-slate-100 !bg-slate-50/60 px-6 py-16 text-center">
-          <Wallet size={32} className="!text-slate-300" />
-          <h3 className="mt-4 text-base font-bold !text-slate-700">
-            No payments recorded yet
-          </h3>
-          <p className="mt-1 max-w-sm text-sm !text-slate-500">
-            Payments made toward this visit&apos;s charges will appear here.
-          </p>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-xl border !border-slate-200">
-          <div className="divide-y !divide-slate-100">
-            {payments.map((p) => (
-              <div key={p.id} className="px-4 py-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-lg font-bold !text-slate-900">
-                        {formatCurrency(p.amountPaid)}
-                      </span>
-                      <StatusBadge status={p.status} />
-                      <span className="rounded-full border !border-slate-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-slate-500">
-                        {p.paymentMethod}
-                      </span>
-                    </div>
-
-                    <p className="mt-1 text-xs !text-slate-500">
-                      Paid: {formatDateTime(p.paidAt)}
-                      {p.confirmedAt &&
-                        ` · Confirmed: ${formatDateTime(p.confirmedAt)}`}
-                      {p.reference && ` · Ref: ${p.reference}`}
-                    </p>
-
-                    {p.allocations?.length ? (
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {p.allocations.map((alloc) => (
-                          <span
-                            key={alloc.id}
-                            className="inline-flex items-center gap-1 rounded-full border !border-slate-200 !bg-white px-2.5 py-1 text-xs !text-slate-600"
-                          >
-                            {alloc.visitCharge?.chargeName} ·{' '}
-                            {formatCurrency(alloc.amountAllocated)}
-                          </span>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {p.status === 'PENDING' && (
-                      <>
-                        <button
-                          type="button"
-                          disabled={actionLoadingId === p.id}
-                          onClick={() => handleConfirmClick(p)}
-                          className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
-                        >
-                          {actionLoadingId === p.id ? (
-                            <Loader2 size={13} className="animate-spin" />
-                          ) : (
-                            <CheckCircle2 size={13} />
-                          )}
-                          Confirm
-                        </button>
-                        <button
-                          type="button"
-                          disabled={actionLoadingId === p.id}
-                          onClick={() => setFailTarget(p.id)}
-                          className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
-                        >
-                          <XCircle size={13} />
-                          Fail
-                        </button>
-                      </>
-                    )}
-                  </div>
+          {showBalancePaymentPrompt && (
+            <div className="flex flex-col gap-3 rounded-2xl border !border-amber-200 !bg-amber-50/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <AlertTriangle
+                  size={18}
+                  className="mt-0.5 shrink-0 !text-amber-600"
+                />
+                <div>
+                  <p className="text-sm font-bold !text-amber-900">
+                    This visit still owes{' '}
+                    {formatCurrency(currentTotals?.outstandingBalance)}, but
+                    every charge is already fully allocated.
+                  </p>
+                  <p className="mt-0.5 text-xs !text-amber-700">
+                    This can happen after charges move up and down again
+                    following a refund. Record a payment against the visit&apos;s
+                    overall balance instead.
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('balance');
+                  openBalanceForm();
+                }}
+                className="inline-flex shrink-0 items-center gap-2 rounded-2xl border !border-amber-300 !bg-white px-4 py-2.5 text-sm font-medium !text-amber-700 shadow-sm transition hover:!bg-amber-50"
+              >
+                <Landmark size={15} />
+                Record balance payment
+              </button>
+            </div>
+          )}
+
+          {payments.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-2xl border !border-slate-100 !bg-slate-50/60 px-6 py-16 text-center">
+              <Wallet size={32} className="!text-slate-300" />
+              <h3 className="mt-4 text-base font-bold !text-slate-700">
+                No payments recorded yet
+              </h3>
+              <p className="mt-1 max-w-sm text-sm !text-slate-500">
+                Payments made toward this visit&apos;s charges will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-xl border !border-slate-200">
+              <div className="divide-y !divide-slate-100">
+                {payments.map((p) => (
+                  <div key={p.id} className="px-4 py-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-lg font-bold !text-slate-900">
+                            {formatCurrency(p.amountPaid)}
+                          </span>
+                          <StatusBadge status={p.status} />
+                          <span className="rounded-full border !border-slate-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-slate-500">
+                            {p.paymentMethod}
+                          </span>
+                        </div>
+
+                        <p className="mt-1 text-xs !text-slate-500">
+                          Paid: {formatDateTime(p.paidAt)}
+                          {p.confirmedAt &&
+                            ` · Confirmed: ${formatDateTime(p.confirmedAt)}`}
+                          {p.reference && ` · Ref: ${p.reference}`}
+                        </p>
+
+                        {p.allocations?.length ? (
+                          <div className="mt-2 flex flex-wrap gap-1.5">
+                            {p.allocations.map((alloc) => (
+                              <span
+                                key={alloc.id}
+                                className="inline-flex items-center gap-1 rounded-full border !border-slate-200 !bg-white px-2.5 py-1 text-xs !text-slate-600"
+                              >
+                                {alloc.visitCharge?.chargeName} ·{' '}
+                                {formatCurrency(alloc.amountAllocated)}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        {p.status === 'PENDING' && (
+                          <>
+                            <button
+                              type="button"
+                              disabled={actionLoadingId === p.id}
+                              onClick={() => handleConfirmClick(p)}
+                              className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
+                            >
+                              {actionLoadingId === p.id ? (
+                                <Loader2 size={13} className="animate-spin" />
+                              ) : (
+                                <CheckCircle2 size={13} />
+                              )}
+                              Confirm
+                            </button>
+                            <button
+                              type="button"
+                              disabled={actionLoadingId === p.id}
+                              onClick={() => setFailTarget(p.id)}
+                              className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
+                            >
+                              <XCircle size={13} />
+                              Fail
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {balancePayments.length > 0 && (
-        <div>
-          <div className="mb-3 flex items-center gap-2">
-            <Landmark size={15} className="!text-amber-500" />
+      {activeTab === 'balance' && (
+        <div
+          role="tabpanel"
+          id="balance-panel"
+          aria-labelledby="balance-tab"
+          tabIndex={0}
+          className="space-y-5 focus:outline-none"
+        >
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-sm font-bold !text-slate-800">
               {balancePayments.length} balance payment
               {balancePayments.length === 1 ? '' : 's'}
             </h3>
+
+            <button
+              type="button"
+              onClick={openBalanceForm}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border !border-amber-300 !bg-amber-50 px-4 py-2.5 text-sm font-medium !text-amber-700 shadow-sm transition hover:!bg-amber-100"
+            >
+              <Landmark size={15} />
+              Record balance payment
+            </button>
           </div>
 
-          <div className="overflow-hidden rounded-xl border !border-amber-200">
-            <div className="divide-y !divide-amber-100">
-              {balancePayments.map((p) => (
-                <div key={p.id} className="px-4 py-4">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-lg font-bold !text-slate-900">
-                          {formatCurrency(p.amountPaid)}
-                        </span>
-                        <StatusBadge status={p.status} />
-                        <span className="rounded-full border !border-amber-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-amber-700">
-                          {p.paymentMethod}
-                        </span>
+          <p className="text-xs !text-slate-500">
+            Payments applied against the visit&apos;s overall balance rather
+            than a specific charge — used when every charge is already fully
+            allocated but the visit still owes money.
+          </p>
+
+          {balancePayments.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-2xl border !border-amber-100 !bg-amber-50/40 px-6 py-16 text-center">
+              <Landmark size={32} className="!text-amber-300" />
+              <h3 className="mt-4 text-base font-bold !text-slate-700">
+                No balance payments recorded yet
+              </h3>
+              <p className="mt-1 max-w-sm text-sm !text-slate-500">
+                Payments recorded against this visit&apos;s overall balance
+                will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-xl border !border-amber-200">
+              <div className="divide-y !divide-amber-100">
+                {balancePayments.map((p) => (
+                  <div key={p.id} className="px-4 py-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-lg font-bold !text-slate-900">
+                            {formatCurrency(p.amountPaid)}
+                          </span>
+                          <StatusBadge status={p.status} />
+                          <span className="rounded-full border !border-amber-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-amber-700">
+                            {p.paymentMethod}
+                          </span>
+                        </div>
+
+                        <p className="mt-1 text-xs !text-slate-500">
+                          Paid: {formatDateTime(p.paidAt)}
+                          {p.confirmedAt &&
+                            ` · Confirmed: ${formatDateTime(p.confirmedAt)}`}
+                          {p.reference && ` · Ref: ${p.reference}`}
+                        </p>
+
+                        <p className="mt-1 text-sm !text-slate-600">
+                          {p.reason}
+                        </p>
                       </div>
 
-                      <p className="mt-1 text-xs !text-slate-500">
-                        Paid: {formatDateTime(p.paidAt)}
-                        {p.confirmedAt &&
-                          ` · Confirmed: ${formatDateTime(p.confirmedAt)}`}
-                        {p.reference && ` · Ref: ${p.reference}`}
-                      </p>
-
-                      <p className="mt-1 text-sm !text-slate-600">
-                        {p.reason}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {p.status === 'PENDING' && (
-                        <>
-                          <button
-                            type="button"
-                            disabled={balanceActionLoadingId === p.id}
-                            onClick={() => handleBalanceConfirmClick(p)}
-                            className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
-                          >
-                            {balanceActionLoadingId === p.id ? (
-                              <Loader2 size={13} className="animate-spin" />
-                            ) : (
-                              <CheckCircle2 size={13} />
-                            )}
-                            Confirm
-                          </button>
-                          <button
-                            type="button"
-                            disabled={balanceActionLoadingId === p.id}
-                            onClick={() => setBalanceFailTarget(p.id)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
-                          >
-                            <XCircle size={13} />
-                            Fail
-                          </button>
-                        </>
-                      )}
+                      <div className="flex flex-wrap gap-2">
+                        {p.status === 'PENDING' && (
+                          <>
+                            <button
+                              type="button"
+                              disabled={balanceActionLoadingId === p.id}
+                              onClick={() => handleBalanceConfirmClick(p)}
+                              className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
+                            >
+                              {balanceActionLoadingId === p.id ? (
+                                <Loader2 size={13} className="animate-spin" />
+                              ) : (
+                                <CheckCircle2 size={13} />
+                              )}
+                              Confirm
+                            </button>
+                            <button
+                              type="button"
+                              disabled={balanceActionLoadingId === p.id}
+                              onClick={() => setBalanceFailTarget(p.id)}
+                              className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
+                            >
+                              <XCircle size={13} />
+                              Fail
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 
