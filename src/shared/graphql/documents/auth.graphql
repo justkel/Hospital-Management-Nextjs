@@ -577,6 +577,19 @@ query GetAuditLogs($pagination: AuditPaginationInput!) {
   }
 }
 
+query GetActorActivityStats($period: ActorActivityPeriod!) {
+  getActorActivityStats(period: $period) {
+    actorId
+    period
+    total
+    buckets {
+      label
+      timestamp
+      count
+    }
+  }
+}
+
 query CatalogsByChargeDomain($chargeDomain: ChargeDomain!) {
   catalogsByChargeDomain(chargeDomain: $chargeDomain) {
     id

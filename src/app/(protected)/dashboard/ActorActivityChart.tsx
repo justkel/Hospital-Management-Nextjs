@@ -1,0 +1,211 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from 'recharts';
+import { Activity } from 'lucide-react';
+import { clientFetch } from '@/lib/clientFetch';
+
+type ActorActivityPeriod = 'LAST_24_HOURS' | 'LAST_7_DAYS';
+
+interface ActorActivityBucket {
+  label: string;
+  timestamp: string;
+  count: number;
+}
+
+interface ActorActivityStats {
+  actorId: string;
+  period: ActorActivityPeriod;
+  total: number;
+  buckets: ActorActivityBucket[];
+}
+
+interface ChartBucket {
+  label: string;
+  count: number;
+}
+
+const PERIOD_OPTIONS: { value: ActorActivityPeriod; label: string }[] = [
+  { value: 'LAST_24_HOURS', label: '24h' },
+  { value: 'LAST_7_DAYS', label: '7d' },
+];
+
+function formatBucketLabel(timestamp: string, period: ActorActivityPeriod): string {
+  const date = new Date(timestamp);
+
+  if (period === 'LAST_24_HOURS') {
+    return date.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
+  }
+
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+function ActivityTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+
+  const value = payload[0].value;
+
+  return (
+    <div className="rounded-lg border border-[#E8E6E0] bg-white px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.08)]">
+      <p className="text-[11px] font-medium uppercase tracking-[0.05em] text-[#B4B2A9]">
+        {label}
+      </p>
+      <p className="mt-0.5 text-[14px] font-semibold text-[#2C2C2A]">
+        {value} action{value === 1 ? '' : 's'}
+      </p>
+    </div>
+  );
+}
+
+export default function ActorActivityChart() {
+  const [period, setPeriod] = useState<ActorActivityPeriod>('LAST_24_HOURS');
+  const [stats, setStats] = useState<ActorActivityStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchStats = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const res = await clientFetch(
+          `/api/audit/actor-activity-stats?period=${period}`
+        );
+        const json = await res.json();
+
+        if (!res.ok || !json.stats) {
+          throw new Error(json.error ?? 'Failed to load activity stats');
+        }
+
+        if (!cancelled) {
+          setStats(json.stats);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Something went wrong');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchStats();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [period]);
+
+  const chartData: ChartBucket[] = useMemo(() => {
+    if (!stats) return [];
+
+    return stats.buckets.map((bucket) => ({
+      label: formatBucketLabel(bucket.timestamp, period),
+      count: bucket.count,
+    }));
+  }, [stats, period]);
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-[#E8E6E0] bg-white transition hover:border-[#D3D1C7] hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+      <div className="flex items-center justify-between gap-4 border-b border-[#F0F0EC] p-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-[#F0FAF5] text-[#1D9E75]">
+            <Activity size={16} />
+          </div>
+          <div>
+            <p className="text-[13px] font-semibold text-[#2C2C2A]">
+              Actor activity
+            </p>
+            <p className="text-[11px] text-[#B4B2A9]">
+              {stats
+                ? `${stats.total} action${stats.total === 1 ? '' : 's'} in this period`
+                : 'Loading…'}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1 rounded-lg bg-[#F5F5F0] p-1">
+          {PERIOD_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setPeriod(opt.value)}
+              className={
+                period === opt.value
+                  ? 'rounded-md bg-white px-3 py-1.5 text-[12px] font-medium text-[#2C2C2A] shadow-sm'
+                  : 'rounded-md px-3 py-1.5 text-[12px] font-medium text-[#B4B2A9] hover:text-[#2C2C2A]'
+              }
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="p-5">
+        {loading && (
+          <div className="flex h-[220px] items-center justify-center">
+            <div className="relative h-8 w-8">
+              <span className="absolute inset-0 rounded-full border-[3px] border-[#E8E6E0]" />
+              <span className="absolute inset-0 rounded-full border-[3px] border-[#1D9E75] border-t-transparent animate-spin" />
+            </div>
+          </div>
+        )}
+
+        {!loading && error && (
+          <div className="flex h-[220px] items-center justify-center">
+            <p className="text-[13px] text-[#B4B2A9]">{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && stats && (
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart
+              data={chartData}
+              margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+            >
+              <CartesianGrid vertical={false} stroke="#F0F0EC" />
+              <XAxis
+                dataKey="label"
+                tick={{ fontSize: 11, fill: '#B4B2A9' }}
+                axisLine={{ stroke: '#E8E6E0' }}
+                tickLine={false}
+                interval={period === 'LAST_24_HOURS' ? 2 : 0}
+              />
+              <YAxis
+                allowDecimals={false}
+                tick={{ fontSize: 11, fill: '#B4B2A9' }}
+                axisLine={false}
+                tickLine={false}
+                width={32}
+              />
+              <Tooltip content={<ActivityTooltip />} cursor={{ fill: '#F0FAF5' }} />
+              <Bar
+                dataKey="count"
+                fill="#1D9E75"
+                radius={[4, 4, 0, 0]}
+                maxBarSize={period === 'LAST_24_HOURS' ? 14 : 32}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    </div>
+  );
+}
