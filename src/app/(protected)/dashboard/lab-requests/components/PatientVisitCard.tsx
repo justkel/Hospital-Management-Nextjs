@@ -38,7 +38,7 @@ export default function PatientVisitCard({
   const [selectorKey, setSelectorKey] = useState(0);
 
   const openVisit = useMemo(
-    () => visits.find((v: Visit) => v.status === VisitStatus.Open),
+    () => visits.find((v: Visit) => v.status === VisitStatus.Open || v.status === VisitStatus.Admitted),
     [visits]
   );
 
