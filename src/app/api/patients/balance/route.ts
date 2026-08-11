@@ -1,0 +1,71 @@
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { print } from 'graphql';
+import {
+  GetPatientOutstandingBalanceDocument,
+  GetPatientOutstandingBalanceQuery,
+  GetPatientOutstandingBalanceQueryVariables,
+} from '@/shared/graphql/generated/graphql';
+import { GraphQLErrorShape, handleGraphQLError } from '@/lib/handle-graphql-error';
+
+const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
+
+export async function GET(req: Request) {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get('access_token')?.value;
+
+  if (!accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const patientId = searchParams.get('patientId');
+
+  if (!patientId) {
+    return NextResponse.json(
+      { error: 'patientId is required' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const res = await fetch(GATEWAY_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        query: print(GetPatientOutstandingBalanceDocument),
+        variables: {
+          patientId,
+        } as GetPatientOutstandingBalanceQueryVariables,
+      }),
+    });
+
+    const json: {
+      data?: GetPatientOutstandingBalanceQuery;
+      errors?: GraphQLErrorShape[];
+    } = await res.json();
+
+    const errorResponse = handleGraphQLError(json.errors);
+    if (errorResponse) return errorResponse;
+
+    if (!json.data?.patientOutstandingBalance) {
+      return NextResponse.json(
+        { error: 'Failed to fetch patient outstanding balance' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      patientOutstandingBalance: json.data.patientOutstandingBalance,
+    });
+  } catch (err) {
+    console.error('Error fetching patient outstanding balance:', err);
+    return NextResponse.json(
+      { error: 'Something went wrong' },
+      { status: 500 }
+    );
+  }
+}
