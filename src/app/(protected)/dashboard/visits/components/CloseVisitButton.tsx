@@ -16,7 +16,7 @@ interface ValidationRequirement {
   met: boolean;
   message?: string;
   details?: string;
-}
+  }
 
 interface ValidationResult {
   canClose: boolean;
@@ -34,6 +34,13 @@ export default function CloseVisitButton({ visitId, status }: Props) {
 
   const isClosed = status === VisitStatus.Closed;
   const canClose = validationResult?.canClose ?? true;
+
+  const resetModal = () => {
+    setOpen(false);
+    setError(null);
+    setValidationResult(null);
+    setSubmitting(false);
+  };
 
   const handleClose = async () => {
     setSubmitting(true);
@@ -57,7 +64,7 @@ export default function CloseVisitButton({ visitId, status }: Props) {
         throw new Error(json.error || 'Failed to close visit');
       }
 
-      setOpen(false);
+      resetModal();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -66,12 +73,18 @@ export default function CloseVisitButton({ visitId, status }: Props) {
     }
   };
 
+  const handleOpen = () => {
+    setOpen(true);
+    setError(null);
+    setValidationResult(null);
+  };
+
   return (
     <>
       <button
         type="button"
         disabled={isClosed}
-        onClick={() => setOpen(true)}
+        onClick={handleOpen}
         className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] border border-[#F0D3D3] bg-white px-4 text-[13px] font-medium text-[#B3413E] transition hover:border-[#B3413E]/40 hover:bg-[#FBF2F1] disabled:cursor-not-allowed disabled:border-[#E8E6E0] disabled:bg-[#F5F4F1] disabled:text-[#B4B2A9]"
       >
         <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-[#FBF2F1] text-[#B3413E]">
@@ -83,7 +96,7 @@ export default function CloseVisitButton({ visitId, status }: Props) {
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 px-4 pb-4 backdrop-blur-[2px] sm:items-center sm:pb-0"
-          onClick={() => !submitting && setOpen(false)}
+          onClick={() => !submitting && resetModal()}
         >
           <div
             role="dialog"
@@ -98,7 +111,7 @@ export default function CloseVisitButton({ visitId, status }: Props) {
               </div>
               <button
                 type="button"
-                onClick={() => !submitting && setOpen(false)}
+                onClick={() => !submitting && resetModal()}
                 className="rounded-full p-1.5 text-[#B4B2A9] transition hover:bg-[#F5F4F1] hover:text-[#2C2C2A]"
                 aria-label="Close dialog"
               >
@@ -161,7 +174,7 @@ export default function CloseVisitButton({ visitId, status }: Props) {
               <button
                 type="button"
                 disabled={submitting}
-                onClick={() => setOpen(false)}
+                onClick={() => resetModal()}
                 className="inline-flex h-[38px] items-center justify-center rounded-[9px] border border-[#E8E6E0] bg-white px-4 text-[13px] font-medium text-[#2C2C2A] transition hover:bg-[#F5F4F1] disabled:opacity-50"
               >
                 Cancel
