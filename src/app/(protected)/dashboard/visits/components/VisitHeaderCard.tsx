@@ -1,15 +1,15 @@
 import Link from 'next/link';
 import { GetVisitByIdQuery } from '@/shared/graphql/generated/graphql';
-import { User, Stethoscope } from 'lucide-react';
+import { User, Stethoscope, DoorClosedLockedIcon } from 'lucide-react';
 
 type Visit = GetVisitByIdQuery['visit'];
 
 const STATUS_DARK: Record<string, string> = {
-  OPEN:       'bg-[#F0FAF5] text-[#1D9E75] border-[#1D9E75]/30',
-  ADMITTED:   'bg-[#EFF6FF]/90 text-[#2563EB] border-[#2563EB]/25',
+  OPEN: 'bg-[#F0FAF5] text-[#1D9E75] border-[#1D9E75]/30',
+  ADMITTED: 'bg-[#EFF6FF]/90 text-[#2563EB] border-[#2563EB]/25',
   DISCHARGED: 'bg-[#F5F3FF]/90 text-[#7C3AED] border-[#7C3AED]/25',
-  CANCELLED:  'bg-[#DC2626]/15 text-[#FDA9A9] border-[#DC2626]/30',
-  CLOSED:     'bg-white/[0.07] text-[#5a7a6a] border-white/10',
+  CANCELLED: 'bg-[#DC2626]/15 text-[#FDA9A9] border-[#DC2626]/30',
+  CLOSED: 'bg-white/[0.07] text-[#5a7a6a] border-white/10',
 };
 
 function DarkBadge({ label, styles }: { label: string; styles: string }) {
@@ -22,9 +22,9 @@ function DarkBadge({ label, styles }: { label: string; styles: string }) {
 }
 
 export default function VisitHeaderCard({ visit }: { visit: Visit }) {
-  const patient  = visit.patient;
+  const patient = visit.patient;
   const isClosed = !!visit.closedAt;
-  const initial  = patient?.fullName?.charAt(0)?.toUpperCase() ?? '?';
+  const initial = patient?.fullName?.charAt(0)?.toUpperCase() ?? '?';
 
   return (
     <div className="relative overflow-hidden rounded-xl bg-[#0c1a12] px-6 py-6 sm:px-8">
@@ -58,7 +58,7 @@ export default function VisitHeaderCard({ visit }: { visit: Visit }) {
               {isClosed && (
                 <span className="inline-flex items-center gap-1 rounded-full border border-[#DC2626]/30 bg-[#DC2626]/15 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] text-[#FDA9A9]">
                   <span className="h-1 w-1 rounded-full bg-current" />
-                  Closed
+                  <DoorClosedLockedIcon size={10} />
                 </span>
               )}
             </div>
