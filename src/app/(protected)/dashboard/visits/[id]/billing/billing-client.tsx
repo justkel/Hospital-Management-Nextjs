@@ -22,6 +22,7 @@ import AdjustmentsTab from './components/AdjustmentsTab';
 import InvoicesTab from './components/InvoicesTab';
 import PaymentsTab from './components/PaymentsTab';
 import CreditsTab from './components/CreditsTab';
+import PatientOutstandingBalance from '../../components/PatientOutstandingBalance';
 
 export type ChargeSummary = NonNullable<
   GetVisitBillingPageQuery['visitChargeSummary']
@@ -152,6 +153,7 @@ export default function BillingClient({
   return (
     <div className="min-h-screen !bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="max-w-7xl mx-auto py-3 lg:px-3 space-y-6">
+        <PatientOutstandingBalance patientId={visit.patientId} />
         <div className="relative overflow-hidden rounded-2xl border !border-slate-200/80 !bg-white">
           <div className="px-6 py-7 sm:px-8 sm:py-8">
             <div className="mb-6">
