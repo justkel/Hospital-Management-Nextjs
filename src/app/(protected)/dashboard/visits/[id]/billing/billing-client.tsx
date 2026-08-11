@@ -3,7 +3,6 @@
 import { useMemo, useState, useCallback } from 'react';
 import {
   AlertTriangle,
-  Activity,
   CircleDollarSign,
   FileText,
   LayoutList,
@@ -200,9 +199,6 @@ export default function BillingClient({
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <div className="rounded-xl !bg-slate-50 p-4">
                 <div className="mb-2.5 flex items-center justify-between">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg !bg-blue-100 !text-blue-600">
-                    <Activity size={16} />
-                  </div>
                   <span className="text-xl font-semibold !text-slate-900 sm:text-2xl">
                     {formatCurrency(summary.total)}
                   </span>
@@ -237,20 +233,6 @@ export default function BillingClient({
                 </div>
                 <p className="text-xs font-medium !text-slate-500">
                   Adjustments awaiting review
-                </p>
-              </div>
-
-              <div className="rounded-xl !bg-slate-50 p-4">
-                <div className="mb-2.5 flex items-center justify-between">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg !bg-emerald-100 !text-emerald-600">
-                    <Wallet size={16} />
-                  </div>
-                  <span className="text-2xl font-semibold !text-slate-900">
-                    {payments.length}
-                  </span>
-                </div>
-                <p className="text-xs font-medium !text-slate-500">
-                  Payments recorded
                 </p>
               </div>
             </div>
