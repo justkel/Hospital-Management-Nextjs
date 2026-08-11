@@ -24,34 +24,43 @@ export async function POST(req: Request) {
     data: body,
   };
 
-  const res = await fetch(GATEWAY_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({
-      query: print(CreateVisitDocument),
-      variables,
-    }),
-  });
+  try {
+    const res = await fetch(GATEWAY_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        query: print(CreateVisitDocument),
+        variables,
+      }),
+    });
 
-  const json: {
-    data?: CreateVisitMutation;
-    errors?: GraphQLErrorShape[];
-  } = await res.json();
+    const json: {
+      data?: CreateVisitMutation;
+      errors?: GraphQLErrorShape[];
+    } = await res.json();
 
-  const errorResponse = handleGraphQLError(json.errors);
-  if (errorResponse) return errorResponse;
+    const errorResponse = handleGraphQLError(json.errors);
+    if (errorResponse) return errorResponse;
 
-  if (!json.data?.createVisit) {
+    if (!json.data?.createVisit) {
+      return NextResponse.json(
+        { error: 'Failed to create visit' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      visit: json.data.createVisit.visit,
+      patientOutstandingBalance: json.data.createVisit.patientOutstandingBalance,
+    });
+  } catch (err) {
+    console.error('Error creating visit:', err);
     return NextResponse.json(
-      { error: 'Failed to create visit' },
+      { error: 'Something went wrong' },
       { status: 500 }
     );
   }
-
-  return NextResponse.json({
-    visit: json.data!.createVisit,
-  });
 }
