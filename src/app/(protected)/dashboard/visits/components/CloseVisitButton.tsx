@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { clientFetch } from '@/lib/clientFetch';
 import { VisitStatus } from '@/shared/graphql/generated/graphql';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 interface Props {
   visitId: string;
@@ -143,84 +145,86 @@ export default function VisitStatusButton({ visitId, status }: Props) {
 
   if (isClosed) {
     return (
-      <>
-        <button
-          type="button"
-          onClick={handleOpenReopen}
-          className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] border border-[#E8E6E0] bg-white px-4 text-[13px] font-medium text-[#2C2C2A] transition hover:border-[#1D9E75]/40 hover:bg-[#F0FAF5] hover:text-[#1D9E75]"
-        >
-          <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-[#F0FAF5] text-[#1D9E75]">
-            <RefreshCw size={13} />
-          </div>
-          Reopen visit
-        </button>
-
-        {open && mode === 'reopen' && (
-          <div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 px-4 pb-4 backdrop-blur-[2px] sm:items-center sm:pb-0"
-            onClick={() => !submitting && resetModal()}
+      <HasRoles roles={[Roles.ADMIN]}>
+        <>
+          <button
+            type="button"
+            onClick={handleOpenReopen}
+            className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] border border-[#E8E6E0] bg-white px-4 text-[13px] font-medium text-[#2C2C2A] transition hover:border-[#1D9E75]/40 hover:bg-[#F0FAF5] hover:text-[#1D9E75]"
           >
+            <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-[#F0FAF5] text-[#1D9E75]">
+              <RefreshCw size={13} />
+            </div>
+            Reopen visit
+          </button>
+
+          {open && mode === 'reopen' && (
             <div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="reopen-visit-title"
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md animate-in fade-in zoom-in-95 rounded-2xl border border-[#E8E6E0] bg-white p-6 shadow-xl duration-150"
+              className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 px-4 pb-4 backdrop-blur-[2px] sm:items-center sm:pb-0"
+              onClick={() => !submitting && resetModal()}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F0FAF5] text-[#1D9E75]">
-                  <RefreshCw size={20} />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => !submitting && resetModal()}
-                  className="rounded-full p-1.5 text-[#B4B2A9] transition hover:bg-[#F5F4F1] hover:text-[#2C2C2A]"
-                  aria-label="Close dialog"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-
-              <h2
-                id="reopen-visit-title"
-                className="mt-4 text-[16px] font-semibold text-[#2C2C2A]"
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="reopen-visit-title"
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-md animate-in fade-in zoom-in-95 rounded-2xl border border-[#E8E6E0] bg-white p-6 shadow-xl duration-150"
               >
-                Reopen this visit?
-              </h2>
-              <p className="mt-1.5 text-[13px] leading-relaxed text-[#6B6960]">
-                This will reopen the visit and allow edits to vitals, complaints,
-                diagnoses, prescriptions and charges. The visit will become active again.
-              </p>
-
-              {error && (
-                <div className="mt-4 rounded-[9px] border border-[#F0D3D3] bg-[#FBF2F1] px-3.5 py-2.5 text-[12.5px] text-[#B3413E]">
-                  {error}
+                <div className="flex items-start justify-between">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F0FAF5] text-[#1D9E75]">
+                    <RefreshCw size={20} />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => !submitting && resetModal()}
+                    className="rounded-full p-1.5 text-[#B4B2A9] transition hover:bg-[#F5F4F1] hover:text-[#2C2C2A]"
+                    aria-label="Close dialog"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
-              )}
 
-              <div className="mt-6 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
-                <button
-                  type="button"
-                  disabled={submitting}
-                  onClick={() => resetModal()}
-                  className="inline-flex h-[38px] items-center justify-center rounded-[9px] border border-[#E8E6E0] bg-white px-4 text-[13px] font-medium text-[#2C2C2A] transition hover:bg-[#F5F4F1] disabled:opacity-50"
+                <h2
+                  id="reopen-visit-title"
+                  className="mt-4 text-[16px] font-semibold text-[#2C2C2A]"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  disabled={submitting}
-                  onClick={handleConfirm}
-                  className="inline-flex h-[38px] items-center justify-center gap-2 rounded-[9px] bg-[#1D9E75] px-4 text-[13px] font-medium !text-white transition hover:bg-[#16835E] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {submitting && <Loader2 size={14} className="animate-spin" />}
-                  {submitting ? 'Reopening…' : 'Yes, reopen visit'}
-                </button>
+                  Reopen this visit?
+                </h2>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-[#6B6960]">
+                  This will reopen the visit and allow edits to vitals, complaints,
+                  diagnoses, prescriptions and charges. The visit will become active again.
+                </p>
+
+                {error && (
+                  <div className="mt-4 rounded-[9px] border border-[#F0D3D3] bg-[#FBF2F1] px-3.5 py-2.5 text-[12.5px] text-[#B3413E]">
+                    {error}
+                  </div>
+                )}
+
+                <div className="mt-6 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    disabled={submitting}
+                    onClick={() => resetModal()}
+                    className="inline-flex h-[38px] items-center justify-center rounded-[9px] border border-[#E8E6E0] bg-white px-4 text-[13px] font-medium text-[#2C2C2A] transition hover:bg-[#F5F4F1] disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={submitting}
+                    onClick={handleConfirm}
+                    className="inline-flex h-[38px] items-center justify-center gap-2 rounded-[9px] bg-[#1D9E75] px-4 text-[13px] font-medium !text-white transition hover:bg-[#16835E] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {submitting && <Loader2 size={14} className="animate-spin" />}
+                    {submitting ? 'Reopening…' : 'Yes, reopen visit'}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </>
+          )}
+        </>
+      </HasRoles>
     );
   }
 
