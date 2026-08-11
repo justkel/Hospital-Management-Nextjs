@@ -23,6 +23,7 @@ import VisitNoteBoard from '../components/visit-note-positions/VisitNoteBoard';
 import Link from 'next/link';
 import { ClipboardList, FlaskConical, Receipt } from 'lucide-react';
 import VisitOtherChargeSection from '../components/VisitOtherChargeSection';
+import CloseVisitButton from '../components/CloseVisitButton';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -57,6 +58,7 @@ export default async function VisitDetailPage({ params }: Props) {
             </div>
 
             <div className="flex flex-wrap gap-2.5">
+              <CloseVisitButton visitId={visit.id} status={visit.status} />
               <Link
                 href={`/dashboard/visits/${visit.id}/procedures`}
                 className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] bg-[#0c1a12] px-4 text-[13px] font-medium text-white transition hover:bg-[#1D9E75]"
