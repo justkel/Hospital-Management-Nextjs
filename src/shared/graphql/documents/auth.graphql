@@ -206,11 +206,38 @@ mutation UpdatePatient($data: UpdatePatientInput!) {
 
 mutation CreateVisit($data: CreateVisitInput!) {
   createVisit(data: $data) {
-    id
-    patientId
-    status
+    visit {
+      id
+      status
+      visitType
+      visitDateTime
+      patient {
+        id
+        fullName
+        userCode
+        email
+      }
+    }
+    patientOutstandingBalance {
+      patientId
+      patientName
+      patientUserCode
+      totalOutstandingBalance
+      totalChargesAcrossAllVisits
+      totalPaidAcrossAllVisits
+      visitOutstandings {
+        visitId
+        visitDate
+        visitType
+        outstandingBalance
+        totalCharges
+        totalPaid
+        totalAdjustments
+        status
+      }
+    }
   }
-} 
+}
 
 query FindAllVisits($pagination: VisitPaginationInput!) {
   visits(pagination: $pagination) {
@@ -3595,5 +3622,84 @@ mutation FailWalletTopUp($transactionId: ID!, $reason: String!) {
     id
     status
     notes
+  }
+}
+
+mutation CloseVisit($visitId: String!) {
+  closeVisit(visitId: $visitId) {
+    id
+    status
+    patient {
+      id
+      fullName
+    }
+  }
+}
+
+mutation CloseVisitWithValidation($visitId: String!) {
+  closeVisitWithValidation(visitId: $visitId) {
+    id
+    status
+    closedAt
+    patient {
+      id
+      fullName
+      userCode
+    }
+    closedByStaff {
+      id
+      fullName
+    }
+  }
+}
+
+query GetPatientOutstandingBalance($patientId: ID!) {
+  patientOutstandingBalance(patientId: $patientId) {
+    patientId
+    patientName
+    patientUserCode
+    totalOutstandingBalance
+    totalChargesAcrossAllVisits
+    totalPaidAcrossAllVisits
+    visitOutstandings {
+      visitId
+      visitDate
+      visitType
+      outstandingBalance
+      totalCharges
+      totalPaid
+      totalAdjustments
+      status
+    }
+  }
+}
+
+query GetVisitClosureValidation($visitId: String!) {
+  visitClosureValidation(visitId: $visitId) {
+    canClose
+    summary
+    blockingReasons
+    requirements {
+      name
+      met
+      message
+      details
+    }
+  }
+}
+
+mutation ReopenVisit($visitId: String!) {
+  reopenVisit(visitId: $visitId) {
+    id
+    status
+    closedAt
+    closedByStaff {
+      id
+      fullName
+    }
+    patient {
+      id
+      fullName
+    }
   }
 }
