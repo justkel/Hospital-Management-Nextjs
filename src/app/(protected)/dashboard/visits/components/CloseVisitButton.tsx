@@ -11,17 +11,35 @@ interface Props {
   status?: VisitStatus | null;
 }
 
+interface ValidationRequirement {
+  name: string;
+  met: boolean;
+  message?: string;
+  details?: string;
+}
+
+interface ValidationResult {
+  canClose: boolean;
+  requirements: ValidationRequirement[];
+  summary?: string;
+  blockingReasons?: string[];
+}
+
 export default function CloseVisitButton({ visitId, status }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
 
   const isClosed = status === VisitStatus.Closed;
+  const canClose = validationResult?.canClose ?? true;
 
   const handleClose = async () => {
     setSubmitting(true);
     setError(null);
+    setValidationResult(null);
+
     try {
       const res = await clientFetch('/api/visit/close', {
         method: 'POST',
@@ -29,9 +47,14 @@ export default function CloseVisitButton({ visitId, status }: Props) {
         body: JSON.stringify({ visitId }),
       });
 
+      const json = await res.json();
+
       if (!res.ok) {
-        const json = await res.json().catch(() => null);
-        throw new Error(json?.error ?? 'Failed to close visit');
+        if (json.validation) {
+          setValidationResult(json.validation);
+          throw new Error(json.validation.summary || 'Visit cannot be closed');
+        }
+        throw new Error(json.error || 'Failed to close visit');
       }
 
       setOpen(false);
@@ -95,9 +118,42 @@ export default function CloseVisitButton({ visitId, status }: Props) {
               longer be editable. This action cannot be undone.
             </p>
 
-            {error && (
+            {validationResult && !validationResult.canClose && (
+              <div className="mt-4 space-y-2">
+                <div className="rounded-[9px] border border-[#F0D3D3] bg-[#FBF2F1] px-3.5 py-2.5">
+                  <p className="text-[12.5px] font-medium text-[#B3413E]">
+                    Cannot close visit - requirements not met:
+                  </p>
+                  <ul className="mt-1.5 space-y-1 text-[12.5px] text-[#6B6960]">
+                    {validationResult.requirements
+                      .filter((req) => !req.met)
+                      .map((req, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-[#B3413E]">•</span>
+                          <span>
+                            <strong>{req.name}</strong>
+                            {req.details && (
+                              <span className="block text-[#8A8880] text-[11.5px]">
+                                {req.details}
+                              </span>
+                            )}
+                          </span>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {error && !validationResult && (
               <div className="mt-4 rounded-[9px] border border-[#F0D3D3] bg-[#FBF2F1] px-3.5 py-2.5 text-[12.5px] text-[#B3413E]">
                 {error}
+              </div>
+            )}
+
+            {validationResult?.canClose && (
+              <div className="mt-4 rounded-[9px] border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-[12.5px] text-emerald-700">
+                ✓ All requirements met. Visit can be closed.
               </div>
             )}
 
@@ -112,7 +168,7 @@ export default function CloseVisitButton({ visitId, status }: Props) {
               </button>
               <button
                 type="button"
-                disabled={submitting}
+                disabled={submitting || !canClose}
                 onClick={handleClose}
                 className="inline-flex h-[38px] items-center justify-center gap-2 rounded-[9px] bg-[#B3413E] px-4 text-[13px] font-medium !text-white transition hover:bg-[#9A3532] disabled:cursor-not-allowed disabled:opacity-60"
               >

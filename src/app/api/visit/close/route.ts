@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { print } from 'graphql';
 import {
-  CloseVisitDocument,
-  CloseVisitMutation,
-  CloseVisitMutationVariables,
+  CloseVisitWithValidationDocument,
+  CloseVisitWithValidationMutation,
+  CloseVisitWithValidationMutationVariables,
 } from '@/shared/graphql/generated/graphql';
 import {
   GraphQLErrorShape,
@@ -23,38 +23,46 @@ export async function POST(req: Request) {
 
   const body = await req.json();
 
-  const variables: CloseVisitMutationVariables = {
+  const variables: CloseVisitWithValidationMutationVariables = {
     visitId: body.visitId,
   };
 
-  const res = await fetch(GATEWAY_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({
-      query: print(CloseVisitDocument),
-      variables,
-    }),
-  });
+  try {
+    const res = await fetch(GATEWAY_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        query: print(CloseVisitWithValidationDocument),
+        variables,
+      }),
+    });
 
-  const json: {
-    data?: CloseVisitMutation;
-    errors?: GraphQLErrorShape[];
-  } = await res.json();
+    const json: {
+      data?: CloseVisitWithValidationMutation;
+      errors?: GraphQLErrorShape[];
+    } = await res.json();
 
-  const errorResponse = handleGraphQLError(json.errors);
-  if (errorResponse) return errorResponse;
+    const errorResponse = handleGraphQLError(json.errors);
+    if (errorResponse) return errorResponse;
 
-  if (!json.data?.closeVisit) {
+    if (!json.data?.closeVisitWithValidation) {
+      return NextResponse.json(
+        { error: 'Failed to close visit' },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json({
+      visit: json.data.closeVisitWithValidation,
+    });
+  } catch (err) {
+    console.error('Error closing visit:', err);
     return NextResponse.json(
-      { error: 'Failed to close visit' },
+      { error: 'Something went wrong' },
       { status: 500 },
     );
   }
-
-  return NextResponse.json({
-    visit: json.data.closeVisit,
-  });
 }
