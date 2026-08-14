@@ -7,6 +7,7 @@ export const Roles = {
   RECEPTIONIST: StaffRole.Receptionist,
   PHARMACIST: StaffRole.Pharmacist,
   LAB_TECH: StaffRole.LabTech,
+  BILLING_OFFICER: StaffRole.BillingOfficer,
 } as const;
 
 export type Roles = (typeof Roles)[keyof typeof Roles];
@@ -52,5 +53,11 @@ export const ROLE_STYLES: Record<Roles, RoleStyle> = {
     bg: 'bg-cyan-100',
     text: 'text-cyan-700',
     ring: 'ring-cyan-300',
+  },
+
+  [Roles.BILLING_OFFICER]: {
+    bg: 'bg-indigo-100',
+    text: 'text-indigo-700',
+    ring: 'ring-indigo-300',
   },
 };
