@@ -27,7 +27,7 @@ function TimelineItem({ title, time, variant = 'default' }: { title: string; tim
 export default function VisitTimelineSection({ visit }: { visit: Visit }) {
   return (
     <CollapsibleSection
-      title="Visit timeline"
+      title="Visit events"
       icon={<GitBranch size={14} />}
       iconColor="purple"
     >
