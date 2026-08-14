@@ -7,6 +7,7 @@ import {
   FileText,
   LayoutList,
   Receipt,
+  ShieldCheck,
   Sparkles,
   Wallet,
   type LucideIcon,
@@ -14,8 +15,11 @@ import {
 
 import {
   GetVisitBillingPageQuery,
+  VisitStatus,
 } from '@/shared/graphql/generated/graphql';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { HasRoles, useHasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 import ChargeSummaryTab from './components/ChargeSummaryTab';
 import AdjustmentsTab from './components/AdjustmentsTab';
@@ -23,6 +27,9 @@ import InvoicesTab from './components/InvoicesTab';
 import PaymentsTab from './components/PaymentsTab';
 import CreditsTab from './components/CreditsTab';
 import PatientOutstandingBalance from '../../components/PatientOutstandingBalance';
+import ReconcileVisitModal, {
+  ReconciledVisitResult,
+} from './components/ReconcileVisitModal';
 
 export type ChargeSummary = NonNullable<
   GetVisitBillingPageQuery['visitChargeSummary']
@@ -98,6 +105,25 @@ export default function BillingClient({
     initialCreditBalance
   );
 
+  const [visitStatus, setVisitStatus] = useState<VisitStatus | undefined>(
+    visit.status
+  );
+  const [reconciledInfo, setReconciledInfo] =
+    useState<ReconciledVisitResult | null>(null);
+  const [reconcileModalOpen, setReconcileModalOpen] = useState(false);
+
+  const canManageReconciliation = useHasRoles([
+    Roles.ADMIN,
+    Roles.BILLING_OFFICER,
+  ]);
+
+  const isReconciled = visitStatus === VisitStatus.Reconciled;
+
+  const handleReconciled = useCallback((updatedVisit: ReconciledVisitResult) => {
+    setVisitStatus(updatedVisit.status);
+    setReconciledInfo(updatedVisit);
+  }, []);
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -156,21 +182,49 @@ export default function BillingClient({
         <PatientOutstandingBalance patientId={visit.patientId} />
         <div className="relative overflow-hidden rounded-2xl border !border-slate-200/80 !bg-white">
           <div className="px-6 py-7 sm:px-8 sm:py-8">
-            <div className="mb-6">
-              <div className="mb-3.5 inline-flex items-center gap-1.5 rounded-full border !border-blue-200 !bg-blue-50 px-3 py-1 text-xs font-medium !text-blue-700">
-                <Sparkles size={13} />
-                Billing workspace
+            <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <div className="mb-3.5 inline-flex items-center gap-1.5 rounded-full border !border-blue-200 !bg-blue-50 px-3 py-1 text-xs font-medium !text-blue-700">
+                  <Sparkles size={13} />
+                  Billing workspace
+                </div>
+
+                <h1 className="text-2xl font-semibold tracking-tight !text-slate-900 sm:text-3xl">
+                  Visit billing
+                </h1>
+
+                <p className="mt-1.5 max-w-lg text-sm leading-relaxed !text-slate-500">
+                  Review charges, manage adjustments, generate invoices, and
+                  record payments for this visit — all in one place.
+                </p>
               </div>
 
-              <h1 className="text-2xl font-semibold tracking-tight !text-slate-900 sm:text-3xl">
-                Visit billing
-              </h1>
-
-              <p className="mt-1.5 max-w-lg text-sm leading-relaxed !text-slate-500">
-                Review charges, manage adjustments, generate invoices, and
-                record payments for this visit — all in one place.
-              </p>
+              <HasRoles roles={[Roles.ADMIN, Roles.BILLING_OFFICER]}>
+                <div className="flex flex-col items-end gap-1.5">
+                  <button
+                    type="button"
+                    disabled={isReconciled}
+                    onClick={() => setReconcileModalOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-xl !bg-slate-900 px-4 py-2.5 text-sm font-bold !text-white transition hover:!bg-slate-800 disabled:cursor-not-allowed disabled:!bg-slate-300"
+                  >
+                    <ShieldCheck size={15} />
+                    {isReconciled ? 'Visit reconciled' : 'Reconcile visit'}
+                  </button>
+                  {isReconciled && reconciledInfo?.reconciledByStaff && (
+                    <span className="text-[11px] font-medium !text-slate-400">
+                      By {reconciledInfo.reconciledByStaff.fullName}
+                    </span>
+                  )}
+                </div>
+              </HasRoles>
             </div>
+
+            {!canManageReconciliation && isReconciled && (
+              <div className="mb-6 flex items-center gap-2 rounded-xl border !border-emerald-200 !bg-emerald-50 px-4 py-3 text-xs font-semibold !text-emerald-700">
+                <ShieldCheck size={15} />
+                This visit has been reconciled and is now closed for billing.
+              </div>
+            )}
 
             {hasCreditBalance && (
               <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border !border-amber-200 !bg-amber-50 px-5 py-4">
@@ -346,6 +400,15 @@ export default function BillingClient({
           </div>
         </div>
       </div>
+
+      <HasRoles roles={[Roles.ADMIN, Roles.BILLING_OFFICER]}>
+        <ReconcileVisitModal
+          visitId={visit.id}
+          open={reconcileModalOpen}
+          onClose={() => setReconcileModalOpen(false)}
+          onReconciled={handleReconciled}
+        />
+      </HasRoles>
     </div>
   );
 }
