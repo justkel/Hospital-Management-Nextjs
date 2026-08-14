@@ -47,6 +47,7 @@ export default function VisitStatusButton({ visitId, status }: Props) {
   const isOpen = status === VisitStatus.Open;
   const isAdmitted = status === VisitStatus.Admitted;
   const isCancelled = status === VisitStatus.Cancelled;
+  const isReconciled = status === VisitStatus.Reconciled;
 
   const canBeClosed = isOpen || isAdmitted;
 
@@ -139,7 +140,7 @@ export default function VisitStatusButton({ visitId, status }: Props) {
     }
   };
 
-  if (isCancelled) {
+  if (isCancelled || isReconciled) {
     return null;
   }
 
