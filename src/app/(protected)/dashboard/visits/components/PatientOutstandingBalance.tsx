@@ -233,8 +233,11 @@ export default function PatientOutstandingBalance({
     return null;
   }
 
-  const hasOutstanding = data.totalOutstandingBalance > 0.01;
   const totalVisits = data.visitOutstandings.length;
+  const hasOutstanding = data.totalOutstandingBalance > 0.01;
+  const hasCharges = data.totalChargesAcrossAllVisits > 0.01;
+  const isFullyPaid = totalVisits > 0 && hasCharges && !hasOutstanding;
+  const hasNoCharges = totalVisits > 0 && !hasCharges;
   const lastFiveVisits = data.visitOutstandings.slice(0, 5);
 
   return (
@@ -287,9 +290,19 @@ export default function PatientOutstandingBalance({
             >
               {formatCurrency(data.totalOutstandingBalance)}
             </p>
-            {!hasOutstanding && (
+            {isFullyPaid && (
               <p className="mt-0.5 text-xs text-emerald-600">
                 ✓ All visits are fully paid
+              </p>
+            )}
+            {hasNoCharges && (
+              <p className="mt-0.5 text-xs text-gray-400">
+                No charges recorded on any visit yet
+              </p>
+            )}
+            {totalVisits === 0 && (
+              <p className="mt-0.5 text-xs text-gray-400">
+                No visits on record yet
               </p>
             )}
           </div>
@@ -355,10 +368,14 @@ export default function PatientOutstandingBalance({
                             {formatCurrency(visit.outstandingBalance)}
                           </p>
                         </>
-                      ) : (
+                      ) : visit.totalCharges > 0.01 ? (
                         <div className="flex items-center gap-1 text-emerald-600">
                           <CheckCircle2 className="h-4 w-4" />
                           <span className="text-xs font-medium">Paid</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-gray-400">
+                          <span className="text-xs font-medium">No charges</span>
                         </div>
                       )}
                     </div>
