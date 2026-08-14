@@ -3703,3 +3703,34 @@ mutation ReopenVisit($visitId: String!) {
     }
   }
 }
+
+query CanReconcileVisit($visitId: String!) {
+  canReconcileVisit(visitId: $visitId) {
+    canReconcile
+    outstandingBalance
+    canClose
+    message
+    blockingReasons
+  }
+}
+
+mutation ReconcileVisit($visitId: String!) {
+  reconcileVisit(visitId: $visitId) {
+    id
+    status
+    reconciledAt
+    reconciledByStaff {
+      id
+      fullName
+    }
+    closedAt
+    closedByStaff {
+      id
+      fullName
+    }
+    patient {
+      id
+      fullName
+    }
+  }
+}
