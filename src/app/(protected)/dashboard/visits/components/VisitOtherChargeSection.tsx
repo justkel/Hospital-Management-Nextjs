@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BillingType,
   ChargeDomain,
@@ -20,6 +20,26 @@ export default function VisitOtherChargeSection({ visitId }: Props) {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (!error) return;
+
+    const timer = setTimeout(() => {
+      setError(null);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [error]);
+
+  useEffect(() => {
+    if (!success) return;
+
+    const timer = setTimeout(() => {
+      setSuccess(false);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [success]);
 
   const createVisitCharge = async () => {
     if (!chargeCatalogId) {
@@ -67,13 +87,13 @@ export default function VisitOtherChargeSection({ visitId }: Props) {
   return (
     <div className="space-y-4 w-full max-w-lg mx-auto px-2 sm:px-4">
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm text-center sm:text-left">
+        <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm text-center sm:text-left animate-in fade-in slide-in-from-top-1 duration-200">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="p-4 rounded-xl bg-green-50 text-green-700 text-sm text-center sm:text-left">
+        <div className="p-4 rounded-xl bg-green-50 text-green-700 text-sm text-center sm:text-left animate-in fade-in slide-in-from-top-1 duration-200">
           Charge applied successfully.
         </div>
       )}

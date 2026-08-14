@@ -1,7 +1,7 @@
 'use client';
 
 import { clientFetch } from '@/lib/clientFetch';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Props {
   visitId: string;
@@ -15,6 +15,16 @@ export default function VisitComplaintCreate({
   const [complaint, setComplaint] = useState('');
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!error) return;
+
+    const timer = setTimeout(() => {
+      setError(null);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [error]);
 
   const createComplaint = async () => {
     if (!complaint.trim()) {
@@ -56,12 +66,6 @@ export default function VisitComplaintCreate({
 
   return (
     <div className="w-full space-y-4">
-      {error && (
-        <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm">
-          {error}
-        </div>
-      )}
-
       <textarea
         value={complaint}
         onChange={(e) => {
@@ -107,6 +111,12 @@ export default function VisitComplaintCreate({
           {creating ? 'Saving...' : 'Add Complaint'}
         </button>
       </div>
+
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm">
+          {error}
+        </div>
+      )}
     </div>
   );
 }

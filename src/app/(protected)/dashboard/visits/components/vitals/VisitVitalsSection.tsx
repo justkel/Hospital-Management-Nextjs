@@ -62,28 +62,36 @@ export default function VisitVitalsSection({ visitId }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<VitalFormValues>(initialForm);
+  const [error, setError] = useState<string | null>(null);
+
   const { catalogs } = useBilling(ChargeDomain.Vitals);
   const FETCH_PRIORITY = 1;
 
   const fetchVitals = useCallback(async () => {
     setLoading(true);
-    try {
 
+    try {
       const res = await scheduledFetch(
-        () => clientFetch(
-          `/api/visit-vital/list?visitId=${visitId}`,
-          {},
-          { skipRateLimitRetry: true }
-        ),
-        FETCH_PRIORITY
+        () =>
+          clientFetch(
+            `/api/visit-vital/list?visitId=${visitId}`,
+            {},
+            { skipRateLimitRetry: true },
+          ),
+        FETCH_PRIORITY,
       );
 
-      if (!res.ok) throw new Error('Failed to fetch vitals');
+      const json = await res.json();
 
-      const json: { vitals: VisitVital[] } = await res.json();
+      if (!res.ok) {
+        throw new Error(json.error || 'Failed to fetch vitals');
+      }
+
       setVitals(json.vitals ?? []);
+      setError(null);
     } catch (err) {
       console.error(err);
+      setError((err as Error).message || 'Failed to load visit vitals');
     } finally {
       setLoading(false);
     }
@@ -92,6 +100,16 @@ export default function VisitVitalsSection({ visitId }: Props) {
   useEffect(() => {
     fetchVitals();
   }, [fetchVitals]);
+
+  useEffect(() => {
+    if (!error) return;
+
+    const timer = setTimeout(() => {
+      setError(null);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [error]);
 
   const parseNumber = (value: string): number | null =>
     value.trim() === '' ? null : Number(value);
@@ -123,23 +141,33 @@ export default function VisitVitalsSection({ visitId }: Props) {
   const resetForm = () => {
     setForm(initialForm);
     setEditingId(null);
+    setError(null);
   };
 
   const handleCreate = async () => {
-    setSubmitting(true);
     try {
+      setSubmitting(true);
+      setError(null);
+
       const res = await clientFetch('/api/visit-vital/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(buildPayload()),
       });
 
-      if (!res.ok) throw new Error('Failed to create vital');
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json.error || 'Failed to record vital signs');
+      }
 
       await fetchVitals();
       resetForm();
     } catch (err) {
       console.error(err);
+      setError(
+        (err as Error).message || 'Failed to record vital signs',
+      );
     } finally {
       setSubmitting(false);
     }
@@ -148,8 +176,10 @@ export default function VisitVitalsSection({ visitId }: Props) {
   const handleUpdate = async () => {
     if (!editingId) return;
 
-    setSubmitting(true);
     try {
+      setSubmitting(true);
+      setError(null);
+
       const res = await clientFetch('/api/visit-vital/update', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -159,19 +189,28 @@ export default function VisitVitalsSection({ visitId }: Props) {
         }),
       });
 
-      if (!res.ok) throw new Error('Failed to update vital');
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json.error || 'Failed to update vital signs');
+      }
 
       await fetchVitals();
       resetForm();
     } catch (err) {
       console.error(err);
+      setError(
+        (err as Error).message || 'Failed to update vital signs',
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleEdit = (vital: VisitVital) => {
+    setError(null);
     setEditingId(vital.id);
+
     setForm({
       chargeCatalogId: '',
       temperature: vital.temperature?.toString() ?? '',
@@ -207,6 +246,12 @@ export default function VisitVitalsSection({ visitId }: Props) {
         visitId={visitId}
       />
 
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
       <VisitVitalsList
         vitals={vitals}
         loading={loading}
@@ -214,4 +259,4 @@ export default function VisitVitalsSection({ visitId }: Props) {
       />
     </div>
   );
-}
+};

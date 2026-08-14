@@ -44,6 +44,15 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
     const [form, setForm] = useState(initialForm);
 
     const { catalogs } = useBilling(ChargeDomain.Diagnosis);
+    useEffect(() => {
+        if (!error) return;
+
+        const timer = setTimeout(() => {
+            setError(null);
+        }, 4000);
+
+        return () => clearTimeout(timer);
+    }, [error]);
 
     const fetchDiagnoses = useCallback(async () => {
         setLoading(true);
@@ -63,6 +72,7 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
             setDiagnoses(json.diagnoses ?? []);
         } catch (err) {
             console.error(err);
+            setError(err instanceof Error ? err.message : 'Failed to fetch diagnoses');
         } finally {
             setLoading(false);
         }
@@ -76,13 +86,19 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
     const resetForm = () => {
         setForm(initialForm);
         setEditingId(null);
+        setError(null);
     };
 
     const handleCreate = async () => {
+        if (!form.diagnosis.trim()) {
+            setError('Diagnosis cannot be empty');
+            return;
+        }
+
         setSubmitting(true);
         setError(null);
         try {
-            await clientFetch('/api/visit-diagnosis/create', {
+            const res = await clientFetch('/api/visit-diagnosis/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -94,15 +110,18 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
                 }),
             });
 
+            const json = await res.json();
+
+            if (!res.ok) {
+                throw new Error(json.error || 'Failed to create diagnosis');
+            }
+
             await fetchDiagnoses();
             setError(null);
             resetForm();
         } catch (err) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : 'Something went wrong'
-            );
+            console.error(err);
+            setError(err instanceof Error ? err.message : 'Failed to create diagnosis');
         } finally {
             setSubmitting(false);
         }
@@ -110,8 +129,13 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
 
     const handleUpdate = async () => {
         if (!editingId) return;
-        setError(null);
 
+        if (!form.diagnosis.trim()) {
+            setError('Diagnosis cannot be empty');
+            return;
+        }
+
+        setError(null);
         setSubmitting(true);
         try {
             const res = await clientFetch('/api/visit-diagnosis/update', {
@@ -125,17 +149,18 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
                 })
             });
 
-            if (!res.ok) throw new Error('Failed to update diagnosis');
+            const json = await res.json();
+
+            if (!res.ok) {
+                throw new Error(json.error || 'Failed to update diagnosis');
+            }
 
             await fetchDiagnoses();
             setError(null);
             resetForm();
         } catch (err) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : 'Something went wrong'
-            );
+            console.error(err);
+            setError(err instanceof Error ? err.message : 'Failed to update diagnosis');
         } finally {
             setSubmitting(false);
         }
@@ -148,7 +173,9 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
             diagnosisCode: d.diagnosisCode ?? '',
             notes: d.notes ?? '',
             chargeCatalogId: '',
+            chargeEnabled: false,
         });
+        setError(null);
     };
 
     const isEditing = useMemo(() => !!editingId, [editingId]);
@@ -172,9 +199,9 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
             />
 
             {error && (
-                <p className="text-red-600 text-sm font-medium">
+                <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm">
                     {error}
-                </p>
+                </div>
             )}
 
             <VisitDiagnosisList

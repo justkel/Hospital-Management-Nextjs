@@ -2,7 +2,7 @@
 
 import { clientFetch } from '@/lib/clientFetch';
 import { useEffect, useState } from 'react';
-import { Input, Button, message } from 'antd';
+import { Input, Button } from 'antd';
 import { CheckOutlined, EditOutlined } from '@ant-design/icons';
 import { scheduledFetch } from '@/lib/requestScheduler';
 
@@ -22,12 +22,24 @@ export default function VisitComplaintList({ visitId, refreshKey }: Props) {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
   const FETCH_PRIORITY = 2;
+
+  useEffect(() => {
+    if (!error) return;
+
+    const timer = setTimeout(() => {
+      setError(null);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [error]);
 
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
         setLoading(true);
+        setError(null);
 
         const res = await scheduledFetch(
           () => clientFetch(
@@ -46,7 +58,7 @@ export default function VisitComplaintList({ visitId, refreshKey }: Props) {
         setComplaints(json.complaints ?? []);
       } catch (err) {
         console.error(err);
-        message.error('Failed to load complaints');
+        setError(err instanceof Error ? err.message : 'Failed to load complaints');
       } finally {
         setLoading(false);
       }
@@ -60,17 +72,20 @@ export default function VisitComplaintList({ visitId, refreshKey }: Props) {
   const handleEditClick = (complaint: Complaint) => {
     setEditingId(complaint.id);
     setEditingText(complaint.complaint);
+    setError(null);
   };
 
   const handleSave = async (id: string) => {
     if (!editingText.trim()) {
-      message.warning('Complaint cannot be empty');
+      setError('Complaint cannot be empty');
       return;
     }
 
     try {
+      setError(null);
       const res = await clientFetch('/api/visit-complaints/update', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ complaintId: id, complaint: editingText }),
       });
 
@@ -84,13 +99,19 @@ export default function VisitComplaintList({ visitId, refreshKey }: Props) {
         prev.map((c) => (c.id === id ? { ...c, complaint: editingText } : c))
       );
 
-      message.success('Complaint updated successfully');
       setEditingId(null);
       setEditingText('');
+      setError(null);
     } catch (err) {
       console.error(err);
-      message.error('Failed to update complaint');
+      setError(err instanceof Error ? err.message : 'Failed to update complaint');
     }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingText('');
+    setError(null);
   };
 
   if (loading) {
@@ -116,16 +137,29 @@ export default function VisitComplaintList({ visitId, refreshKey }: Props) {
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <Input.TextArea
                 value={editingText}
-                onChange={(e) => setEditingText(e.target.value)}
+                onChange={(e) => {
+                  setEditingText(e.target.value);
+                  if (error) setError(null);
+                }}
                 autoSize
+                placeholder="Enter complaint..."
+                className="flex-1"
               />
-              <Button
-                type="primary"
-                icon={<CheckOutlined />}
-                onClick={() => handleSave(c.id)}
-              >
-                OK
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="primary"
+                  icon={<CheckOutlined />}
+                  onClick={() => handleSave(c.id)}
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
+                  Save
+                </Button>
+                <Button
+                  onClick={handleCancelEdit}
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="flex justify-between items-start">
@@ -137,6 +171,7 @@ export default function VisitComplaintList({ visitId, refreshKey }: Props) {
                 icon={<EditOutlined />}
                 size="small"
                 onClick={() => handleEditClick(c)}
+                className="text-gray-400 hover:text-gray-600"
               />
             </div>
           )}
@@ -146,6 +181,11 @@ export default function VisitComplaintList({ visitId, refreshKey }: Props) {
           </span>
         </div>
       ))}
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm">
+          {error}
+        </div>
+      )}
     </div>
   );
 }
