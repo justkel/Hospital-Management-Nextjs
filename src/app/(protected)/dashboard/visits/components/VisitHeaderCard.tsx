@@ -23,7 +23,6 @@ function DarkBadge({ label, styles }: { label: string; styles: string }) {
 
 export default function VisitHeaderCard({ visit }: { visit: Visit }) {
   const patient = visit.patient;
-  const isClosed = !!visit.closedAt;
   const initial = patient?.fullName?.charAt(0)?.toUpperCase() ?? '?';
 
   return (
@@ -55,12 +54,6 @@ export default function VisitHeaderCard({ visit }: { visit: Visit }) {
                 label={visit.status}
                 styles={STATUS_DARK[visit.status] ?? STATUS_DARK.CLOSED}
               />
-              {isClosed && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-[#DC2626]/30 bg-[#DC2626]/15 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] text-[#FDA9A9]">
-                  <span className="h-1 w-1 rounded-full bg-current" />
-                  <DoorClosedLockedIcon size={10} />
-                </span>
-              )}
             </div>
           </div>
         </div>
