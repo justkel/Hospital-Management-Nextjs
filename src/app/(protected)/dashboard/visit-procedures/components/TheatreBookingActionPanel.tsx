@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 
 import {
   AlertTriangle,
+  ArrowLeft,
   Ban,
   CheckCircle2,
   ChevronRight,
@@ -316,9 +317,9 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
             <div className="mb-5 flex items-center gap-3">
               <button
                 onClick={() => { setActiveAction(null); setError(null); }}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-slate-500 transition hover:border-white/20 hover:text-slate-300"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 !text-white transition hover:border-white/20 hover:text-blue-400"
               >
-                ←
+                <ArrowLeft size={18} />
               </button>
               <div>
                 <p className="text-sm font-bold !text-white">{selectedAction?.label}</p>
@@ -472,7 +473,7 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
               <button
                 onClick={() => { setActiveAction(null); setError(null); }}
                 disabled={saving}
-                className="h-10 rounded-xl border border-white/10 px-4 text-xs font-semibold text-slate-400 transition hover:border-white/20 hover:!text-white disabled:opacity-40"
+                className="h-10 rounded-xl border border-white/10 px-4 text-xs font-semibold !text-white transition hover:border-white/20 hover:!text-white disabled:opacity-40"
               >
                 Back
               </button>
