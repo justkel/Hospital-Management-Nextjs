@@ -49,7 +49,7 @@ export default function VisitTaskCard({
         title={isPending ? 'Mark done' : undefined}
         className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition ${
           isDone
-            ? 'border-emerald-500 bg-emerald-500 text-white'
+            ? 'border-emerald-500 bg-emerald-500 !text-white'
             : isPending
               ? 'cursor-pointer border-slate-300 hover:border-emerald-400'
               : 'border-slate-200 bg-slate-100'
