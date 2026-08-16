@@ -12,6 +12,7 @@ import {
   Printer,
   Receipt,
   RefreshCw,
+  ShieldCheck,
 } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';
@@ -52,12 +53,14 @@ export default function InvoicesTab({
   visitId,
   latestInvoice,
   invoices,
+  isReconciled = false,
   onLatestInvoiceChange,
   onInvoicesChange,
 }: {
   visitId: string;
   latestInvoice: InvoiceRow | null;
   invoices: InvoiceRow[];
+  isReconciled?: boolean;
   onLatestInvoiceChange: (invoice: InvoiceRow | null) => void;
   onInvoicesChange: (invoices: InvoiceRow[]) => void;
 }) {
@@ -111,6 +114,11 @@ export default function InvoicesTab({
   }, [visitId]);
 
   const generate = async () => {
+    if (isReconciled) {
+      message.warning('Cannot generate invoices on a reconciled visit');
+      return;
+    }
+
     setGenerating(true);
 
     try {
@@ -136,6 +144,11 @@ export default function InvoicesTab({
 
   const issue = async () => {
     if (!latestInvoice) return;
+
+    if (isReconciled) {
+      message.warning('Cannot issue invoices on a reconciled visit');
+      return;
+    }
 
     setIssuing(true);
 
@@ -175,6 +188,147 @@ export default function InvoicesTab({
     ) > 0.01;
 
   const isStale = totalPayableChanged || outstandingChanged;
+
+  if (isReconciled) {
+    return (
+      <div className="space-y-6 py-5">
+        <div className="flex flex-col items-center justify-center rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-6 py-16 text-center">
+          <ShieldCheck size={32} className="!text-emerald-600" />
+          <h3 className="mt-4 text-base font-bold !text-emerald-800">
+            Visit is reconciled
+          </h3>
+          <p className="mt-1 max-w-sm text-sm !text-emerald-600">
+            This visit has been reconciled and is locked for billing. Invoices cannot be generated or issued.
+          </p>
+        </div>
+
+        {/* Still show existing invoices for reference */}
+        {latestInvoice && (
+          <div className="overflow-hidden rounded-2xl border !border-slate-200">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b !border-slate-100 !bg-slate-50 px-5 py-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
+                  Invoice number
+                </p>
+                <p className="font-mono text-lg font-bold !text-slate-900">
+                  {latestInvoice.invoiceNumber}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <StatusBadge status={latestInvoice.status} />
+                <Link
+                  href={printHref(latestInvoice.id)}
+                  target="_blank"
+                  className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 !bg-white px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700"
+                >
+                  <Printer size={13} />
+                  Print
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 divide-y !divide-slate-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              <div className="px-5 py-4">
+                <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
+                  Subtotal
+                </p>
+                <p className="mt-1 text-lg font-semibold !text-slate-800">
+                  {formatCurrency(latestInvoice.subtotal)}
+                </p>
+              </div>
+              <div className="px-5 py-4">
+                <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
+                  Discounts applied
+                </p>
+                <p className="mt-1 text-lg font-semibold !text-emerald-600">
+                  −{formatCurrency(latestInvoice.discountTotal)}
+                </p>
+              </div>
+              <div className="px-5 py-4">
+                <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
+                  Total payable
+                </p>
+                <p className="mt-1 text-lg font-bold !text-slate-900">
+                  {formatCurrency(latestInvoice.totalPayable)}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 divide-x !divide-slate-100 border-t !border-slate-100">
+              <div className="px-5 py-4">
+                <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
+                  Total paid
+                </p>
+                <p className="mt-1 text-lg font-semibold !text-emerald-600">
+                  {formatCurrency(latestInvoice.totalPaid)}
+                </p>
+              </div>
+              <div className="px-5 py-4">
+                <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
+                  Outstanding
+                </p>
+                <p
+                  className={`mt-1 text-lg font-bold ${
+                    Number(latestInvoice.outstandingBalance) > 0.01
+                      ? '!text-amber-600'
+                      : '!text-emerald-600'
+                  }`}
+                >
+                  {formatCurrency(latestInvoice.outstandingBalance)}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4 border-t !border-slate-100 px-5 py-3 text-xs !text-slate-500">
+              <span>Issued: {formatDateTime(latestInvoice.issuedAt)}</span>
+              <span>Locked: {formatDateTime(latestInvoice.lockedAt)}</span>
+            </div>
+          </div>
+        )}
+
+        {invoices.length > 1 && (
+          <div>
+            <h3 className="mb-3 text-sm font-bold !text-slate-800">
+              Invoice history ({invoices.length})
+            </h3>
+
+            <div className="overflow-hidden rounded-xl border !border-slate-200">
+              <div className="divide-y !divide-slate-100">
+                {invoices.map((inv) => (
+                  <div
+                    key={inv.id}
+                    className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
+                  >
+                    <span className="font-mono text-sm font-medium !text-slate-700">
+                      {inv.invoiceNumber}
+                    </span>
+                    <StatusBadge status={inv.status} />
+                    <span className="text-sm font-semibold !text-slate-800">
+                      {formatCurrency(inv.totalPayable)}
+                    </span>
+                    {Number(inv.outstandingBalance) > 0.01 && (
+                      <span className="text-xs font-medium !text-amber-600">
+                        {formatCurrency(inv.outstandingBalance)} owed
+                      </span>
+                    )}
+                    <Link
+                      href={printHref(inv.id)}
+                      target="_blank"
+                      className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 !bg-white px-2.5 py-1 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700"
+                    >
+                      <Printer size={12} />
+                      Print
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 py-5">
@@ -305,8 +459,12 @@ export default function InvoicesTab({
           <button
             type="button"
             onClick={generate}
-            disabled={generating}
-            className="inline-flex items-center gap-2 rounded-2xl border !border-slate-200 !bg-white px-4 py-2.5 text-sm font-medium !text-slate-700 shadow-sm transition hover:!bg-slate-50 disabled:opacity-60"
+            disabled={generating || isReconciled}
+            className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium shadow-sm transition disabled:opacity-60 ${
+              isReconciled
+                ? 'border !border-slate-200 !bg-slate-100 !text-slate-400 cursor-not-allowed'
+                : 'border !border-slate-200 !bg-white !text-slate-700 hover:!bg-slate-50'
+            }`}
           >
             {generating ? (
               <Loader2 size={14} className="animate-spin" />
@@ -320,8 +478,12 @@ export default function InvoicesTab({
             <button
               type="button"
               onClick={issue}
-              disabled={issuing}
-              className="inline-flex items-center gap-2 rounded-2xl !bg-blue-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-blue-700 disabled:opacity-60"
+              disabled={issuing || isReconciled}
+              className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition disabled:opacity-60 ${
+                isReconciled
+                  ? '!bg-slate-300 cursor-not-allowed'
+                  : '!bg-blue-600 hover:!bg-blue-700'
+              }`}
             >
               {issuing ? (
                 <Loader2 size={14} className="animate-spin" />

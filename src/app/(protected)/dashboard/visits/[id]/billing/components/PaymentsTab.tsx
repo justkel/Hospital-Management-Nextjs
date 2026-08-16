@@ -8,8 +8,10 @@ import {
   CheckCircle2,
   Landmark,
   Loader2,
+  ShieldCheck,
   Wallet,
   XCircle,
+  Lock
 } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';
@@ -73,6 +75,7 @@ export default function PaymentsTab({
   payments,
   charges,
   latestInvoice,
+  isReconciled = false,
   onPaymentsChange,
   onLatestInvoiceChange,
 }: {
@@ -81,6 +84,7 @@ export default function PaymentsTab({
   payments: PaymentRow[];
   charges: ChargeRow[];
   latestInvoice: InvoiceRow | null;
+  isReconciled?: boolean;
   onPaymentsChange: (payments: PaymentRow[]) => void;
   onLatestInvoiceChange: (invoice: InvoiceRow | null) => void;
 }) {
@@ -321,6 +325,10 @@ export default function PaymentsTab({
   };
 
   const openForm = () => {
+    if (isReconciled) {
+      message.warning('Cannot record payments on a reconciled visit');
+      return;
+    }
     setSelectedChargeIds([]);
     setAmounts({});
     setPaymentMethod('CASH');
@@ -331,6 +339,8 @@ export default function PaymentsTab({
   };
 
   const toggleCharge = (chargeId: string, checked: boolean) => {
+    if (isReconciled) return;
+
     if (checked) {
       const charge = charges.find((c) => c.id === chargeId);
       const remaining = charge
@@ -353,6 +363,11 @@ export default function PaymentsTab({
   };
 
   const submitPayment = async () => {
+    if (isReconciled) {
+      message.warning('Cannot record payments on a reconciled visit');
+      return;
+    }
+
     if (selectedChargeIds.length === 0) {
       message.error('Select at least one charge to pay for');
       return;
@@ -426,6 +441,11 @@ export default function PaymentsTab({
   };
 
   const confirmPayment = async (paymentId: string) => {
+    if (isReconciled) {
+      message.warning('Cannot confirm payments on a reconciled visit');
+      return;
+    }
+
     setActionLoadingId(paymentId);
 
     try {
@@ -530,6 +550,10 @@ export default function PaymentsTab({
     Number(balanceAmount || 0) > walletBalance + 0.01;
 
   const openBalanceForm = () => {
+    if (isReconciled) {
+      message.warning('Cannot record balance payments on a reconciled visit');
+      return;
+    }
     setBalanceAmount(
       currentTotals ? String(currentTotals.outstandingBalance) : ''
     );
@@ -541,6 +565,11 @@ export default function PaymentsTab({
   };
 
   const submitBalancePayment = async () => {
+    if (isReconciled) {
+      message.warning('Cannot record balance payments on a reconciled visit');
+      return;
+    }
+
     if (!balanceAmount || Number(balanceAmount) <= 0) {
       message.error('Enter a valid amount');
       return;
@@ -603,6 +632,11 @@ export default function PaymentsTab({
   };
 
   const confirmBalancePayment = async (id: string) => {
+    if (isReconciled) {
+      message.warning('Cannot confirm balance payments on a reconciled visit');
+      return;
+    }
+
     setBalanceActionLoadingId(id);
 
     try {
@@ -681,6 +715,127 @@ export default function PaymentsTab({
       setBalanceActionLoadingId(null);
     }
   };
+
+  if (isReconciled) {
+    return (
+      <div className="space-y-5 py-5">
+        <div className="flex flex-col items-center justify-center rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-6 py-16 text-center">
+          <ShieldCheck size={32} className="!text-emerald-600" />
+          <h3 className="mt-4 text-base font-bold !text-emerald-800">
+            Visit is reconciled
+          </h3>
+          <p className="mt-1 max-w-sm text-sm !text-emerald-600">
+            This visit has been reconciled and is locked for billing. Payments cannot be recorded.
+          </p>
+        </div>
+
+        {payments.length > 0 && (
+          <div>
+            <h3 className="mb-3 text-sm font-bold !text-slate-800">
+              {payments.length} payment{payments.length === 1 ? '' : 's'}
+            </h3>
+            <div className="overflow-hidden rounded-xl border !border-slate-200">
+              <div className="divide-y !divide-slate-100">
+                {payments.map((p) => (
+                  <div key={p.id} className="px-4 py-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-lg font-bold !text-slate-900">
+                            {formatCurrency(p.amountPaid)}
+                          </span>
+                          <StatusBadge status={p.status} />
+                          <span className="rounded-full border !border-slate-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-slate-500">
+                            {p.paymentMethod}
+                          </span>
+                        </div>
+
+                        <p className="mt-1 text-xs !text-slate-500">
+                          Paid: {formatDateTime(p.paidAt)}
+                          {p.confirmedAt &&
+                            ` · Confirmed: ${formatDateTime(p.confirmedAt)}`}
+                          {p.reference && ` · Ref: ${p.reference}`}
+                        </p>
+
+                        {p.allocations?.length ? (
+                          <div className="mt-2 flex flex-wrap gap-1.5">
+                            {p.allocations.map((alloc) => (
+                              <span
+                                key={alloc.id}
+                                className="inline-flex items-center gap-1 rounded-full border !border-slate-200 !bg-white px-2.5 py-1 text-xs !text-slate-600"
+                              >
+                                {alloc.visitCharge?.chargeName} ·{' '}
+                                {formatCurrency(alloc.amountAllocated)}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-2 text-xs font-medium !text-slate-400">
+                          <Lock size={12} />
+                          Locked
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {balancePayments.length > 0 && (
+          <div>
+            <h3 className="mb-3 text-sm font-bold !text-slate-800">
+              {balancePayments.length} balance payment
+              {balancePayments.length === 1 ? '' : 's'}
+            </h3>
+            <div className="overflow-hidden rounded-xl border !border-amber-200">
+              <div className="divide-y !divide-amber-100">
+                {balancePayments.map((p) => (
+                  <div key={p.id} className="px-4 py-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-lg font-bold !text-slate-900">
+                            {formatCurrency(p.amountPaid)}
+                          </span>
+                          <StatusBadge status={p.status} />
+                          <span className="rounded-full border !border-amber-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-amber-700">
+                            {p.paymentMethod}
+                          </span>
+                        </div>
+
+                        <p className="mt-1 text-xs !text-slate-500">
+                          Paid: {formatDateTime(p.paidAt)}
+                          {p.confirmedAt &&
+                            ` · Confirmed: ${formatDateTime(p.confirmedAt)}`}
+                          {p.reference && ` · Ref: ${p.reference}`}
+                        </p>
+
+                        <p className="mt-1 text-sm !text-slate-600">
+                          {p.reason}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-2 text-xs font-medium !text-slate-400">
+                          <Lock size={12} />
+                          Locked
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 py-5">
@@ -777,7 +932,12 @@ export default function PaymentsTab({
             <button
               type="button"
               onClick={openForm}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl !bg-emerald-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-emerald-700"
+              disabled={isReconciled}
+              className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition disabled:opacity-60 ${
+                isReconciled
+                  ? '!bg-slate-300 cursor-not-allowed'
+                  : '!bg-emerald-600 hover:!bg-emerald-700'
+              }`}
             >
               <Banknote size={15} />
               Record payment
@@ -872,9 +1032,13 @@ export default function PaymentsTab({
                           <>
                             <button
                               type="button"
-                              disabled={actionLoadingId === p.id}
+                              disabled={actionLoadingId === p.id || isReconciled}
                               onClick={() => handleConfirmClick(p)}
-                              className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
+                              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold !text-white transition disabled:opacity-60 ${
+                                isReconciled
+                                  ? '!bg-slate-300 cursor-not-allowed'
+                                  : '!bg-emerald-600 hover:!bg-emerald-700'
+                              }`}
                             >
                               {actionLoadingId === p.id ? (
                                 <Loader2 size={13} className="animate-spin" />
@@ -885,9 +1049,13 @@ export default function PaymentsTab({
                             </button>
                             <button
                               type="button"
-                              disabled={actionLoadingId === p.id}
+                              disabled={actionLoadingId === p.id || isReconciled}
                               onClick={() => setFailTarget(p.id)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
+                              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold transition disabled:opacity-60 ${
+                                isReconciled
+                                  ? '!border-slate-200 !bg-slate-100 !text-slate-400 cursor-not-allowed'
+                                  : '!border-red-300 !bg-red-50 !text-red-700 hover:!bg-red-100'
+                              }`}
                             >
                               <XCircle size={13} />
                               Fail
@@ -921,7 +1089,12 @@ export default function PaymentsTab({
             <button
               type="button"
               onClick={openBalanceForm}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border !border-amber-300 !bg-amber-50 px-4 py-2.5 text-sm font-medium !text-amber-700 shadow-sm transition hover:!bg-amber-100"
+              disabled={isReconciled}
+              className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-medium shadow-sm transition disabled:opacity-60 ${
+                isReconciled
+                  ? '!border-slate-200 !bg-slate-100 !text-slate-400 cursor-not-allowed'
+                  : '!border-amber-300 !bg-amber-50 !text-amber-700 hover:!bg-amber-100'
+              }`}
             >
               <Landmark size={15} />
               Record balance payment
@@ -979,9 +1152,13 @@ export default function PaymentsTab({
                           <>
                             <button
                               type="button"
-                              disabled={balanceActionLoadingId === p.id}
+                              disabled={balanceActionLoadingId === p.id || isReconciled}
                               onClick={() => handleBalanceConfirmClick(p)}
-                              className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
+                              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold !text-white transition disabled:opacity-60 ${
+                                isReconciled
+                                  ? '!bg-slate-300 cursor-not-allowed'
+                                  : '!bg-emerald-600 hover:!bg-emerald-700'
+                              }`}
                             >
                               {balanceActionLoadingId === p.id ? (
                                 <Loader2 size={13} className="animate-spin" />
@@ -992,9 +1169,13 @@ export default function PaymentsTab({
                             </button>
                             <button
                               type="button"
-                              disabled={balanceActionLoadingId === p.id}
+                              disabled={balanceActionLoadingId === p.id || isReconciled}
                               onClick={() => setBalanceFailTarget(p.id)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
+                              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold transition disabled:opacity-60 ${
+                                isReconciled
+                                  ? '!border-slate-200 !bg-slate-100 !text-slate-400 cursor-not-allowed'
+                                  : '!border-red-300 !bg-red-50 !text-red-700 hover:!bg-red-100'
+                              }`}
                             >
                               <XCircle size={13} />
                               Fail
@@ -1018,7 +1199,7 @@ export default function PaymentsTab({
         onOk={submitPayment}
         okText="Record payment"
         confirmLoading={submitting}
-        okButtonProps={{ disabled: exceedsWalletBalance }}
+        okButtonProps={{ disabled: exceedsWalletBalance || isReconciled }}
         width={560}
       >
         <div className="space-y-4 py-2">
@@ -1057,6 +1238,7 @@ export default function PaymentsTab({
                         onChange={(e) =>
                           toggleCharge(c.id, e.target.checked)
                         }
+                        disabled={isReconciled}
                       >
                         <span className="text-sm !text-slate-700">
                           {c.chargeName} — {formatCurrency(remaining)}{' '}
@@ -1087,6 +1269,7 @@ export default function PaymentsTab({
                             }))
                           }
                           className="w-28 rounded-lg border !border-slate-300 px-2 py-1.5 text-sm focus:!border-blue-400 focus:outline-none"
+                          disabled={isReconciled}
                         />
                       )}
                     </div>
@@ -1134,6 +1317,7 @@ export default function PaymentsTab({
               value={paymentMethod}
               onChange={setPaymentMethod}
               options={paymentMethods.map((m) => ({ value: m, label: m }))}
+              disabled={isReconciled}
             />
           </div>
 
@@ -1179,6 +1363,7 @@ export default function PaymentsTab({
             <Checkbox
               checked={attachInvoice}
               onChange={(e) => setAttachInvoice(e.target.checked)}
+              disabled={isReconciled}
             >
               <span className="text-sm !text-slate-700">
                 Attach to invoice {latestInvoice?.invoiceNumber}
@@ -1193,6 +1378,7 @@ export default function PaymentsTab({
             <Input
               value={reference}
               onChange={(e) => setReference(e.target.value)}
+              disabled={isReconciled}
             />
           </div>
 
@@ -1204,6 +1390,7 @@ export default function PaymentsTab({
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
+              disabled={isReconciled}
             />
           </div>
         </div>
@@ -1217,7 +1404,7 @@ export default function PaymentsTab({
         okText="Record balance payment"
         confirmLoading={submittingBalance}
         okButtonProps={{
-          disabled: balanceExceedsOutstanding || balanceExceedsWallet,
+          disabled: balanceExceedsOutstanding || balanceExceedsWallet || isReconciled,
         }}
       >
         <div className="space-y-4 py-2">
@@ -1254,6 +1441,7 @@ export default function PaymentsTab({
               max={currentTotals?.outstandingBalance}
               value={balanceAmount}
               onChange={(e) => setBalanceAmount(e.target.value)}
+              disabled={isReconciled}
             />
           </div>
 
@@ -1279,6 +1467,7 @@ export default function PaymentsTab({
               value={balanceMethod}
               onChange={setBalanceMethod}
               options={paymentMethods.map((m) => ({ value: m, label: m }))}
+              disabled={isReconciled}
             />
           </div>
 
@@ -1329,6 +1518,7 @@ export default function PaymentsTab({
               value={balanceReason}
               onChange={(e) => setBalanceReason(e.target.value)}
               placeholder="Why is this payment not tied to a specific charge?"
+              disabled={isReconciled}
             />
           </div>
 
@@ -1339,6 +1529,7 @@ export default function PaymentsTab({
             <Input
               value={balanceReference}
               onChange={(e) => setBalanceReference(e.target.value)}
+              disabled={isReconciled}
             />
           </div>
 
@@ -1350,6 +1541,7 @@ export default function PaymentsTab({
               rows={2}
               value={balanceNotes}
               onChange={(e) => setBalanceNotes(e.target.value)}
+              disabled={isReconciled}
             />
           </div>
         </div>

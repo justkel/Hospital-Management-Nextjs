@@ -8,6 +8,7 @@ import {
   FileText,
   Loader2,
   RotateCcw,
+  ShieldCheck,
   ThumbsDown,
   ThumbsUp,
   XCircle,
@@ -83,11 +84,13 @@ export default function AdjustmentsTab({
   visitId,
   adjustments,
   charges,
+  isReconciled = false,
   onAdjustmentsChange,
 }: {
   visitId: string;
   adjustments: Adjustment[];
   charges: ChargeRow[];
+  isReconciled?: boolean;
   onAdjustmentsChange: (adjustments: Adjustment[]) => void;
 }) {
   const [formOpen, setFormOpen] = useState(false);
@@ -295,11 +298,19 @@ export default function AdjustmentsTab({
   };
 
   const openRequestForm = () => {
+    if (isReconciled) {
+      message.warning('Cannot request adjustments on a reconciled visit');
+      return;
+    }
     setForm(EMPTY_FORM);
     setFormOpen(true);
   };
 
   const openReversalForm = (adjustmentId: string) => {
+    if (isReconciled) {
+      message.warning('Cannot reverse adjustments on a reconciled visit');
+      return;
+    }
     setForm({
       ...EMPTY_FORM,
       type: 'ADJUSTMENT_REVERSAL',
@@ -391,6 +402,11 @@ export default function AdjustmentsTab({
     path: string,
     extra?: Record<string, unknown>
   ) => {
+    if (isReconciled) {
+      message.warning('Cannot modify adjustments on a reconciled visit');
+      return;
+    }
+
     setActionLoadingId(adjustmentId);
 
     try {
@@ -445,6 +461,22 @@ export default function AdjustmentsTab({
     setRejectReason('');
   };
 
+  if (isReconciled) {
+    return (
+      <div className="space-y-5 py-5">
+        <div className="flex flex-col items-center justify-center rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-6 py-16 text-center">
+          <ShieldCheck size={32} className="!text-emerald-600" />
+          <h3 className="mt-4 text-base font-bold !text-emerald-800">
+            Visit is reconciled
+          </h3>
+          <p className="mt-1 max-w-sm text-sm !text-emerald-600">
+            This visit has been reconciled and is locked for billing. No adjustments can be made.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5 py-5">
       <div className="flex items-center justify-between">
@@ -455,7 +487,12 @@ export default function AdjustmentsTab({
         <button
           type="button"
           onClick={openRequestForm}
-          className="inline-flex items-center gap-2 rounded-2xl !bg-blue-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-blue-700"
+          disabled={isReconciled}
+          className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition ${
+            isReconciled
+              ? '!bg-slate-300 cursor-not-allowed'
+              : '!bg-blue-600 hover:!bg-blue-700'
+          }`}
         >
           <FileText size={15} />
           Request adjustment
@@ -541,9 +578,13 @@ export default function AdjustmentsTab({
                           <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR]}>
                             <button
                               type="button"
-                              disabled={actionLoadingId === a.id}
+                              disabled={actionLoadingId === a.id || isReconciled}
                               onClick={() => runAction(a.id, 'approve')}
-                              className="inline-flex items-center gap-1.5 rounded-lg border !border-emerald-300 !bg-emerald-50 px-3 py-2 text-xs font-bold !text-emerald-700 transition hover:!bg-emerald-100 disabled:opacity-60"
+                              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold transition ${
+                                isReconciled
+                                  ? '!border-slate-200 !bg-slate-100 !text-slate-400 cursor-not-allowed'
+                                  : '!border-emerald-300 !bg-emerald-50 !text-emerald-700 hover:!bg-emerald-100'
+                              } disabled:opacity-60`}
                             >
                               {actionLoadingId === a.id ? (
                                 <Loader2 size={13} className="animate-spin" />
@@ -554,9 +595,13 @@ export default function AdjustmentsTab({
                             </button>
                             <button
                               type="button"
-                              disabled={actionLoadingId === a.id}
+                              disabled={actionLoadingId === a.id || isReconciled}
                               onClick={() => setRejectTarget(a.id)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
+                              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold transition ${
+                                isReconciled
+                                  ? '!border-slate-200 !bg-slate-100 !text-slate-400 cursor-not-allowed'
+                                  : '!border-red-300 !bg-red-50 !text-red-700 hover:!bg-red-100'
+                              } disabled:opacity-60`}
                             >
                               <ThumbsDown size={13} />
                               Reject
@@ -569,9 +614,13 @@ export default function AdjustmentsTab({
                       {a.status === 'APPROVED' && (
                         <button
                           type="button"
-                          disabled={actionLoadingId === a.id}
+                          disabled={actionLoadingId === a.id || isReconciled}
                           onClick={() => handleApplyClick(a)}
-                          className="inline-flex items-center gap-1.5 rounded-lg !bg-blue-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-blue-700 disabled:opacity-60"
+                          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold !text-white transition ${
+                            isReconciled
+                              ? '!bg-slate-300 cursor-not-allowed'
+                              : '!bg-blue-600 hover:!bg-blue-700'
+                          } disabled:opacity-60`}
                         >
                           {actionLoadingId === a.id ? (
                             <Loader2 size={13} className="animate-spin" />
@@ -588,7 +637,12 @@ export default function AdjustmentsTab({
                           <button
                             type="button"
                             onClick={() => openReversalForm(a.id)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-2 text-xs font-bold !text-slate-600 transition hover:!border-orange-300 hover:!bg-orange-50 hover:!text-orange-700"
+                            disabled={isReconciled}
+                            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold transition ${
+                              isReconciled
+                                ? '!border-slate-200 !bg-slate-100 !text-slate-400 cursor-not-allowed'
+                                : '!border-slate-200 !text-slate-600 hover:!border-orange-300 hover:!bg-orange-50 hover:!text-orange-700'
+                            }`}
                           >
                             <RotateCcw size={13} />
                             Reverse
@@ -621,7 +675,7 @@ export default function AdjustmentsTab({
         onOk={submitRequest}
         okText="Submit"
         confirmLoading={submitting}
-        okButtonProps={{ disabled: ceilingExceeded }}
+        okButtonProps={{ disabled: ceilingExceeded || isReconciled }}
       >
         <div className="space-y-4 py-2">
           {form.type !== AdjustmentType.AdjustmentReversal && (

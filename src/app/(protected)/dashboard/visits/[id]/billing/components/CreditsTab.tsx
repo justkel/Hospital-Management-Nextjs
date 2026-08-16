@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   CircleDollarSign,
   Loader2,
+  ShieldCheck,
   Wallet,
   XCircle,
 } from 'lucide-react';
@@ -16,6 +17,7 @@ import {
 import { clientFetch } from '@/lib/clientFetch';
 import StatusBadge from './StatusBadge';
 import type { ChargeRow, CreditRow } from '../billing-client';
+import { Lock } from 'lucide-react';
 
 function formatCurrency(amount: number | string | null | undefined) {
   const n = Number(amount ?? 0);
@@ -73,6 +75,7 @@ export default function CreditsTab({
   charges,
   credits,
   creditBalance,
+  isReconciled = false,
   onCreditsChange,
   onCreditBalanceChange,
 }: {
@@ -81,6 +84,7 @@ export default function CreditsTab({
   charges: ChargeRow[];
   credits: CreditRow[];
   creditBalance: number;
+  isReconciled?: boolean;
   onCreditsChange: (credits: CreditRow[]) => void;
   onCreditBalanceChange: (balance: number) => void;
 }) {
@@ -165,6 +169,10 @@ export default function CreditsTab({
     Number(form.amount || 0) > creditBalance + 0.01;
 
   const openForm = () => {
+    if (isReconciled) {
+      message.warning('Cannot record refunds on a reconciled visit');
+      return;
+    }
     setForm(EMPTY_FORM);
     setFormOpen(true);
   };
@@ -221,6 +229,11 @@ export default function CreditsTab({
   };
 
   const confirmRefund = async (creditId: string) => {
+    if (isReconciled) {
+      message.warning('Cannot confirm refunds on a reconciled visit');
+      return;
+    }
+
     setActionLoadingId(creditId);
 
     try {
@@ -291,7 +304,68 @@ export default function CreditsTab({
       'Charge no longer available'
     );
   };
-  console.log('patient id', patientId);
+
+  if (isReconciled) {
+    return (
+      <div className="space-y-5 py-5">
+        <div className="flex flex-col items-center justify-center rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-6 py-16 text-center">
+          <ShieldCheck size={32} className="!text-emerald-600" />
+          <h3 className="mt-4 text-base font-bold !text-emerald-800">
+            Visit is reconciled
+          </h3>
+          <p className="mt-1 max-w-sm text-sm !text-emerald-600">
+            This visit has been reconciled and is locked for billing. Credits cannot be processed.
+          </p>
+        </div>
+
+        {/* Still show existing credits for reference */}
+        {credits.length > 0 && (
+          <div className="overflow-hidden rounded-xl border !border-slate-200">
+            <div className="divide-y !divide-slate-100">
+              {credits.map((c) => (
+                <div key={c.id} className="px-4 py-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-lg font-bold !text-slate-900">
+                          {formatCurrency(c.amount)}
+                        </span>
+                        <StatusBadge status={c.status} />
+                        <span className="rounded-full border !border-slate-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-slate-500">
+                          {c.method.replace(/_/g, ' ')}
+                        </span>
+                      </div>
+
+                      <p className="mt-1 text-xs !text-slate-500">
+                        Recorded: {formatDateTime(c.createdAt)}
+                        {c.confirmedAt &&
+                          ` · Confirmed: ${formatDateTime(c.confirmedAt)}`}
+                      </p>
+
+                      {c.visitChargeId && (
+                        <p className="mt-1 text-xs !text-slate-400">
+                          Related charge: {chargeName(c.visitChargeId)}
+                        </p>
+                      )}
+
+                      <p className="mt-1 text-sm !text-slate-600">{c.reason}</p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-2 text-xs font-medium !text-slate-400">
+                        <Lock size={12} />
+                        Locked
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 py-5">
@@ -343,8 +417,12 @@ export default function CreditsTab({
           <button
             type="button"
             onClick={openForm}
-            disabled={creditBalance <= 0.01}
-            className="inline-flex items-center gap-2 rounded-2xl !bg-blue-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={creditBalance <= 0.01 || isReconciled}
+            className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition disabled:cursor-not-allowed ${
+              creditBalance <= 0.01 || isReconciled
+                ? '!bg-slate-300'
+                : '!bg-blue-600 hover:!bg-blue-700'
+            }`}
           >
             <Banknote size={15} />
             Record refund
@@ -406,9 +484,13 @@ export default function CreditsTab({
                       <>
                         <button
                           type="button"
-                          disabled={actionLoadingId === c.id}
+                          disabled={actionLoadingId === c.id || isReconciled}
                           onClick={() => confirmRefund(c.id)}
-                          className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
+                          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold !text-white transition disabled:opacity-60 ${
+                            isReconciled
+                              ? '!bg-slate-300 cursor-not-allowed'
+                              : '!bg-emerald-600 hover:!bg-emerald-700'
+                          }`}
                         >
                           {actionLoadingId === c.id ? (
                             <Loader2 size={13} className="animate-spin" />
@@ -419,9 +501,13 @@ export default function CreditsTab({
                         </button>
                         <button
                           type="button"
-                          disabled={actionLoadingId === c.id}
+                          disabled={actionLoadingId === c.id || isReconciled}
                           onClick={() => setFailTarget(c.id)}
-                          className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
+                          className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold transition disabled:opacity-60 ${
+                            isReconciled
+                              ? '!border-slate-200 !bg-slate-100 !text-slate-400 cursor-not-allowed'
+                              : '!border-red-300 !bg-red-50 !text-red-700 hover:!bg-red-100'
+                          }`}
                         >
                           <XCircle size={13} />
                           Fail
@@ -443,7 +529,7 @@ export default function CreditsTab({
         onOk={submitRefund}
         okText="Record refund"
         confirmLoading={submitting}
-        okButtonProps={{ disabled: exceedsCreditBalance }}
+        okButtonProps={{ disabled: exceedsCreditBalance || isReconciled }}
       >
         <div className="space-y-4 py-2">
           <div className="rounded-lg !bg-slate-50 px-4 py-3">

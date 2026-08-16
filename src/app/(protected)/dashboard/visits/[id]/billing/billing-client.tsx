@@ -205,7 +205,11 @@ export default function BillingClient({
                     type="button"
                     disabled={isReconciled}
                     onClick={() => setReconcileModalOpen(true)}
-                    className="inline-flex items-center gap-2 rounded-xl !bg-slate-900 px-4 py-2.5 text-sm font-bold !text-white transition hover:!bg-slate-800 disabled:cursor-not-allowed disabled:!bg-slate-300"
+                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold !text-white transition disabled:cursor-not-allowed ${
+                      isReconciled
+                        ? '!bg-slate-300 cursor-not-allowed'
+                        : '!bg-slate-900 hover:!bg-slate-800'
+                    }`}
                   >
                     <ShieldCheck size={15} />
                     {isReconciled ? 'Visit reconciled' : 'Reconcile visit'}
@@ -350,6 +354,7 @@ export default function BillingClient({
                 visitId={visit.id}
                 summary={summary}
                 unbilled={unbilled}
+                isReconciled={isReconciled}
                 onSummaryChange={setSummary}
                 onUnbilledChange={setUnbilled}
               />
@@ -360,6 +365,7 @@ export default function BillingClient({
                 visitId={visit.id}
                 adjustments={adjustments}
                 charges={charges}
+                isReconciled={isReconciled}
                 onAdjustmentsChange={setAdjustments}
               />
             )}
@@ -369,6 +375,7 @@ export default function BillingClient({
                 visitId={visit.id}
                 latestInvoice={latestInvoice}
                 invoices={invoices}
+                isReconciled={isReconciled}
                 onLatestInvoiceChange={setLatestInvoice}
                 onInvoicesChange={setInvoices}
               />
@@ -381,6 +388,7 @@ export default function BillingClient({
                 payments={payments}
                 charges={charges}
                 latestInvoice={latestInvoice}
+                isReconciled={isReconciled}
                 onPaymentsChange={setPayments}
                 onLatestInvoiceChange={setLatestInvoice}
               />
@@ -393,6 +401,7 @@ export default function BillingClient({
                 charges={charges}
                 credits={credits}
                 creditBalance={creditBalance}
+                isReconciled={isReconciled}
                 onCreditsChange={setCredits}
                 onCreditBalanceChange={setCreditBalance}
               />
