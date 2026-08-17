@@ -28,6 +28,8 @@ import {
 import Link from 'next/link';
 
 import UpdateTheatreDrawer from './UpdateTheatreDrawer';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 type TheatreItem =
   GetTheatresQuery['theatres']['items'][number];
@@ -320,8 +322,8 @@ export default function TheatreHistorySection({
                   <td className="px-6 py-5">
                     <span
                       className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${item.isActive
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-rose-100 text-rose-700'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-rose-100 text-rose-700'
                         }`}
                     >
                       {item.isActive
@@ -340,16 +342,19 @@ export default function TheatreHistorySection({
                         <EyeOutlined />
                       </Link>
 
-                      <button
-                        onClick={() =>
-                          setEditingTheatre(
-                            item
-                          )
-                        }
-                        className="w-10 h-10 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition"
-                      >
-                        <EditOutlined />
-                      </button>
+                      <HasRoles roles={[Roles.ADMIN]}>
+                        <button
+                          onClick={() =>
+                            setEditingTheatre(
+                              item
+                            )
+                          }
+                          className="w-10 h-10 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition"
+                        >
+                          <EditOutlined />
+                        </button>
+                      </HasRoles>
+
                     </div>
                   </td>
                 </tr>

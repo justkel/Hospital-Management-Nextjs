@@ -24,6 +24,8 @@ import Link from 'next/link';
 import { ClipboardList, FlaskConical, Receipt } from 'lucide-react';
 import VisitOtherChargeSection from '../components/VisitOtherChargeSection';
 import CloseVisitButton from '../components/CloseVisitButton';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -58,7 +60,10 @@ export default async function VisitDetailPage({ params }: Props) {
             </div>
 
             <div className="flex flex-wrap gap-2.5">
-              <CloseVisitButton visitId={visit.id} status={visit.status} />
+              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+                <CloseVisitButton visitId={visit.id} status={visit.status} />
+              </HasRoles>
+
               <Link
                 href={`/dashboard/visits/${visit.id}/procedures`}
                 className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] bg-[#0c1a12] px-4 text-[13px] font-medium text-white transition hover:bg-[#1D9E75]"
@@ -110,17 +115,22 @@ export default async function VisitDetailPage({ params }: Props) {
             </div>
           </CollapsibleSection>
 
-          <VisitVitalsSection visitId={visit.id} />
-          <VisitComplaintsSection visitId={visit.id} />
-          <VisitDiagnosisSection visitId={visit.id} />
-          <VisitPrescriptionsSection visitId={visit.id} />
-          <VisitBedAllocationSection visitId={visit.id} />
-          <VisitTasksSection visitId={visit.id} />
+          <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+            <VisitVitalsSection visitId={visit.id} />
+            <VisitComplaintsSection visitId={visit.id} />
+            <VisitDiagnosisSection visitId={visit.id} />
+            <VisitPrescriptionsSection visitId={visit.id} />
+            <VisitBedAllocationSection visitId={visit.id} />
+            <VisitTasksSection visitId={visit.id} />
+          </HasRoles>
+
           <VisitOtherChargeSection visitId={visit.id} />
 
         </div>
 
-        <VisitNoteBoard visitId={visit.id} />
+        <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+          <VisitNoteBoard visitId={visit.id} />
+        </HasRoles>
       </div>
     </SessionGuard>
   );

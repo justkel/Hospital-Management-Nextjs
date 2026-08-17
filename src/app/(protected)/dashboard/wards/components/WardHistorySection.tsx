@@ -20,6 +20,8 @@ import {
 
 import UpdateWardDrawer from './UpdateWardDrawer';
 import Link from 'next/link';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 type WardItem =
     GetWardsQuery['wards']['items'][number];
@@ -279,8 +281,8 @@ export default function WardHistorySection({
                                     <td className="px-6 py-4">
                                         <span
                                             className={`px-3 py-1 rounded-full text-xs font-semibold ${item.isActive
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-red-100 text-red-700'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-red-100 text-red-700'
                                                 }`}
                                         >
                                             {item.isActive
@@ -299,14 +301,16 @@ export default function WardHistorySection({
                                             >
                                                 <EyeOutlined />
                                             </Link>
-                                            <button
-                                                onClick={() =>
-                                                    setEditingWard(item)
-                                                }
-                                                className="w-10 h-10 rounded-xl bg-green-50 hover:bg-green-100 text-green-700 transition"
-                                            >
-                                                <EditOutlined />
-                                            </button>
+                                            <HasRoles roles={[Roles.ADMIN]}>
+                                                <button
+                                                    onClick={() =>
+                                                        setEditingWard(item)
+                                                    }
+                                                    className="w-10 h-10 rounded-xl bg-green-50 hover:bg-green-100 text-green-700 transition"
+                                                >
+                                                    <EditOutlined />
+                                                </button>
+                                            </HasRoles>
                                         </div>
                                     </td>
                                 </tr>

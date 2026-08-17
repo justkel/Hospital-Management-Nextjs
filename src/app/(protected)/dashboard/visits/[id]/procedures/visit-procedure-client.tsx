@@ -25,6 +25,8 @@ import CreateVisitProcedureForm from './components/CreateVisitProcedureForm';
 import { ClockCircleOutlined, EyeOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { formatDuration } from '../../../visit-procedures/types/procedure-functions';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 type VisitProcedureItem =
   GetVisitProceduresByVisitQuery['visitProceduresByVisit'][number];
@@ -282,10 +284,11 @@ export default function VisitProcedureClient({
                       )}
                     </div>
 
-                    <div className="flex w-full flex-row gap-3 sm:w-auto">
-                      <Link
-                        href={`/dashboard/visit-procedures/${p.id}`}
-                        className="
+                    <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+                      <div className="flex w-full flex-row gap-3 sm:w-auto">
+                        <Link
+                          href={`/dashboard/visit-procedures/${p.id}`}
+                          className="
                                     flex-1 sm:flex-none
                                     inline-flex h-12 items-center justify-center gap-2
                                     rounded-2xl border border-slate-200
@@ -297,12 +300,13 @@ export default function VisitProcedureClient({
                                     hover:bg-slate-50
                                     hover:shadow-md
                                 "
-                      >
-                        <EyeOutlined />
+                        >
+                          <EyeOutlined />
 
-                        <span>View</span>
-                      </Link>
-                    </div>
+                          <span>View</span>
+                        </Link>
+                      </div>
+                    </HasRoles>
                   </div>
                 </div>
               ))}

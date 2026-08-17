@@ -14,6 +14,8 @@ import EditPatientButton from '../components/EditPatientButton';
 import CreateVisitModal from '../components/CreateVisitModal';
 import Link from 'next/link';
 import { AlertTriangle, UserX, History, Wallet } from 'lucide-react';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 interface Props {
   params: Promise<{
@@ -132,13 +134,15 @@ export default async function PatientDetailPage({ params }: Props) {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <Link
-                href={`/dashboard/patients/${id}/history`}
-                className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium text-white transition-colors hover:bg-white/[0.12]"
-              >
-                <History size={14} />
-                Visit history
-              </Link>
+              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+                <Link
+                  href={`/dashboard/patients/${id}/history`}
+                  className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium text-white transition-colors hover:bg-white/[0.12]"
+                >
+                  <History size={14} />
+                  Visit history
+                </Link>
+              </HasRoles>
               <Link
                 href={`/dashboard/patients/${id}/wallet`}
                 className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium text-white transition-colors hover:bg-white/[0.12]"
@@ -152,7 +156,9 @@ export default async function PatientDetailPage({ params }: Props) {
                 )}
               </Link>
               <EditPatientButton patient={patient} />
-              <CreateVisitModal patientId={patient.id} />
+              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+                <CreateVisitModal patientId={patient.id} />
+              </HasRoles>
             </div>
           </div>
         </div>

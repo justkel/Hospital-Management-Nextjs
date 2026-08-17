@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { GetAllStaffQuery } from '@/shared/graphql/generated/graphql';
 import { Meta, Avatar, DetailsSkeleton } from '@/components/DetailsParts';
-import { ROLE_STYLES } from '@/shared/utils/enums/roles';
+import { ROLE_STYLES, Roles } from '@/shared/utils/enums/roles';
 import { STATUS_LABELS, STATUS_COLORS } from '@/shared/utils/enums/staff';
 import { StaffStatus } from '@/shared/graphql/generated/graphql';
 import { clientFetch } from '@/lib/clientFetch';
+import { HasRoles } from '@/components/auth/HasRoles';
 
 type StaffItem = GetAllStaffQuery['staffs']['items'][number];
 
@@ -122,30 +123,40 @@ export default function DetailsDrawer({
             </div>
 
             <div>
-              <p className="text-sm font-semibold text-gray-700 mb-1">
-                Status{' '}
-                <span className="text-gray-400 font-normal text-xs">
-                  Click to update staff status
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-gray-700">Status</p>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[currentStatus ?? StaffStatus.Active]}`}
+                >
+                  {STATUS_LABELS[currentStatus!!]}
                 </span>
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {Object.values(StaffStatus).map((status: StaffStatus) => (
-                  <button
-                    key={status}
-                    disabled={updatingStatus}
-                    onClick={() => handleStatusChange(status)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition !text-gray-500
-                      ${
-                        currentStatus === status
-                          ? 'ring-2 ring-indigo-500 font-semibold'
-                          : ''
-                      }
-                      ${STATUS_COLORS[status]}`}
-                  >
-                    {STATUS_LABELS[status]}
-                  </button>
-                ))}
               </div>
+
+              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR]}>
+                <div className="mt-3">
+                  <p className="text-xs text-gray-400 mb-1.5">
+                    Click a status to update
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.values(StaffStatus).map((status: StaffStatus) => (
+                      <button
+                        key={status}
+                        disabled={updatingStatus}
+                        onClick={() => handleStatusChange(status)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition !text-gray-500
+                          ${
+                            currentStatus === status
+                              ? 'ring-2 ring-indigo-500 font-semibold'
+                              : ''
+                          }
+                          ${STATUS_COLORS[status]}`}
+                      >
+                        {STATUS_LABELS[status]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </HasRoles>
             </div>
           </div>
         ) : (

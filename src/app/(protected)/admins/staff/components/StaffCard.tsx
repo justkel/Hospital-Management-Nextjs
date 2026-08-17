@@ -2,7 +2,8 @@
 
 import { PencilIcon, EyeIcon } from '@heroicons/react/24/solid';
 import { GetAllStaffQuery } from '@/shared/graphql/generated/graphql';
-import { ROLE_STYLES } from '@/shared/utils/enums/roles';
+import { ROLE_STYLES, Roles } from '@/shared/utils/enums/roles';
+import { HasRoles } from '@/components/auth/HasRoles';
 
 type StaffItem = GetAllStaffQuery['staffs']['items'][number];
 
@@ -22,12 +23,15 @@ export default function StaffCard({ staff, onView, onEdit }: Props) {
         >
           <EyeIcon className="h-3 w-3 md:h-4 md:w-4 text-amber-700 hover:text-blue-400" />
         </button>
-        <button
-          onClick={() => onEdit(staff)}
-          className="p-2 rounded-full bg-gray-100 hover:bg-indigo-50 text-gray-500 hover:text-indigo-600 transition"
-        >
-          <PencilIcon className="h-3 w-3 md:h-4 md:w-4" />
-        </button>
+
+        <HasRoles roles={[Roles.ADMIN]}>
+          <button
+            onClick={() => onEdit(staff)}
+            className="p-2 rounded-full bg-gray-100 hover:bg-indigo-50 text-gray-500 hover:text-indigo-600 transition"
+          >
+            <PencilIcon className="h-3 w-3 md:h-4 md:w-4" />
+          </button>
+        </HasRoles>
       </div>
 
       <h2 className="text-base sm:text-lg font-semibold">{staff.fullName}</h2>

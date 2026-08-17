@@ -8,6 +8,8 @@ import { ClipboardList, ArrowRight } from 'lucide-react';
 
 import CreateWardSection from './components/CreateWardSection';
 import WardHistorySection from './components/WardHistorySection';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 export default function WardManagementClient({
     paginated,
@@ -61,7 +63,9 @@ export default function WardManagementClient({
                     </Link>
                 </div>
 
-                <CreateWardSection onCreated={triggerRefresh} />
+                <HasRoles roles={[Roles.ADMIN]}>
+                    <CreateWardSection onCreated={triggerRefresh} />
+                </HasRoles>
 
                 <WardHistorySection
                     key={refreshKey}

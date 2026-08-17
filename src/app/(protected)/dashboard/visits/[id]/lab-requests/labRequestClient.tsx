@@ -19,6 +19,8 @@ import {
   GetLabRequestsByVisitQuery,
   GetVisitByIdQuery,
 } from '@/shared/graphql/generated/graphql';
+import { Roles } from '@/shared/utils/enums/roles';
+import { HasRoles } from '@/components/auth/HasRoles';
 
 type LabRequestItem =
   GetLabRequestsByVisitQuery['labRequestsByVisit'][number];
@@ -296,11 +298,11 @@ export default function LabRequestClient({
                         )}
                       </div>
                     </div>
-
-                    <div className="flex w-full flex-row gap-3 sm:w-auto">
-                      <Link
-                        href={`/dashboard/lab-requests/${r.id}`}
-                        className="
+                    <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+                      <div className="flex w-full flex-row gap-3 sm:w-auto">
+                        <Link
+                          href={`/dashboard/lab-requests/${r.id}`}
+                          className="
                                     flex-1 sm:flex-none
                                     inline-flex h-12 items-center justify-center gap-2
                                     rounded-2xl border border-slate-200
@@ -312,12 +314,13 @@ export default function LabRequestClient({
                                     hover:bg-slate-50
                                     hover:shadow-md
                                 "
-                      >
-                        <EyeOutlined />
+                        >
+                          <EyeOutlined />
 
-                        <span>View</span>
-                      </Link>
-                    </div>
+                          <span>View</span>
+                        </Link>
+                      </div>
+                    </HasRoles>
                   </div>
                 </div>
               ))}

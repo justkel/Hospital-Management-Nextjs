@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 
 import type { EditableProcedureStaff } from './ProcedureStaffSection';
+import { HasRoles, useHasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 type Props = {
     team: EditableProcedureStaff[];
@@ -70,6 +72,8 @@ export default function UpdateProcedureStaffCard({
             )
         );
     }
+
+    const canInteract = useHasRoles([Roles.ADMIN, Roles.DOCTOR]);
 
     return (
         <div className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
@@ -134,16 +138,17 @@ export default function UpdateProcedureStaffCard({
                                     </div>
                                 </div>
 
-                                <button
-                                    disabled={
-                                        disabled
-                                    }
-                                    onClick={() =>
-                                        handleRemove(
-                                            member.staffId
-                                        )
-                                    }
-                                    className="
+                                <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR]}>
+                                    <button
+                                        disabled={
+                                            disabled || !canInteract
+                                        }
+                                        onClick={() =>
+                                            handleRemove(
+                                                member.staffId
+                                            )
+                                        }
+                                        className="
                                         flex h-10 w-10 items-center justify-center
                                         rounded-xl border border-red-100
                                         bg-red-50 text-red-600
@@ -151,9 +156,10 @@ export default function UpdateProcedureStaffCard({
                                         hover:bg-red-100
                                         disabled:opacity-50
                                     "
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </button>
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                </HasRoles>
                             </div>
 
                             <div className="mt-4">

@@ -15,6 +15,8 @@ import DetailsDrawer from './components/DetailsDrawer';
 import { clientFetch } from '@/lib/clientFetch';
 import { useUrlFilters } from '@/hooks/useUrlFilters';
 import { CheckCircle, Search, UserPlus, Users } from 'lucide-react';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 type StaffItem = GetAllStaffQuery['staffs']['items'][number];
 type StaffsQueryResult = GetAllStaffQuery['staffs'];
@@ -233,8 +235,8 @@ export default function StaffManagementClient({
           <div className="flex items-center gap-3 flex-wrap">
             <div className="hidden gap-2.5 sm:flex">
               {[
-                { val: total,       label: 'Total'  },
-                { val: roleCount,   label: 'Roles'  },
+                { val: total, label: 'Total' },
+                { val: roleCount, label: 'Roles' },
                 { val: activeCount, label: 'Active' },
               ].map(s => (
                 <div key={s.label}
@@ -246,13 +248,15 @@ export default function StaffManagementClient({
               ))}
             </div>
 
-            <button
-              onClick={() => setOpenCreate(true)}
-              className="inline-flex h-[38px] items-center gap-2 rounded-[9px] bg-[#1D9E75] px-5 text-[13px] font-medium !text-white transition hover:bg-[#0F6E56]"
-            >
-              <UserPlus size={14} />
-              Add staff
-            </button>
+            <HasRoles roles={[Roles.ADMIN]}>
+              <button
+                onClick={() => setOpenCreate(true)}
+                className="inline-flex h-[38px] items-center gap-2 rounded-[9px] bg-[#1D9E75] px-5 text-[13px] font-medium !text-white transition hover:bg-[#0F6E56]"
+              >
+                <UserPlus size={14} />
+                Add staff
+              </button>
+            </HasRoles>
           </div>
         </div>
       </div>
@@ -273,11 +277,10 @@ export default function StaffManagementClient({
             <button
               key={r}
               onClick={() => setRoleFilter(r)}
-              className={`h-8 rounded-full px-3.5 text-[12px] font-medium transition border ${
-                roleFilter === r
-                  ? 'border-[#0c1a12] bg-[#0c1a12] !text-white'
-                  : 'border-[#E8E6E0] bg-white text-[#5F5E5A] hover:border-[#D3D1C7] hover:text-[#2C2C2A]'
-              }`}
+              className={`h-8 rounded-full px-3.5 text-[12px] font-medium transition border ${roleFilter === r
+                ? 'border-[#0c1a12] bg-[#0c1a12] !text-white'
+                : 'border-[#E8E6E0] bg-white text-[#5F5E5A] hover:border-[#D3D1C7] hover:text-[#2C2C2A]'
+                }`}
             >
               {r}
             </button>
@@ -351,7 +354,7 @@ export default function StaffManagementClient({
           error={roleError}
         />
       )}
-      
+
       {openCreate && (
         <CreateStaffModal
           onClose={() => setOpenCreate(false)}

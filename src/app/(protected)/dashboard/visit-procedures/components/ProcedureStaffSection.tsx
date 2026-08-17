@@ -18,6 +18,8 @@ import { clientFetch } from '@/lib/clientFetch';
 
 import AssignProcedureStaffCard from './AssignProcedureStaffCard';
 import UpdateProcedureStaffCard from './UpdateProcedureStaffCard';
+import { Roles } from '@/shared/utils/enums/roles';
+import { HasRoles } from '@/components/auth/HasRoles';
 
 export type EditableProcedureStaff = {
     id?: string;
@@ -199,13 +201,16 @@ export default function ProcedureStaffSection({
                         }
                     />
 
-                    <AssignProcedureStaffCard
-                        team={team}
-                        setTeam={setTeam}
-                        disabled={
-                            disabled
-                        }
-                    />
+                    <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR]}>
+                        <AssignProcedureStaffCard
+                            team={team}
+                            setTeam={setTeam}
+                            disabled={
+                                disabled
+                            }
+                        />
+                    </HasRoles>
+
                 </div>
             </div>
         </div>
