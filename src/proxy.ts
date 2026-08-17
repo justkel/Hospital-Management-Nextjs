@@ -15,18 +15,32 @@ interface JwtPayload {
 const routeRoles: Record<string, Roles[]> = {
   // Clinical access
   '/dashboard/patients': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
-  '/dashboard/visits': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
-  '/dashboard/lab-requests': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.LAB_TECH],
+  '/dashboard/visit-procedures': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
+  '/dashboard/wards': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
+  '/dashboard/theatres': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
+  '/dashboard/visits': [
+    Roles.ADMIN,
+    Roles.DOCTOR,
+    Roles.NURSE,
+    Roles.BILLING_OFFICER,
+  ],
+  '/dashboard/lab-requests': [
+    Roles.ADMIN,
+    Roles.DOCTOR,
+    Roles.NURSE,
+    Roles.LAB_TECH,
+  ],
 
   // Admin only
   '/dashboard/billing': [Roles.ADMIN],
   '/dashboard/audit': [Roles.ADMIN],
+  '/dashboard/settings/feature-flags': [Roles.ADMIN],
+  '/admins/staff': [Roles.ADMIN, Roles.DOCTOR],
   '/admins': [Roles.ADMIN],
 };
 
 export function proxy(req: NextRequest) {
   const accessToken = req.cookies.get('access_token')?.value;
-
   const pathname = req.nextUrl.pathname;
 
   const isAuthRoute = pathname.startsWith('/login');
@@ -49,7 +63,7 @@ export function proxy(req: NextRequest) {
       for (const [route, allowedRoles] of Object.entries(routeRoles)) {
         if (pathname.startsWith(route)) {
           const hasAccess = decoded.roles.some((role) =>
-            allowedRoles.includes(role as Roles)
+            allowedRoles.includes(role as Roles),
           );
           if (!hasAccess) {
             return NextResponse.redirect(new URL('/forbidden', req.url));
