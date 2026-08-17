@@ -8,11 +8,13 @@ import {
     MedicineBoxOutlined, FileSearchOutlined, SolutionOutlined,
     CreditCardOutlined, ExperimentOutlined, ApartmentOutlined,
     ArrowLeftOutlined, NodeIndexOutlined, BellOutlined,
+    FlagOutlined,
 } from '@ant-design/icons';
 import { ShieldCheck, Theater } from 'lucide-react';
 import { Roles } from '@/shared/utils/enums/roles';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+
 function Hamburger({ isOpen, toggle }: { isOpen: boolean; toggle: () => void }) {
     return (
         <button
@@ -85,22 +87,23 @@ export default function DashboardShell({
 
     const hasClinicalAccess =
         roles.includes(Roles.ADMIN) || roles.includes(Roles.DOCTOR) || roles.includes(Roles.NURSE);
-    const hasWardAccess =
-        roles.includes(Roles.ADMIN) || roles.includes(Roles.NURSE);
 
     const selectedKey = (() => {
         if (pathname.startsWith('/admins/staff')) return 'staff';
         if (pathname.startsWith('/dashboard/patients')) return 'patients';
         if (pathname.startsWith('/dashboard/visits')) return 'visits';
         if (pathname.startsWith('/dashboard/visit-procedures')) return 'visit-procedures';
+        if (pathname.startsWith('/dashboard/ward-incidents')) return 'wards';
         if (pathname.startsWith('/dashboard/wards')) return 'wards';
         if (pathname.startsWith('/dashboard/lab-requests')) return 'lab-requests';
+        if (pathname.startsWith('/dashboard/theatre-incidents')) return 'theatres';
         if (pathname.startsWith('/dashboard/theatres')) return 'theatres';
         if (pathname.startsWith('/dashboard/audit')) return 'audit';
         if (pathname.startsWith('/records')) return 'records';
         if (pathname.startsWith('/admins/billing/global')) return 'billing-global';
         if (pathname.startsWith('/admins/billing/organization')) return 'billing-organization';
-        if (pathname.startsWith('/settings')) return 'settings';
+        if (pathname.startsWith('/dashboard/settings/feature-flags')) return 'feature-flags';
+        if (pathname.startsWith('dashboard/settings')) return 'settings';
         if (pathname.startsWith('/dashboard')) return 'dashboard';
         return '';
     })();
@@ -193,35 +196,75 @@ export default function DashboardShell({
                                 href="/dashboard" active={selectedKey === 'dashboard'} onClick={close} />
                         </NavSection>
 
-                        {hasClinicalAccess && (
+                        {hasClinicalAccess || roles.includes(Roles.BILLING_OFFICER) ? (
                             <NavSection label="Clinical">
-                                <NavItem icon={<MedicineBoxOutlined />} label="Patients"
-                                    href="/dashboard/patients" active={selectedKey === 'patients'} onClick={close} />
-                                <NavItem icon={<SolutionOutlined />} label="Visits"
-                                    href="/dashboard/visits" active={selectedKey === 'visits'} onClick={close} />
-                                <NavItem icon={<NodeIndexOutlined />} label="Procedures"
-                                    href="/dashboard/visit-procedures" active={selectedKey === 'visit-procedures'} onClick={close} />
-                                <NavItem icon={<ExperimentOutlined />} label="Lab Requests"
-                                    href="/dashboard/lab-requests" active={selectedKey === 'lab-requests'} onClick={close} />
-                                {hasWardAccess && (
-                                    <NavItem icon={<ApartmentOutlined />} label="Wards"
-                                        href="/dashboard/wards" active={selectedKey === 'wards'} onClick={close} />
+                                {hasClinicalAccess && (
+                                    <>
+                                        <NavItem
+                                            icon={<MedicineBoxOutlined />}
+                                            label="Patients"
+                                            href="/dashboard/patients"
+                                            active={selectedKey === 'patients'}
+                                            onClick={close}
+                                        />
+                                    </>
                                 )}
+
                                 <NavItem
-                                    icon={<Theater size={15} />}
-                                    label="Theatres"
-                                    href="/dashboard/theatres"
-                                    active={selectedKey === 'theatres'}
+                                    icon={<SolutionOutlined />}
+                                    label="Visits"
+                                    href="/dashboard/visits"
+                                    active={selectedKey === 'visits'}
                                     onClick={close}
                                 />
+
+                                {hasClinicalAccess && (
+                                    <>
+                                        <NavItem
+                                            icon={<NodeIndexOutlined />}
+                                            label="Procedures"
+                                            href="/dashboard/visit-procedures"
+                                            active={selectedKey === 'visit-procedures'}
+                                            onClick={close}
+                                        />
+
+                                        <NavItem
+                                            icon={<ExperimentOutlined />}
+                                            label="Lab Requests"
+                                            href="/dashboard/lab-requests"
+                                            active={selectedKey === 'lab-requests'}
+                                            onClick={close}
+                                        />
+
+                                        <NavItem
+                                            icon={<ApartmentOutlined />}
+                                            label="Wards"
+                                            href="/dashboard/wards"
+                                            active={selectedKey === 'wards'}
+                                            onClick={close}
+                                        />
+
+                                        <NavItem
+                                            icon={<Theater size={15} />}
+                                            label="Theatres"
+                                            href="/dashboard/theatres"
+                                            active={selectedKey === 'theatres'}
+                                            onClick={close}
+                                        />
+                                    </>
+                                )}
+                            </NavSection>
+                        ) : null}
+
+                        {(roles.includes(Roles.ADMIN) || roles.includes(Roles.DOCTOR)) && (
+                            <NavSection label="Personnel">
+                                <NavItem icon={<TeamOutlined />} label="Staff"
+                                    href="/admins/staff" active={selectedKey === 'staff'} onClick={close} />
                             </NavSection>
                         )}
 
                         {roles.includes(Roles.ADMIN) && (
                             <NavSection label="Admin">
-                                <NavItem icon={<TeamOutlined />} label="Staff"
-                                    href="/admins/staff" active={selectedKey === 'staff'} onClick={close} />
-
                                 <NavItem icon={<CreditCardOutlined />} label="Charge Catalogs" />
                                 <div className="ml-3 mt-0.5 border-l border-[#E8E6E0] pl-3">
                                     <NavItem icon={<span className="h-1 w-1 rounded-full bg-[#D3D1C7]" />} label="Global"
@@ -229,9 +272,16 @@ export default function DashboardShell({
                                     <NavItem icon={<span className="h-1 w-1 rounded-full bg-[#D3D1C7]" />} label="Organization"
                                         href="/admins/billing/organization" active={selectedKey === 'billing-organization'} onClick={close} />
                                 </div>
-
                                 <NavItem icon={<FileSearchOutlined />} label="Audits"
                                     href="/dashboard/audit" active={selectedKey === 'audit'} onClick={close} />
+
+                                <NavItem
+                                    icon={<FlagOutlined />}
+                                    label="Feature Flags"
+                                    href="/dashboard/settings/feature-flags"
+                                    active={selectedKey === 'feature-flags'}
+                                    onClick={close}
+                                />
                             </NavSection>
                         )}
 
@@ -239,7 +289,7 @@ export default function DashboardShell({
                             <NavItem icon={<FileTextOutlined />} label="Medical Records"
                                 active={selectedKey === 'records'} onClick={close} />
                             <NavItem icon={<SettingOutlined />} label="Settings"
-                                href="/settings" active={selectedKey === 'settings'} onClick={close} />
+                                href="/dashboard/settings" active={selectedKey === 'settings'} onClick={close} />
                         </NavSection>
                     </nav>
 
