@@ -7,6 +7,7 @@ import {
 } from '@/shared/graphql/generated/graphql';
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 import { Roles } from '@/shared/utils/enums/roles';
+import { RoleProvider } from '@/providers/RoleContext';
 
 export default async function Layout({
   children,
@@ -19,12 +20,14 @@ export default async function Layout({
   );
 
   const roles: Roles[] = Array.isArray(data?.whoAmI?.roles)
-      ? data.whoAmI.roles as Roles[]
-      : [];
+    ? data.whoAmI.roles as Roles[]
+    : [];
 
   return (
-    <DashboardShell roles={roles}>
-      {children}
-    </DashboardShell>
+    <RoleProvider roles={roles}>
+      <DashboardShell roles={roles}>
+        {children}
+      </DashboardShell>
+    </RoleProvider>
   );
 }
