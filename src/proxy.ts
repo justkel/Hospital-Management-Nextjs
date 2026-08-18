@@ -15,6 +15,12 @@ interface JwtPayload {
 const routeRoles: Record<string, Roles[]> = {
   // Clinical access
   '/dashboard/patients': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
+  '/dashboard/patients/:id/wallet': [
+    Roles.ADMIN,
+    Roles.DOCTOR,
+    Roles.NURSE,
+    Roles.BILLING_OFFICER,
+  ],
   '/dashboard/visit-procedures': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
   '/dashboard/wards': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
   '/dashboard/theatres': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
@@ -39,14 +45,31 @@ const routeRoles: Record<string, Roles[]> = {
   '/admins': [Roles.ADMIN],
 };
 
+function routeToRegex(route: string): RegExp {
+  const pattern = route
+    .split('/')
+    .map((seg) => (seg.startsWith(':') ? '[^/]+' : seg))
+    .join('/');
+  return new RegExp(`^${pattern}(/.*)?$`);
+}
+
+const compiledRoutes = Object.entries(routeRoles)
+  // Longest path first = most specific route wins.
+  .sort((a, b) => b[0].length - a[0].length)
+  .map(([route, roles]) => ({ regex: routeToRegex(route), roles, route }));
+
+function getAllowedRoles(pathname: string): Roles[] | undefined {
+  const match = compiledRoutes.find(({ regex }) => regex.test(pathname));
+  return match?.roles;
+}
+
 export function proxy(req: NextRequest) {
   const accessToken = req.cookies.get('access_token')?.value;
   const pathname = req.nextUrl.pathname;
 
   const isAuthRoute = pathname.startsWith('/login');
   const isProtected =
-    pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/admins');
+    pathname.startsWith('/dashboard') || pathname.startsWith('/admins');
 
   if (isProtected && !accessToken) {
     return NextResponse.redirect(new URL('/login', req.url));
@@ -59,15 +82,14 @@ export function proxy(req: NextRequest) {
   if (isProtected && accessToken) {
     try {
       const decoded: JwtPayload = jwtDecode(accessToken);
+      const allowedRoles = getAllowedRoles(pathname);
 
-      for (const [route, allowedRoles] of Object.entries(routeRoles)) {
-        if (pathname.startsWith(route)) {
-          const hasAccess = decoded.roles.some((role) =>
-            allowedRoles.includes(role as Roles),
-          );
-          if (!hasAccess) {
-            return NextResponse.redirect(new URL('/forbidden', req.url));
-          }
+      if (allowedRoles) {
+        const hasAccess = decoded.roles.some((role) =>
+          allowedRoles.includes(role as Roles),
+        );
+        if (!hasAccess) {
+          return NextResponse.redirect(new URL('/forbidden', req.url));
         }
       }
     } catch {
