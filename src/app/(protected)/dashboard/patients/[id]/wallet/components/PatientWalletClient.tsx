@@ -23,6 +23,8 @@ import { clientFetch } from '@/lib/clientFetch';
 import { useUrlFilters } from '@/hooks/useUrlFilters';
 import StatusBadge from '@/app/(protected)/dashboard/visits/[id]/billing/components/StatusBadge';
 import type { GetPatientWalletTransactionsPaginatedQuery } from '@/shared/graphql/generated/graphql';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 export type WalletTransactionRow =
   GetPatientWalletTransactionsPaginatedQuery['patientWalletTransactionsPaginated']['items'][number];
@@ -498,22 +500,27 @@ export default function PatientWalletClient({
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={openTopUpForm}
-                className="inline-flex items-center gap-2 rounded-2xl !bg-violet-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-violet-700"
-              >
-                <PlusCircle size={15} />
-                Top up wallet
-              </button>
-              <button
-                type="button"
-                onClick={openGrantForm}
-                className="inline-flex items-center gap-2 rounded-2xl !bg-blue-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-blue-700"
-              >
-                <Gift size={15} />
-                Request grant
-              </button>
+              <HasRoles roles={[Roles.ADMIN, Roles.NURSE]}>
+                <button
+                  type="button"
+                  onClick={openTopUpForm}
+                  className="inline-flex items-center gap-2 rounded-2xl !bg-violet-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-violet-700"
+                >
+                  <PlusCircle size={15} />
+                  Top up wallet
+                </button>
+              </HasRoles>
+
+              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+                <button
+                  type="button"
+                  onClick={openGrantForm}
+                  className="inline-flex items-center gap-2 rounded-2xl !bg-blue-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-blue-700"
+                >
+                  <Gift size={15} />
+                  Request grant
+                </button>
+              </HasRoles>
             </div>
           </div>
         </div>
@@ -590,9 +597,8 @@ export default function PatientWalletClient({
             </div>
           ) : (
             <div
-              className={`overflow-hidden rounded-xl border !border-slate-200 transition-opacity ${
-                refreshing ? 'opacity-60' : 'opacity-100'
-              }`}
+              className={`overflow-hidden rounded-xl border !border-slate-200 transition-opacity ${refreshing ? 'opacity-60' : 'opacity-100'
+                }`}
             >
               <div className="divide-y !divide-slate-100">
                 {transactions.map((t) => {
@@ -617,11 +623,10 @@ export default function PatientWalletClient({
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                               <span
-                                className={`text-lg font-bold ${
-                                  meta.sign === '+'
-                                    ? '!text-emerald-600'
-                                    : '!text-slate-900'
-                                }`}
+                                className={`text-lg font-bold ${meta.sign === '+'
+                                  ? '!text-emerald-600'
+                                  : '!text-slate-900'
+                                  }`}
                               >
                                 {meta.sign}
                                 {formatCurrency(t.amount)}
@@ -650,59 +655,63 @@ export default function PatientWalletClient({
                           </div>
                         </div>
 
-                        {t.type === 'GRANT' && t.status === 'REQUESTED' && (
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              disabled={actionLoadingId === t.id}
-                              onClick={() => approveGrant(t.id)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border !border-emerald-300 !bg-emerald-50 px-3 py-2 text-xs font-bold !text-emerald-700 transition hover:!bg-emerald-100 disabled:opacity-60"
-                            >
-                              {actionLoadingId === t.id ? (
-                                <Loader2 size={13} className="animate-spin" />
-                              ) : (
-                                <ThumbsUp size={13} />
-                              )}
-                              Approve
-                            </button>
-                            <button
-                              type="button"
-                              disabled={actionLoadingId === t.id}
-                              onClick={() => setRejectTarget(t.id)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
-                            >
-                              <ThumbsDown size={13} />
-                              Reject
-                            </button>
-                          </div>
-                        )}
+                        <HasRoles roles={[Roles.ADMIN]}>
+                          {t.type === 'GRANT' && t.status === 'REQUESTED' && (
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                disabled={actionLoadingId === t.id}
+                                onClick={() => approveGrant(t.id)}
+                                className="inline-flex items-center gap-1.5 rounded-lg border !border-emerald-300 !bg-emerald-50 px-3 py-2 text-xs font-bold !text-emerald-700 transition hover:!bg-emerald-100 disabled:opacity-60"
+                              >
+                                {actionLoadingId === t.id ? (
+                                  <Loader2 size={13} className="animate-spin" />
+                                ) : (
+                                  <ThumbsUp size={13} />
+                                )}
+                                Approve
+                              </button>
+                              <button
+                                type="button"
+                                disabled={actionLoadingId === t.id}
+                                onClick={() => setRejectTarget(t.id)}
+                                className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
+                              >
+                                <ThumbsDown size={13} />
+                                Reject
+                              </button>
+                            </div>
+                          )}
+                        </HasRoles>
 
-                        {t.type === 'TOP_UP' && t.status === 'PENDING' && (
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              disabled={actionLoadingId === t.id}
-                              onClick={() => confirmTopUp(t.id)}
-                              className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
-                            >
-                              {actionLoadingId === t.id ? (
-                                <Loader2 size={13} className="animate-spin" />
-                              ) : (
-                                <CheckCircle2 size={13} />
-                              )}
-                              Confirm
-                            </button>
-                            <button
-                              type="button"
-                              disabled={actionLoadingId === t.id}
-                              onClick={() => setTopUpFailTarget(t.id)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
-                            >
-                              <XCircle size={13} />
-                              Fail
-                            </button>
-                          </div>
-                        )}
+                        <HasRoles roles={[Roles.ADMIN, Roles.NURSE]}>
+                          {t.type === 'TOP_UP' && t.status === 'PENDING' && (
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                disabled={actionLoadingId === t.id}
+                                onClick={() => confirmTopUp(t.id)}
+                                className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
+                              >
+                                {actionLoadingId === t.id ? (
+                                  <Loader2 size={13} className="animate-spin" />
+                                ) : (
+                                  <CheckCircle2 size={13} />
+                                )}
+                                Confirm
+                              </button>
+                              <button
+                                type="button"
+                                disabled={actionLoadingId === t.id}
+                                onClick={() => setTopUpFailTarget(t.id)}
+                                className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
+                              >
+                                <XCircle size={13} />
+                                Fail
+                              </button>
+                            </div>
+                          )}
+                        </HasRoles>
 
                         {t.type === 'GRANT' && t.status === 'REJECTED' && (
                           <span className="inline-flex items-center gap-1.5 text-xs !text-slate-400">
