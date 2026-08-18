@@ -10,7 +10,7 @@ import {
 import { clientFetch } from '@/lib/clientFetch';
 import { useUrlFilters } from '@/hooks/useUrlFilters';
 import Link from 'next/link';
-import { Bed, CalendarClock, ClipboardList, MessageCircle, RotateCw, Scissors, Stethoscope, Video } from 'lucide-react';
+import { CalendarClock, ClipboardList, MessageCircle, Scissors, Stethoscope, Video, FlaskConical } from 'lucide-react';
 
 export type VisitListItem =
   FindAllVisitsQuery['visits']['items'][number];
@@ -96,10 +96,9 @@ export default function VisitManagementClient({
     [VisitType.Emergency]: <CalendarClock size={12} />,
     [VisitType.Admission]: <ClipboardList size={12} />,
     [VisitType.Consultation]: <MessageCircle size={12} />,
-    [VisitType.FollowUp]: <RotateCw size={12} />,
     [VisitType.Surgery]: <Scissors size={12} />,
     [VisitType.Telemedicine]: <Video size={12} />,
-    [VisitType.Daycare]: <Bed size={12} />,
+    [VisitType.Laboratory]: <FlaskConical size={12} />,
   };
 
   const STATUS_STYLES: Record<string, string> = {
