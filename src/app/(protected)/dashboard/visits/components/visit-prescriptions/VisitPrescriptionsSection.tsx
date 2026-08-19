@@ -211,11 +211,11 @@ export default function VisitPrescriptionsSection({ visitId }: Props) {
                 onEdit={handleEdit}
             />
 
-            <div className="pt-4 flex justify-end">
-                <div className="flex items-center gap-3">
+            {prescriptions.length > 0 && (
+                <div className="pt-4 flex justify-end">
                     <PrescriptionPrint prescriptions={prescriptions} />
                 </div>
-            </div>
+            )}
         </div>
     );
 }
