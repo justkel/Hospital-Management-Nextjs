@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
+const REQUEST_TIMEOUT_MS = 10_000;
 
 type StaffLoginData = {
   staffLogin?: {
@@ -37,6 +38,7 @@ export async function loginAction(input: {
     const res = await fetch(GATEWAY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       body: JSON.stringify({
         query: `
           mutation StaffLogin($input: StaffLoginInput!) {
@@ -56,12 +58,23 @@ export async function loginAction(input: {
       }),
     });
 
+    if (!res.ok) {
+      return {
+        success: false,
+        message: `Authentication server error (${res.status})`,
+      } as const;
+    }
+
     json = (await res.json()) as GraphQLResponse<StaffLoginData>;
-  } catch {
+  } catch (err) {
+    const timedOut = err instanceof DOMException && err.name === 'TimeoutError';
+
     return {
       success: false,
-      message: 'Unable to reach authentication server',
-    };
+      message: timedOut
+        ? 'The server is taking too long to respond. Please try again.'
+        : 'Unable to reach authentication server',
+    } as const;
   }
 
   if (json.errors?.length) {
@@ -72,7 +85,7 @@ export async function loginAction(input: {
       message: err.message || 'Login failed',
       code: err.extensions?.code,
       status: err.extensions?.status,
-    };
+    } as const;
   }
 
   const tokens = json.data?.staffLogin;
@@ -81,7 +94,7 @@ export async function loginAction(input: {
     return {
       success: false,
       message: 'Invalid credentials',
-    };
+    } as const;
   }
 
   const cookieStore = await cookies();
@@ -103,5 +116,5 @@ export async function loginAction(input: {
   return {
     success: true,
     forcePasswordChange: tokens.forcePasswordChange,
-  };
+  } as const;
 }
