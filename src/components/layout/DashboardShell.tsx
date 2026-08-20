@@ -88,6 +88,9 @@ export default function DashboardShell({
     const hasClinicalAccess =
         roles.includes(Roles.ADMIN) || roles.includes(Roles.DOCTOR) || roles.includes(Roles.NURSE);
 
+    const canSeeLabRequests = hasClinicalAccess || roles.includes(Roles.LAB_TECH);
+    const canSeeVisits = hasClinicalAccess || roles.includes(Roles.BILLING_OFFICER);
+
     const selectedKey = (() => {
         if (pathname.startsWith('/admins/staff')) return 'staff';
         if (pathname.startsWith('/dashboard/patients')) return 'patients';
@@ -121,10 +124,26 @@ export default function DashboardShell({
     const close = () => setMenuOpen(false);
 
     const userMenuItems = [
-        { key: 'profile', icon: <UserOutlined />, label: <Link href="/dashboard/profile">Profile</Link> },
-        { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
-        { type: 'divider' as const },
-        { key: 'logout', icon: <LogoutOutlined />, label: 'Sign out', danger: true, onClick: () => setLogoutModal(true) },
+        {
+            key: "profile",
+            icon: <UserOutlined />,
+            label: "Profile",
+            onClick: () => router.push("/dashboard/profile"),
+        },
+        {
+            key: "settings",
+            icon: <SettingOutlined />,
+            label: "Settings",
+            onClick: () => router.push("/dashboard/settings"),
+        },
+        { type: "divider" as const },
+        {
+            key: "logout",
+            icon: <LogoutOutlined />,
+            label: "Sign out",
+            danger: true,
+            onClick: () => setLogoutModal(true),
+        },
     ];
 
     return (
@@ -196,27 +215,26 @@ export default function DashboardShell({
                                 href="/dashboard" active={selectedKey === 'dashboard'} onClick={close} />
                         </NavSection>
 
-                        {hasClinicalAccess || roles.includes(Roles.BILLING_OFFICER) ? (
+                        {hasClinicalAccess || roles.includes(Roles.BILLING_OFFICER) || roles.includes(Roles.LAB_TECH) ? (
                             <NavSection label="Clinical">
                                 {hasClinicalAccess && (
-                                    <>
-                                        <NavItem
-                                            icon={<MedicineBoxOutlined />}
-                                            label="Patients"
-                                            href="/dashboard/patients"
-                                            active={selectedKey === 'patients'}
-                                            onClick={close}
-                                        />
-                                    </>
+                                    <NavItem
+                                        icon={<MedicineBoxOutlined />}
+                                        label="Patients"
+                                        href="/dashboard/patients"
+                                        active={selectedKey === 'patients'}
+                                        onClick={close}
+                                    />
                                 )}
-
-                                <NavItem
-                                    icon={<SolutionOutlined />}
-                                    label="Visits"
-                                    href="/dashboard/visits"
-                                    active={selectedKey === 'visits'}
-                                    onClick={close}
-                                />
+                                {canSeeVisits && (
+                                    <NavItem
+                                        icon={<SolutionOutlined />}
+                                        label="Visits"
+                                        href="/dashboard/visits"
+                                        active={selectedKey === 'visits'}
+                                        onClick={close}
+                                    />
+                                )}
 
                                 {hasClinicalAccess && (
                                     <>
@@ -225,14 +243,6 @@ export default function DashboardShell({
                                             label="Procedures"
                                             href="/dashboard/visit-procedures"
                                             active={selectedKey === 'visit-procedures'}
-                                            onClick={close}
-                                        />
-
-                                        <NavItem
-                                            icon={<ExperimentOutlined />}
-                                            label="Lab Requests"
-                                            href="/dashboard/lab-requests"
-                                            active={selectedKey === 'lab-requests'}
                                             onClick={close}
                                         />
 
@@ -252,6 +262,16 @@ export default function DashboardShell({
                                             onClick={close}
                                         />
                                     </>
+                                )}
+
+                                {canSeeLabRequests && (
+                                    <NavItem
+                                        icon={<ExperimentOutlined />}
+                                        label="Lab Requests"
+                                        href="/dashboard/lab-requests"
+                                        active={selectedKey === 'lab-requests'}
+                                        onClick={close}
+                                    />
                                 )}
                             </NavSection>
                         ) : null}
