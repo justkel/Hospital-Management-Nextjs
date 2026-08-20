@@ -9,12 +9,13 @@ import { loginAction } from '@/lib/auth/login.action';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Activity, AlertCircle, ArrowRight, CreditCard, FileText, IdCard, ShieldCheck, Users } from 'lucide-react';
+import { Activity, AlertCircle, ArrowRight, CreditCard, FileText, IdCard, ShieldCheck, Sparkles, Users } from 'lucide-react';
 
 const STATUS_MESSAGE_MAP: Record<string, string> = {
   SUSPENDED: 'Your account has been suspended.',
   PENDING: 'Your account is pending approval.',
   INACTIVE: 'Your account is inactive.',
+  ACCOUNT_INACTIVE: 'Your account is not active. Please contact your administrator.',
 };
 
 export default function LoginPage() {
@@ -24,34 +25,35 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const onFinish = async (values: {
-    userCode: string;
-    password: string;
-  }) => {
+  const onFinish = async (values: { userCode: string; password: string }) => {
     setError(null);
     setLoading(true);
 
-    const result = await loginAction(values);
+    try {
+      const result = await loginAction(values);
 
-    setLoading(false);
+      if (!result.success) {
+        const customMessage =
+          (result.status && STATUS_MESSAGE_MAP[result.status]) ||
+          (result.code && STATUS_MESSAGE_MAP[result.code]) ||
+          result.message ||
+          'Login failed';
 
-    if (!result.success) {
-      const customMessage =
-        (result.status && STATUS_MESSAGE_MAP[result.status]) ||
-        result.message ||
-        'Login failed';
+        setError(customMessage);
+        return;
+      }
 
-      setError(customMessage);
-      return;
+      if (result.forcePasswordChange) {
+        router.replace('/force-password-change');
+        return;
+      }
+
+      router.replace('/dashboard');
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
     }
-
-    if (result.forcePasswordChange) {
-      router.replace('/force-password-change');
-      return;
-    }
-
-    router.replace('/dashboard');
-
   };
 
   return (
@@ -210,6 +212,22 @@ export default function LoginPage() {
               Sign in
             </Button>
           </Form>
+
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px flex-1 bg-[#D3D1C7]" />
+            <span className="text-[11px] uppercase tracking-[0.07em] text-[#B4B2A9]">New here?</span>
+            <div className="h-px flex-1 bg-[#D3D1C7]" />
+          </div>
+
+          <Link href="/guest-access" className="block">
+            <Button
+              block
+              className="!h-12 !rounded-[10px] !border !border-[#1D9E75]/30 !bg-[#F0FAF5] !font-medium !text-[#1D9E75] transition hover:!border-[#1D9E75] hover:!bg-[#1D9E75]/10"
+            >
+              <Sparkles size={15} className="mr-2 inline -mt-0.5" />
+              Try the demo as a guest
+            </Button>
+          </Link>
 
           <div className="my-6 flex items-center gap-3">
             <div className="h-px flex-1 bg-[#D3D1C7]" />
