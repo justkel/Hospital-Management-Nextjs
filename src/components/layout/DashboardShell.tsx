@@ -74,6 +74,19 @@ function NavSection({ label, children }: { label: string; children: ReactNode })
     );
 }
 
+type NavEntry = {
+    key: string;
+    icon: React.ReactNode;
+    label: React.ReactNode;
+    href?: string;
+    allowedRoles?: Roles[];
+    onClick?: () => void;
+    children?: NavEntry[];
+};
+
+const canView = (roles: Roles[], allowedRoles?: Roles[]) =>
+    !allowedRoles || allowedRoles.some((r) => roles.includes(r));
+
 export default function DashboardShell({
     children,
     roles = [] as Roles[],
@@ -85,12 +98,6 @@ export default function DashboardShell({
     const [logoutModal, setLogoutModal] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
-
-    const hasClinicalAccess =
-        roles.includes(Roles.ADMIN) || roles.includes(Roles.DOCTOR) || roles.includes(Roles.NURSE);
-
-    const canSeeLabRequests = hasClinicalAccess || roles.includes(Roles.LAB_TECH);
-    const canSeeVisits = hasClinicalAccess || roles.includes(Roles.BILLING_OFFICER);
 
     const selectedKey = (() => {
         if (pathname.startsWith('/admins/staff')) return 'staff';
@@ -145,6 +152,143 @@ export default function DashboardShell({
             label: "Sign out",
             danger: true,
             onClick: () => setLogoutModal(true),
+        },
+    ];
+
+    const navSections: { label: string; items: NavEntry[] }[] = [
+        {
+            label: 'Overview',
+            items: [
+                {
+                    key: 'dashboard',
+                    icon: <DashboardOutlined />,
+                    label: 'Dashboard',
+                    href: '/dashboard',
+                },
+            ],
+        },
+        {
+            label: 'Clinical',
+            items: [
+                {
+                    key: 'patients',
+                    icon: <MedicineBoxOutlined />,
+                    label: 'Patients',
+                    href: '/dashboard/patients',
+                    allowedRoles: [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
+                },
+                {
+                    key: 'visits',
+                    icon: <SolutionOutlined />,
+                    label: 'Visits',
+                    href: '/dashboard/visits',
+                    allowedRoles: [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.BILLING_OFFICER],
+                },
+                {
+                    key: 'visit-procedures',
+                    icon: <NodeIndexOutlined />,
+                    label: 'Procedures',
+                    href: '/dashboard/visit-procedures',
+                    allowedRoles: [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
+                },
+                {
+                    key: 'wards',
+                    icon: <ApartmentOutlined />,
+                    label: 'Wards',
+                    href: '/dashboard/wards',
+                    allowedRoles: [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
+                },
+                {
+                    key: 'theatres',
+                    icon: <Theater size={15} />,
+                    label: 'Theatres',
+                    href: '/dashboard/theatres',
+                    allowedRoles: [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
+                },
+                {
+                    key: 'lab-requests',
+                    icon: <ExperimentOutlined />,
+                    label: 'Lab Requests',
+                    href: '/dashboard/lab-requests',
+                    allowedRoles: [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.LAB_TECH],
+                },
+            ],
+        },
+        {
+            label: 'Personnel',
+            items: [
+                {
+                    key: 'staff',
+                    icon: <TeamOutlined />,
+                    label: 'Staff',
+                    href: '/admins/staff',
+                    allowedRoles: [Roles.ADMIN, Roles.DOCTOR],
+                },
+                {
+                    key: 'guest-management',
+                    icon: <IdcardOutlined />,
+                    label: 'Guest Management',
+                    href: '/dashboard/guest-requests',
+                    allowedRoles: [Roles.ADMIN],
+                },
+            ],
+        },
+        {
+            label: 'Admin',
+            items: [
+                {
+                    key: 'billing-catalogs',
+                    icon: <CreditCardOutlined />,
+                    label: 'Charge Catalogs',
+                    allowedRoles: [Roles.ADMIN],
+                    children: [
+                        {
+                            key: 'billing-global',
+                            icon: <span className="h-1 w-1 rounded-full bg-[#D3D1C7]" />,
+                            label: 'Global',
+                            href: '/admins/billing/global',
+                            allowedRoles: [Roles.ADMIN],
+                        },
+                        {
+                            key: 'billing-organization',
+                            icon: <span className="h-1 w-1 rounded-full bg-[#D3D1C7]" />,
+                            label: 'Organization',
+                            href: '/admins/billing/organization',
+                            allowedRoles: [Roles.ADMIN],
+                        },
+                    ],
+                },
+                {
+                    key: 'audit',
+                    icon: <FileSearchOutlined />,
+                    label: 'Audits',
+                    href: '/dashboard/audit',
+                    allowedRoles: [Roles.ADMIN],
+                },
+                {
+                    key: 'feature-flags',
+                    icon: <FlagOutlined />,
+                    label: 'Feature Flags',
+                    href: '/dashboard/settings/feature-flags',
+                    allowedRoles: [Roles.ADMIN],
+                },
+            ],
+        },
+        {
+            label: 'System',
+            items: [
+                {
+                    key: 'records',
+                    icon: <FileTextOutlined />,
+                    label: 'Medical Records',
+                },
+                {
+                    key: 'settings',
+                    icon: <SettingOutlined />,
+                    label: 'Settings',
+                    href: '/dashboard/settings',
+                },
+            ],
         },
     ];
 
@@ -211,117 +355,56 @@ export default function DashboardShell({
                     </div>
 
                     <nav className="flex-1 overflow-y-auto px-2 py-2.5 scrollbar-hide" aria-label="Main navigation">
+                        {navSections.map((section) => {
+                            const visibleItems = section.items.filter((item) =>
+                                canView(roles, item.allowedRoles),
+                            );
 
-                        <NavSection label="Overview">
-                            <NavItem icon={<DashboardOutlined />} label="Dashboard"
-                                href="/dashboard" active={selectedKey === 'dashboard'} onClick={close} />
-                        </NavSection>
+                            if (visibleItems.length === 0) return null;
 
-                        {hasClinicalAccess || roles.includes(Roles.BILLING_OFFICER) || roles.includes(Roles.LAB_TECH) ? (
-                            <NavSection label="Clinical">
-                                {hasClinicalAccess && (
-                                    <NavItem
-                                        icon={<MedicineBoxOutlined />}
-                                        label="Patients"
-                                        href="/dashboard/patients"
-                                        active={selectedKey === 'patients'}
-                                        onClick={close}
-                                    />
-                                )}
-                                {canSeeVisits && (
-                                    <NavItem
-                                        icon={<SolutionOutlined />}
-                                        label="Visits"
-                                        href="/dashboard/visits"
-                                        active={selectedKey === 'visits'}
-                                        onClick={close}
-                                    />
-                                )}
+                            return (
+                                <NavSection key={section.label} label={section.label}>
+                                    {visibleItems.map((item) => {
+                                        if (item.children) {
+                                            const visibleChildren = item.children.filter((child) =>
+                                                canView(roles, child.allowedRoles),
+                                            );
 
-                                {hasClinicalAccess && (
-                                    <>
-                                        <NavItem
-                                            icon={<NodeIndexOutlined />}
-                                            label="Procedures"
-                                            href="/dashboard/visit-procedures"
-                                            active={selectedKey === 'visit-procedures'}
-                                            onClick={close}
-                                        />
+                                            if (visibleChildren.length === 0) return null;
 
-                                        <NavItem
-                                            icon={<ApartmentOutlined />}
-                                            label="Wards"
-                                            href="/dashboard/wards"
-                                            active={selectedKey === 'wards'}
-                                            onClick={close}
-                                        />
+                                            return (
+                                                <div key={item.key}>
+                                                    <NavItem icon={item.icon} label={item.label} />
+                                                    <div className="ml-3 mt-0.5 border-l border-[#E8E6E0] pl-3">
+                                                        {visibleChildren.map((child) => (
+                                                            <NavItem
+                                                                key={child.key}
+                                                                icon={child.icon}
+                                                                label={child.label}
+                                                                href={child.href}
+                                                                active={selectedKey === child.key}
+                                                                onClick={close}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
 
-                                        <NavItem
-                                            icon={<Theater size={15} />}
-                                            label="Theatres"
-                                            href="/dashboard/theatres"
-                                            active={selectedKey === 'theatres'}
-                                            onClick={close}
-                                        />
-                                    </>
-                                )}
-
-                                {canSeeLabRequests && (
-                                    <NavItem
-                                        icon={<ExperimentOutlined />}
-                                        label="Lab Requests"
-                                        href="/dashboard/lab-requests"
-                                        active={selectedKey === 'lab-requests'}
-                                        onClick={close}
-                                    />
-                                )}
-                            </NavSection>
-                        ) : null}
-
-                        {(roles.includes(Roles.ADMIN) || roles.includes(Roles.DOCTOR)) && (
-                            <NavSection label="Personnel">
-                                <NavItem icon={<TeamOutlined />} label="Staff"
-                                    href="/admins/staff" active={selectedKey === 'staff'} onClick={close} />
-                                {roles.includes(Roles.ADMIN) && (
-                                    <NavItem
-                                        icon={<IdcardOutlined />}
-                                        label="Guest Management"
-                                        href="/dashboard/guest-requests"
-                                        active={selectedKey === 'guest-management'}
-                                        onClick={close}
-                                    />
-                                )}
-                            </NavSection>
-                        )}
-
-                        {roles.includes(Roles.ADMIN) && (
-                            <NavSection label="Admin">
-                                <NavItem icon={<CreditCardOutlined />} label="Charge Catalogs" />
-                                <div className="ml-3 mt-0.5 border-l border-[#E8E6E0] pl-3">
-                                    <NavItem icon={<span className="h-1 w-1 rounded-full bg-[#D3D1C7]" />} label="Global"
-                                        href="/admins/billing/global" active={selectedKey === 'billing-global'} onClick={close} />
-                                    <NavItem icon={<span className="h-1 w-1 rounded-full bg-[#D3D1C7]" />} label="Organization"
-                                        href="/admins/billing/organization" active={selectedKey === 'billing-organization'} onClick={close} />
-                                </div>
-                                <NavItem icon={<FileSearchOutlined />} label="Audits"
-                                    href="/dashboard/audit" active={selectedKey === 'audit'} onClick={close} />
-
-                                <NavItem
-                                    icon={<FlagOutlined />}
-                                    label="Feature Flags"
-                                    href="/dashboard/settings/feature-flags"
-                                    active={selectedKey === 'feature-flags'}
-                                    onClick={close}
-                                />
-                            </NavSection>
-                        )}
-
-                        <NavSection label="System">
-                            <NavItem icon={<FileTextOutlined />} label="Medical Records"
-                                active={selectedKey === 'records'} onClick={close} />
-                            <NavItem icon={<SettingOutlined />} label="Settings"
-                                href="/dashboard/settings" active={selectedKey === 'settings'} onClick={close} />
-                        </NavSection>
+                                        return (
+                                            <NavItem
+                                                key={item.key}
+                                                icon={item.icon}
+                                                label={item.label}
+                                                href={item.href}
+                                                active={selectedKey === item.key}
+                                                onClick={item.href ? close : item.onClick}
+                                            />
+                                        );
+                                    })}
+                                </NavSection>
+                            );
+                        })}
                     </nav>
 
                     <div className="flex-shrink-0 border-t border-[#E8E6E0] p-2">
