@@ -2777,6 +2777,7 @@ export type UpsertVisitNotePositionInput = {
 /** Type of user */
 export enum UserType {
   Admin = 'ADMIN',
+  Guest = 'GUEST',
   Patient = 'PATIENT',
   Staff = 'STAFF'
 }
