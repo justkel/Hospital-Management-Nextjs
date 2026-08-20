@@ -9,6 +9,7 @@ import {
     CreditCardOutlined, ExperimentOutlined, ApartmentOutlined,
     ArrowLeftOutlined, NodeIndexOutlined, BellOutlined,
     FlagOutlined,
+    IdcardOutlined,
 } from '@ant-design/icons';
 import { ShieldCheck, Theater } from 'lucide-react';
 import { Roles } from '@/shared/utils/enums/roles';
@@ -107,6 +108,7 @@ export default function DashboardShell({
         if (pathname.startsWith('/admins/billing/organization')) return 'billing-organization';
         if (pathname.startsWith('/dashboard/settings/feature-flags')) return 'feature-flags';
         if (pathname.startsWith('dashboard/settings')) return 'settings';
+        if (pathname.startsWith('/dashboard/guest-requests')) return 'guest-management';
         if (pathname.startsWith('/dashboard')) return 'dashboard';
         return '';
     })();
@@ -280,6 +282,15 @@ export default function DashboardShell({
                             <NavSection label="Personnel">
                                 <NavItem icon={<TeamOutlined />} label="Staff"
                                     href="/admins/staff" active={selectedKey === 'staff'} onClick={close} />
+                                {roles.includes(Roles.ADMIN) && (
+                                    <NavItem
+                                        icon={<IdcardOutlined />}
+                                        label="Guest Management"
+                                        href="/dashboard/guest-requests"
+                                        active={selectedKey === 'guest-management'}
+                                        onClick={close}
+                                    />
+                                )}
                             </NavSection>
                         )}
 
