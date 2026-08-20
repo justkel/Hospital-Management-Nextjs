@@ -41,6 +41,11 @@ const FLAG_METADATA: Record<string, { label: string; description: string }> = {
     description:
       'Allows visit credit to be transferred into a patient wallet, goodwill credit to be granted directly, and wallet balances to be spent toward future visit charges. When off, wallet-related options are hidden across billing and credit screens.',
   },
+  GUEST_ACCESS: {
+    label: 'Guest Access',
+    description:
+      'Allows users to request temporary demo access to the system. When off, the "Sign in as Guest" option is hidden and guest requests are blocked.',
+  },
 };
 
 export default function FeatureFlagsClient({
@@ -186,11 +191,10 @@ export default function FeatureFlagsClient({
                         {meta.label}
                       </h2>
                       <span
-                        className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase ${
-                          flag.enabled
+                        className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase ${flag.enabled
                             ? '!bg-emerald-100 !text-emerald-700'
                             : '!bg-slate-100 !text-slate-500'
-                        }`}
+                          }`}
                       >
                         {flag.enabled ? 'On' : 'Off'}
                       </span>
@@ -245,11 +249,10 @@ export default function FeatureFlagsClient({
                             className="flex items-start gap-3 text-xs"
                           >
                             <span
-                              className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${
-                                event.enabled
+                              className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${event.enabled
                                   ? '!bg-emerald-500'
                                   : '!bg-slate-400'
-                              }`}
+                                }`}
                             />
                             <div className="min-w-0">
                               <p className="font-semibold !text-slate-700">
@@ -275,10 +278,9 @@ export default function FeatureFlagsClient({
       <Modal
         title={
           toggleTarget
-            ? `Turn ${toggleTarget.enabled ? 'off' : 'on'} ${
-                FLAG_METADATA[toggleTarget.flagKey]?.label ??
-                toggleTarget.flagKey
-              }`
+            ? `Turn ${toggleTarget.enabled ? 'off' : 'on'} ${FLAG_METADATA[toggleTarget.flagKey]?.label ??
+            toggleTarget.flagKey
+            }`
             : 'Update feature flag'
         }
         open={!!toggleTarget}
