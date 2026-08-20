@@ -10,6 +10,11 @@ const forceLogoutCodes = [
   'PASSWORD_CHANGED',
   'TOKEN_REVOKED',
   'ACCOUNT_INACTIVE',
+  'GUEST_INVALID',
+  'GUEST_BLOCKED',
+  'GUEST_ACCESS_DENIED',
+  'GUEST_ACCESS_UNVERIFIABLE',
+  'GUEST_ACCESS_EXPIRED',
 ];
 
 let logoutTriggered = false;
