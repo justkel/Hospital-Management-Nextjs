@@ -8,7 +8,7 @@ import {
   CreateStaffInput,
   UpdateStaffRolesInput,
 } from '@/shared/graphql/generated/graphql';
-import CreateStaffModal from './CreateStaffModal';
+import CreateStaffModal from './components/CreateStaffModal';
 import StaffCard from './components/StaffCard';
 import RolesModal from './components/RolesModal';
 import DetailsDrawer from './components/DetailsDrawer';

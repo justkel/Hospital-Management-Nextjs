@@ -1,10 +1,12 @@
 'use client';
 
 import { XMarkIcon } from '@heroicons/react/24/solid';
-import { StaffRole, GetAllStaffQuery } from '@/shared/graphql/generated/graphql';
+import {
+  StaffRole,
+  GetAllStaffQuery,
+} from '@/shared/graphql/generated/graphql';
 
-type StaffItem
-  = GetAllStaffQuery['staffs']['items'][number];
+type StaffItem = GetAllStaffQuery['staffs']['items'][number];
 
 interface RolesModalProps {
   staff: StaffItem | null;
@@ -26,6 +28,16 @@ export default function RolesModal({
   error,
 }: RolesModalProps) {
   if (!staff) return null;
+
+  const availableRoles = Object.values(StaffRole).filter(
+    role => role !== StaffRole.Guest,
+  );
+
+  const handleToggleRole = (role: StaffRole) => {
+    if (role === StaffRole.Guest) return;
+
+    onToggleRole(role);
+  };
 
   return (
     <div
@@ -57,13 +69,14 @@ export default function RolesModal({
         </div>
 
         <div className="flex flex-wrap gap-2 mb-4">
-          {Object.values(StaffRole).map(role => (
+          {availableRoles.map(role => (
             <button
               key={role}
-              onClick={() => onToggleRole(role)}
+              type="button"
+              onClick={() => handleToggleRole(role)}
               className={`px-3 py-1 rounded-full text-xs font-medium transition ${
                 rolesToUpdate.includes(role)
-                  ? 'bg-green-600 text-white!'
+                  ? 'bg-green-600 !text-white'
                   : 'bg-gray-100 hover:bg-gray-200'
               }`}
             >
@@ -81,7 +94,7 @@ export default function RolesModal({
         <button
           onClick={onSave}
           disabled={updating}
-          className="w-full py-2 rounded-2xl !bg-green-700 text-white! font-medium !hover:bg-green-800 transition disabled:opacity-50"
+          className="w-full py-2 rounded-2xl !bg-green-700 !text-white font-medium hover:!bg-green-800 transition disabled:opacity-50"
         >
           {updating ? 'Updating…' : 'Save Roles'}
         </button>

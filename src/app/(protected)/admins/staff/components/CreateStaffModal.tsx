@@ -20,6 +20,10 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const availableRoles = Object.values(StaffRole).filter(
+    role => role !== StaffRole.Guest,
+  );
+
   function update<K extends keyof CreateStaffInput>(
     key: K,
     value: CreateStaffInput[K]
@@ -28,6 +32,8 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
   }
 
   function toggleRole(role: StaffRole) {
+    if (role === StaffRole.Guest) return;
+
     setForm(prev => ({
       ...prev,
       roles: prev.roles.includes(role)
@@ -103,7 +109,7 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
         <div className="space-y-2">
           <p className="font-medium text-slate-700">Assign Roles</p>
           <div className="flex flex-wrap gap-2">
-            {Object.values(StaffRole).map(role => {
+            {availableRoles.map(role => {
               const active = form.roles.includes(role);
               return (
                 <button
@@ -111,8 +117,8 @@ export default function CreateStaffModal({ onClose, onCreate }: Props) {
                   type="button"
                   onClick={() => toggleRole(role)}
                   className={`px-4 py-2 rounded-full text-sm transition ${active
-                    ? 'bg-indigo-600 !text-white'
-                    : '!bg-slate-100 hover:bg-slate-200'
+                      ? 'bg-indigo-600 !text-white'
+                      : '!bg-slate-100 hover:bg-slate-200'
                     }`}
                 >
                   {role}
