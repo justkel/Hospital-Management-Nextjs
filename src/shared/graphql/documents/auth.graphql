@@ -3734,3 +3734,124 @@ mutation ReconcileVisit($visitId: String!) {
     }
   }
 }
+
+mutation CreateGuestRequest($input: CreateGuestRequestInput!) {
+  createGuestRequest(input: $input) {
+    id
+    status
+    requestedAt
+    reasonForVisit
+    guest {
+      id
+      firstName
+      lastName
+      email
+      phone
+    }
+  }
+}
+
+query GetGuestRequests($status: GuestRequestStatus) {
+  guestRequests(status: $status) {
+    id
+    reasonForVisit
+    status
+    requestedAt
+    reviewedAt
+    reviewedBy
+    rejectionReason
+    approvedAt
+    expiresAt
+    revokedAt
+    revokedBy
+    guest {
+      id
+      firstName
+      lastName
+      email
+      phone
+      status
+    }
+  }
+}
+
+query GetGuestRequest($id: String!) {
+  guestRequest(id: $id) {
+    id
+    reasonForVisit
+    status
+    requestedAt
+    reviewedAt
+    reviewedBy
+    rejectionReason
+    approvedAt
+    expiresAt
+    revokedAt
+    revokedBy
+    guest {
+      id
+      firstName
+      lastName
+      email
+      phone
+      status
+    }
+  }
+}
+
+query GetActiveGuests {
+  activeGuests {
+    guest {
+      id
+      firstName
+      lastName
+      email
+      phone
+      status
+    }
+    requestId
+    approvedAt
+    expiresAt
+  }
+}
+
+mutation ApproveGuestRequest($id: String!) {
+  approveGuestRequest(id: $id) {
+    id
+    status
+    approvedAt
+    expiresAt
+    guest {
+      id
+      firstName
+      lastName
+      email
+      phone
+    }
+  }
+}
+
+mutation RejectGuestRequest($id: String!, $rejectionReason: String!) {
+  rejectGuestRequest(id: $id, rejectionReason: $rejectionReason) {
+    id
+    status
+    reviewedAt
+    reviewedBy
+    rejectionReason
+  }
+}
+
+mutation RevokeGuestAccess($id: String!) {
+  revokeGuestAccess(id: $id) {
+    id
+    status
+    revokedAt
+    revokedBy
+    guest {
+      id
+      firstName
+      lastName
+      email
+    }
+  }
+}
