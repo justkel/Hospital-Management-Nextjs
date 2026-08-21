@@ -2,6 +2,8 @@
 
 import { CalendarDays, Pencil } from 'lucide-react';
 import { VisitPrescription } from '@/shared/graphql/generated/graphql';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 interface Props {
     prescriptions: VisitPrescription[];
@@ -66,12 +68,15 @@ export default function VisitPrescriptionsList({
                                 {p.isProvidedInHouse ? 'In-house' : 'External'}
                             </span>
 
-                            <button
-                                onClick={() => onEdit(p)}
-                                className="text-indigo-600 hover:underline"
-                            >
-                                <Pencil size={16} />
-                            </button>
+                            <HasRoles roles={[Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
+                                <button
+                                    onClick={() => onEdit(p)}
+                                    className="text-indigo-600 hover:underline"
+                                >
+                                    <Pencil size={16} />
+                                </button>
+                            </HasRoles>
+
                         </div>
                     </div>
                 </div>

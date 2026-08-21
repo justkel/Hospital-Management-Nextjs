@@ -342,7 +342,7 @@ export default function TheatreHistorySection({
                         <EyeOutlined />
                       </Link>
 
-                      <HasRoles roles={[Roles.ADMIN]}>
+                      <HasRoles roles={[Roles.ADMIN, Roles.GUEST]}>
                         <button
                           onClick={() =>
                             setEditingTheatre(

@@ -60,7 +60,7 @@ export default async function VisitDetailPage({ params }: Props) {
             </div>
 
             <div className="flex flex-wrap gap-2.5">
-              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
                 <CloseVisitButton visitId={visit.id} status={visit.status} />
               </HasRoles>
 
@@ -115,7 +115,7 @@ export default async function VisitDetailPage({ params }: Props) {
             </div>
           </CollapsibleSection>
 
-          <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+          <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
             <VisitVitalsSection visitId={visit.id} />
             <VisitComplaintsSection visitId={visit.id} />
             <VisitDiagnosisSection visitId={visit.id} />
@@ -128,7 +128,7 @@ export default async function VisitDetailPage({ params }: Props) {
 
         </div>
 
-        <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+        <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
           <VisitNoteBoard visitId={visit.id} />
         </HasRoles>
       </div>

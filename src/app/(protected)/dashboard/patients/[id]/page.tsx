@@ -134,7 +134,7 @@ export default async function PatientDetailPage({ params }: Props) {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
                 <Link
                   href={`/dashboard/patients/${id}/history`}
                   className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium text-white transition-colors hover:bg-white/[0.12]"
@@ -156,7 +156,7 @@ export default async function PatientDetailPage({ params }: Props) {
                 )}
               </Link>
               <EditPatientButton patient={patient} />
-              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
                 <CreateVisitModal patientId={patient.id} />
               </HasRoles>
             </div>

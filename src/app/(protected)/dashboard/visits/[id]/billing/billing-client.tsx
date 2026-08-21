@@ -113,6 +113,7 @@ export default function BillingClient({
   const [reconcileModalOpen, setReconcileModalOpen] = useState(false);
 
   const canManageReconciliation = useHasRoles([
+    Roles.GUEST,
     Roles.ADMIN,
     Roles.BILLING_OFFICER,
   ]);
@@ -199,7 +200,7 @@ export default function BillingClient({
                 </p>
               </div>
 
-              <HasRoles roles={[Roles.ADMIN, Roles.BILLING_OFFICER]}>
+              <HasRoles roles={[Roles.ADMIN, Roles.BILLING_OFFICER, Roles.GUEST]}>
                 <div className="flex flex-col items-end gap-1.5">
                   <button
                     type="button"
@@ -410,7 +411,7 @@ export default function BillingClient({
         </div>
       </div>
 
-      <HasRoles roles={[Roles.ADMIN, Roles.BILLING_OFFICER]}>
+      <HasRoles roles={[Roles.ADMIN, Roles.BILLING_OFFICER, Roles.GUEST]}>
         <ReconcileVisitModal
           visitId={visit.id}
           open={reconcileModalOpen}

@@ -193,7 +193,7 @@ export default function WardIncidentHistorySection({
                                                 <EyeOutlined />
                                             </Link>
 
-                                            <HasRoles roles={[Roles.ADMIN, Roles.NURSE]}>
+                                            <HasRoles roles={[Roles.ADMIN, Roles.NURSE, Roles.GUEST]}>
                                                 <button
                                                     onClick={() => {
                                                         setEditing(item);

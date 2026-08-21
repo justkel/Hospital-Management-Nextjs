@@ -146,7 +146,7 @@ export default function VisitStatusButton({ visitId, status }: Props) {
 
   if (isClosed) {
     return (
-      <HasRoles roles={[Roles.ADMIN]}>
+      <HasRoles roles={[Roles.ADMIN, Roles.GUEST]}>
         <>
           <button
             type="button"

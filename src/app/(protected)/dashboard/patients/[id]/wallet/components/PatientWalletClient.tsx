@@ -500,7 +500,7 @@ export default function PatientWalletClient({
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <HasRoles roles={[Roles.ADMIN, Roles.NURSE]}>
+              <HasRoles roles={[Roles.ADMIN, Roles.NURSE, Roles.GUEST]}>
                 <button
                   type="button"
                   onClick={openTopUpForm}
@@ -511,7 +511,7 @@ export default function PatientWalletClient({
                 </button>
               </HasRoles>
 
-              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
                 <button
                   type="button"
                   onClick={openGrantForm}
@@ -684,7 +684,7 @@ export default function PatientWalletClient({
                           )}
                         </HasRoles>
 
-                        <HasRoles roles={[Roles.ADMIN, Roles.NURSE]}>
+                        <HasRoles roles={[Roles.ADMIN, Roles.NURSE, Roles.GUEST]}>
                           {t.type === 'TOP_UP' && t.status === 'PENDING' && (
                             <div className="flex flex-wrap gap-2">
                               <button

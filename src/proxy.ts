@@ -14,30 +14,34 @@ interface JwtPayload {
 
 const routeRoles: Record<string, Roles[]> = {
   // Clinical access
-  '/dashboard/patients': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
+  '/dashboard/patients': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST],
   '/dashboard/patients/:id/wallet': [
     Roles.ADMIN,
     Roles.DOCTOR,
     Roles.NURSE,
     Roles.BILLING_OFFICER,
+    Roles.GUEST,
   ],
-  '/dashboard/visit-procedures': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
-  '/dashboard/wards': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
-  '/dashboard/theatres': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE],
+  '/dashboard/visit-procedures': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST],
+  '/dashboard/wards': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST],
+  '/dashboard/theatres': [Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST],
   '/dashboard/visits': [
     Roles.ADMIN,
     Roles.DOCTOR,
     Roles.NURSE,
     Roles.BILLING_OFFICER,
+    Roles.GUEST
   ],
   '/dashboard/lab-requests': [
     Roles.ADMIN,
     Roles.DOCTOR,
     Roles.NURSE,
     Roles.LAB_TECH,
+    Roles.GUEST
   ],
 
   // Admin only
+  '/dashboard/guest-requests': [Roles.ADMIN],
   '/dashboard/billing': [Roles.ADMIN],
   '/dashboard/audit': [Roles.ADMIN],
   '/dashboard/settings/feature-flags': [Roles.ADMIN],

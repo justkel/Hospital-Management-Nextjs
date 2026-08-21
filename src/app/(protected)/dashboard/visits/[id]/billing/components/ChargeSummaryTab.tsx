@@ -112,7 +112,7 @@ export default function ChargeSummaryTab({
   >(null);
   const [priceInput, setPriceInput] = useState('');
   const [savingPrice, setSavingPrice] = useState(false);
-  const hasAdmin = useHasRoles([Roles.ADMIN, Roles.DOCTOR]);
+  const hasAdmin = useHasRoles([Roles.ADMIN, Roles.DOCTOR, Roles.GUEST]);
 
   const refreshBalances = async () => {
     const res = await clientFetch(

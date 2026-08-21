@@ -201,7 +201,7 @@ export default function LabRequestHistorySection({
                             <EyeOutlined />
                           </Link>
 
-                        <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+                        <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
                           <button
                             onClick={() => {
                               if (!isEditable) return;

@@ -63,7 +63,7 @@ export default function WardManagementClient({
                     </Link>
                 </div>
 
-                <HasRoles roles={[Roles.ADMIN]}>
+                <HasRoles roles={[Roles.ADMIN, Roles.GUEST]}>
                     <CreateWardSection onCreated={triggerRefresh} />
                 </HasRoles>
 

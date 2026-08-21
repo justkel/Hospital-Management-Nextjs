@@ -1,5 +1,7 @@
 'use client';
 
+import { HasRoles } from "@/components/auth/HasRoles";
+import { Roles } from "@/shared/utils/enums/roles";
 import { VisitVital } from "./VisitVitalsSection";
 import { Pencil } from 'lucide-react';
 
@@ -39,14 +41,16 @@ export default function VisitVitalsList({
           <div>Weight: {vital.weight ?? '—'}</div>
           <div>Height: {vital.height ?? '—'}</div>
 
-          <div className="col-span-2 md:col-span-4 flex justify-end">
-            <button
-              onClick={() => onEdit(vital)}
-              className="text-sm text-indigo-600 hover:underline cursor-pointer"
-            >
-              <Pencil size={16} />
-            </button>
-          </div>
+          <HasRoles roles={[Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
+            <div className="col-span-2 md:col-span-4 flex justify-end">
+              <button
+                onClick={() => onEdit(vital)}
+                className="text-sm text-indigo-600 hover:underline cursor-pointer"
+              >
+                <Pencil size={16} />
+              </button>
+            </div>
+          </HasRoles>
         </div>
       ))}
     </div>

@@ -284,7 +284,7 @@ export default function VisitProcedureClient({
                       )}
                     </div>
 
-                    <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE]}>
+                    <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
                       <div className="flex w-full flex-row gap-3 sm:w-auto">
                         <Link
                           href={`/dashboard/visit-procedures/${p.id}`}

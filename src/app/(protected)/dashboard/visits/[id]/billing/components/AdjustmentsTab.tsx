@@ -575,7 +575,7 @@ export default function AdjustmentsTab({
                     <div className="flex flex-wrap gap-2">
                       {a.status === 'REQUESTED' && (
                         <>
-                          <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR]}>
+                          <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.GUEST]}>
                             <button
                               type="button"
                               disabled={actionLoadingId === a.id || isReconciled}

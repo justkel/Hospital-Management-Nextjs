@@ -9,7 +9,7 @@ import {
     FileText,
     CheckCircle2,
 } from 'lucide-react';
-import { useHasRoles } from '@/components/auth/HasRoles';
+import { HasRoles, useHasRoles } from '@/components/auth/HasRoles';
 import { Roles } from '@/shared/utils/enums/roles';
 
 interface PrescriptionFormValues {
@@ -81,7 +81,7 @@ export default function VisitPrescriptionForm({
     const inputClass =
         'w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition';
 
-    const canEditDrug = useHasRoles([Roles.ADMIN, Roles.DOCTOR]);
+    const canEditDrug = useHasRoles([Roles.DOCTOR, Roles.NURSE, Roles.GUEST]);
 
     return (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
@@ -222,25 +222,27 @@ export default function VisitPrescriptionForm({
                 <p className="text-sm text-red-600 font-medium">{error}</p>
             )}
 
-            <div className="flex flex-wrap gap-4 pt-2">
-                <button
-                    disabled={submitting}
-                    onClick={handleSubmit}
-                    className="flex items-center gap-2 bg-indigo-600 !text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition disabled:opacity-50 cursor-pointer"
-                >
-                    <CheckCircle2 size={16} />
-                    {isEditing ? 'Update' : 'Add'}
-                </button>
-
-                {isEditing && (
+            <HasRoles roles={[Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
+                <div className="flex flex-wrap gap-4 pt-2">
                     <button
-                        onClick={onCancel}
-                        className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer"
+                        disabled={submitting}
+                        onClick={handleSubmit}
+                        className="flex items-center gap-2 bg-indigo-600 !text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition disabled:opacity-50 cursor-pointer"
                     >
-                        Cancel
+                        <CheckCircle2 size={16} />
+                        {isEditing ? 'Update' : 'Add'}
                     </button>
-                )}
-            </div>
+
+                    {isEditing && (
+                        <button
+                            onClick={onCancel}
+                            className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer"
+                        >
+                            Cancel
+                        </button>
+                    )}
+                </div>
+            </HasRoles>
         </div>
     );
 }

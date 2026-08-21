@@ -5,6 +5,8 @@ import { VitalFormValues } from './VisitVitalsSection';
 import { ChargeCatalogOption } from '@/hooks/billing/useBilling';
 import { ChargeDomain } from '@/shared/graphql/generated/graphql';
 import { useVisitChargeExists } from '@/hooks/billing/useVisitChargeExists';
+import { HasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 interface Props {
   form: VitalFormValues;
@@ -234,33 +236,35 @@ export default function VisitVitalForm({
         </p>
       )}
 
-      <div className="flex flex-wrap gap-4 mt-6">
-        <button
-          disabled={
-            submitting ||
-            (form.chargeEnabled && noCatalogs)
-          }
-          onClick={handleSubmit}
-          className="px-8 py-3 rounded-xl bg-indigo-600 text-white! font-medium
+      <HasRoles roles={[Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
+        <div className="flex flex-wrap gap-4 mt-6">
+          <button
+            disabled={
+              submitting ||
+              (form.chargeEnabled && noCatalogs)
+            }
+            onClick={handleSubmit}
+            className="px-8 py-3 rounded-xl bg-indigo-600 text-white! font-medium
           hover:bg-indigo-700 transition shadow-md
           disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        >
-          {isEditing ? 'Update Vitals' : 'Record Vitals'}
-        </button>
-
-        {isEditing && (
-          <button
-            onClick={() => {
-              setError(null);
-              onCancel();
-            }}
-            className="px-8 py-3 rounded-xl border border-gray-300 
-            hover:bg-gray-50 transition text-sm cursor-pointer"
           >
-            Cancel
+            {isEditing ? 'Update Vitals' : 'Record Vitals'}
           </button>
-        )}
-      </div>
+
+          {isEditing && (
+            <button
+              onClick={() => {
+                setError(null);
+                onCancel();
+              }}
+              className="px-8 py-3 rounded-xl border border-gray-300 
+            hover:bg-gray-50 transition text-sm cursor-pointer"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      </HasRoles>
     </>
   );
 }

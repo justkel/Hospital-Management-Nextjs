@@ -152,7 +152,7 @@ export default function TheatreManagementClient({
           </div>
         </div>
 
-        <HasRoles roles={[Roles.ADMIN]}>
+        <HasRoles roles={[Roles.ADMIN, Roles.GUEST]}>
           <CreateTheatreSection onCreated={triggerRefresh} />
         </HasRoles>
 
