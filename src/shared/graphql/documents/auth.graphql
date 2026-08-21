@@ -3855,3 +3855,22 @@ mutation RevokeGuestAccess($id: String!) {
     }
   }
 }
+
+mutation RestoreGuestAccess($id: String!) {
+  restoreGuestAccess(id: $id) {
+    id
+    status
+    approvedAt
+    expiresAt
+    reviewedAt
+    reviewedBy
+    guest {
+      id
+      firstName
+      lastName
+      email
+      phone
+      status
+    }
+  }
+}
