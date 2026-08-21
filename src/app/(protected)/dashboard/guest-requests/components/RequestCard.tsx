@@ -11,6 +11,7 @@ import {
   ChevronRight,
   ThumbsUp,
   ThumbsDown,
+  RotateCcw,
   Loader2,
 } from 'lucide-react';
 
@@ -50,6 +51,7 @@ export default function RequestCard({
   onApprove,
   onReject,
   onRevoke,
+  onRestore,
   onViewDetail,
 }: {
   request: GuestRequestRow;
@@ -57,6 +59,7 @@ export default function RequestCard({
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onRevoke: (id: string) => void;
+  onRestore: (id: string) => void;
   onViewDetail: (id: string) => void;
 }) {
   const guest = request.guest;
@@ -66,6 +69,7 @@ export default function RequestCard({
   const fullName = `${guest?.firstName ?? ''} ${guest?.lastName ?? ''}`.trim() || 'Unknown guest';
   const gradient = getAvatarGradient(guest?.email ?? fullName);
   const isActiveApproved = effectiveStatus === 'APPROVED';
+  const isRestorable = effectiveStatus === 'REVOKED' || effectiveStatus === 'EXPIRED';
 
   return (
     <div className="group relative overflow-hidden rounded-2xl border !border-slate-200/70 !bg-white/90 p-4 shadow-sm transition hover:shadow-md sm:p-5">
@@ -166,6 +170,22 @@ export default function RequestCard({
                     <Ban size={12} />
                   )}
                   Revoke
+                </button>
+              )}
+
+              {isRestorable && (
+                <button
+                  type="button"
+                  disabled={actionLoading}
+                  onClick={() => onRestore(request.id)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border !border-emerald-300 !bg-emerald-50 px-3 py-1.5 text-xs font-bold !text-emerald-700 transition hover:!bg-emerald-100 disabled:opacity-60"
+                >
+                  {actionLoading ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    <RotateCcw size={12} />
+                  )}
+                  Restore
                 </button>
               )}
             </div>
