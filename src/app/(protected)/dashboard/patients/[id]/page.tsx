@@ -49,7 +49,7 @@ function formatWalletBalance(amount: number) {
 export default async function PatientDetailPage({ params }: Props) {
   const { id } = await params;
 
-  const [data, walletBalanceRes] = await Promise.all([
+  const [patientRes, walletBalanceRes] = await Promise.all([
     graphqlFetch<GetPatientByIdQuery, GetPatientByIdQueryVariables>(
       GetPatientByIdDocument,
       { id }
@@ -60,39 +60,64 @@ export default async function PatientDetailPage({ params }: Props) {
     >(GetPatientWalletBalanceDocument, { patientId: id }),
   ]);
 
-  if (!data?.patientById) {
-    return <SessionGuard needsRefresh />;
+  if (
+    patientRes.authOutcome === 'logout' ||
+    walletBalanceRes.authOutcome === 'logout'
+  ) {
+    const reason = patientRes.message || walletBalanceRes.message;
+
+    return <SessionGuard mode="logout" reason={reason} />;
   }
 
-  const patient = data.patientById;
+  if (
+    patientRes.authOutcome === 'refresh' ||
+    walletBalanceRes.authOutcome === 'refresh'
+  ) {
+    return <SessionGuard mode="refresh" />;
+  }
+
+  if (!patientRes.data?.patientById) {
+    return <SessionGuard mode="none" />;
+  }
+
+  const patient = patientRes.data.patientById;
+
   const age = calculateAge(patient.dateOfBirth);
-  const walletBalance = walletBalanceRes?.patientWalletBalance ?? 0;
+  const walletBalance =
+    walletBalanceRes.data?.patientWalletBalance ?? 0;
 
   const duplicatePatients =
     patient.likelyDuplicatePatientIds?.length
       ? (
-        await Promise.all(
-          patient.likelyDuplicatePatientIds.map(async (dupId) => {
-            const res = await graphqlFetch<
-              GetPatientByIdQuery,
-              GetPatientByIdQueryVariables
-            >(GetPatientByIdDocument, { id: dupId });
+          await Promise.all(
+            patient.likelyDuplicatePatientIds.map(async (dupId) => {
+              const res = await graphqlFetch<
+                GetPatientByIdQuery,
+                GetPatientByIdQueryVariables
+              >(GetPatientByIdDocument, { id: dupId });
 
-            return res?.patientById ?? null;
-          })
+              return res.data?.patientById ?? null;
+            })
+          )
+        ).filter(
+          (p): p is NonNullable<GetPatientByIdQuery['patientById']> =>
+            p !== null
         )
-      ).filter(
-        (p): p is NonNullable<GetPatientByIdQuery['patientById']> =>
-          p !== null
-      )
       : [];
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <div className="flex flex-col gap-4">
         <div className="relative overflow-hidden rounded-xl bg-[#0c1a12] px-6 py-6 sm:px-8">
-          <div className="pointer-events-none absolute inset-0"
-            style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage:
+                'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)',
+              backgroundSize: '24px 24px',
+            }}
+          />
+
           <div className="pointer-events-none absolute -bottom-12 -right-12 h-44 w-44 rounded-full bg-[#1D9E75]/15 blur-[50px]" />
 
           <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
@@ -100,30 +125,42 @@ export default async function PatientDetailPage({ params }: Props) {
               <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-[12px] border border-[#5DCAA5]/30 bg-[#1D9E75]/18 text-[22px] font-medium text-[#5DCAA5]">
                 {patient.fullName?.charAt(0)?.toUpperCase()}
               </div>
+
               <div>
                 <h1 className="mb-1 text-[18px] font-medium tracking-[-0.02em] !text-white">
                   {patient.fullName}
                 </h1>
+
                 <p className="mb-2.5 text-[12px] text-[#3B6D11]">
-                  {patient.patientNumber}&nbsp;&nbsp;·&nbsp;&nbsp;Code: {patient.userCode}
+                  {patient.patientNumber}
+                  &nbsp;&nbsp;·&nbsp;&nbsp;Code: {patient.userCode}
                 </p>
+
                 <div className="flex flex-wrap gap-1.5">
                   {patient.emergency && (
                     <span className="inline-flex items-center gap-1 rounded-full border border-[#DC2626]/30 bg-[#DC2626]/15 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] text-[#FDA9A9]">
-                      <span className="h-1 w-1 rounded-full bg-current" />Emergency
+                      <span className="h-1 w-1 rounded-full bg-current" />
+                      Emergency
                     </span>
                   )}
-                  <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] ${patient.status === PatientStatus.Active
-                      ? 'border-[#1D9E75]/30 bg-[#F0FAF5] text-[#1D9E75]'
-                      : 'border-white/10 bg-white/[0.07] text-[#5a7a6a]'
-                    }`}>
-                    <span className="h-1 w-1 rounded-full bg-current" />{patient.status}
+
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] ${
+                      patient.status === PatientStatus.Active
+                        ? 'border-[#1D9E75]/30 bg-[#F0FAF5] text-[#1D9E75]'
+                        : 'border-white/10 bg-white/[0.07] text-[#5a7a6a]'
+                    }`}
+                  >
+                    <span className="h-1 w-1 rounded-full bg-current" />
+                    {patient.status}
                   </span>
+
                   {patient.gender && (
                     <span className="inline-flex rounded-full border border-white/10 bg-white/[0.07] px-2.5 py-0.5 text-[10px] uppercase tracking-[0.06em] text-[#8ba0b8]">
                       {patient.gender}
                     </span>
                   )}
+
                   {patient.bloodGroup && (
                     <span className="inline-flex rounded-full border border-[#DC2626]/25 bg-[#DC2626]/12 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] text-[#FDA9A9]">
                       {patient.bloodGroup}
@@ -134,7 +171,14 @@ export default async function PatientDetailPage({ params }: Props) {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
+              <HasRoles
+                roles={[
+                  Roles.ADMIN,
+                  Roles.DOCTOR,
+                  Roles.NURSE,
+                  Roles.GUEST,
+                ]}
+              >
                 <Link
                   href={`/dashboard/patients/${id}/history`}
                   className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium text-white transition-colors hover:bg-white/[0.12]"
@@ -143,20 +187,31 @@ export default async function PatientDetailPage({ params }: Props) {
                   Visit history
                 </Link>
               </HasRoles>
+
               <Link
                 href={`/dashboard/patients/${id}/wallet`}
                 className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium text-white transition-colors hover:bg-white/[0.12]"
               >
                 <Wallet size={14} />
                 Wallet
+
                 {walletBalance > 0.01 && (
                   <span className="ml-0.5 rounded-full border border-[#5DCAA5]/30 bg-[#1D9E75]/20 px-1.5 py-0.5 text-[10px] font-semibold text-[#5DCAA5]">
                     {formatWalletBalance(walletBalance)}
                   </span>
                 )}
               </Link>
+
               <EditPatientButton patient={patient} />
-              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
+
+              <HasRoles
+                roles={[
+                  Roles.ADMIN,
+                  Roles.DOCTOR,
+                  Roles.NURSE,
+                  Roles.GUEST,
+                ]}
+              >
                 <CreateVisitModal patientId={patient.id} />
               </HasRoles>
             </div>
@@ -165,22 +220,37 @@ export default async function PatientDetailPage({ params }: Props) {
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
           <div className="flex flex-col gap-4">
-            <Section icon="user" iconColor="teal" title="Personal information">
+            <Section
+              icon="user"
+              iconColor="teal"
+              title="Personal information"
+            >
               <div className="grid gap-4 sm:grid-cols-2">
                 <Info label="Date of birth" value={patient.dateOfBirth} />
                 <Info label="Age" value={age ? `${age} years` : undefined} />
                 <Info label="Email" value={patient.email} />
                 <Info label="Phone" value={patient.phoneNumber} />
-                <Info label="Secondary phone" value={patient.secondaryPhoneNumber} />
+                <Info
+                  label="Secondary phone"
+                  value={patient.secondaryPhoneNumber}
+                />
               </div>
             </Section>
 
-            <Section icon="heart-rate-monitor" iconColor="amber" title="Medical information">
-              <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.07em] text-[#B4B2A9]">Allergies</p>
+            <Section
+              icon="heart-rate-monitor"
+              iconColor="amber"
+              title="Medical information"
+            >
+              <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.07em] text-[#B4B2A9]">
+                Allergies
+              </p>
+
               {patient.allergies?.length ? (
                 <div className="flex flex-wrap gap-2">
                   {patient.allergies.map((allergy, i) => (
-                    <span key={i}
+                    <span
+                      key={i}
                       className="inline-flex rounded-full border border-[#D97706]/25 bg-[#FFFBEB] px-2.5 py-1 text-[11px] font-medium text-[#D97706]"
                     >
                       {allergy}
@@ -188,7 +258,9 @@ export default async function PatientDetailPage({ params }: Props) {
                   ))}
                 </div>
               ) : (
-                <p className="text-[13px] text-[#B4B2A9]">No recorded allergies.</p>
+                <p className="text-[13px] text-[#B4B2A9]">
+                  No recorded allergies.
+                </p>
               )}
             </Section>
 
@@ -196,27 +268,46 @@ export default async function PatientDetailPage({ params }: Props) {
               {patient.addresses?.length ? (
                 <div className="grid gap-3 sm:grid-cols-2">
                   {patient.addresses.map((addr, i) => (
-                    <div key={i} className="rounded-[10px] border border-[#E8E6E0] bg-[#F7F7F5] p-3.5">
-                      <p className="text-[13px] font-medium text-[#2C2C2A]">{addr?.addressLine1}</p>
-                      <p className="mt-0.5 text-[12px] text-[#888780]">{addr?.city}</p>
-                      <p className="text-[12px] text-[#888780]">{addr?.state}</p>
-                      <p className="text-[12px] text-[#888780]">{addr?.country}</p>
+                    <div
+                      key={i}
+                      className="rounded-[10px] border border-[#E8E6E0] bg-[#F7F7F5] p-3.5"
+                    >
+                      <p className="text-[13px] font-medium text-[#2C2C2A]">
+                        {addr?.addressLine1}
+                      </p>
+                      <p className="mt-0.5 text-[12px] text-[#888780]">
+                        {addr?.city}
+                      </p>
+                      <p className="text-[12px] text-[#888780]">
+                        {addr?.state}
+                      </p>
+                      <p className="text-[12px] text-[#888780]">
+                        {addr?.country}
+                      </p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-[13px] text-[#B4B2A9]">No addresses recorded.</p>
+                <p className="text-[13px] text-[#B4B2A9]">
+                  No addresses recorded.
+                </p>
               )}
             </Section>
 
             {patient.extraDetails && (
-              <Section icon="notes" iconColor="teal" title="Additional details">
-                <p className="text-[13px] leading-relaxed text-[#5F5E5A]">{patient.extraDetails}</p>
+              <Section
+                icon="notes"
+                iconColor="teal"
+                title="Additional details"
+              >
+                <p className="text-[13px] leading-relaxed text-[#5F5E5A]">
+                  {patient.extraDetails}
+                </p>
               </Section>
             )}
           </div>
-          <div className="flex flex-col gap-4">
 
+          <div className="flex flex-col gap-4">
             <Section icon="users" iconColor="teal" title="Next of kin">
               <div className="flex flex-col gap-3">
                 <Info label="Name" value={patient.nextOfKinName} />
@@ -233,14 +324,22 @@ export default async function PatientDetailPage({ params }: Props) {
                   <div className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-[#DC2626]/12">
                     <AlertTriangle size={13} className="text-[#DC2626]" />
                   </div>
+
                   <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#DC2626]">
                     Possible duplicates
                   </span>
                 </div>
+
                 <div className="divide-y divide-[#DC2626]/10 px-4">
                   {duplicatePatients.map((dup, i) => (
-                    <div key={i} className="flex items-center gap-2 py-2.5 text-[13px] text-[#991B1B]">
-                      <UserX size={13} className="shrink-0 text-[#DC2626]" />
+                    <div
+                      key={i}
+                      className="flex items-center gap-2 py-2.5 text-[13px] text-[#991B1B]"
+                    >
+                      <UserX
+                        size={13}
+                        className="shrink-0 text-[#DC2626]"
+                      />
                       {dup?.fullName}&nbsp;·&nbsp;Code: {dup?.userCode}
                     </div>
                   ))}
@@ -262,32 +361,56 @@ const ICON_COLORS: Record<string, string> = {
 };
 
 function Section({
-  icon, iconColor = 'teal', title, children,
+  icon,
+  iconColor = 'teal',
+  title,
+  children,
 }: {
-  icon: string; iconColor?: string; title: string; children: React.ReactNode;
+  icon: string;
+  iconColor?: string;
+  title: string;
+  children: React.ReactNode;
 }) {
   return (
     <div className="overflow-hidden rounded-xl border border-[#E8E6E0] bg-white">
       <div className="flex items-center gap-2.5 border-b border-[#E8E6E0] px-4 py-3">
-        <div className={`flex h-7 w-7 items-center justify-center rounded-[7px] ${ICON_COLORS[iconColor]}`}>
-          <span className={`ti ti-${icon} text-[14px]`} aria-hidden="true" />
+        <div
+          className={`flex h-7 w-7 items-center justify-center rounded-[7px] ${ICON_COLORS[iconColor]}`}
+        >
+          <span
+            className={`ti ti-${icon} text-[14px]`}
+            aria-hidden="true"
+          />
         </div>
+
         <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#B4B2A9]">
           {title}
         </span>
       </div>
+
       <div className="p-4">{children}</div>
     </div>
   );
 }
 
-function Info({ label, value }: { label: string; value?: string | null }) {
+function Info({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | null;
+}) {
   return (
     <div>
       <p className="mb-0.5 text-[11px] font-medium uppercase tracking-[0.07em] text-[#B4B2A9]">
         {label}
       </p>
-      <p className={`text-[13px] font-medium ${value ? 'text-[#2C2C2A]' : 'text-[#B4B2A9]'}`}>
+
+      <p
+        className={`text-[13px] font-medium ${
+          value ? 'text-[#2C2C2A]' : 'text-[#B4B2A9]'
+        }`}
+      >
         {value ?? '—'}
       </p>
     </div>

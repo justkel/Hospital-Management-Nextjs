@@ -24,21 +24,26 @@ export default async function VisitLabRequestsPage({ params }: Props) {
       GetVisitByIdDocument,
       { id }
     ),
-    graphqlFetch<
-      GetLabRequestsByVisitQuery,
-      GetLabRequestsByVisitQueryVariables
-    >(GetLabRequestsByVisitDocument, { visitId: id }),
+    graphqlFetch<GetLabRequestsByVisitQuery, GetLabRequestsByVisitQueryVariables>(
+      GetLabRequestsByVisitDocument,
+      { visitId: id }
+    ),
   ]);
 
-  if (!visitRes?.visit) {
-    return <SessionGuard needsRefresh />;
+  if (visitRes.authOutcome === 'logout' || labRequestsRes.authOutcome === 'logout') {
+    const reason = visitRes.message || labRequestsRes.message;
+    return <SessionGuard mode="logout" reason={reason} />;
+  }
+
+  if (visitRes.authOutcome === 'refresh' || labRequestsRes.authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <LabRequestClient
-        visit={visitRes.visit}
-        initialLabRequests={labRequestsRes?.labRequestsByVisit ?? []}
+        visit={visitRes.data!.visit}
+        initialLabRequests={labRequestsRes.data!.labRequestsByVisit ?? []}
       />
     </SessionGuard>
   );

@@ -33,7 +33,7 @@ export default async function TheatreDayScheduleWorkspacePage({
 
   const dayString = date ?? todayLocal();
 
-  const scheduleData = await graphqlFetch<
+  const { data, authOutcome, message } = await graphqlFetch<
     TheatreScheduleForDayQuery,
     TheatreScheduleForDayQueryVariables
   >(TheatreScheduleForDayDocument, {
@@ -41,18 +41,22 @@ export default async function TheatreDayScheduleWorkspacePage({
     date: `${dayString}T00:00:00`,
   });
 
-  if (!scheduleData?.theatreScheduleForDay) {
-    return <SessionGuard needsRefresh />;
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
+  }
+
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50/40 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-10">
         <div className="mx-auto max-w-7xl">
           <TheatreDayScheduleWorkspace
             theatreId={id}
             initialDate={dayString}
-            initialSchedule={scheduleData.theatreScheduleForDay}
+            initialSchedule={data!.theatreScheduleForDay}
           />
         </div>
       </div>

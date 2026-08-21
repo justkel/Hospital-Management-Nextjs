@@ -31,15 +31,26 @@ export default async function VisitProceduresPage({ params }: Props) {
     }),
   ]);
 
-  if (!visitData?.visit) {
-    return <SessionGuard needsRefresh />;
+  if (
+    visitData.authOutcome === 'logout' ||
+    procedureData.authOutcome === 'logout'
+  ) {
+    const reason = visitData.message || procedureData.message;
+    return <SessionGuard mode="logout" reason={reason} />;
+  }
+
+  if (
+    visitData.authOutcome === 'refresh' ||
+    procedureData.authOutcome === 'refresh'
+  ) {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <VisitProcedureClient
-        visit={visitData.visit}
-        initialProcedures={procedureData?.visitProceduresByVisit ?? []}
+        visit={visitData.data!.visit}
+        initialProcedures={procedureData.data!.visitProceduresByVisit ?? []}
       />
     </SessionGuard>
   );

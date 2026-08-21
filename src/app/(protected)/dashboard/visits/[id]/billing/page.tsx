@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+
 import SessionGuard from '@/components/SessionGuard';
 import {
   GetVisitBillingPageDocument,
@@ -7,7 +9,6 @@ import {
 
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 import BillingClient from './billing-client';
-import { Suspense } from 'react';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -16,40 +17,45 @@ interface Props {
 export default async function VisitBillingPage({ params }: Props) {
   const { id } = await params;
 
-  const data = await graphqlFetch<
+  const { data, authOutcome, message } = await graphqlFetch<
     GetVisitBillingPageQuery,
     GetVisitBillingPageQueryVariables
-  >(
-    GetVisitBillingPageDocument,
-    {
-      id,
-      visitId: id,
-    }
-  );
+  >(GetVisitBillingPageDocument, {
+    id,
+    visitId: id,
+  });
+
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
+  }
+
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
+  }
 
   if (!data?.visit) {
-    return <SessionGuard needsRefresh />;
+    return <SessionGuard mode="none" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <Suspense fallback={null}>
         <BillingClient
           visit={data.visit}
           initialSummary={
-            data?.visitChargeSummary ?? {
+            data.visitChargeSummary ?? {
               lockedCharges: [],
               editableCharges: [],
               total: 0,
             }
           }
-          initialUnbilled={data?.unbilledPrescriptions ?? []}
-          initialAdjustments={data?.billingAdjustments ?? []}
-          initialLatestInvoice={data?.latestVisitInvoice ?? null}
-          initialInvoices={data?.visitInvoices ?? []}
-          initialPayments={data?.visitPayments ?? []}
-          initialCredits={data?.visitCredits ?? []}
-          initialCreditBalance={data?.visitCreditBalance ?? 0}
+          initialUnbilled={data.unbilledPrescriptions ?? []}
+          initialAdjustments={data.billingAdjustments ?? []}
+          initialLatestInvoice={data.latestVisitInvoice ?? null}
+          initialInvoices={data.visitInvoices ?? []}
+          initialPayments={data.visitPayments ?? []}
+          initialCredits={data.visitCredits ?? []}
+          initialCreditBalance={data.visitCreditBalance ?? 0}
         />
       </Suspense>
     </SessionGuard>

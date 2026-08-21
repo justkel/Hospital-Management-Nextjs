@@ -29,8 +29,13 @@ type Visit = NonNullable<
 
 function formatDateTime(value?: string | null) {
   if (!value) return { date: '—', time: '' };
+
   const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return { date: '—', time: '' };
+
+  if (Number.isNaN(d.getTime())) {
+    return { date: '—', time: '' };
+  }
+
   return {
     date: d.toLocaleDateString(undefined, {
       year: 'numeric',
@@ -54,8 +59,11 @@ const STATUS_STYLES: Record<string, string> = {
 
 function StatusBadge({ status }: { status?: string | null }) {
   const key = (status ?? '').toString().toUpperCase();
+
   const style =
-    STATUS_STYLES[key] ?? 'border-[#E8E6E0] bg-[#F7F7F5] text-[#5F5E5A]';
+    STATUS_STYLES[key] ??
+    'border-[#E8E6E0] bg-[#F7F7F5] text-[#5F5E5A]';
+
   return (
     <span
       className={`inline-flex w-fit items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] ${style}`}
@@ -82,18 +90,33 @@ export default async function PatientVisitHistoryPage({ params }: Props) {
       GetPatientByIdDocument,
       { id }
     ),
+
     graphqlFetch<
       GetPatientVisitHistoryQuery,
       GetPatientVisitHistoryQueryVariables
-    >(GetPatientVisitHistoryDocument, { patientId: id }),
+    >(GetPatientVisitHistoryDocument, {
+      patientId: id,
+    }),
   ]);
 
-  if (!patientRes?.patientById) {
-    return <SessionGuard needsRefresh />;
+  if (
+    patientRes.authOutcome === 'logout' ||
+    visitsRes.authOutcome === 'logout'
+  ) {
+    const reason = patientRes.message || visitsRes.message;
+    return <SessionGuard mode="logout" reason={reason} />;
   }
 
-  const patient = patientRes.patientById;
-  const visits = (visitsRes?.patientVisitHistory ?? [])
+  if (
+    patientRes.authOutcome === 'refresh' ||
+    visitsRes.authOutcome === 'refresh'
+  ) {
+    return <SessionGuard mode="refresh" />;
+  }
+
+  const patient = patientRes.data!.patientById;
+
+  const visits = (visitsRes.data!.patientVisitHistory ?? [])
     .slice()
     .sort(
       (a, b) =>
@@ -102,7 +125,7 @@ export default async function PatientVisitHistoryPage({ params }: Props) {
     );
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <div className="flex flex-col gap-4">
         <div>
           <Link
@@ -128,6 +151,7 @@ export default async function PatientVisitHistoryPage({ params }: Props) {
               <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-[12px] border border-[#5DCAA5]/30 bg-[#1D9E75]/18 text-[22px] font-medium text-[#5DCAA5]">
                 {patient.fullName?.charAt(0)?.toUpperCase()}
               </div>
+
               <div>
                 <h1 className="mb-1 text-[18px] font-medium tracking-[-0.02em] !text-white">
                   {patient.fullName}
@@ -146,10 +170,12 @@ export default async function PatientVisitHistoryPage({ params }: Props) {
               <div className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-[#F0FAF5] text-[#1D9E75]">
                 <CalendarClock size={14} />
               </div>
+
               <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#B4B2A9]">
                 All visits
               </span>
             </div>
+
             <span className="text-[11px] font-medium text-[#B4B2A9]">
               {visits.length} {visits.length === 1 ? 'visit' : 'visits'}
             </span>
@@ -166,9 +192,11 @@ export default async function PatientVisitHistoryPage({ params }: Props) {
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F7F7F5] text-[#B4B2A9]">
                 <Inbox size={18} />
               </div>
+
               <p className="text-[13px] font-medium text-[#5F5E5A]">
                 No visits recorded yet
               </p>
+
               <p className="text-[12px] text-[#B4B2A9]">
                 Visits created for this patient will appear here.
               </p>
@@ -192,6 +220,7 @@ function VisitRow({ visit }: { visit: Visit }) {
         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[9px] border border-[#E8E6E0] bg-[#F7F7F5]">
           <CalendarClock size={14} className="text-[#5F5E5A]" />
         </div>
+
         <div>
           <p className="text-[13px] font-medium text-[#2C2C2A]">{date}</p>
           <p className="text-[11px] text-[#B4B2A9]">{time}</p>
@@ -201,13 +230,18 @@ function VisitRow({ visit }: { visit: Visit }) {
       <div className="flex flex-wrap items-center gap-2 sm:justify-end">
         <VisitTypeBadge type={visit?.visitType} />
         <StatusBadge status={visit?.status} />
+
         {visit?.attendingStaffId && (
           <span className="inline-flex w-fit items-center gap-1 rounded-full border border-[#E8E6E0] bg-[#F7F7F5] px-2.5 py-0.5 text-[10px] font-medium text-[#5F5E5A]">
             <Stethoscope size={11} />
             Staff #{visit.attendingStaffId.slice(0, 8)}
           </span>
         )}
-        <ChevronRight size={14} className="ml-0.5 hidden text-[#B4B2A9] sm:block" />
+
+        <ChevronRight
+          size={14}
+          className="ml-0.5 hidden text-[#B4B2A9] sm:block"
+        />
       </div>
     </Link>
   );

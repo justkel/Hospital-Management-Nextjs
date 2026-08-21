@@ -11,7 +11,7 @@ import { graphqlFetch } from '@/shared/graphql/fetcher';
 import WardManagementClient from './WardManagementClient';
 
 export default async function WardsPage() {
-  const data = await graphqlFetch<
+  const { data, authOutcome, message } = await graphqlFetch<
     GetWardsQuery,
     GetWardsQueryVariables
   >(GetWardsDocument, {
@@ -21,13 +21,23 @@ export default async function WardsPage() {
     },
   });
 
-  if (!data?.wards) {
-    return <SessionGuard needsRefresh />;
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
+  }
+
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
+  }
+
+  const wards = data?.wards;
+
+  if (!wards) {
+    return <SessionGuard mode="none" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
-      <WardManagementClient paginated={data.wards} />
+    <SessionGuard mode="none">
+      <WardManagementClient paginated={wards} />
     </SessionGuard>
   );
 }

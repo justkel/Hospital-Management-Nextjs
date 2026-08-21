@@ -15,14 +15,18 @@ export default async function GlobalBillingPage() {
     >(GetGlobalBillingCategoriesDocument, {}),
   ]);
 
-  if (!data) {
-    return <SessionGuard needsRefresh />;
+  if (data.authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={data.message} />;
+  }
+
+  if (data.authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <GlobalBillingClient
-        categories={data.globalBillingCategories}
+        categories={data.data!.globalBillingCategories}
       />
     </SessionGuard>
   );

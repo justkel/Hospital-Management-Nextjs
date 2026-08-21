@@ -8,7 +8,7 @@ import SessionGuard from '@/components/SessionGuard';
 import AuditManagementClient from './AuditManagementClient';
 
 export default async function AuditPage() {
-  const data = await graphqlFetch<
+  const { data, authOutcome, message } = await graphqlFetch<
     GetAuditLogsQuery,
     GetAuditLogsQueryVariables
   >(GetAuditLogsDocument, {
@@ -18,13 +18,17 @@ export default async function AuditPage() {
     },
   });
 
-  if (!data?.auditLogs) {
-    return <SessionGuard needsRefresh />;
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
+  }
+
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
-      <AuditManagementClient paginated={data.auditLogs} />
+    <SessionGuard mode="none">
+      <AuditManagementClient paginated={data!.auditLogs} />
     </SessionGuard>
   );
 }

@@ -15,15 +15,19 @@ export default async function OrganizationBillingPage() {
     >(GetOrganizationBillingCategoriesDocument, {}),
   ]);
 
-  if (!data) {
-    return <SessionGuard needsRefresh />;
+  if (data.authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={data.message} />;
+  }
+
+  if (data.authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
-        <OrganizationBillingClient
-          categories={data.organizationBillingCategories}
-        />
+    <SessionGuard mode="none">
+      <OrganizationBillingClient
+        categories={data.data!.organizationBillingCategories}
+      />
     </SessionGuard>
   );
 }

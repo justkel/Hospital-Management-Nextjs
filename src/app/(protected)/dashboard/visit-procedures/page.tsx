@@ -11,7 +11,7 @@ import {
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 
 export default async function VisitProceduresPage() {
-  const proceduresData = await graphqlFetch<
+  const { data, authOutcome, message } = await graphqlFetch<
     GetVisitProceduresQuery,
     GetVisitProceduresQueryVariables
   >(GetVisitProceduresDocument, {
@@ -21,14 +21,18 @@ export default async function VisitProceduresPage() {
     },
   });
 
-  if (!proceduresData?.visitProcedures) {
-    return <SessionGuard needsRefresh />;
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
+  }
+
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <VisitProcedureManagementClient
-        paginated={proceduresData.visitProcedures}
+        paginated={data!.visitProcedures}
       />
     </SessionGuard>
   );

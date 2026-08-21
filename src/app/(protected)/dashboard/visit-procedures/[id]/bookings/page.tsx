@@ -24,12 +24,10 @@ export default async function ProcedureBookingsPage({ params }: Props) {
   const { id } = await params;
 
   const [procedureData, bookingsData, theatresData] = await Promise.all([
-    graphqlFetch<
-      GetVisitProcedureByIdQuery,
-      GetVisitProcedureByIdQueryVariables
-    >(GetVisitProcedureByIdDocument, {
-      id,
-    }),
+    graphqlFetch<GetVisitProcedureByIdQuery, GetVisitProcedureByIdQueryVariables>(
+      GetVisitProcedureByIdDocument,
+      { id }
+    ),
 
     graphqlFetch<
       GetProcedureTheatreBookingsQuery,
@@ -38,32 +36,46 @@ export default async function ProcedureBookingsPage({ params }: Props) {
       procedureId: id,
     }),
 
-    graphqlFetch<
-      GetTheatresQuery,
-      GetTheatresQueryVariables
-    >(GetTheatresDocument, {
-      pagination: {
-        page: 1,
-        limit: 50,
-      },
-    }),
+    graphqlFetch<GetTheatresQuery, GetTheatresQueryVariables>(
+      GetTheatresDocument,
+      {
+        pagination: {
+          page: 1,
+          limit: 50,
+        },
+      }
+    ),
   ]);
 
-  if (!procedureData?.visitProcedureById) {
-    return <SessionGuard needsRefresh />;
+  if (
+    procedureData.authOutcome === 'logout' ||
+    bookingsData.authOutcome === 'logout' ||
+    theatresData.authOutcome === 'logout'
+  ) {
+    const reason =
+      procedureData.message ||
+      bookingsData.message ||
+      theatresData.message;
+
+    return <SessionGuard mode="logout" reason={reason} />;
   }
 
-  const procedure = procedureData.visitProcedureById;
-  const bookings = bookingsData?.getProcedureTheatreBookings ?? [];
+  if (
+    procedureData.authOutcome === 'refresh' ||
+    bookingsData.authOutcome === 'refresh' ||
+    theatresData.authOutcome === 'refresh'
+  ) {
+    return <SessionGuard mode="refresh" />;
+  }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <div className="min-h-screen bg-[#0a0e1a] px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <div className="mx-auto max-w-7xl">
           <TheatreBookingWorkspace
-            procedure={procedure}
-            initialBookings={bookings}
-            theatres={theatresData?.theatres?.items ?? []}
+            procedure={procedureData.data!.visitProcedureById}
+            initialBookings={bookingsData.data!.getProcedureTheatreBookings ?? []}
+            theatres={theatresData.data!.theatres?.items ?? []}
           />
         </div>
       </div>

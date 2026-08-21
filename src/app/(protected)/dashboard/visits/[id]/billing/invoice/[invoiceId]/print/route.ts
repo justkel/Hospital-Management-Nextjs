@@ -15,19 +15,25 @@ interface RouteParams {
 export async function GET(req: NextRequest, { params }: RouteParams) {
   const { id, invoiceId } = await params;
 
-const data = await graphqlFetch<
-  GetVisitInvoiceDetailQuery,
-  GetVisitInvoiceDetailQueryVariables
->(GetVisitInvoiceDetailDocument, { invoiceId });
-  if (!data?.visitInvoiceDetail) {
-    // Access token expired. Bounce back to wherever this was opened from
-    // (the billing page), which already handles refresh on its own fetches.
-    const referer = req.headers.get('referer');
-    const fallback = new URL(`/dashboard/visits/${id}/billing`, req.url);
+  const { data, authOutcome } = await graphqlFetch<
+    GetVisitInvoiceDetailQuery,
+    GetVisitInvoiceDetailQueryVariables
+  >(GetVisitInvoiceDetailDocument, { invoiceId });
+
+  const referer = req.headers.get('referer');
+  const fallback = new URL(`/dashboard/visits/${id}/billing`, req.url);
+
+  if (authOutcome === 'refresh' || authOutcome === 'logout') {
     return NextResponse.redirect(referer ?? fallback);
   }
 
-  const html = generateInvoicePrintHTML(data.visitInvoiceDetail);
+  const invoice = data?.visitInvoiceDetail;
+
+  if (!invoice) {
+    return NextResponse.redirect(referer ?? fallback);
+  }
+
+  const html = generateInvoicePrintHTML(invoice);
 
   return new NextResponse(html, {
     status: 200,

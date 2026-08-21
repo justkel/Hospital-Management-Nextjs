@@ -26,16 +26,21 @@ export default async function ChargeDomainMappingPage() {
     }),
   ]);
 
-  if (!mappingData || !catalogData) {
-    return <SessionGuard needsRefresh />;
+  if (mappingData.authOutcome === 'logout' || catalogData.authOutcome === 'logout') {
+    const reason = mappingData.message || catalogData.message;
+    return <SessionGuard mode="logout" reason={reason} />;
+  }
+
+  if (mappingData.authOutcome === 'refresh' || catalogData.authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
-        <ChargeDomainMappingClient
-          mappings={mappingData.chargeDomainMappings}
-          catalogs={catalogData.organizationChargeCatalogs.items}
-        />
+    <SessionGuard mode="none">
+      <ChargeDomainMappingClient
+        mappings={mappingData.data!.chargeDomainMappings}
+        catalogs={catalogData.data!.organizationChargeCatalogs.items}
+      />
     </SessionGuard>
   );
 }

@@ -14,42 +14,39 @@ import { graphqlFetch } from '@/shared/graphql/fetcher';
 import WardIncidentManagementClient from './WardIncidentManagementClient';
 
 export default async function WardIncidentsPage() {
-  const [incidentData, wardsData] =
-    await Promise.all([
-      graphqlFetch<
-        GetWardIncidentsQuery,
-        GetWardIncidentsQueryVariables
-      >(GetWardIncidentsDocument, {
+  const [incidentResult, wardsResult] = await Promise.all([
+    graphqlFetch<GetWardIncidentsQuery, GetWardIncidentsQueryVariables>(
+      GetWardIncidentsDocument,
+      {
         pagination: {
           page: 1,
           limit: 20,
         },
-      }),
+      }
+    ),
 
-      graphqlFetch<
-        GetWardsQuery,
-        GetWardsQueryVariables
-      >(GetWardsDocument, {
-        pagination: {
-          page: 1,
-          limit: 200,
-        },
-      }),
-    ]);
+    graphqlFetch<GetWardsQuery, GetWardsQueryVariables>(GetWardsDocument, {
+      pagination: {
+        page: 1,
+        limit: 200,
+      },
+    }),
+  ]);
 
-  if (!incidentData?.wardIncidents) {
-    return <SessionGuard needsRefresh />;
+  if (incidentResult.authOutcome === 'logout' || wardsResult.authOutcome === 'logout') {
+    const reason = incidentResult.message || wardsResult.message;
+    return <SessionGuard mode="logout" reason={reason} />;
+  }
+
+  if (incidentResult.authOutcome === 'refresh' || wardsResult.authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <WardIncidentManagementClient
-        paginated={
-          incidentData.wardIncidents
-        }
-        wards={
-          wardsData?.wards?.items || []
-        }
+        paginated={incidentResult.data!.wardIncidents}
+        wards={wardsResult.data!.wards?.items || []}
       />
     </SessionGuard>
   );

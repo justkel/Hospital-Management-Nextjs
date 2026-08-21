@@ -25,26 +25,46 @@ export default async function PatientWalletPage({ params }: Props) {
       GetPatientWalletBalanceQuery,
       GetPatientWalletBalanceQueryVariables
     >(GetPatientWalletBalanceDocument, { patientId: id }),
+
     graphqlFetch<
       GetPatientWalletTransactionsPaginatedQuery,
       GetPatientWalletTransactionsPaginatedQueryVariables
     >(GetPatientWalletTransactionsPaginatedDocument, {
       patientId: id,
-      pagination: { page: 1, limit: PAGE_SIZE },
+      pagination: {
+        page: 1,
+        limit: PAGE_SIZE,
+      },
     }),
   ]);
 
-  if (balanceRes?.patientWalletBalance === undefined) {
-    return <SessionGuard needsRefresh />;
+  if (
+    balanceRes.authOutcome === 'logout' ||
+    transactionsRes.authOutcome === 'logout'
+  ) {
+    const reason = balanceRes.message || transactionsRes.message;
+
+    return <SessionGuard mode="logout" reason={reason} />;
+  }
+
+  if (
+    balanceRes.authOutcome === 'refresh' ||
+    transactionsRes.authOutcome === 'refresh'
+  ) {
+    return <SessionGuard mode="refresh" />;
+  }
+
+  if (balanceRes.data?.patientWalletBalance === undefined) {
+    return <SessionGuard mode="none" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <PatientWalletClient
         patientId={id}
-        initialBalance={balanceRes.patientWalletBalance}
+        initialBalance={balanceRes.data.patientWalletBalance}
         initialPaginated={
-          transactionsRes?.patientWalletTransactionsPaginated ?? {
+          transactionsRes.data?.patientWalletTransactionsPaginated ?? {
             items: [],
             total: 0,
             page: 1,

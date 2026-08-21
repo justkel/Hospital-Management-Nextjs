@@ -34,33 +34,49 @@ interface Props {
 export default async function VisitDetailPage({ params }: Props) {
   const { id } = await params;
 
-  const data = await graphqlFetch<
+  const { data, authOutcome, message } = await graphqlFetch<
     GetVisitByIdQuery,
     GetVisitByIdQueryVariables
   >(GetVisitByIdDocument, { id });
 
-  if (!data?.visit) {
-    return <SessionGuard needsRefresh />;
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
   }
 
-  const visit = data.visit;
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
+  }
+
+  const visit = data?.visit;
+
+  if (!visit) {
+    return <SessionGuard mode="none" />;
+  }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <div className="relative min-h-screen bg-gray-50 p-4 sm:p-6 md:p-10">
-        <div className="max-w-7xl mx-auto space-y-8">
+        <div className="mx-auto max-w-7xl space-y-8">
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#E8E6E0] bg-white px-5 py-4">
             <div>
               <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-[#B4B2A9]">
                 Visit workspace
               </p>
+
               <p className="mt-0.5 text-[14px] font-medium text-[#2C2C2A]">
                 Manage everything related to this visit
               </p>
             </div>
 
             <div className="flex flex-wrap gap-2.5">
-              <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
+              <HasRoles
+                roles={[
+                  Roles.ADMIN,
+                  Roles.DOCTOR,
+                  Roles.NURSE,
+                  Roles.GUEST,
+                ]}
+              >
                 <CloseVisitButton visitId={visit.id} status={visit.status} />
               </HasRoles>
 
@@ -95,6 +111,7 @@ export default async function VisitDetailPage({ params }: Props) {
               </Link>
             </div>
           </div>
+
           <VisitHeaderCard visit={visit} />
 
           <CollapsibleSection
@@ -108,6 +125,7 @@ export default async function VisitDetailPage({ params }: Props) {
                 <VisitInfoSection visit={visit} />
                 <VisitTimelineSection visit={visit} />
               </div>
+
               <div className="flex flex-col gap-3">
                 <PatientInfoSection patient={visit.patient} />
                 <VisitSummarySection visit={visit} />
@@ -115,7 +133,14 @@ export default async function VisitDetailPage({ params }: Props) {
             </div>
           </CollapsibleSection>
 
-          <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
+          <HasRoles
+            roles={[
+              Roles.ADMIN,
+              Roles.DOCTOR,
+              Roles.NURSE,
+              Roles.GUEST,
+            ]}
+          >
             <VisitVitalsSection visitId={visit.id} />
             <VisitComplaintsSection visitId={visit.id} />
             <VisitDiagnosisSection visitId={visit.id} />
@@ -125,10 +150,16 @@ export default async function VisitDetailPage({ params }: Props) {
           </HasRoles>
 
           <VisitOtherChargeSection visitId={visit.id} />
-
         </div>
 
-        <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
+        <HasRoles
+          roles={[
+            Roles.ADMIN,
+            Roles.DOCTOR,
+            Roles.NURSE,
+            Roles.GUEST,
+          ]}
+        >
           <VisitNoteBoard visitId={visit.id} />
         </HasRoles>
       </div>

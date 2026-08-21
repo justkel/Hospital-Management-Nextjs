@@ -8,19 +8,23 @@ import DashboardClient from './DashboardClient';
 import SessionGuard from '@/components/SessionGuard';
 
 export default async function DashboardPage() {
-  const data = await graphqlFetch<WhoAmIQuery, WhoAmIQueryVariables>(
+  const { data, authOutcome, message } = await graphqlFetch<WhoAmIQuery, WhoAmIQueryVariables>(
     WhoAmIDocument,
     {}
   );
 
-  if (!data) {
-    return <SessionGuard needsRefresh />;
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
   }
 
-  const whoAmI = data.whoAmI;
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
+  }
+
+  const whoAmI = data!.whoAmI;
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <DashboardClient
         email={whoAmI?.email ?? 'Unknown'}
         roles={Array.isArray(whoAmI?.roles) ? whoAmI.roles : []}

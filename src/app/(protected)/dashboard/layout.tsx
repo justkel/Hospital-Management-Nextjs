@@ -8,28 +8,41 @@ import {
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 import { RoleProvider } from '@/providers/RoleContext';
 import { Roles } from '@/shared/utils/enums/roles';
+import SessionGuard from '@/components/SessionGuard';
 
 export default async function Layout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const data = await graphqlFetch<WhoAmIQuery, WhoAmIQueryVariables>(
+  const { data, authOutcome, message } = await graphqlFetch<WhoAmIQuery, WhoAmIQueryVariables>(
     WhoAmIDocument,
     {}
   );
 
-  const roles: Roles[] = Array.isArray(data?.whoAmI?.roles)
-    ? (data.whoAmI.roles.filter(
-      (r): r is Roles => Object.values(Roles).includes(r as Roles)
-    ) as Roles[])
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
+  }
+
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
+  }
+
+  const roles: Roles[] = Array.isArray(data!.whoAmI?.roles)
+    ? (data!.whoAmI!.roles.filter(
+        (r): r is Roles => Object.values(Roles).includes(r as Roles)
+      ) as Roles[])
     : [];
+  
+  console.log('roles',roles);
 
   return (
-    <RoleProvider roles={roles}>
-      <DashboardShell roles={roles}>
-        {children}
-      </DashboardShell>
-    </RoleProvider>
+    <SessionGuard mode="none">
+      <RoleProvider roles={roles}>
+        <DashboardShell roles={roles}>
+          {children}
+        </DashboardShell>
+      </RoleProvider>
+    </SessionGuard>
   );
 }

@@ -3,7 +3,7 @@ import TheatreAvailabilityClient from '../components/TheatreAvailabilityClient';
 
 export default async function TheatreAvailabilityPage() {
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <TheatreAvailabilityClient />
     </SessionGuard>
   );

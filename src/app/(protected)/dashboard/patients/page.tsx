@@ -17,18 +17,20 @@ export default async function PatientsPage({
 
   const page = Number(params.page) || 1;
   const limit = Number(params.limit) || 20;
+
   const search =
     typeof params.search === 'string' ? params.search : undefined;
 
   const statusParam =
     typeof params.status === 'string' ? params.status : undefined;
+
   const status =
     statusParam &&
     Object.values(PatientStatus).includes(statusParam as PatientStatus)
       ? (statusParam as PatientStatus)
       : undefined;
 
-  const data = await graphqlFetch<
+  const { data, authOutcome, message } = await graphqlFetch<
     GetAllPatientsQuery,
     GetAllPatientsQueryVariables
   >(GetAllPatientsDocument, {
@@ -40,13 +42,17 @@ export default async function PatientsPage({
     },
   });
 
-  if (!data) {
-    return <SessionGuard needsRefresh />;
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
+  }
+
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
-      <PatientManagementClient paginated={data.patients} />
+    <SessionGuard mode="none">
+      <PatientManagementClient paginated={data!.patients} />
     </SessionGuard>
   );
 }

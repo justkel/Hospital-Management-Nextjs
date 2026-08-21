@@ -20,45 +20,47 @@ interface Props {
 export default async function TheatreDetailPage({ params }: Props) {
   const { id } = await params;
 
-  const data = await graphqlFetch<
-    GetTheatreByIdQuery,
-    GetTheatreByIdQueryVariables
-  >(GetTheatreByIdDocument, { id });
+  const [data, incidentsData] = await Promise.all([
+    graphqlFetch<GetTheatreByIdQuery, GetTheatreByIdQueryVariables>(
+      GetTheatreByIdDocument,
+      { id }
+    ),
+    graphqlFetch<
+      GetTheatreIncidentsByTheatreQuery,
+      GetTheatreIncidentsByTheatreQueryVariables
+    >(GetTheatreIncidentsByTheatreDocument, {
+      theatreId: id,
+      pagination: { page: 1, limit: 20 },
+    }),
+  ]);
 
-  if (!data?.theatreById) {
-    return <SessionGuard needsRefresh />;
+  if (data.authOutcome === 'logout' || incidentsData.authOutcome === 'logout') {
+    const reason = data.message || incidentsData.message;
+    return <SessionGuard mode="logout" reason={reason} />;
   }
 
-  const incidentsData = await graphqlFetch<
-    GetTheatreIncidentsByTheatreQuery,
-    GetTheatreIncidentsByTheatreQueryVariables
-  >(GetTheatreIncidentsByTheatreDocument, {
-    theatreId: id,
-    pagination: { page: 1, limit: 20 },
-  });
-
-  const theatre = data.theatreById;
+  if (data.authOutcome === 'refresh' || incidentsData.authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
+  }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50/40 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-10">
         <div className="mx-auto max-w-6xl space-y-6 sm:space-y-8">
-
           <CollapsibleSection title="Theatre Information">
-            <TheatreInfoSection theatre={theatre} />
+            <TheatreInfoSection theatre={data.data!.theatreById} />
           </CollapsibleSection>
 
           <CollapsibleSection title="Scheduling & Operations">
             <TheatreQuickLinks theatreId={id} />
           </CollapsibleSection>
 
-          {incidentsData?.theatreIncidentsByTheatre && (
+          {incidentsData.data!.theatreIncidentsByTheatre && (
             <TheatreIncidentsSection
               theatreId={id}
-              paginated={incidentsData.theatreIncidentsByTheatre}
+              paginated={incidentsData.data!.theatreIncidentsByTheatre}
             />
           )}
-
         </div>
       </div>
     </SessionGuard>

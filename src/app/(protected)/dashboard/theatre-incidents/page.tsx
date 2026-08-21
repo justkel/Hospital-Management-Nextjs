@@ -4,7 +4,6 @@ import {
   GetTheatreIncidentsDocument,
   GetTheatreIncidentsQuery,
   GetTheatreIncidentsQueryVariables,
-
   GetTheatresDocument,
   GetTheatresQuery,
   GetTheatresQueryVariables,
@@ -15,42 +14,48 @@ import { graphqlFetch } from '@/shared/graphql/fetcher';
 import TheatreIncidentManagementClient from './TheatreIncidentManagementClient';
 
 export default async function TheatreIncidentsPage() {
-  const [incidentData, theatresData] =
-    await Promise.all([
-      graphqlFetch<
-        GetTheatreIncidentsQuery,
-        GetTheatreIncidentsQueryVariables
-      >(GetTheatreIncidentsDocument, {
-        pagination: {
-          page: 1,
-          limit: 20,
-        },
-      }),
+  const [incidentData, theatresData] = await Promise.all([
+    graphqlFetch<
+      GetTheatreIncidentsQuery,
+      GetTheatreIncidentsQueryVariables
+    >(GetTheatreIncidentsDocument, {
+      pagination: {
+        page: 1,
+        limit: 20,
+      },
+    }),
 
-      graphqlFetch<
-        GetTheatresQuery,
-        GetTheatresQueryVariables
-      >(GetTheatresDocument, {
+    graphqlFetch<GetTheatresQuery, GetTheatresQueryVariables>(
+      GetTheatresDocument,
+      {
         pagination: {
           page: 1,
           limit: 200,
         },
-      }),
-    ]);
+      }
+    ),
+  ]);
 
-  if (!incidentData?.theatreIncidents) {
-    return <SessionGuard needsRefresh />;
+  if (
+    incidentData.authOutcome === 'logout' ||
+    theatresData.authOutcome === 'logout'
+  ) {
+    const reason = incidentData.message || theatresData.message;
+    return <SessionGuard mode="logout" reason={reason} />;
+  }
+
+  if (
+    incidentData.authOutcome === 'refresh' ||
+    theatresData.authOutcome === 'refresh'
+  ) {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <TheatreIncidentManagementClient
-        paginated={
-          incidentData.theatreIncidents
-        }
-        theatres={
-          theatresData?.theatres?.items || []
-        }
+        paginated={incidentData.data!.theatreIncidents}
+        theatres={theatresData.data!.theatres?.items || []}
       />
     </SessionGuard>
   );

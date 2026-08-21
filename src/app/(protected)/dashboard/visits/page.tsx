@@ -21,6 +21,7 @@ export default async function VisitsPage({
 
   const statusParam =
     typeof params.status === 'string' ? params.status : undefined;
+
   const status =
     statusParam &&
     Object.values(VisitStatus).includes(statusParam as VisitStatus)
@@ -29,12 +30,13 @@ export default async function VisitsPage({
 
   const typeParam =
     typeof params.visitType === 'string' ? params.visitType : undefined;
+
   const visitType =
     typeParam && Object.values(VisitType).includes(typeParam as VisitType)
       ? (typeParam as VisitType)
       : undefined;
 
-  const data = await graphqlFetch<
+  const { data, authOutcome, message } = await graphqlFetch<
     FindAllVisitsQuery,
     FindAllVisitsQueryVariables
   >(FindAllVisitsDocument, {
@@ -46,12 +48,20 @@ export default async function VisitsPage({
     },
   });
 
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
+  }
+
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
+  }
+
   if (!data?.visits) {
-    return <SessionGuard needsRefresh />;
+    return <SessionGuard mode="none" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <VisitManagementClient paginated={data.visits} />
     </SessionGuard>
   );

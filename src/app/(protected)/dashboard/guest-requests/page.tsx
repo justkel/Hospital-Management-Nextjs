@@ -22,15 +22,20 @@ export default async function GuestAccessPage() {
     ),
   ]);
 
-  if (requestsRes?.guestRequests === undefined) {
-    return <SessionGuard needsRefresh />;
+  if (requestsRes.authOutcome === 'logout' || activeGuestsRes.authOutcome === 'logout') {
+    const reason = requestsRes.message || activeGuestsRes.message;
+    return <SessionGuard mode="logout" reason={reason} />;
+  }
+
+  if (requestsRes.authOutcome === 'refresh' || activeGuestsRes.authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <GuestAccessClient
-        initialRequests={requestsRes.guestRequests}
-        initialActiveGuests={activeGuestsRes?.activeGuests ?? []}
+        initialRequests={requestsRes.data!.guestRequests}
+        initialActiveGuests={activeGuestsRes.data!.activeGuests ?? []}
       />
     </SessionGuard>
   );

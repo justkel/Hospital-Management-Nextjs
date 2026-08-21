@@ -3,7 +3,7 @@ import ForcePasswordChangeClient from './ForcePasswordChangeClient';
 
 export default function ForcePasswordChangePage() {
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <ForcePasswordChangeClient />
     </SessionGuard>
   );

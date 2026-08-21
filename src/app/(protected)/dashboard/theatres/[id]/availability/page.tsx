@@ -22,33 +22,43 @@ export default async function TheatreAvailabilityPage({
 }: Props) {
   const { id } = await params;
 
-  const theatreData = await graphqlFetch<
-    GetTheatreByIdQuery,
-    GetTheatreByIdQueryVariables
-  >(GetTheatreByIdDocument, { id });
+  const [theatreData, availabilityData] = await Promise.all([
+    graphqlFetch<GetTheatreByIdQuery, GetTheatreByIdQueryVariables>(
+      GetTheatreByIdDocument,
+      { id }
+    ),
+    graphqlFetch<
+      TheatreAvailabilitiesQuery,
+      TheatreAvailabilitiesQueryVariables
+    >(TheatreAvailabilitiesDocument, {
+      theatreId: id,
+    }),
+  ]);
 
-  if (!theatreData?.theatreById) {
-    return <SessionGuard needsRefresh />;
+  if (
+    theatreData.authOutcome === 'logout' ||
+    availabilityData.authOutcome === 'logout'
+  ) {
+    const reason = theatreData.message || availabilityData.message;
+    return <SessionGuard mode="logout" reason={reason} />;
   }
 
-  const availabilityData = await graphqlFetch<
-    TheatreAvailabilitiesQuery,
-    TheatreAvailabilitiesQueryVariables
-  >(TheatreAvailabilitiesDocument, {
-    theatreId: id,
-  });
-
-  const theatre = theatreData.theatreById;
-  const availabilities =
-    availabilityData?.theatreAvailabilities ?? [];
+  if (
+    theatreData.authOutcome === 'refresh' ||
+    availabilityData.authOutcome === 'refresh'
+  ) {
+    return <SessionGuard mode="refresh" />;
+  }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50/40 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-10">
         <div className="mx-auto max-w-7xl">
           <TheatreAvailabilityWorkspace
-            theatre={theatre}
-            initialAvailabilities={availabilities}
+            theatre={theatreData.data!.theatreById}
+            initialAvailabilities={
+              availabilityData.data!.theatreAvailabilities ?? []
+            }
           />
         </div>
       </div>

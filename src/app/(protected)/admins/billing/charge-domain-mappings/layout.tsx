@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import DashboardShell from '@/components/layout/DashboardShell';
+import SessionGuard from '@/components/SessionGuard';
 import {
   WhoAmIDocument,
   WhoAmIQuery,
@@ -14,20 +15,30 @@ export default async function Layout({
 }: {
   children: ReactNode;
 }) {
-  const data = await graphqlFetch<WhoAmIQuery, WhoAmIQueryVariables>(
-    WhoAmIDocument,
-    {}
-  );
+  const { data, authOutcome, message } = await graphqlFetch<
+    WhoAmIQuery,
+    WhoAmIQueryVariables
+  >(WhoAmIDocument, {});
+
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
+  }
+
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
+  }
 
   const roles: Roles[] = Array.isArray(data?.whoAmI?.roles)
-    ? data.whoAmI.roles as Roles[]
+    ? (data.whoAmI.roles as Roles[])
     : [];
 
   return (
-    <RoleProvider roles={roles}>
-      <DashboardShell roles={roles}>
-        {children}
-      </DashboardShell>
-    </RoleProvider>
+    <SessionGuard mode="none">
+      <RoleProvider roles={roles}>
+        <DashboardShell roles={roles}>
+          {children}
+        </DashboardShell>
+      </RoleProvider>
+    </SessionGuard>
   );
 }

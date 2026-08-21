@@ -19,26 +19,28 @@ export default async function StaffPage({
   const search =
     typeof params.search === 'string' ? params.search : undefined;
 
-  const [data] = await Promise.all([
-    graphqlFetch<GetAllStaffQuery, GetAllStaffQueryVariables>(
-      GetAllStaffDocument,
-      {
-        pagination: {
-          page,
-          limit,
-          ...(search && { search }),
-        },
-      }
-    ),
-  ]);
+  const { data, authOutcome, message } = await graphqlFetch<
+    GetAllStaffQuery,
+    GetAllStaffQueryVariables
+  >(GetAllStaffDocument, {
+    pagination: {
+      page,
+      limit,
+      ...(search && { search }),
+    },
+  });
 
-  if (!data) {
-    return <SessionGuard needsRefresh />;
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
+  }
+
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
-      <StaffManagementClient paginated={data.staffs} />
+    <SessionGuard mode="none">
+      <StaffManagementClient paginated={data!.staffs} />
     </SessionGuard>
   );
 }

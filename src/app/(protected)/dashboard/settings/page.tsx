@@ -3,7 +3,7 @@ import SettingsClient from './SettingsClient';
 
 export default function SettingsPage() {
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <SettingsClient />
     </SessionGuard>
   );

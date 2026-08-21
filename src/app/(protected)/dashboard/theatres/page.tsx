@@ -11,7 +11,7 @@ import { graphqlFetch } from '@/shared/graphql/fetcher';
 import TheatreManagementClient from './TheatreManagementClient';
 
 export default async function TheatresPage() {
-  const data = await graphqlFetch<
+  const { data, authOutcome, message } = await graphqlFetch<
     GetTheatresQuery,
     GetTheatresQueryVariables
   >(GetTheatresDocument, {
@@ -21,14 +21,18 @@ export default async function TheatresPage() {
     },
   });
 
-  if (!data?.theatres) {
-    return <SessionGuard needsRefresh />;
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
+  }
+
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
+    <SessionGuard mode="none">
       <TheatreManagementClient
-        paginated={data.theatres}
+        paginated={data!.theatres}
       />
     </SessionGuard>
   );

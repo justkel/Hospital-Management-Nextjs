@@ -1,7 +1,7 @@
 import {
-    FindLabRequestByIdDocument,
-    FindLabRequestByIdQuery,
-    FindLabRequestByIdQueryVariables,
+  FindLabRequestByIdDocument,
+  FindLabRequestByIdQuery,
+  FindLabRequestByIdQueryVariables,
 } from '@/shared/graphql/generated/graphql';
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 import SessionGuard from '@/components/SessionGuard';
@@ -15,48 +15,52 @@ import { HasRoles } from '@/components/auth/HasRoles';
 import { Roles } from '@/shared/utils/enums/roles';
 
 interface Props {
-    params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function LabRequestDetailPage({ params }: Props) {
-    const { id } = await params;
+  const { id } = await params;
 
-    const data = await graphqlFetch<
-        FindLabRequestByIdQuery,
-        FindLabRequestByIdQueryVariables
-    >(FindLabRequestByIdDocument, { id });
+  const { data, authOutcome, message } = await graphqlFetch<
+    FindLabRequestByIdQuery,
+    FindLabRequestByIdQueryVariables
+  >(FindLabRequestByIdDocument, { id });
 
-    if (!data?.labRequestById) {
-        return <SessionGuard needsRefresh />;
-    }
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
+  }
 
-    const labRequest = data.labRequestById;
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
+  }
 
-    return (
-        <SessionGuard needsRefresh={false}>
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/40 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-10">
-                <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
-                    <PrintLabResultButton
-                        labRequestId={labRequest.id}
-                        status={labRequest.status}
-                    />
-                    <CollapsibleSection title="Request Information">
-                        <LabRequestInfoSection labRequest={labRequest} />
-                    </CollapsibleSection>
-                    <HasRoles roles={[Roles.LAB_TECH]}>
-                        <StartLabRequestAction
-                            labRequestId={labRequest.id}
-                            status={labRequest.status}
-                        />
-                    </HasRoles>
+  return (
+    <SessionGuard mode="none">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/40 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-10">
+        <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
+          <PrintLabResultButton
+            labRequestId={data!.labRequestById.id}
+            status={data!.labRequestById.status}
+          />
 
-                    <LabResultManager
-                        labRequestId={labRequest.id}
-                        status={labRequest.status}
-                        tests={labRequest.tests}
-                    />
-                </div>
-            </div>
-        </SessionGuard>
-    );
+          <CollapsibleSection title="Request Information">
+            <LabRequestInfoSection labRequest={data!.labRequestById} />
+          </CollapsibleSection>
+
+          <HasRoles roles={[Roles.LAB_TECH]}>
+            <StartLabRequestAction
+              labRequestId={data!.labRequestById.id}
+              status={data!.labRequestById.status}
+            />
+          </HasRoles>
+
+          <LabResultManager
+            labRequestId={data!.labRequestById.id}
+            status={data!.labRequestById.status}
+            tests={data!.labRequestById.tests}
+          />
+        </div>
+      </div>
+    </SessionGuard>
+  );
 }

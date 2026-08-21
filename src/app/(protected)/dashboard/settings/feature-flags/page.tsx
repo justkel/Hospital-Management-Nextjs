@@ -9,18 +9,28 @@ import { graphqlFetch } from '@/shared/graphql/fetcher';
 import FeatureFlagsClient from './feature-flags-client';
 
 export default async function FeatureFlagsPage() {
-  const flagsRes = await graphqlFetch<
+  const { data, authOutcome, message } = await graphqlFetch<
     GetOrganizationFeatureFlagsQuery,
     GetOrganizationFeatureFlagsQueryVariables
   >(GetOrganizationFeatureFlagsDocument, {});
 
-  if (!flagsRes?.organizationFeatureFlags) {
-    return <SessionGuard needsRefresh />;
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
+  }
+
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
+  }
+
+  if (!data?.organizationFeatureFlags) {
+    return <SessionGuard mode="none" />;
   }
 
   return (
-    <SessionGuard needsRefresh={false}>
-      <FeatureFlagsClient initialFlags={flagsRes.organizationFeatureFlags} />
+    <SessionGuard mode="none">
+      <FeatureFlagsClient
+        initialFlags={data.organizationFeatureFlags}
+      />
     </SessionGuard>
   );
 }
