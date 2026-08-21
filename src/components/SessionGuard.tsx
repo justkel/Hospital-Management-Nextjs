@@ -1,49 +1,46 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { ShieldCheck } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 interface Props {
-  needsRefresh: boolean;
+  mode: 'refresh' | 'logout' | 'none';
+  reason?: string;
   children?: React.ReactNode;
 }
 
-export default function SessionGuard({ needsRefresh, children }: Props) {
-  const hasRefreshed = useRef(false);
+export default function SessionGuard({ mode, reason, children }: Props) {
+  const hasRun = useRef(false);
 
   useEffect(() => {
-    if (!needsRefresh || hasRefreshed.current) return;
+    if (mode === 'none' || hasRun.current) return;
+    hasRun.current = true;
 
-    hasRefreshed.current = true;
+    const goToLogin = async () => {
+      await fetch('/api/logout', { method: 'POST', credentials: 'include' }).catch(() => { });
+      const url = reason ? `/login?reason=${encodeURIComponent(reason)}` : '/login';
+      window.location.href = url;
+    };
 
-    const refresh = async () => {
+    if (mode === 'logout') {
+      goToLogin();
+      return;
+    }
+
+    // mode === 'refresh'
+    (async () => {
       try {
         const res = await fetch('/api/refresh', { method: 'POST', credentials: 'include' });
         const json = await res.json();
-
-        if (!json.success) {
-          await fetch('/api/logout', {
-            method: 'POST',
-            credentials: 'include',
-          });
-          window.location.href = '/login';
-          return;
-        }
-
+        if (!json.success) return goToLogin();
         window.location.reload();
-      } catch{
-        await fetch('/api/logout', {
-          method: 'POST',
-          credentials: 'include',
-        });
-        window.location.href = '/login';
+      } catch {
+        goToLogin();
       }
-    };
+    })();
+  }, [mode, reason]);
 
-    refresh();
-  }, [needsRefresh]);
-
-  if (needsRefresh) {
+  if (mode !== 'none') {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-[#0c1a12]">
         <div
@@ -61,24 +58,19 @@ export default function SessionGuard({ needsRefresh, children }: Props) {
             backgroundSize: '48px 48px',
           }}
         />
-
         <div className="relative flex flex-col items-center gap-6">
           <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#1D9E75]">
             <ShieldCheck size={20} className="text-white" />
           </div>
-
           <div className="relative h-10 w-10">
             <span className="absolute inset-0 rounded-full border-[3px] border-white/10" />
             <span className="absolute inset-0 rounded-full border-[3px] border-[#5DCAA5] border-t-transparent animate-spin" />
           </div>
-
           <div className="space-y-1 text-center">
             <p className="text-[15px] font-medium tracking-[-0.01em] text-white">
-              Securing your session
+              {mode === 'logout' ? 'Signing you out' : 'Securing your session'}
             </p>
-            <p className="text-[13px] text-[#5a7a6a]">
-              Just a moment…
-            </p>
+            <p className="text-[13px] text-[#5a7a6a]">Just a moment…</p>
           </div>
         </div>
       </div>

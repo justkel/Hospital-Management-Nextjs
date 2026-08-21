@@ -1,8 +1,8 @@
 import { print } from 'graphql';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { cookies } from 'next/headers';
-import { AUTH_ERROR_CODES } from '@/lib/handle-graphql-error';
 import { notFound } from 'next/navigation';
+import { FORCE_LOGOUT_CODES, REFRESHABLE_AUTH_CODES } from '@/lib/auth/auth-error-codes';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
@@ -22,10 +22,12 @@ type GraphQLErrorItem = {
   };
 };
 
+export type AuthOutcome = 'ok' | 'refresh' | 'logout';
+
 export async function graphqlFetch<TData, TVariables>(
   document: TypedDocumentNode<TData, TVariables>,
   variables?: TVariables
-): Promise<TData | null> { // <- allow null if unauthenticated
+): Promise<{ data: TData | null; authOutcome: AuthOutcome; message?: string }> {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('access_token')?.value;
 
@@ -35,43 +37,35 @@ export async function graphqlFetch<TData, TVariables>(
       'Content-Type': 'application/json',
       ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
     },
-    body: JSON.stringify({
-      query: print(document),
-      variables,
-    }),
+    body: JSON.stringify({ query: print(document), variables }),
     cache: 'no-store',
   });
 
-  const json: {
-    data?: TData;
-    errors?: GraphQLErrorItem[];
-  } = await res.json();
+  const json: { data?: TData; errors?: GraphQLErrorItem[] } = await res.json();
 
-  if (!json.errors) return json.data!;
+  if (!json.errors) return { data: json.data!, authOutcome: 'ok' };
 
-  const unauthenticated = json.errors.some(
-    (e) => AUTH_ERROR_CODES.includes(
-      e.extensions?.code as (typeof AUTH_ERROR_CODES)[number]
-    )
-  );
+  const code = json.errors[0]?.extensions?.code;
 
-  const isNotFound = json.errors.some((e: GraphQLErrorItem) => {
-    return (
+  const isNotFound = json.errors.some(
+    (e) =>
       e.extensions?.code === 'NOT_FOUND' ||
       e.extensions?.originalError?.statusCode === 404 ||
       e.message?.toLowerCase().includes('not found')
-    );
-  });
+  );
+  if (isNotFound) notFound();
 
-  if (unauthenticated) {
-    // let client handle refresh
-    console.log('Access token expired → returning null to server');
-    return null;
+  if (code && FORCE_LOGOUT_CODES.includes(code as any)) {
+    // Terminal: refreshing the token cannot fix an inactive account or
+    // revoked/expired guest access, so don't waste a round trip on it.
+    return { data: null, authOutcome: 'logout', message: json.errors[0].message };
   }
 
-  if (isNotFound) {
-    notFound();
+  if (code && REFRESHABLE_AUTH_CODES.includes(code as any)) {
+    return { data: null, authOutcome: 'refresh' };
   }
 
+  // Genuinely unexpected server error — this is the only case that should
+  // still surface as a real crash/error boundary.
   throw new Error(json.errors[0].message);
 }
