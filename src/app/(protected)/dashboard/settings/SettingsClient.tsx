@@ -9,6 +9,8 @@ import {
   ChevronRight,
   Settings as SettingsIcon,
 } from 'lucide-react';
+import { useHasRoles } from '@/components/auth/HasRoles';
+import { Roles } from '@/shared/utils/enums/roles';
 
 interface SettingsItem {
   title: string;
@@ -16,6 +18,7 @@ interface SettingsItem {
   href: string;
   icon: React.ElementType;
   available: boolean;
+  adminOnly?: boolean;
 }
 
 const settingsItems: SettingsItem[] = [
@@ -34,6 +37,7 @@ const settingsItems: SettingsItem[] = [
     href: '/dashboard/settings/feature-flags',
     icon: Flag,
     available: true,
+    adminOnly: true,
   },
   {
     title: 'Notifications',
@@ -52,6 +56,12 @@ const settingsItems: SettingsItem[] = [
 ];
 
 export default function SettingsClient() {
+  const isAdmin = useHasRoles([Roles.ADMIN]);
+
+  const visibleSettingsItems = settingsItems.filter(
+    item => !item.adminOnly || isAdmin,
+  );
+
   return (
     <div className="min-h-screen !bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6">
@@ -70,7 +80,7 @@ export default function SettingsClient() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {settingsItems.map((item) => {
+          {visibleSettingsItems.map(item => {
             const Icon = item.icon;
             const card = (
               <div
@@ -84,6 +94,7 @@ export default function SettingsClient() {
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl border !border-blue-100 !bg-blue-50">
                     <Icon size={19} className="!text-blue-600" />
                   </div>
+
                   {item.available ? (
                     <ChevronRight
                       size={16}
@@ -108,7 +119,11 @@ export default function SettingsClient() {
             );
 
             return item.available ? (
-              <Link key={item.title} href={item.href} className="block h-full">
+              <Link
+                key={item.title}
+                href={item.href}
+                className="block h-full"
+              >
                 {card}
               </Link>
             ) : (

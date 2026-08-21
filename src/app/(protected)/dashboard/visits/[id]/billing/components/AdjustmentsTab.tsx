@@ -96,7 +96,7 @@ export default function AdjustmentsTab({
   const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
-  const hasAdmin = useHasRoles([Roles.ADMIN, Roles.DOCTOR]);
+  const hasAdmin = useHasRoles([Roles.ADMIN, Roles.DOCTOR, Roles.GUEST]);
 
   const [rejectTarget, setRejectTarget] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
