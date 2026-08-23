@@ -13,6 +13,7 @@ export const FORCE_LOGOUT_CODES = [
   'GUEST_ACCESS_UNVERIFIABLE',
   'GUEST_ACCESS_EXPIRED',
   'GUEST_INVALID',
+  'GUEST_ACCESS_DISABLED',
 ] as const;
 
 export type RefreshableAuthCode = (typeof REFRESHABLE_AUTH_CODES)[number];

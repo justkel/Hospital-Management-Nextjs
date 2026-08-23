@@ -15,6 +15,7 @@ const forceLogoutCodes = [
   'GUEST_ACCESS_DENIED',
   'GUEST_ACCESS_UNVERIFIABLE',
   'GUEST_ACCESS_EXPIRED',
+  'GUEST_ACCESS_DISABLED',
 ];
 
 let logoutTriggered = false;
