@@ -1,14 +1,14 @@
 import { ReactNode } from 'react';
 import DashboardShell from '@/components/layout/DashboardShell';
-import SessionGuard from '@/components/SessionGuard';
 import {
   WhoAmIDocument,
   WhoAmIQuery,
   WhoAmIQueryVariables,
 } from '@/shared/graphql/generated/graphql';
 import { graphqlFetch } from '@/shared/graphql/fetcher';
-import { Roles } from '@/shared/utils/enums/roles';
 import { RoleProvider } from '@/providers/RoleContext';
+import { Roles } from '@/shared/utils/enums/roles';
+import SessionGuard from '@/components/SessionGuard';
 
 export default async function Layout({
   children,
@@ -20,7 +20,7 @@ export default async function Layout({
     WhoAmIQueryVariables
   >(WhoAmIDocument, {});
 
-  if (authOutcome === 'refresh') {
+  if (authOutcome === 'refresh' || !data?.whoAmI) {
     return <SessionGuard mode="refresh" />;
   }
 
@@ -28,16 +28,16 @@ export default async function Layout({
     return <SessionGuard mode="logout" reason={message} />;
   }
 
-  const roles: Roles[] = Array.isArray(data?.whoAmI?.roles)
-    ? (data.whoAmI.roles as Roles[])
+  const roles: Roles[] = Array.isArray(data.whoAmI.roles)
+    ? (data.whoAmI.roles.filter(
+        (r): r is Roles => Object.values(Roles).includes(r as Roles)
+      ) as Roles[])
     : [];
 
   return (
     <SessionGuard mode="none">
       <RoleProvider roles={roles}>
-        <DashboardShell roles={roles}>
-          {children}
-        </DashboardShell>
+        <DashboardShell roles={roles}>{children}</DashboardShell>
       </RoleProvider>
     </SessionGuard>
   );

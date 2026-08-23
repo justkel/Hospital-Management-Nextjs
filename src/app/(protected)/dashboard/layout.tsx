@@ -15,12 +15,12 @@ export default async function Layout({
 }: {
   children: ReactNode;
 }) {
-  const { data, authOutcome, message } = await graphqlFetch<WhoAmIQuery, WhoAmIQueryVariables>(
-    WhoAmIDocument,
-    {}
-  );
+  const { data, authOutcome, message } = await graphqlFetch<
+    WhoAmIQuery,
+    WhoAmIQueryVariables
+  >(WhoAmIDocument, {});
 
-  if (authOutcome === 'refresh') {
+  if (authOutcome === 'refresh' || !data?.whoAmI) {
     return <SessionGuard mode="refresh" />;
   }
 
@@ -28,20 +28,16 @@ export default async function Layout({
     return <SessionGuard mode="logout" reason={message} />;
   }
 
-  const roles: Roles[] = Array.isArray(data!.whoAmI?.roles)
-    ? (data!.whoAmI!.roles.filter(
+  const roles: Roles[] = Array.isArray(data.whoAmI.roles)
+    ? (data.whoAmI.roles.filter(
         (r): r is Roles => Object.values(Roles).includes(r as Roles)
       ) as Roles[])
     : [];
-  
-  console.log('roles',roles);
 
   return (
     <SessionGuard mode="none">
       <RoleProvider roles={roles}>
-        <DashboardShell roles={roles}>
-          {children}
-        </DashboardShell>
+        <DashboardShell roles={roles}>{children}</DashboardShell>
       </RoleProvider>
     </SessionGuard>
   );
