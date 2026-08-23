@@ -42,10 +42,10 @@ const routeRoles: Record<string, Roles[]> = {
 
   // Admin only
   '/dashboard/guest-requests': [Roles.ADMIN],
-  '/dashboard/billing': [Roles.ADMIN],
   '/dashboard/audit': [Roles.ADMIN],
   '/dashboard/settings/feature-flags': [Roles.ADMIN],
   '/admins/staff': [Roles.ADMIN, Roles.DOCTOR],
+  '/admins/billing': [Roles.ADMIN, Roles.GUEST],
   '/admins': [Roles.ADMIN],
 };
 
