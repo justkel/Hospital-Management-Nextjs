@@ -140,7 +140,7 @@ export default function DashboardClient({
 
             <div className="hidden gap-2.5 sm:flex">
               {[
-                { val: String(roles.length || '—'), label: 'Roles' },
+                { val: String(roles.length || '—'), label: roles.length === 1 ? 'Role' : 'Roles' },
               ].map((s) => (
                 <div
                   key={s.label}
