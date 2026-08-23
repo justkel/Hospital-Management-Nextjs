@@ -5,13 +5,17 @@ import {
   GetGuestRequestsQueryVariables,
   GetActiveGuestsDocument,
   GetActiveGuestsQuery,
+  IsFeatureFlagEnabledDocument,
+  IsFeatureFlagEnabledQuery,
+  IsFeatureFlagEnabledQueryVariables,
+  FeatureFlagKey,
 } from '@/shared/graphql/generated/graphql';
 
 import { graphqlFetch } from '@/shared/graphql/fetcher';
 import GuestAccessClient from './GuestRequestsClient';
 
 export default async function GuestAccessPage() {
-  const [requestsRes, activeGuestsRes] = await Promise.all([
+  const [requestsRes, activeGuestsRes, guestAccessFlagRes] = await Promise.all([
     graphqlFetch<GetGuestRequestsQuery, GetGuestRequestsQueryVariables>(
       GetGuestRequestsDocument,
       { status: undefined }
@@ -20,14 +24,26 @@ export default async function GuestAccessPage() {
       GetActiveGuestsDocument,
       {}
     ),
+    graphqlFetch<IsFeatureFlagEnabledQuery, IsFeatureFlagEnabledQueryVariables>(
+      IsFeatureFlagEnabledDocument,
+      { flagKey: FeatureFlagKey.GuestAccess },
+    ),
   ]);
 
-  if (requestsRes.authOutcome === 'logout' || activeGuestsRes.authOutcome === 'logout') {
-    const reason = requestsRes.message || activeGuestsRes.message;
+  if (
+    requestsRes.authOutcome === 'logout' ||
+    activeGuestsRes.authOutcome === 'logout' ||
+    guestAccessFlagRes.authOutcome === 'logout'
+  ) {
+    const reason = requestsRes.message || activeGuestsRes.message || guestAccessFlagRes.message;
     return <SessionGuard mode="logout" reason={reason} />;
   }
 
-  if (requestsRes.authOutcome === 'refresh' || activeGuestsRes.authOutcome === 'refresh') {
+  if (
+    requestsRes.authOutcome === 'refresh' ||
+    activeGuestsRes.authOutcome === 'refresh' ||
+    guestAccessFlagRes.authOutcome === 'refresh'
+  ) {
     return <SessionGuard mode="refresh" />;
   }
 
@@ -36,6 +52,7 @@ export default async function GuestAccessPage() {
       <GuestAccessClient
         initialRequests={requestsRes.data!.guestRequests}
         initialActiveGuests={activeGuestsRes.data!.activeGuests ?? []}
+        initialGuestAccessEnabled={guestAccessFlagRes.data?.isFeatureFlagEnabled ?? true}
       />
     </SessionGuard>
   );
