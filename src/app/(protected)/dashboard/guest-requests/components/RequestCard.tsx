@@ -6,6 +6,7 @@ import {
   XCircle,
   Ban,
   TimerOff,
+  ShieldAlert,
   Mail,
   Phone,
   ChevronRight,
@@ -32,15 +33,21 @@ const STATUS_META: Record<
   REJECTED: { label: 'Rejected', icon: XCircle, badgeClass: '!bg-red-100 !text-red-700' },
   REVOKED: { label: 'Revoked', icon: Ban, badgeClass: '!bg-slate-200 !text-slate-600' },
   EXPIRED: { label: 'Expired', icon: TimerOff, badgeClass: '!bg-slate-100 !text-slate-500' },
+  BLOCKED: { label: 'Blocked (org disabled)', icon: ShieldAlert, badgeClass: '!bg-orange-100 !text-orange-700' },
 };
 
-function getEffectiveStatus(request: GuestRequestRow): string {
-  if (
-    request.status === GuestRequestStatus.Approved &&
-    request.expiresAt &&
-    new Date(request.expiresAt).getTime() < Date.now()
-  ) {
-    return GuestRequestStatus.Expired;
+// 'BLOCKED' isn't a real GuestRequestStatus value — it's derived purely
+// from the org's feature flag. The GuestRequest row is never mutated
+// when the flag is off (see GuestAccessService.markRequestExpired's
+// ORG_DISABLED no-op), so this has to be computed here rather than read
+// off request.status.
+function getEffectiveStatus(request: GuestRequestRow, guestAccessEnabled: boolean): string {
+  if (request.status === GuestRequestStatus.Approved) {
+    const isExpired =
+      !!request.expiresAt && new Date(request.expiresAt).getTime() < Date.now();
+
+    if (isExpired) return GuestRequestStatus.Expired;
+    if (!guestAccessEnabled) return 'BLOCKED';
   }
   return request.status;
 }
@@ -48,6 +55,7 @@ function getEffectiveStatus(request: GuestRequestRow): string {
 export default function RequestCard({
   request,
   actionLoading,
+  guestAccessEnabled,
   onApprove,
   onReject,
   onRevoke,
@@ -56,6 +64,7 @@ export default function RequestCard({
 }: {
   request: GuestRequestRow;
   actionLoading: boolean;
+  guestAccessEnabled: boolean;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onRevoke: (id: string) => void;
@@ -63,12 +72,19 @@ export default function RequestCard({
   onViewDetail: (id: string) => void;
 }) {
   const guest = request.guest;
-  const effectiveStatus = getEffectiveStatus(request);
+  const effectiveStatus = getEffectiveStatus(request, guestAccessEnabled);
   const meta = STATUS_META[effectiveStatus] ?? STATUS_META.PENDING;
   const Icon = meta.icon;
   const fullName = `${guest?.firstName ?? ''} ${guest?.lastName ?? ''}`.trim() || 'Unknown guest';
   const gradient = getAvatarGradient(guest?.email ?? fullName);
+
   const isActiveApproved = effectiveStatus === 'APPROVED';
+  const isBlockedByOrg = effectiveStatus === 'BLOCKED';
+  const showCountdown = isActiveApproved || isBlockedByOrg;
+  // The request row is still APPROVED underneath a BLOCKED display state,
+  // so revoking it still makes sense (and still works, since revoke() is
+  // never flag-gated on the backend).
+  const canRevoke = isActiveApproved || isBlockedByOrg;
   const isRestorable = effectiveStatus === 'REVOKED' || effectiveStatus === 'EXPIRED';
 
   return (
@@ -124,8 +140,12 @@ export default function RequestCard({
         </button>
 
         <div className="flex shrink-0 flex-col items-start gap-2.5 sm:items-end">
-          {isActiveApproved && (
-            <CountdownBadge expiresAt={request.expiresAt} approvedAt={request.approvedAt} />
+          {showCountdown && (
+            <CountdownBadge
+              expiresAt={request.expiresAt}
+              approvedAt={request.approvedAt}
+              disabled={isBlockedByOrg}
+            />
           )}
 
           <HasRoles roles={[Roles.ADMIN]}>
@@ -134,7 +154,8 @@ export default function RequestCard({
                 <>
                   <button
                     type="button"
-                    disabled={actionLoading}
+                    disabled={actionLoading || !guestAccessEnabled}
+                    title={!guestAccessEnabled ? 'Guest access is disabled for this organization' : undefined}
                     onClick={() => onApprove(request.id)}
                     className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-1.5 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
                   >
@@ -157,7 +178,7 @@ export default function RequestCard({
                 </>
               )}
 
-              {isActiveApproved && (
+              {canRevoke && (
                 <button
                   type="button"
                   disabled={actionLoading}
@@ -176,7 +197,8 @@ export default function RequestCard({
               {isRestorable && (
                 <button
                   type="button"
-                  disabled={actionLoading}
+                  disabled={actionLoading || !guestAccessEnabled}
+                  title={!guestAccessEnabled ? 'Guest access is disabled for this organization' : undefined}
                   onClick={() => onRestore(request.id)}
                   className="inline-flex items-center gap-1.5 rounded-lg border !border-emerald-300 !bg-emerald-50 px-3 py-1.5 text-xs font-bold !text-emerald-700 transition hover:!bg-emerald-100 disabled:opacity-60"
                 >

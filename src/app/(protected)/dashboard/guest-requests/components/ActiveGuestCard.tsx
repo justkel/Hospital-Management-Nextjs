@@ -1,6 +1,6 @@
 'use client';
 
-import { Mail, Phone, Ban, Loader2, ShieldCheck } from 'lucide-react';
+import { Mail, Phone, Ban, Loader2, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { HasRoles } from '@/components/auth/HasRoles';
 import { Roles } from '@/shared/utils/enums/roles';
 import type { GetActiveGuestsQuery } from '@/shared/graphql/generated/graphql';
@@ -12,18 +12,27 @@ export type ActiveGuestRow = GetActiveGuestsQuery['activeGuests'][number];
 export default function ActiveGuestCard({
   entry,
   actionLoading,
+  guestAccessEnabled,
   onRevoke,
 }: {
   entry: ActiveGuestRow;
   actionLoading: boolean;
+  guestAccessEnabled: boolean;
   onRevoke: (requestId: string) => void;
 }) {
   const guest = entry.guest;
   const fullName = `${guest?.firstName ?? ''} ${guest?.lastName ?? ''}`.trim() || 'Unknown guest';
   const gradient = getAvatarGradient(guest?.email ?? fullName);
+  const isBlockedByOrg = !guestAccessEnabled;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border !border-emerald-200/70 bg-gradient-to-br from-white to-emerald-50/40 p-4 shadow-sm transition hover:shadow-md sm:p-5">
+    <div
+      className={`relative overflow-hidden rounded-2xl border p-4 shadow-sm transition hover:shadow-md sm:p-5 ${
+        isBlockedByOrg
+          ? '!border-orange-200/70 bg-gradient-to-br from-white to-orange-50/40'
+          : '!border-emerald-200/70 bg-gradient-to-br from-white to-emerald-50/40'
+      }`}
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 items-start gap-3.5">
           <div className="relative shrink-0">
@@ -33,14 +42,22 @@ export default function ActiveGuestCard({
               {getInitials(guest?.firstName, guest?.lastName)}
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full !bg-white">
-              <span className="h-2.5 w-2.5 animate-pulse rounded-full !bg-emerald-500" />
+              {isBlockedByOrg ? (
+                <span className="h-2.5 w-2.5 rounded-full !bg-orange-500" />
+              ) : (
+                <span className="h-2.5 w-2.5 animate-pulse rounded-full !bg-emerald-500" />
+              )}
             </span>
           </div>
 
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <span className="truncate text-sm font-bold !text-slate-900">{fullName}</span>
-              <ShieldCheck size={13} className="shrink-0 !text-emerald-600" />
+              {isBlockedByOrg ? (
+                <ShieldAlert size={13} className="shrink-0 !text-orange-600" />
+              ) : (
+                <ShieldCheck size={13} className="shrink-0 !text-emerald-600" />
+              )}
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs !text-slate-500">
               <span className="inline-flex items-center gap-1">
@@ -54,11 +71,16 @@ export default function ActiveGuestCard({
                 </span>
               )}
             </div>
+            {isBlockedByOrg && (
+              <p className="mt-1.5 text-[11px] font-semibold !text-orange-600">
+                Guest access is disabled for this organization — this guest cannot log in.
+              </p>
+            )}
           </div>
         </div>
 
         <div className="flex shrink-0 flex-col items-start gap-2.5 sm:items-end">
-          <CountdownBadge expiresAt={entry.expiresAt} approvedAt={entry.approvedAt} />
+          <CountdownBadge expiresAt={entry.expiresAt} approvedAt={entry.approvedAt} disabled={isBlockedByOrg} />
 
           <HasRoles roles={[Roles.ADMIN]}>
             <button

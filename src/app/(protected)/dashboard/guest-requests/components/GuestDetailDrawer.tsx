@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Drawer } from 'antd';
-import { Mail, Phone, Calendar, UserCheck, UserX, Ban, Loader2, FileText } from 'lucide-react';
+import { Mail, Phone, Calendar, UserCheck, UserX, Ban, Loader2, FileText, ShieldAlert } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';
 import type { GetGuestRequestQuery } from '@/shared/graphql/generated/graphql';
@@ -35,9 +35,11 @@ function Row({
 
 export default function GuestDetailDrawer({
   requestId,
+  guestAccessEnabled,
   onClose,
 }: {
   requestId: string | null;
+  guestAccessEnabled: boolean;
   onClose: () => void;
 }) {
   const [detail, setDetail] = useState<GuestRequestDetail | null>(null);
@@ -72,6 +74,11 @@ export default function GuestDetailDrawer({
   const fullName = guest ? `${guest.firstName} ${guest.lastName}` : '';
   const gradient = getAvatarGradient(guest?.email ?? fullName);
 
+  const isExpired =
+    !!detail?.expiresAt && new Date(detail.expiresAt).getTime() < Date.now();
+  const isBlockedByOrg =
+    !!detail && detail.status === 'APPROVED' && !isExpired && !guestAccessEnabled;
+
   return (
     <Drawer open={!!requestId} onClose={onClose} title="Guest request details" width={420}>
       {loading || !detail ? (
@@ -94,6 +101,16 @@ export default function GuestDetailDrawer({
             </div>
           </div>
 
+          {isBlockedByOrg && (
+            <div className="flex items-start gap-2.5 rounded-xl border !border-orange-200 !bg-orange-50 px-3.5 py-3">
+              <ShieldAlert size={15} className="mt-0.5 shrink-0 !text-orange-600" />
+              <p className="text-xs !text-orange-800">
+                This request is still marked approved and unexpired, but guest access is
+                currently disabled for your organization, so this guest cannot log in.
+              </p>
+            </div>
+          )}
+
           <div className="divide-y !divide-slate-100 rounded-2xl border !border-slate-100 px-4">
             <Row icon={Mail} label="Email" value={guest?.email} />
             <Row icon={Phone} label="Phone" value={guest?.phone} />
@@ -101,13 +118,21 @@ export default function GuestDetailDrawer({
             <Row icon={Calendar} label="Requested" value={formatDateTime(detail.requestedAt)} />
             <Row icon={UserCheck} label="Reviewed" value={formatDateTime(detail.reviewedAt)} />
             <Row icon={UserCheck} label="Approved" value={formatDateTime(detail.approvedAt)} />
-            <Row icon={Calendar} label="Expires" value={formatDateTime(detail.expiresAt)} />
+            <Row
+              icon={Calendar}
+              label="Expires"
+              value={detail.expiresAt ? formatDateTime(detail.expiresAt) : 'No expiry (permanent)'}
+            />
             <Row icon={UserX} label="Rejection reason" value={detail.rejectionReason} />
             <Row icon={Ban} label="Revoked" value={formatDateTime(detail.revokedAt)} />
           </div>
 
-          <div className="rounded-xl !bg-blue-50 px-3.5 py-3 text-center text-xs font-bold uppercase tracking-wide !text-blue-700">
-            Status: {detail.status}
+          <div
+            className={`rounded-xl px-3.5 py-3 text-center text-xs font-bold uppercase tracking-wide ${
+              isBlockedByOrg ? '!bg-orange-50 !text-orange-700' : '!bg-blue-50 !text-blue-700'
+            }`}
+          >
+            Status: {isBlockedByOrg ? 'BLOCKED (org disabled)' : detail.status}
           </div>
         </div>
       )}

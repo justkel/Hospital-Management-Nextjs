@@ -38,8 +38,11 @@ export function formatDateTime(value?: string | null) {
 export function formatDuration(ms: number) {
   if (ms <= 0) return 'Expired';
   const totalMinutes = Math.floor(ms / 60000);
-  const hours = Math.floor(totalMinutes / 60);
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
   const minutes = totalMinutes % 60;
-  if (hours <= 0) return `${minutes}m left`;
-  return `${hours}h ${minutes}m left`;
+
+  if (days > 0) return `${days}d ${hours}h left`;
+  if (hours > 0) return `${hours}h ${minutes}m left`;
+  return `${minutes}m left`;
 }

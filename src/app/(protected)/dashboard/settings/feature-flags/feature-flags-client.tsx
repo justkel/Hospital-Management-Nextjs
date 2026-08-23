@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Modal, Input, message, Switch } from 'antd';
+import { Modal, Input, App, Switch } from 'antd';
 import {
   ChevronDown,
   ChevronUp,
@@ -53,6 +53,8 @@ export default function FeatureFlagsClient({
 }: {
   initialFlags: FeatureFlagRow[];
 }) {
+  const { message } = App.useApp();
+
   const [flags, setFlags] = useState<FeatureFlagRow[]>(initialFlags);
 
   const [toggleTarget, setToggleTarget] = useState<FeatureFlagRow | null>(

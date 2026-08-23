@@ -29,13 +29,16 @@ const STATUS_PILLS = [
 export default function GuestAccessClient({
     initialRequests,
     initialActiveGuests,
+    initialGuestAccessEnabled,
 }: {
     initialRequests: GuestRequestRow[];
     initialActiveGuests: ActiveGuestRow[];
+    initialGuestAccessEnabled: boolean;
 }) {
     const [tab, setTab] = useState<'requests' | 'active'>('requests');
     const [requests, setRequests] = useState<GuestRequestRow[]>(initialRequests);
     const [activeGuests, setActiveGuests] = useState<ActiveGuestRow[]>(initialActiveGuests);
+    const [guestAccessEnabled, setGuestAccessEnabled] = useState<boolean>(initialGuestAccessEnabled);
     const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
     const [search, setSearch] = useState('');
     const [refreshing, setRefreshing] = useState(false);
@@ -63,10 +66,18 @@ export default function GuestAccessClient({
         }
     }
 
+    async function fetchGuestAccessFlag() {
+        const res = await clientFetch('/api/feature-flag/enabled?flagKey=GUEST_ACCESS', { cache: 'no-store' });
+        const json = await res.json();
+        if (res.ok && typeof json.enabled === 'boolean') {
+            setGuestAccessEnabled(json.enabled);
+        }
+    }
+
     async function refreshAll() {
         setRefreshing(true);
         try {
-            await Promise.all([fetchRequests(statusFilter), fetchActiveGuests()]);
+            await Promise.all([fetchRequests(statusFilter), fetchActiveGuests(), fetchGuestAccessFlag()]);
         } finally {
             setRefreshing(false);
         }
@@ -236,6 +247,23 @@ export default function GuestAccessClient({
                     </button>
                 </div>
 
+                {!guestAccessEnabled && (
+                    <div className="flex items-start gap-3 rounded-2xl border !border-orange-200 !bg-orange-50 px-4 py-3.5">
+                        <ShieldAlert size={18} className="mt-0.5 shrink-0 !text-orange-600" />
+                        <div>
+                            <p className="text-sm font-bold !text-orange-800">
+                                Guest access is currently disabled for your organization
+                            </p>
+                            <p className="mt-0.5 text-xs !text-orange-700">
+                                Existing approved guests can no longer log in, and new requests can&apos;t be
+                                approved or restored until this is re-enabled. Requests below still show their
+                                stored status, but any marked &quot;Approved&quot; are effectively blocked while
+                                this is off.
+                            </p>
+                        </div>
+                    </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <StatCard icon={Users} label="Total requests" value={stats.total} tone="slate" />
                     <StatCard
@@ -308,6 +336,7 @@ export default function GuestAccessClient({
                                     key={r.id}
                                     request={r}
                                     actionLoading={actionLoadingId === r.id}
+                                    guestAccessEnabled={guestAccessEnabled}
                                     onApprove={handleApprove}
                                     onReject={(id) => setRejectTarget(id)}
                                     onRevoke={(id) => setRevokeTarget(id)}
@@ -324,6 +353,7 @@ export default function GuestAccessClient({
                                 key={a.requestId}
                                 entry={a}
                                 actionLoading={actionLoadingId === a.requestId}
+                                guestAccessEnabled={guestAccessEnabled}
                                 onRevoke={(id) => setRevokeTarget(id)}
                             />
                         ))
@@ -370,7 +400,11 @@ export default function GuestAccessClient({
                 </div>
             </Modal>
 
-            <GuestDetailDrawer requestId={detailId} onClose={() => setDetailId(null)} />
+            <GuestDetailDrawer
+                requestId={detailId}
+                guestAccessEnabled={guestAccessEnabled}
+                onClose={() => setDetailId(null)}
+            />
         </div>
     );
 }
