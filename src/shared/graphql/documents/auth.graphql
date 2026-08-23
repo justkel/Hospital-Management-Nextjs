@@ -3874,3 +3874,7 @@ mutation RestoreGuestAccess($id: String!) {
     }
   }
 }
+
+query IsFeatureFlagEnabled($flagKey: FeatureFlagKey!) {
+  isFeatureFlagEnabled(flagKey: $flagKey)
+}
