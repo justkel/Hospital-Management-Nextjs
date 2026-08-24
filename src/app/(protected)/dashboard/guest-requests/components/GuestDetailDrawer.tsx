@@ -80,7 +80,7 @@ export default function GuestDetailDrawer({
     !!detail && detail.status === 'APPROVED' && !isExpired && !guestAccessEnabled;
 
   return (
-    <Drawer open={!!requestId} onClose={onClose} title="Guest request details" width={420}>
+    <Drawer open={!!requestId} onClose={onClose} title="Guest request details" size={420}>
       {loading || !detail ? (
         <div className="flex h-40 items-center justify-center">
           <Loader2 size={22} className="animate-spin !text-slate-300" />
