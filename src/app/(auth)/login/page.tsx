@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
 import { Activity, AlertCircle, ArrowRight, CreditCard, FileText, IdCard, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import AuthBrandPanel from '@/components/auth/AuthBrandPanel';
 
 const STATUS_MESSAGE_MAP: Record<string, string> = {
   SUSPENDED: 'Your account has been suspended.',
@@ -57,91 +58,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#f5f4f0] font-sans lg:grid lg:grid-cols-[1fr_480px]">
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-[#0c1a12] px-10 py-12 lg:flex xl:px-14">
+    <div className="relative min-h-screen overflow-hidden !bg-[#f5f4f0] font-sans lg:grid lg:grid-cols-[1fr_480px]">
+      <AuthBrandPanel />
 
-        <div className="pointer-events-none absolute inset-0"
-          style={{
-            background: 'radial-gradient(ellipse 60% 50% at 20% 80%, rgba(29,158,117,0.18) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 80% 10%, rgba(93,202,165,0.10) 0%, transparent 55%)',
-          }}
-        />
-        <div className="pointer-events-none absolute inset-0"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
-          }}
-        />
-        <div className="relative flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#1D9E75]">
-            <ShieldCheck size={19} className="text-white" />
-          </div>
-          <div>
-            <p className="text-[16px] font-medium leading-none text-white">HMS Pro</p>
-            <p className="mt-0.5 text-[11px] uppercase tracking-[0.06em] text-[#3B6D11]">Clinical OS</p>
-          </div>
-        </div>
-
-        <div className="relative flex-1 flex flex-col justify-center py-12">
-          <span className="pointer-events-none absolute -top-2 -left-2 select-none text-[96px] font-medium leading-none tracking-[-0.04em] text-white/[0.06]">
-            24/7
-          </span>
-
-          <div className="mb-5 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.1em] text-[#5DCAA5]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#1D9E75]" />
-            Healthcare reimagined
-          </div>
-
-          <h1 className="mb-5 text-[38px] font-medium leading-[1.1] tracking-[-0.025em] text-white">
-            One platform.<br />
-            <span className="text-[#5DCAA5]">Every patient.</span><br />
-            Every workflow.
-          </h1>
-
-          <p className="mb-10 max-w-sm text-[13px] leading-[1.75] text-[#5a7a6a]">
-            Built for clinicians who move fast. Manage records, billing, staff, and procedures without switching tools.
-          </p>
-
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { val: '24/7', label: 'Access' },
-              { val: 'Secure', label: 'Patient Records' },
-              { val: 'Fast', label: 'Workflow' },
-            ].map(m => (
-              <div key={m.label} className="rounded-xl border border-white/[0.07] bg-white/[0.04] px-4 py-3.5">
-                <p className="text-[22px] font-medium leading-none text-white">{m.val}</p>
-                <p className="mt-1 text-[11px] uppercase tracking-[0.06em] text-[#3B6D11]">{m.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="relative flex items-center justify-between border-t border-white/[0.06] pt-5">
-          <span className="text-[11px] text-[#1f3328]">© {new Date().getFullYear()} HMS Pro</span>
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-[#1D9E75]/25 bg-[#1D9E75]/12 px-2.5 py-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#1D9E75]" />
-            <span className="text-[11px] font-medium text-[#1D9E75]">All systems live</span>
-          </div>
-        </div>
-      </div>
-      <div className="flex min-h-screen flex-col justify-center bg-[#f5f4f0] px-6 py-12 sm:px-10">
+      <div className="flex min-h-screen flex-col justify-center !bg-[#f5f4f0] px-6 py-12 sm:px-10">
         <div className="w-full max-w-[380px] mx-auto">
 
           <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#1D9E75]">
-              <ShieldCheck size={17} className="text-white" />
-            </div>
-            <span className="text-[16px] font-medium text-[#2C2C2A]">HMS Pro</span>
+            <span className="text-[19px] font-bold italic tracking-[-0.02em] !text-[#14231A]">
+              well<span className="!text-[#1D9E75] underline decoration-[#1D9E75]/30 underline-offset-4">flex</span>ia !
+            </span>
           </div>
 
           <div className="mb-8">
-            <div className="mb-3 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.1em] text-[#888780]">
+            <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.1em] !text-[#888780]">
               Secure access
             </div>
-            <h2 className="text-[26px] font-medium tracking-[-0.02em] text-[#2C2C2A]">Welcome back</h2>
-            <p className="mt-1 text-[14px] text-[#888780]">Sign in to your clinical workspace</p>
+            <h2 className="text-[26px] font-extrabold tracking-[-0.02em] !text-[#2C2C2A]">Welcome back</h2>
+            <p className="mt-1 text-[14px] font-medium !text-[#888780]">Sign in to your clinical workspace</p>
           </div>
 
           {error && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-[10px] border border-[#F7C1C1] bg-[#FCEBEB] px-3 py-2.5 text-sm text-[#A32D2D]">
+            <div className="mb-4 flex items-start gap-2.5 rounded-[10px] border !border-[#F7C1C1] !bg-[#FCEBEB] px-3 py-2.5 text-sm font-medium !text-[#A32D2D]">
               <AlertCircle size={14} className="mt-0.5 shrink-0" />
               {error}
             </div>
@@ -153,14 +91,14 @@ export default function LoginPage() {
               name="userCode"
               rules={[{ required: true }]}
               label={
-                <span className="text-[11px] font-medium uppercase tracking-[0.07em] text-[#888780]">
+                <span className="text-[11px] font-bold uppercase tracking-[0.07em] !text-[#888780]">
                   Staff code
                 </span>
               }
             >
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-3 z-10 flex items-center">
-                  <IdCard size={16} className="text-[#B4B2A9]" />
+                  <IdCard size={16} className="!text-[#B4B2A9]" />
                 </div>
 
                 <Input
@@ -175,14 +113,14 @@ export default function LoginPage() {
               name="password"
               rules={[{ required: true }]}
               label={
-                <span className="text-[11px] font-medium uppercase tracking-[0.07em] text-[#888780]">
+                <span className="text-[11px] font-bold uppercase tracking-[0.07em] !text-[#888780]">
                   Password
                 </span>
               }
             >
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-3 z-10 flex items-center">
-                  <ShieldCheck size={16} className="text-[#B4B2A9]" />
+                  <ShieldCheck size={16} className="!text-[#B4B2A9]" />
                 </div>
 
                 <Input.Password
@@ -196,7 +134,7 @@ export default function LoginPage() {
             <div className="mb-2 flex justify-end">
               <Link
                 href="/forgot-password"
-                className="text-[12px] font-medium text-[#1D9E75] hover:underline"
+                className="text-[12px] font-bold !text-[#1D9E75] hover:underline"
               >
                 Forgot password?
               </Link>
@@ -206,7 +144,7 @@ export default function LoginPage() {
               htmlType="submit"
               block
               loading={loading}
-              className="!mt-4 !h-12 !rounded-[10px] !border-none !bg-[#0c1a12] !font-medium !text-white transition hover:!bg-[#1D9E75]"
+              className="!mt-4 !h-12 !rounded-[10px] !border-none !bg-[#0c1a12] !font-bold !text-white transition hover:!bg-[#1D9E75]"
             >
               {!loading && <ArrowRight size={16} className="mr-2" />}
               Sign in
@@ -214,15 +152,15 @@ export default function LoginPage() {
           </Form>
 
           <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-[#D3D1C7]" />
-            <span className="text-[11px] uppercase tracking-[0.07em] text-[#B4B2A9]">New here?</span>
-            <div className="h-px flex-1 bg-[#D3D1C7]" />
+            <div className="h-px flex-1 !bg-[#D3D1C7]" />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.07em] !text-[#B4B2A9]">New here?</span>
+            <div className="h-px flex-1 !bg-[#D3D1C7]" />
           </div>
 
           <Link href="/guest-access" className="block">
             <Button
               block
-              className="!h-12 !rounded-[10px] !border !border-[#1D9E75]/30 !bg-[#F0FAF5] !font-medium !text-[#1D9E75] transition hover:!border-[#1D9E75] hover:!bg-[#1D9E75]/10"
+              className="!h-12 !rounded-[10px] !border !border-[#1D9E75]/30 !bg-[#F0FAF5] !font-bold !text-[#1D9E75] transition hover:!border-[#1D9E75] hover:!bg-[#1D9E75]/10"
             >
               <Sparkles size={15} className="mr-2 inline -mt-0.5" />
               Try the demo as a guest
@@ -230,26 +168,31 @@ export default function LoginPage() {
           </Link>
 
           <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-[#D3D1C7]" />
-            <span className="text-[11px] uppercase tracking-[0.07em] text-[#B4B2A9]">What&apos;s included</span>
-            <div className="h-px flex-1 bg-[#D3D1C7]" />
+            <div className="h-px flex-1 !bg-[#D3D1C7]" />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.07em] !text-[#B4B2A9]">What&apos;s included</span>
+            <div className="h-px flex-1 !bg-[#D3D1C7]" />
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             {[
-              { icon: FileText, label: 'Patient records' },
-              { icon: Users, label: 'Staff control' },
-              { icon: CreditCard, label: 'Billing' },
-              { icon: Activity, label: 'Procedure tracking' },
-            ].map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2 rounded-lg border border-[#D3D1C7] bg-white px-3 py-2.5">
-                <Icon size={14} className="shrink-0 text-[#1D9E75]" />
-                <span className="text-[12px] font-medium text-[#5F5E5A]">{label}</span>
+              { icon: FileText, label: 'Patient records', tint: '!bg-[#F0FAF5] !text-[#1D9E75]' },
+              { icon: Users, label: 'Staff control', tint: '!bg-[#EFF6FF] !text-[#2563EB]' },
+              { icon: CreditCard, label: 'Billing', tint: '!bg-[#FFFBEB] !text-[#D97706]' },
+              { icon: Activity, label: 'Procedure tracking', tint: '!bg-[#F5F3FF] !text-[#7C3AED]' },
+            ].map(({ icon: Icon, label, tint }) => (
+              <div
+                key={label}
+                className="flex items-center gap-2.5 rounded-lg border !border-[#D3D1C7] !bg-white px-3 py-2.5 transition hover:!border-[#1D9E75]/40 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
+              >
+                <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${tint}`}>
+                  <Icon size={13} />
+                </div>
+                <span className="text-[12px] font-semibold !text-[#5F5E5A]">{label}</span>
               </div>
             ))}
           </div>
 
-          <p className="mt-6 border-t border-[#D3D1C7] pt-5 text-center text-[11px] text-[#B4B2A9]">
+          <p className="mt-6 border-t !border-[#D3D1C7] pt-5 text-center text-[11px] font-medium !text-[#B4B2A9]">
             Secured with end-to-end encryption
           </p>
         </div>
