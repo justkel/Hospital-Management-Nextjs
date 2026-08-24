@@ -58,25 +58,25 @@ const TYPE_META: Record<
     label: 'Grant',
     sign: '+',
     icon: Gift,
-    badgeClass: '!bg-blue-100 !text-blue-700',
+    badgeClass: '!bg-[#EFF5FF] !text-[#1D6FE0]',
   },
   TRANSFER_IN: {
     label: 'Transfer from visit credit',
     sign: '+',
     icon: ArrowDownCircle,
-    badgeClass: '!bg-emerald-100 !text-emerald-700',
+    badgeClass: '!bg-[#ECFBF5] !text-[#1D9E75]',
   },
   SPEND: {
     label: 'Spent on visit',
     sign: '−',
     icon: ArrowUpCircle,
-    badgeClass: '!bg-slate-100 !text-slate-600',
+    badgeClass: '!bg-[#F7F7F5] !text-[#767570]',
   },
   TOP_UP: {
     label: 'Wallet top-up',
     sign: '+',
     icon: PlusCircle,
-    badgeClass: '!bg-violet-100 !text-violet-700',
+    badgeClass: '!bg-[#F5F2FF] !text-[#7C5CFC]',
   },
 };
 
@@ -467,33 +467,35 @@ export default function PatientWalletClient({
   };
 
   return (
-    <div className="min-h-screen !bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 space-y-6">
-        <div>
-          <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border !border-blue-200 !bg-blue-50 px-3 py-1 text-xs font-medium !text-blue-700">
-            <Wallet size={13} />
-            Patient wallet
+    <div className="min-h-screen !bg-[#FAFAF8]">
+      <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6 sm:py-10">
+        <header className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white p-6 sm:p-8">
+          <div className="inline-flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] !text-[#1D9E75]">
+              Patient Wallet
+            </p>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight !text-slate-900 sm:text-3xl">
+          <h1 className="mt-3 text-[26px] font-bold leading-tight tracking-tight !text-[#16211B] sm:text-[30px]">
             Wallet balance
           </h1>
-          <p className="mt-1.5 max-w-lg text-sm leading-relaxed !text-slate-500">
+          <p className="mt-2.5 max-w-lg text-sm leading-relaxed !text-[#767570]">
             Goodwill grants, wallet top-ups, credit transferred in from
             visits, and spending toward future charges — all recorded here.
           </p>
-        </div>
+        </header>
 
-        <div className="overflow-hidden rounded-2xl border !border-slate-200/70 !bg-white/90 shadow-[0_10px_40px_rgba(15,23,42,0.05)]">
+        <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
           <div className="flex flex-wrap items-center justify-between gap-4 p-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl !bg-blue-100 !text-blue-600">
-                <CircleDollarSign size={22} />
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl !bg-[#ECFBF5]">
+                <CircleDollarSign size={20} className="!text-[#1D9E75]" />
               </div>
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] !text-[#B4B2A9]">
                   Current balance
                 </p>
-                <p className="text-2xl font-bold !text-slate-900">
+                <p className="mt-0.5 font-mono text-2xl font-semibold tabular-nums !text-[#16211B]">
                   {formatCurrency(balance)}
                 </p>
               </div>
@@ -504,7 +506,7 @@ export default function PatientWalletClient({
                 <button
                   type="button"
                   onClick={openTopUpForm}
-                  className="inline-flex items-center gap-2 rounded-2xl !bg-violet-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-violet-700"
+                  className="inline-flex items-center gap-2 rounded-xl border !border-[#E8E6E0] !bg-white px-4 py-2.5 text-sm font-medium !text-[#5F5E5A] transition hover:!bg-[#F7F7F5]"
                 >
                   <PlusCircle size={15} />
                   Top up wallet
@@ -515,7 +517,7 @@ export default function PatientWalletClient({
                 <button
                   type="button"
                   onClick={openGrantForm}
-                  className="inline-flex items-center gap-2 rounded-2xl !bg-blue-600 px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition hover:!bg-blue-700"
+                  className="inline-flex items-center gap-2 rounded-xl !bg-[#0c1a12] px-4 py-2.5 text-sm font-medium !text-white transition hover:!bg-[#16211B]"
                 >
                   <Gift size={15} />
                   Request grant
@@ -527,12 +529,12 @@ export default function PatientWalletClient({
 
         <div>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-sm font-bold !text-slate-800">
+            <h2 className="text-sm font-semibold !text-[#16211B]">
               {total} transaction{total === 1 ? '' : 's'}
             </h2>
 
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1.5 text-xs font-medium !text-slate-400">
+              <div className="flex items-center gap-1.5 text-xs font-medium !text-[#B4B2A9]">
                 <Filter size={13} />
                 Filter
               </div>
@@ -562,7 +564,7 @@ export default function PatientWalletClient({
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="inline-flex items-center gap-1 rounded-lg border !border-slate-200 !bg-white px-2.5 py-1 text-xs font-medium !text-slate-500 transition hover:!bg-slate-50"
+                  className="inline-flex items-center gap-1 rounded-lg border !border-[#E8E6E0] !bg-white px-2.5 py-1 text-xs font-medium !text-[#767570] transition hover:!bg-[#F7F7F5]"
                 >
                   <X size={12} />
                   Clear
@@ -572,14 +574,14 @@ export default function PatientWalletClient({
           </div>
 
           {transactions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-2xl border !border-slate-100 !bg-slate-50/60 px-6 py-16 text-center">
-              <Wallet size={32} className="!text-slate-300" />
-              <h3 className="mt-4 text-base font-bold !text-slate-700">
+            <div className="flex flex-col items-center justify-center rounded-2xl border !border-[#E8E6E0] !bg-white px-6 py-16 text-center">
+              <Wallet size={28} className="!text-[#B4B2A9]" />
+              <h3 className="mt-4 text-base font-semibold !text-[#16211B]">
                 {hasActiveFilters
                   ? 'No transactions match these filters'
                   : 'No wallet activity yet'}
               </h3>
-              <p className="mt-1 max-w-sm text-sm !text-slate-500">
+              <p className="mt-1 max-w-sm text-sm !text-[#767570]">
                 {hasActiveFilters
                   ? 'Try a different type or status, or clear the filters.'
                   : 'Grants, top-ups, transfers, and spends for this patient will appear here.'}
@@ -588,7 +590,7 @@ export default function PatientWalletClient({
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="mt-4 inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 !bg-white px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!bg-slate-50"
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-lg border !border-[#E8E6E0] !bg-white px-3 py-1.5 text-xs font-medium !text-[#5F5E5A] transition hover:!bg-[#F7F7F5]"
                 >
                   <X size={12} />
                   Clear filters
@@ -597,21 +599,21 @@ export default function PatientWalletClient({
             </div>
           ) : (
             <div
-              className={`overflow-hidden rounded-xl border !border-slate-200 transition-opacity ${refreshing ? 'opacity-60' : 'opacity-100'
+              className={`overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white transition-opacity ${refreshing ? 'opacity-60' : 'opacity-100'
                 }`}
             >
-              <div className="divide-y !divide-slate-100">
+              <div className="divide-y !divide-[#E8E6E0]">
                 {transactions.map((t) => {
                   const meta = TYPE_META[t.type] ?? {
                     label: t.type,
                     sign: '+' as const,
                     icon: CircleDollarSign,
-                    badgeClass: '!bg-slate-100 !text-slate-600',
+                    badgeClass: '!bg-[#F7F7F5] !text-[#767570]',
                   };
                   const Icon = meta.icon;
 
                   return (
-                    <div key={t.id} className="px-4 py-4">
+                    <div key={t.id} className="px-4 py-4 sm:px-5">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div className="flex min-w-0 items-start gap-3">
                           <div
@@ -623,9 +625,9 @@ export default function PatientWalletClient({
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                               <span
-                                className={`text-lg font-bold ${meta.sign === '+'
-                                  ? '!text-emerald-600'
-                                  : '!text-slate-900'
+                                className={`font-mono text-lg font-semibold tabular-nums ${meta.sign === '+'
+                                  ? '!text-[#1D9E75]'
+                                  : '!text-[#16211B]'
                                   }`}
                               >
                                 {meta.sign}
@@ -633,23 +635,23 @@ export default function PatientWalletClient({
                               </span>
                               <StatusBadge status={t.status} />
                               {t.paymentMethod && (
-                                <span className="rounded-full border !border-slate-200 !bg-white px-2 py-0.5 text-[10px] font-bold uppercase !text-slate-500">
+                                <span className="rounded-full border !border-[#E8E6E0] !bg-white px-2 py-0.5 text-[10px] font-semibold uppercase !text-[#B4B2A9]">
                                   {t.paymentMethod}
                                 </span>
                               )}
                             </div>
 
-                            <p className="mt-1 text-sm !text-slate-600">
+                            <p className="mt-1 text-sm !text-[#5F5E5A]">
                               {meta.label}
                             </p>
 
-                            <p className="mt-1 text-xs !text-slate-500">
+                            <p className="mt-1 text-xs !text-[#B4B2A9]">
                               {formatDateTime(t.createdAt)}
                               {t.confirmedAt &&
                                 ` · Confirmed: ${formatDateTime(t.confirmedAt)}`}
                             </p>
 
-                            <p className="mt-1 text-xs !text-slate-400">
+                            <p className="mt-1 text-xs !text-[#B4B2A9]">
                               {t.reason}
                             </p>
                           </div>
@@ -662,7 +664,7 @@ export default function PatientWalletClient({
                                 type="button"
                                 disabled={actionLoadingId === t.id}
                                 onClick={() => approveGrant(t.id)}
-                                className="inline-flex items-center gap-1.5 rounded-lg border !border-emerald-300 !bg-emerald-50 px-3 py-2 text-xs font-bold !text-emerald-700 transition hover:!bg-emerald-100 disabled:opacity-60"
+                                className="inline-flex items-center gap-1.5 rounded-lg border !border-[#CFF0E1] !bg-[#ECFBF5] px-3 py-2 text-xs font-semibold !text-[#1D9E75] transition hover:!bg-[#DCF5EA] disabled:opacity-60"
                               >
                                 {actionLoadingId === t.id ? (
                                   <Loader2 size={13} className="animate-spin" />
@@ -675,7 +677,7 @@ export default function PatientWalletClient({
                                 type="button"
                                 disabled={actionLoadingId === t.id}
                                 onClick={() => setRejectTarget(t.id)}
-                                className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
+                                className="inline-flex items-center gap-1.5 rounded-lg border !border-[#FBD5D5] !bg-[#FEF2F2] px-3 py-2 text-xs font-semibold !text-[#DC2626] transition hover:!bg-[#FDE4E4] disabled:opacity-60"
                               >
                                 <ThumbsDown size={13} />
                                 Reject
@@ -691,7 +693,7 @@ export default function PatientWalletClient({
                                 type="button"
                                 disabled={actionLoadingId === t.id}
                                 onClick={() => confirmTopUp(t.id)}
-                                className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-xs font-bold !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
+                                className="inline-flex items-center gap-1.5 rounded-lg !bg-[#1D9E75] px-3 py-2 text-xs font-semibold !text-white transition hover:!bg-[#188A66] disabled:opacity-60"
                               >
                                 {actionLoadingId === t.id ? (
                                   <Loader2 size={13} className="animate-spin" />
@@ -704,7 +706,7 @@ export default function PatientWalletClient({
                                 type="button"
                                 disabled={actionLoadingId === t.id}
                                 onClick={() => setTopUpFailTarget(t.id)}
-                                className="inline-flex items-center gap-1.5 rounded-lg border !border-red-300 !bg-red-50 px-3 py-2 text-xs font-bold !text-red-700 transition hover:!bg-red-100 disabled:opacity-60"
+                                className="inline-flex items-center gap-1.5 rounded-lg border !border-[#FBD5D5] !bg-[#FEF2F2] px-3 py-2 text-xs font-semibold !text-[#DC2626] transition hover:!bg-[#FDE4E4] disabled:opacity-60"
                               >
                                 <XCircle size={13} />
                                 Fail
@@ -714,14 +716,14 @@ export default function PatientWalletClient({
                         </HasRoles>
 
                         {t.type === 'GRANT' && t.status === 'REJECTED' && (
-                          <span className="inline-flex items-center gap-1.5 text-xs !text-slate-400">
+                          <span className="inline-flex items-center gap-1.5 text-xs !text-[#B4B2A9]">
                             <XCircle size={13} />
                             Rejected
                           </span>
                         )}
 
                         {t.status === 'CONFIRMED' && (
-                          <span className="inline-flex items-center gap-1.5 text-xs !text-emerald-600">
+                          <span className="inline-flex items-center gap-1.5 text-xs !text-[#1D9E75]">
                             <CheckCircle2 size={13} />
                             Confirmed
                           </span>
@@ -734,12 +736,13 @@ export default function PatientWalletClient({
             </div>
           )}
 
-          <div className="flex justify-center pt-4">
+          <div className="flex justify-center overflow-x-auto pt-4">
             <Pagination
               current={page}
               pageSize={limit}
               total={total}
               showSizeChanger
+              responsive
               onChange={(p, l) => {
                 applyFilters({
                   page: p,
@@ -762,16 +765,16 @@ export default function PatientWalletClient({
         confirmLoading={submittingGrant}
       >
         <div className="space-y-4 py-2">
-          <div className="flex items-start gap-2.5 rounded-lg border !border-blue-200 !bg-blue-50 px-3.5 py-3">
-            <AlertTriangle size={15} className="mt-0.5 shrink-0 !text-blue-600" />
-            <p className="text-xs !text-blue-800">
+          <div className="flex items-start gap-2.5 rounded-lg border !border-[#D6E4FB] !bg-[#EFF5FF] px-3.5 py-3">
+            <AlertTriangle size={15} className="mt-0.5 shrink-0 !text-[#1D6FE0]" />
+            <p className="text-xs !text-[#1D6FE0]">
               This creates a request only — an admin still needs to approve
               it before the amount is spendable.
             </p>
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-[#B4B2A9]">
               Amount
             </label>
             <Input
@@ -784,7 +787,7 @@ export default function PatientWalletClient({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-[#B4B2A9]">
               Reason
             </label>
             <Input.TextArea
@@ -797,7 +800,7 @@ export default function PatientWalletClient({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-[#B4B2A9]">
               Notes (optional)
             </label>
             <Input.TextArea
@@ -819,7 +822,7 @@ export default function PatientWalletClient({
         okText="Reject"
         okButtonProps={{ danger: true }}
       >
-        <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+        <label className="mb-1.5 block text-xs font-semibold uppercase !text-[#B4B2A9]">
           Reason
         </label>
         <Input.TextArea
@@ -838,19 +841,19 @@ export default function PatientWalletClient({
         confirmLoading={submittingTopUp}
       >
         <div className="space-y-4 py-2">
-          <div className="flex items-start gap-2.5 rounded-lg border !border-violet-200 !bg-violet-50 px-3.5 py-3">
+          <div className="flex items-start gap-2.5 rounded-lg border !border-[#E5DCFC] !bg-[#F5F2FF] px-3.5 py-3">
             <AlertTriangle
               size={15}
-              className="mt-0.5 shrink-0 !text-violet-600"
+              className="mt-0.5 shrink-0 !text-[#7C5CFC]"
             />
-            <p className="text-xs !text-violet-800">
+            <p className="text-xs !text-[#7C5CFC]">
               Records the patient handing over real money right now. It
               needs confirming once received — no separate approval step.
             </p>
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-[#B4B2A9]">
               Amount
             </label>
             <Input
@@ -863,7 +866,7 @@ export default function PatientWalletClient({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-[#B4B2A9]">
               Payment method
             </label>
             <Select
@@ -877,7 +880,7 @@ export default function PatientWalletClient({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-[#B4B2A9]">
               Reason
             </label>
             <Input.TextArea
@@ -891,7 +894,7 @@ export default function PatientWalletClient({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase !text-[#B4B2A9]">
               Notes (optional)
             </label>
             <Input.TextArea
@@ -913,7 +916,7 @@ export default function PatientWalletClient({
         okText="Mark failed"
         okButtonProps={{ danger: true }}
       >
-        <label className="mb-1.5 block text-xs font-semibold uppercase !text-slate-500">
+        <label className="mb-1.5 block text-xs font-semibold uppercase !text-[#B4B2A9]">
           Reason
         </label>
         <Input.TextArea

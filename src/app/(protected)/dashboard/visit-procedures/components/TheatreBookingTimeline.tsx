@@ -30,9 +30,9 @@ interface Props {
 }
 
 const PRIORITY_BADGE: Record<TheatreBookingPriority, string> = {
-  [TheatreBookingPriority.Elective]: 'border-slate-600/50 text-slate-400 bg-slate-900/70',
-  [TheatreBookingPriority.Urgent]: 'border-amber-600/50 text-amber-300 bg-amber-950/70',
-  [TheatreBookingPriority.Emergency]: 'border-rose-600/50 text-rose-300 bg-rose-950/70',
+  [TheatreBookingPriority.Elective]: 'border-[#E8E6E0] text-[#767570] bg-[#F7F7F5]',
+  [TheatreBookingPriority.Urgent]: 'border-[#F5E3C0] text-[#B9770E] bg-[#FFF8EC]',
+  [TheatreBookingPriority.Emergency]: 'border-[#FBD5D5] text-[#DC2626] bg-[#FEF2F2]',
 };
 
 const PRIORITY_LABEL: Record<TheatreBookingPriority, string> = {
@@ -95,7 +95,7 @@ export default function TheatreBookingTimeline({
   return (
     <div className="space-y-4 sm:space-y-5">
       <div className="flex flex-col gap-3 xs:flex-row xs:items-center xs:justify-between">
-        <p className="font-mono text-xs text-slate-500">
+        <p className="font-mono text-xs !text-[#B4B2A9]">
           {hasBookings
             ? `${bookings.length} booking${bookings.length !== 1 ? 's' : ''} on record`
             : 'No bookings recorded'}
@@ -104,20 +104,20 @@ export default function TheatreBookingTimeline({
           <div className="group relative">
             <button
               disabled
-              className="inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-emerald-600/20 bg-emerald-950/30 px-4 text-xs font-bold !text-emerald-400/60 opacity-80"
+              className="inline-flex h-10 w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border !border-[#CFF0E1] !bg-[#ECFBF5] px-4 text-xs font-semibold !text-[#1D9E75]/60 xs:w-auto"
             >
               <CheckCircle2 size={13} />
               Procedure Completed
             </button>
 
-            <p className="mt-2 text-right text-[11px] !text-slate-400">
+            <p className="mt-2 text-right text-[11px] !text-[#B4B2A9]">
               Theatre booking is locked because this procedure has been completed.
             </p>
           </div>
         ) : (
           <button
             onClick={onCreateRequest}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-teal-400 to-teal-500 px-4 text-xs font-bold text-black shadow-[0_8px_20px_-8px_rgba(45,212,191,0.65)] transition hover:from-teal-300 hover:to-teal-400 active:scale-[0.97]"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl !bg-[#0c1a12] px-4 text-xs font-semibold !text-white transition hover:!bg-[#16211B]"
           >
             <Plus size={13} strokeWidth={2.75} />
             Book Theatre
@@ -132,7 +132,7 @@ export default function TheatreBookingTimeline({
           {active.length > 0 && (
             <Group
               label="Active"
-              dot="bg-teal-400"
+              dot="!bg-[#1D9E75]"
               bookings={active}
               onManage={onManageRequest}
             />
@@ -140,7 +140,7 @@ export default function TheatreBookingTimeline({
           {terminal.length > 0 && (
             <Group
               label="History"
-              dot="bg-slate-600"
+              dot="!bg-[#B4B2A9]"
               bookings={terminal}
               onManage={onManageRequest}
               dimmed
@@ -168,16 +168,16 @@ function Group({
   return (
     <div>
       <div className="mb-3 flex items-center gap-2">
-        <span className={`h-2 w-2 rounded-full ${dot} ${dot.includes('teal') ? 'shadow-[0_0_8px_1px_rgba(45,212,191,0.7)]' : ''}`} />
-        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+        <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+        <span className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
           {label}
         </span>
-        <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 font-mono text-[9px] font-bold text-slate-400">
+        <span className="rounded-full border !border-[#E8E6E0] !bg-[#F7F7F5] px-2 py-0.5 font-mono text-[10px] font-semibold !text-[#767570]">
           {bookings.length}
         </span>
       </div>
 
-      <div className={`space-y-2.5 ${dimmed ? 'opacity-70' : ''}`}>
+      <div className={`space-y-2.5 ${dimmed ? 'opacity-80' : ''}`}>
         {bookings.map((b) => (
           <BookingRow key={b.id} booking={b} onManage={() => onManage(b)} />
         ))}
@@ -201,63 +201,55 @@ function BookingRow({ booking, onManage }: { booking: Booking; onManage: () => v
     : 'Elective';
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-[#111827] to-[#0D131F] transition hover:border-white/[0.16] hover:shadow-[0_12px_32px_-16px_rgba(0,0,0,0.7)]">
-      <div className="flex flex-col gap-4 px-4 py-4 pl-6 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <div className="rounded-xl border !border-[#E8E6E0] !bg-white transition hover:!bg-[#FAFAF8]">
+      <div className="flex flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div className="flex items-start gap-3.5 sm:gap-4">
-          <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${meta.badge}`}>
+          <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${meta.badge}`}>
             <StatusIcon size={15} />
           </div>
 
           <div className="min-w-0 space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-bold !text-white">
+              <span className="text-sm font-semibold !text-[#16211B]">
                 {booking.theatre?.name ?? 'Theatre'}
               </span>
-              <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[10px] font-bold ${meta.badge}`}>
+              <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-semibold ${meta.badge}`}>
                 <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
                 {meta.label}
               </span>
-              <span className={`rounded-md border px-2 py-0.5 font-mono text-[10px] font-bold ${priorityBadge}`}>
+              <span className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold ${priorityBadge}`}>
                 {priorityLabel}
               </span>
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5 font-mono">
-              <span className="flex items-center gap-1.5 text-[11px] text-slate-400">
-                <Clock size={10} className="text-slate-600" />
-                <span className="font-bold !text-white">{start.time}</span>
-                <span className="text-slate-600">{start.date}</span>
+              <span className="flex items-center gap-1.5 text-[11px] !text-[#767570]">
+                <Clock size={10} className="!text-[#B4B2A9]" />
+                <span className="font-semibold !text-[#16211B]">{start.time}</span>
+                <span className="!text-[#B4B2A9]">{start.date}</span>
               </span>
-              <ChevronRight size={10} className="text-slate-700" />
-              <span className="flex items-center gap-1.5 text-[11px] text-slate-400">
-                <span className="font-bold text-slate-300">{end.time}</span>
-                <span className="text-slate-600">{end.date}</span>
+              <ChevronRight size={10} className="!text-[#D3D1C7]" />
+              <span className="flex items-center gap-1.5 text-[11px] !text-[#767570]">
+                <span className="font-semibold !text-[#16211B]">{end.time}</span>
+                <span className="!text-[#B4B2A9]">{end.date}</span>
               </span>
-              <span className="rounded-md bg-white/[0.06] px-2 py-0.5 text-[10px] font-bold text-slate-400">
+              <span className="rounded-md !bg-[#F7F7F5] px-2 py-0.5 text-[10px] font-semibold !text-[#767570]">
                 {dur}
               </span>
             </div>
 
             {(booking.notes || booking.delayReason || booking.cancellationReason) && (
-              <p className="max-w-lg text-[11px] leading-relaxed text-slate-500">
+              <p className="max-w-lg text-[11px] leading-relaxed !text-[#767570]">
                 {booking.cancellationReason ?? booking.delayReason ?? booking.notes}
               </p>
             )}
-
-            {/* booked by */}
-            {/* {booking.bookedBy?.fullName && (
-              <p className="font-mono text-[10px] text-slate-600">
-                Booked by{' '}
-                <span className="text-slate-400">{booking.bookedBy.fullName}</span>
-              </p>
-            )} */}
           </div>
         </div>
 
         {!isTerminal && (
           <button
             onClick={onManage}
-            className="flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-4 text-xs font-semibold !text-slate-300 transition hover:border-teal-500/40 hover:bg-teal-500/10 hover:text-teal-300"
+            className="flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg border !border-[#E8E6E0] !bg-white px-4 text-xs font-semibold !text-[#5F5E5A] transition hover:!border-[#CFF0E1] hover:!bg-[#ECFBF5] hover:!text-[#1D9E75]"
           >
             <Settings2 size={12} />
             Manage
@@ -270,20 +262,19 @@ function BookingRow({ booking, onManage }: { booking: Booking; onManage: () => v
 
 function Empty({ onCreateRequest, bookingDisabled }: { onCreateRequest: () => void; bookingDisabled: boolean }) {
   return (
-    <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-[24px] border border-dashed border-white/[0.12] bg-gradient-to-b from-[#111827] to-[#0D131F] py-16 text-center sm:py-20">
-      <div className="pointer-events-none absolute -top-16 h-40 w-40 rounded-full bg-teal-500/10 blur-3xl" />
-      <div className="relative mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05]">
-        <CalendarX2 className="h-7 w-7 text-slate-600" />
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed !border-[#E8E6E0] !bg-white py-16 text-center sm:py-20">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl !bg-[#F7F7F5]">
+        <CalendarX2 className="h-6 w-6 !text-[#B4B2A9]" />
       </div>
-      <p className="relative text-base font-black !text-white">No theatre bookings</p>
-      <p className="relative mt-2 max-w-sm px-6 text-sm text-slate-500">
-        This procedure hasn&apos;t been allocated a theatre slot yet. Create a booking
-        to schedule operating time.
+      <p className="text-base font-semibold !text-[#16211B]">No theatre bookings</p>
+      <p className="mt-1.5 max-w-sm px-6 text-sm !text-[#767570]">
+        This procedure hasn&apos;t been allocated a theatre slot yet. Create a
+        booking to schedule operating time.
       </p>
       <button
         onClick={onCreateRequest}
         disabled={bookingDisabled}
-        className="relative mt-6 inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-to-br from-teal-400 to-teal-500 px-5 text-sm font-bold text-black shadow-[0_10px_24px_-10px_rgba(45,212,191,0.7)] transition hover:from-teal-300 hover:to-teal-400 active:scale-[0.97]"
+        className="mt-6 inline-flex h-10 items-center gap-2 rounded-xl !bg-[#0c1a12] px-5 text-sm font-semibold !text-white transition hover:!bg-[#16211B] disabled:cursor-not-allowed disabled:opacity-50"
       >
         <Plus size={14} strokeWidth={2.75} />
         Book Theatre

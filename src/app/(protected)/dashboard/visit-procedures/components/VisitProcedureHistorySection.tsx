@@ -26,17 +26,25 @@ import { formatDateTime } from '@/utils/formatDateTime';
 import UpdateVisitProcedureDrawer from './UpdateVisitProcedureDrawer';
 import { useBilling } from '@/hooks/billing/useBilling';
 import { formatDuration } from '../types/procedure-functions';
-import { StatCard, StatusBadge, PriorityBadge } from './procedure-types';
+import { StatusBadge, PriorityBadge } from './procedure-types';
 
 type ProcedureItem =
     GetVisitProceduresQuery['visitProcedures']['items'][number];
 
+const STAT_TONES = {
+    pending: { dot: '#D08A2E', label: 'Pending' },
+    inProgress: { dot: '#1D6FE0', label: 'In progress' },
+    completed: { dot: '#1D9E75', label: 'Completed' },
+} as const;
+
 export default function VisitProcedureHistorySection({
     paginated,
     onUpdated,
+    onPaginationChange,
 }: {
     paginated: GetVisitProceduresQuery['visitProcedures'];
     onUpdated?: () => void;
+    onPaginationChange?: (page: number, total: number) => void;
 }) {
     const [list, setList] = useState<ProcedureItem[]>(paginated.items);
     const [page, setPage] = useState<number>(paginated.page);
@@ -89,6 +97,7 @@ export default function VisitProcedureHistorySection({
         setPage(visitProcedures.page);
         setTotal(visitProcedures.total);
         setList(visitProcedures.items);
+        onPaginationChange?.(visitProcedures.page, visitProcedures.total);
     }
 
     useEffect(() => {
@@ -100,6 +109,7 @@ export default function VisitProcedureHistorySection({
             setPage(visitProcedures.page);
             setTotal(visitProcedures.total);
             setList(visitProcedures.items);
+            onPaginationChange?.(visitProcedures.page, visitProcedures.total);
         });
 
         return () => {
@@ -125,46 +135,50 @@ export default function VisitProcedureHistorySection({
     }, [list]);
 
     return (
-        <section className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <StatCard
-                    title="Pending Procedures"
-                    value={stats.pending}
-                    subtitle="Awaiting execution"
-                    gradient="from-amber-500 to-orange-500"
-                />
-
-                <StatCard
-                    title="In Progress"
-                    value={stats.inProgress}
-                    subtitle="Currently active"
-                    gradient="from-blue-500 to-cyan-500"
-                />
-
-                <StatCard
-                    title="Completed"
-                    value={stats.completed}
-                    subtitle="Successfully finished"
-                    gradient="from-emerald-500 to-green-500"
-                />
+        <section className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-3 divide-x !divide-[#E8E6E0] overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+                {(
+                    [
+                        ['pending', stats.pending],
+                        ['inProgress', stats.inProgress],
+                        ['completed', stats.completed],
+                    ] as const
+                ).map(([key, value]) => {
+                    const tone = STAT_TONES[key];
+                    return (
+                        <div key={key} className="p-3.5 sm:p-5">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                                <span
+                                    className="h-1.5 w-1.5 shrink-0 rounded-full"
+                                    style={{ backgroundColor: tone.dot }}
+                                />
+                                <p className="truncate text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9] sm:text-[10px] sm:tracking-[0.12em]">
+                                    {tone.label}
+                                </p>
+                            </div>
+                            <p className="mt-1.5 font-mono text-xl font-semibold tabular-nums !text-[#16211B] sm:mt-2 sm:text-2xl">
+                                {String(value).padStart(2, '0')}
+                            </p>
+                        </div>
+                    );
+                })}
             </div>
 
-            <div className="rounded-[2rem] border border-white/60 bg-white/90 backdrop-blur-xl shadow-xl overflow-hidden">
-                <div className="p-5 sm:p-6 border-b border-gray-100">
-                    <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
+            <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+                <div className="border-b !border-[#E8E6E0] p-4 sm:p-6">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                         <div>
-                            <h2 className="text-2xl font-black tracking-tight text-gray-900">
-                                Procedure Timeline
+                            <h2 className="text-lg font-bold tracking-tight !text-[#16211B] sm:text-xl">
+                                Procedure timeline
                             </h2>
-
-                            <p className="mt-1 text-sm text-gray-500">
-                                Track and manage procedure lifecycle with beautiful clinical insights.
+                            <p className="mt-0.5 text-sm !text-[#767570]">
+                                Ordered by most recent activity.
                             </p>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-3">
+                        <div className="flex flex-col gap-2.5 sm:flex-row">
                             <div className="relative">
-                                <FilterOutlined className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <FilterOutlined className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xs !text-[#B4B2A9]" />
 
                                 <select
                                     value={statusFilter}
@@ -173,9 +187,9 @@ export default function VisitProcedureHistorySection({
                                             e.target.value as VisitProcedureStatus | ''
                                         )
                                     }
-                                    className="appearance-none h-12 rounded-2xl border border-gray-200 bg-white pl-11 pr-10 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[220px]"
+                                    className="h-11 w-full appearance-none rounded-xl border !border-[#E8E6E0] !bg-white pl-9 pr-9 text-sm !text-[#2C2C2A] outline-none transition focus:!border-[#1D9E75] sm:w-[190px]"
                                 >
-                                    <option value="">All Statuses</option>
+                                    <option value="">All statuses</option>
 
                                     {Object.values(VisitProcedureStatus).map(status => (
                                         <option key={status} value={status}>
@@ -184,7 +198,7 @@ export default function VisitProcedureHistorySection({
                                     ))}
                                 </select>
 
-                                <DownOutlined className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs" />
+                                <DownOutlined className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] !text-[#B4B2A9]" />
                             </div>
 
                             <div className="relative">
@@ -195,9 +209,9 @@ export default function VisitProcedureHistorySection({
                                             e.target.value as VisitProcedurePriority | ''
                                         )
                                     }
-                                    className="appearance-none h-12 rounded-2xl border border-gray-200 bg-white px-4 pr-10 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[220px]"
+                                    className="h-11 w-full appearance-none rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 pr-9 text-sm !text-[#2C2C2A] outline-none transition focus:!border-[#1D9E75] sm:w-[190px]"
                                 >
-                                    <option value="">All Priorities</option>
+                                    <option value="">All priorities</option>
 
                                     {Object.values(VisitProcedurePriority).map(priority => (
                                         <option key={priority} value={priority}>
@@ -206,13 +220,13 @@ export default function VisitProcedureHistorySection({
                                     ))}
                                 </select>
 
-                                <DownOutlined className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs" />
+                                <DownOutlined className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] !text-[#B4B2A9]" />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y !divide-[#E8E6E0]">
                     {list.map(item => {
                         const isEditable =
                             item.status !== VisitProcedureStatus.Cancelled;
@@ -220,65 +234,54 @@ export default function VisitProcedureHistorySection({
                         return (
                             <div
                                 key={item.id}
-                                className="group p-5 sm:p-6 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 transition-all duration-300"
+                                className="p-4 transition-colors hover:!bg-[#FAFAF8] sm:p-6"
                             >
-                                <div className="flex flex-col xl:flex-row xl:items-center gap-5">
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex flex-wrap items-center gap-3">
-                                            <h3 className="text-lg font-bold text-gray-900 truncate">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                                            <h3 className="truncate text-[15px] font-semibold !text-[#16211B] sm:text-base">
                                                 {item.procedureCatalog?.name ||
                                                     item.customProcedureName ||
-                                                    'Unnamed Procedure'}
+                                                    'Unnamed procedure'}
                                             </h3>
 
                                             <StatusBadge status={item.status} />
                                             <PriorityBadge priority={item.priority} />
                                         </div>
 
-                                        <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500">
-                                            <div className="flex items-center gap-2">
-                                                <ClockCircleOutlined />
-                                                Ordered: {formatDateTime(item.orderedAt)}
-                                            </div>
+                                        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5 text-xs !text-[#767570] sm:text-[13px]">
+                                            <span className="inline-flex items-center gap-1.5">
+                                                <ClockCircleOutlined className="!text-[#B4B2A9]" />
+                                                {formatDateTime(item.orderedAt)}
+                                            </span>
 
                                             {item.estimatedDuration && (
-                                                <div>
-                                                    Duration: {formatDuration(item.estimatedDuration)}
-                                                </div>
+                                                <span>
+                                                    {formatDuration(item.estimatedDuration)}
+                                                </span>
                                             )}
 
                                             {item.orderedBy?.fullName && (
-                                                <div>
-                                                    Ordered by: {item.orderedBy.fullName}
-                                                </div>
+                                                <span>
+                                                    Ordered by {item.orderedBy.fullName}
+                                                </span>
                                             )}
                                         </div>
 
                                         {item.notes && (
-                                            <div className="mt-4 rounded-2xl bg-gray-50 border border-gray-100 p-4 text-sm text-gray-600 leading-relaxed">
+                                            <div className="mt-3 rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-3 text-xs leading-relaxed !text-[#5F5E5A] sm:text-sm">
                                                 {item.notes}
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="flex w-full xl:w-auto flex-row xl:flex-col items-stretch xl:items-end gap-3">
+                                    <div className="flex shrink-0 gap-2 sm:flex-col sm:gap-2">
                                         <Link
                                             href={`/dashboard/visit-procedures/${item.id}`}
-                                            className="
-                                                flex-1 xl:flex-none
-                                                h-12 px-5 rounded-2xl
-                                                border border-gray-200 bg-white
-                                                text-gray-700 font-semibold
-                                                flex items-center justify-center gap-2
-                                                shadow-sm hover:shadow-md
-                                                hover:bg-gray-50
-                                                transition-all duration-200
-                                            "
+                                            className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border !border-[#E8E6E0] !bg-white px-4 text-sm font-medium !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] sm:flex-none"
                                         >
                                             <EyeOutlined />
-                                            <span className="hidden sm:inline">
-                                                View
-                                            </span>
+                                            <span>View</span>
                                         </Link>
 
                                         <button
@@ -287,22 +290,13 @@ export default function VisitProcedureHistorySection({
                                                 setEditingProcedure(item);
                                                 setShowDrawer(true);
                                             }}
-                                            className={`
-                                                flex-1 xl:flex-none
-                                                h-12 px-5 rounded-2xl font-semibold transition-all duration-200
-                                                flex items-center justify-center gap-2 shadow-sm
-
-                                                ${isEditable
-                                                    ? 'bg-blue-600 hover:bg-blue-700 !text-white hover:shadow-lg hover:scale-[1.02]'
-                                                    : 'bg-gray-100 !text-gray-400 cursor-not-allowed'
-                                                }
-                                            `}
+                                            className={`flex h-10 flex-1 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium transition sm:flex-none ${isEditable
+                                                ? '!bg-[#0c1a12] !text-white hover:!bg-[#16211B]'
+                                                : 'cursor-not-allowed !bg-[#F7F7F5] !text-[#B4B2A9]'
+                                                }`}
                                         >
                                             <EditOutlined />
-
-                                            <span className="hidden sm:inline">
-                                                Update
-                                            </span>
+                                            <span>Update</span>
                                         </button>
                                     </div>
                                 </div>
@@ -311,17 +305,17 @@ export default function VisitProcedureHistorySection({
                     })}
 
                     {list.length === 0 && (
-                        <div className="py-20 text-center">
-                            <div className="mx-auto h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center text-3xl">
-                                🩺
+                        <div className="px-4 py-16 text-center sm:py-20">
+                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full !bg-[#F7F7F5]">
+                                <FilterOutlined className="text-lg !text-[#B4B2A9]" />
                             </div>
 
-                            <h3 className="mt-5 text-xl font-bold text-gray-900">
-                                No Procedures Found
+                            <h3 className="mt-4 text-base font-semibold !text-[#16211B]">
+                                No procedures found
                             </h3>
 
-                            <p className="mt-2 text-gray-500">
-                                Try adjusting your filters.
+                            <p className="mt-1.5 text-sm !text-[#767570]">
+                                Adjust the filters above and try again.
                             </p>
                         </div>
                     )}

@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Lock,
   Search,
+  SearchX,
   Siren,
   Zap,
   Sparkles,
@@ -36,35 +37,31 @@ const PRIORITY_OPTIONS: {
   description: string;
   icon: React.ElementType;
   active: string;
-  ring: string;
-  glow: string;
+  iconActive: string;
 }[] = [
     {
       value: TheatreBookingPriority.Elective,
       label: 'Elective',
       description: 'Routine scheduled procedure',
       icon: Sparkles,
-      active: 'border-slate-500 bg-gradient-to-b from-slate-800/80 to-slate-900 text-slate-200',
-      ring: 'ring-slate-500/50',
-      glow: 'shadow-[0_0_0_1px_rgba(148,163,184,0.15)]',
+      active: '!border-[#16211B] !bg-[#F7F7F5]',
+      iconActive: '!bg-white !text-[#16211B]',
     },
     {
       value: TheatreBookingPriority.Urgent,
       label: 'Urgent',
       description: 'Requires scheduling within 24–72h',
       icon: Zap,
-      active: 'border-amber-600 bg-gradient-to-b from-amber-900/60 to-amber-950 text-amber-200',
-      ring: 'ring-amber-500/50',
-      glow: 'shadow-[0_0_24px_-8px_rgba(245,158,11,0.5)]',
+      active: '!border-[#F5E3C0] !bg-[#FFF8EC]',
+      iconActive: '!bg-white !text-[#B9770E]',
     },
     {
       value: TheatreBookingPriority.Emergency,
       label: 'Emergency',
       description: 'Immediate — bypasses availability rules',
       icon: Siren,
-      active: 'border-rose-600 bg-gradient-to-b from-rose-900/60 to-rose-950 text-rose-200',
-      ring: 'ring-rose-500/50',
-      glow: 'shadow-[0_0_24px_-8px_rgba(244,63,94,0.55)]',
+      active: '!border-[#FBD5D5] !bg-[#FEF2F2]',
+      iconActive: '!bg-white !text-[#DC2626]',
     },
   ];
 
@@ -83,10 +80,10 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
   const [estimatedDuration, setEstimatedDuration] = useState('');
   const [notes, setNotes] = useState('');
   const [theatreId, setTheatreId] = useState('');
-  const [theatreSearch] = useState('');
   const [theatreOptions, setTheatreOptions] = useState<TheatreOption[]>([]);
   const [theatreName, setTheatreName] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -112,6 +109,7 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
       setTheatreOptions([]);
     } finally {
       setSearchLoading(false);
+      setHasSearched(true);
     }
   }, [startTime, endTime, priority]);
 
@@ -158,23 +156,29 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
     ? Math.round((new Date(endTime).getTime() - new Date(startTime).getTime()) / 60000)
     : null;
 
+  const updateWindow = (setter: (v: string) => void) => (value: string) => {
+    setter(value);
+    setHasSearched(false);
+    setTheatreOptions([]);
+  };
+
   return (
-    <div className="overflow-hidden rounded-[24px] border border-white/[0.08] bg-gradient-to-b from-[#111827] to-[#0D131F] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]">
-      <div className="border-b border-white/[0.07] bg-black/20 px-5 py-5 sm:px-7">
+    <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+      <div className="border-b !border-[#E8E6E0] px-5 py-5 sm:px-7">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-teal-600/40 bg-gradient-to-br from-teal-500/20 to-teal-900/40">
-            <CalendarPlus className="h-4.5 w-4.5 text-teal-400" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl !bg-[#ECFBF5]">
+            <CalendarPlus className="h-4.5 w-4.5 !text-[#1D9E75]" />
           </div>
           <div>
-            <h2 className="text-sm font-bold !text-white">New Theatre Booking</h2>
-            <p className="text-xs text-slate-500">Allocate an operating theatre slot for this procedure</p>
+            <h2 className="text-sm font-bold !text-[#16211B]">New theatre booking</h2>
+            <p className="text-xs !text-[#767570]">Allocate an operating theatre slot for this procedure</p>
           </div>
         </div>
       </div>
 
       <div className="space-y-6 p-5 sm:space-y-7 sm:p-7">
         <div>
-          <Label>Booking Priority</Label>
+          <Label>Booking priority</Label>
           <div className="mt-2.5 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
             {PRIORITY_OPTIONS.map((opt) => {
               const Icon = opt.icon;
@@ -182,18 +186,22 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
               return (
                 <button
                   key={opt.value}
-                  onClick={() => setPriority(opt.value)}
-                  className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition ${sel
-                      ? `${opt.active} ring-1 ${opt.ring} ${opt.glow}`
-                      : 'border-white/[0.07] bg-white/[0.02] hover:border-white/[0.14] hover:bg-white/[0.04]'
+                  onClick={() => {
+                    setPriority(opt.value);
+                    setHasSearched(false);
+                    setTheatreOptions([]);
+                  }}
+                  className={`flex items-start gap-3 rounded-xl border p-4 text-left transition ${sel
+                      ? opt.active
+                      : '!border-[#E8E6E0] !bg-white hover:!bg-[#FAFAF8]'
                     }`}
                 >
-                  <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${sel ? 'bg-white/10' : 'bg-white/5'}`}>
-                    <Icon size={15} className={sel ? '' : 'text-slate-500'} />
+                  <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${sel ? opt.iconActive : '!bg-[#F7F7F5] !text-[#B4B2A9]'}`}>
+                    <Icon size={15} />
                   </div>
                   <div>
-                    <p className={`text-xs font-bold ${sel ? '!text-white' : 'text-slate-400'}`}>{opt.label}</p>
-                    <p className={`mt-0.5 text-[10px] leading-relaxed ${sel ? 'text-slate-300' : 'text-white'}`}>{opt.description}</p>
+                    <p className="text-xs font-semibold !text-[#16211B]">{opt.label}</p>
+                    <p className="mt-0.5 text-[11px] leading-relaxed !text-[#767570]">{opt.description}</p>
                   </div>
                 </button>
               );
@@ -203,9 +211,9 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
 
         <div>
           <div className="mb-2.5 flex items-center justify-between">
-            <Label>Scheduled Window</Label>
+            <Label>Scheduled window</Label>
             {durationMins && durationMins > 0 && (
-              <span className="rounded-md bg-teal-500/10 px-2 py-0.5 font-mono text-[10px] font-bold text-teal-400">
+              <span className="rounded-md !bg-[#ECFBF5] px-2 py-0.5 font-mono text-[10px] font-semibold !text-[#1D9E75]">
                 {durationMins < 60 ? `${durationMins}m` : `${Math.floor(durationMins / 60)}h ${durationMins % 60 > 0 ? `${durationMins % 60}m` : ''}`.trim()}
               </span>
             )}
@@ -215,16 +223,16 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
               <input
                 type="datetime-local"
                 value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 font-mono text-sm font-semibold !text-white transition focus:border-teal-500/60 focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                onChange={(e) => updateWindow(setStartTime)(e.target.value)}
+                className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3 py-3 font-mono text-sm font-semibold !text-[#16211B] outline-none transition focus:!border-[#1D9E75]"
               />
             </Field>
             <Field label="End">
               <input
                 type="datetime-local"
                 value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 font-mono text-sm font-semibold !text-white transition focus:border-teal-500/60 focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                onChange={(e) => updateWindow(setEndTime)(e.target.value)}
+                className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3 py-3 font-mono text-sm font-semibold !text-[#16211B] outline-none transition focus:!border-[#1D9E75]"
               />
             </Field>
           </div>
@@ -236,60 +244,83 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
             <button
               onClick={searchTheatres}
               disabled={searchLoading || !startTime || !endTime}
-              className="inline-flex h-10 items-center gap-2 rounded-xl border border-teal-600/40 bg-teal-950/40 px-4 text-xs font-bold !text-teal-300 transition hover:bg-teal-950/70 disabled:opacity-40"
+              className="inline-flex h-10 items-center gap-2 rounded-xl border !border-[#CFF0E1] !bg-[#ECFBF5] px-4 text-xs font-semibold !text-[#1D9E75] transition hover:!bg-[#DCF5EA] disabled:opacity-40"
             >
               {searchLoading ? (
-                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-teal-700 border-t-teal-300" />
+                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 !border-[#CFF0E1] !border-t-[#1D9E75]" />
               ) : (
                 <Search size={12} />
               )}
-              Find Available
+              Find available
             </button>
             {theatreId && (
-              <div className="flex h-10 items-center gap-2 rounded-xl border border-teal-600/40 bg-teal-950/30 px-3.5 text-xs font-bold text-teal-300">
-                <CheckCircle2 size={12} className="text-teal-400" />
+              <div className="flex h-10 items-center gap-2 rounded-xl border !border-[#CFF0E1] !bg-[#ECFBF5] px-3.5 text-xs font-semibold !text-[#1D9E75]">
+                <CheckCircle2 size={12} />
                 {theatreName}
+                <button
+                  type="button"
+                  onClick={() => { setTheatreId(''); setTheatreName(''); }}
+                  className="ml-1 !text-[#1D9E75]/60 hover:!text-[#1D9E75]"
+                  aria-label="Clear selected theatre"
+                >
+                  ×
+                </button>
               </div>
             )}
           </div>
 
-          {theatreOptions.length > 0 && !theatreId && (
-            <div className="mt-3 space-y-1.5 rounded-2xl border border-white/[0.08] bg-black/30 p-3">
-              <p className="mb-2 font-mono text-[10px] font-bold uppercase tracking-widest text-slate-600">
+          {searchLoading && (
+            <div className="mt-3 flex items-center gap-2.5 rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] px-4 py-3.5 text-xs !text-[#767570]">
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 !border-[#E8E6E0] !border-t-[#1D9E75]" />
+              Checking theatre availability…
+            </div>
+          )}
+
+          {!searchLoading && theatreOptions.length > 0 && !theatreId && (
+            <div className="mt-3 space-y-1.5 rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-3">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] !text-[#B4B2A9]">
                 {theatreOptions.length} available
               </p>
               {theatreOptions.map((t) => (
                 <button
                   key={t.id}
                   onClick={() => { setTheatreId(t.id); setTheatreName(t.name); setTheatreOptions([]); }}
-                  className="flex w-full items-center justify-between rounded-xl border border-white/[0.05] bg-white/[0.02] px-4 py-3 text-left transition hover:border-teal-500/40 hover:bg-teal-500/10"
+                  className="flex w-full items-center justify-between rounded-lg border !border-[#E8E6E0] !bg-white px-4 py-3 text-left transition hover:!border-[#CFF0E1] hover:!bg-[#ECFBF5]"
                 >
                   <div>
-                    <p className="text-sm font-bold !text-white">{t.name}</p>
-                    <p className="font-mono text-[10px] text-slate-500">
+                    <p className="text-sm font-semibold !text-[#16211B]">{t.name}</p>
+                    <p className="mt-0.5 font-mono text-[10px] !text-[#B4B2A9]">
                       {[t.code, t.department?.replace(/_/g, ' '), t.floor ? `Floor ${t.floor}` : null].filter(Boolean).join(' · ')}
                     </p>
                   </div>
-                  <span className="text-[10px] font-bold text-teal-400">Select →</span>
+                  <span className="text-[10px] font-semibold !text-[#1D9E75]">Select →</span>
                 </button>
               ))}
             </div>
           )}
 
-          {theatreOptions.length === 0 && !theatreId && searchLoading === false && theatreSearch !== '' && (
-            <p className="mt-2 text-xs text-slate-600">No theatres found. Try adjusting the time window.</p>
+          {!searchLoading && hasSearched && theatreOptions.length === 0 && !theatreId && (
+            <div className="mt-3 flex items-start gap-3 rounded-xl border !border-[#F5E3C0] !bg-[#FFF8EC] px-4 py-3.5">
+              <SearchX size={15} className="mt-0.5 shrink-0 !text-[#B9770E]" />
+              <div>
+                <p className="text-xs font-semibold !text-[#B9770E]">No theatres available</p>
+                <p className="mt-0.5 text-xs leading-relaxed !text-[#8A6115]">
+                  Nothing is free in that window. Try a different time range{priority !== TheatreBookingPriority.Emergency ? ', or set priority to Emergency to bypass availability rules' : ''}.
+                </p>
+              </div>
+            </div>
           )}
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Estimated Duration (minutes, optional)">
+          <Field label="Estimated duration (minutes, optional)">
             <input
               type="number"
               min="1"
               value={estimatedDuration}
               onChange={(e) => setEstimatedDuration(e.target.value)}
               placeholder="e.g. 120"
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 font-mono text-sm !text-white transition placeholder:text-slate-700 focus:border-teal-500/60 focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+              className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3 py-3 font-mono text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75]"
             />
           </Field>
           <Field label="Notes (optional)">
@@ -298,50 +329,50 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Special requirements…"
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm !text-white transition placeholder:text-slate-700 focus:border-teal-500/60 focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+              className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3 py-3 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75]"
             />
           </Field>
         </div>
 
         {error && (
-          <div className="flex items-start gap-3 rounded-xl border border-rose-800/50 bg-rose-950/50 px-4 py-3.5">
-            <AlertTriangle size={14} className="mt-0.5 shrink-0 text-rose-400" />
-            <p className="text-sm font-medium text-rose-300">{error}</p>
+          <div className="flex items-start gap-3 rounded-xl border !border-[#FBD5D5] !bg-[#FEF2F2] px-4 py-3.5">
+            <AlertTriangle size={14} className="mt-0.5 shrink-0 !text-[#DC2626]" />
+            <p className="text-sm font-medium !text-[#DC2626]">{error}</p>
           </div>
         )}
         {saved && (
-          <div className="flex items-center gap-3 rounded-xl border border-teal-700/50 bg-teal-950/50 px-4 py-3.5">
-            <CheckCircle2 size={14} className="shrink-0 text-teal-400" />
-            <p className="text-sm font-medium text-teal-300">Booking created successfully!</p>
+          <div className="flex items-center gap-3 rounded-xl border !border-[#CFF0E1] !bg-[#ECFBF5] px-4 py-3.5">
+            <CheckCircle2 size={14} className="shrink-0 !text-[#1D9E75]" />
+            <p className="text-sm font-medium !text-[#1D9E75]">Booking created successfully.</p>
           </div>
         )}
 
-        <div className="flex flex-col gap-4 border-t border-white/[0.07] pt-5 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs !text-slate-300">
+        <div className="flex flex-col gap-4 border-t !border-[#E8E6E0] pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs !text-[#767570]">
             Booking will be validated against theatre availability and active blocks.
           </p>
           <div className="flex items-center gap-3">
             <button
               onClick={onCancel}
               disabled={saving}
-              className="h-10 rounded-xl border border-white/10 px-4 text-xs font-semibold !text-slate-300 transition hover:border-white/20 hover:!text-white disabled:opacity-40"
+              className="h-10 rounded-xl border !border-[#E8E6E0] px-4 text-xs font-semibold !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] disabled:opacity-40"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={saving || saved || !theatreId}
-              className="inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-to-br from-teal-400 to-teal-500 px-5 text-xs font-bold !text-white shadow-[0_8px_20px_-8px_rgba(45,212,191,0.65)] transition hover:from-teal-300 hover:to-teal-400 disabled:opacity-50 disabled:shadow-none active:scale-[0.97]"
+              className="inline-flex h-10 items-center gap-2 rounded-xl !bg-[#0c1a12] px-5 text-xs font-semibold !text-white transition hover:!bg-[#16211B] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {saving ? (
                 <>
-                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black/20 border-t-black" />
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 !border-white/20 !border-t-white" />
                   Booking…
                 </>
               ) : (
                 <>
                   <Lock size={12} />
-                  Confirm Booking
+                  Confirm booking
                 </>
               )}
             </button>
@@ -354,7 +385,7 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
       {children}
     </p>
   );

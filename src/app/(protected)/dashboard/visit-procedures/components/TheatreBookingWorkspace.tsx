@@ -47,57 +47,57 @@ export const STATUS_META: Record<
 > = {
   [TheatreBookingStatus.Scheduled]: {
     label: 'Scheduled',
-    dot: 'bg-sky-400',
-    badge: 'bg-sky-950/70 border-sky-600/40 text-sky-300',
-    text: 'text-sky-300',
+    dot: 'bg-[#1D6FE0]',
+    badge: 'bg-[#EFF5FF] border-[#D6E4FB] text-[#1D6FE0]',
+    text: 'text-[#1D6FE0]',
   },
   [TheatreBookingStatus.Ready]: {
     label: 'Ready',
-    dot: 'bg-emerald-400',
-    badge: 'bg-emerald-950/70 border-emerald-600/40 text-emerald-300',
-    text: 'text-emerald-300',
+    dot: 'bg-[#1D9E75]',
+    badge: 'bg-[#ECFBF5] border-[#CFF0E1] text-[#1D9E75]',
+    text: 'text-[#1D9E75]',
   },
   [TheatreBookingStatus.InProgress]: {
     label: 'In Progress',
-    dot: 'bg-amber-400 animate-pulse',
-    badge: 'bg-amber-950/70 border-amber-500/40 text-amber-300',
-    text: 'text-amber-300',
+    dot: 'bg-[#D08A2E] animate-pulse',
+    badge: 'bg-[#FFF8EC] border-[#F5E3C0] text-[#B9770E]',
+    text: 'text-[#B9770E]',
   },
   [TheatreBookingStatus.Delayed]: {
     label: 'Delayed',
-    dot: 'bg-orange-400',
-    badge: 'bg-orange-950/70 border-orange-600/40 text-orange-300',
-    text: 'text-orange-300',
+    dot: 'bg-[#EA6C2E]',
+    badge: 'bg-[#FFF1E9] border-[#FAD9C4] text-[#C2571C]',
+    text: 'text-[#C2571C]',
   },
   [TheatreBookingStatus.Completed]: {
     label: 'Completed',
-    dot: 'bg-teal-400',
-    badge: 'bg-teal-950/70 border-teal-600/40 text-teal-300',
-    text: 'text-teal-300',
+    dot: 'bg-[#0F9B8E]',
+    badge: 'bg-[#ECFAF8] border-[#CDEEE9] text-[#0F9B8E]',
+    text: 'text-[#0F9B8E]',
   },
   [TheatreBookingStatus.Cancelled]: {
     label: 'Cancelled',
-    dot: 'bg-slate-500',
-    badge: 'bg-slate-900/70 border-slate-600/40 text-slate-400',
-    text: 'text-slate-400',
+    dot: 'bg-[#B4B2A9]',
+    badge: 'bg-[#F7F7F5] border-[#E8E6E0] text-[#767570]',
+    text: 'text-[#767570]',
   },
   [TheatreBookingStatus.Aborted]: {
     label: 'Aborted',
-    dot: 'bg-rose-500',
-    badge: 'bg-rose-950/70 border-rose-600/40 text-rose-300',
-    text: 'text-rose-400',
+    dot: 'bg-[#DC2626]',
+    badge: 'bg-[#FEF2F2] border-[#FBD5D5] text-[#DC2626]',
+    text: 'text-[#DC2626]',
   },
   [TheatreBookingStatus.PendingReallocation]: {
     label: 'Pending Reallocation',
-    dot: 'bg-violet-400',
-    badge: 'bg-violet-950/70 border-violet-600/40 text-violet-300',
-    text: 'text-violet-300',
+    dot: 'bg-[#7C5CFC]',
+    badge: 'bg-[#F5F2FF] border-[#E5DCFC] text-[#7C5CFC]',
+    text: 'text-[#7C5CFC]',
   },
   [TheatreBookingStatus.Postponed]: {
     label: 'Postponed',
-    dot: 'bg-indigo-400',
-    badge: 'bg-indigo-950/70 border-indigo-600/40 text-indigo-300',
-    text: 'text-indigo-300',
+    dot: 'bg-[#4F63D2]',
+    badge: 'bg-[#EEF1FD] border-[#DBE2FA] text-[#4F63D2]',
+    text: 'text-[#4F63D2]',
   },
 };
 
@@ -161,131 +161,125 @@ export default function TheatreBookingWorkspace({ procedure, initialBookings, th
   );
 
   return (
-    <div className="space-y-5 sm:space-y-6">
-      <div className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-gradient-to-b from-[#0D1220] to-[#0A0E17] shadow-[0_20px_60px_-25px_rgba(0,0,0,0.8)]">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,1) 2px, rgba(255,255,255,1) 3px)',
-          }}
-        />
-        <div className="pointer-events-none absolute -top-32 left-1/4 h-64 w-[32rem] rounded-full bg-teal-500/10 blur-[100px]" />
-        <div className="pointer-events-none absolute -bottom-32 right-0 h-64 w-96 rounded-full bg-sky-500/[0.06] blur-[100px]" />
+    <div className="space-y-4 sm:space-y-6">
+      <header className="relative overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+        <svg
+          viewBox="0 0 1000 120"
+          preserveAspectRatio="none"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-16 w-full opacity-[0.06] sm:h-20"
+        >
+          <path
+            d="M0,60 L160,60 L185,60 L200,20 L220,100 L240,60 L260,60 L420,60 L445,60 L460,15 L480,105 L500,60 L520,60 L680,60 L705,60 L720,25 L740,95 L760,60 L780,60 L1000,60"
+            fill="none"
+            stroke="#1D9E75"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+        </svg>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 opacity-[0.35] sm:h-28">
-          <svg
-            viewBox="0 0 1000 120"
-            preserveAspectRatio="none"
-            className="h-full w-full"
-          >
-            <path
-              d="M0,60 L160,60 L185,60 L200,20 L220,100 L240,60 L260,60 L420,60 L445,60 L460,15 L480,105 L500,60 L520,60 L680,60 L705,60 L720,25 L740,95 L760,60 L780,60 L1000,60"
-              fill="none"
-              stroke="#2DD4BF"
-              strokeWidth="2"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              className="ecg-trace"
-            />
-          </svg>
-        </div>
-        <style jsx>{`
-          .ecg-trace {
-            stroke-dasharray: 22 14;
-            animation: ecgDash 2.6s linear infinite;
-          }
-          @keyframes ecgDash {
-            to {
-              stroke-dashoffset: -720;
-            }
-          }
-        `}</style>
-
-        <div className="relative px-5 py-6 sm:px-8 sm:py-8">
+        <div className="relative p-5 sm:p-8">
           <Link
             href={`/dashboard/visit-procedures/${procedure.id}`}
-            className="mb-6 inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-slate-400 backdrop-blur-sm transition hover:border-white/20 hover:bg-white/10 hover:!text-white"
+            className="mb-5 inline-flex items-center gap-1.5 rounded-lg border !border-[#E8E6E0] !bg-white px-3 py-1.5 text-xs font-medium !text-[#767570] transition hover:!bg-[#F7F7F5] hover:!text-[#16211B]"
           >
             <ArrowLeft size={12} />
-            Back to Procedure
+            Back to procedure
           </Link>
 
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <div className="mb-3 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-400/25 to-teal-600/10 ring-1 ring-teal-500/30">
-                  <Stethoscope className="h-4 w-4 text-teal-400" />
-                </div>
-                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-teal-400">
-                  Theatre Booking Console
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-xl">
+              <div className="inline-flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-md !bg-[#ECFBF5]">
+                  <Stethoscope size={12} className="!text-[#1D9E75]" />
                 </span>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] !text-[#1D9E75]">
+                  Theatre Booking
+                </p>
               </div>
 
-              <h1 className="text-2xl font-black tracking-tight !text-white sm:text-3xl">
+              <h1 className="mt-3 text-[22px] font-bold leading-tight tracking-tight !text-[#16211B] sm:text-[28px]">
                 {(procedure as VisitProcedure).customProcedureName ?? `Procedure ${procedure.id.slice(0, 8)}`}
               </h1>
 
-              <p className="mt-1.5 max-w-md text-sm leading-relaxed text-slate-500">
-                Manage theatre allocations, scheduling, delays, and status transitions
-                for this procedure.
+              <p className="mt-2 text-sm leading-relaxed !text-[#767570]">
+                Manage theatre allocations, scheduling, delays, and status
+                transitions for this procedure.
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2 sm:gap-2.5">
-              <StatPill
-                icon={<Calendar size={13} />}
-                label="Total"
-                value={totalBookings}
-                accent="slate"
-              />
-              <StatPill
-                icon={<Activity size={13} />}
-                label="Completed"
-                value={completedCount}
-                accent="teal"
-              />
+            <div
+              className={`grid divide-x !divide-[#E8E6E0] overflow-hidden rounded-xl border !border-[#E8E6E0] ${
+                activeBooking ? 'grid-cols-3' : 'grid-cols-2'
+              }`}
+            >
+              <div className="min-w-[92px] p-3.5">
+                <div className="flex items-center gap-1.5">
+                  <Calendar size={11} className="!text-[#B4B2A9]" />
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
+                    Total
+                  </p>
+                </div>
+                <p className="mt-1.5 font-mono text-xl font-semibold tabular-nums !text-[#16211B]">
+                  {String(totalBookings).padStart(2, '0')}
+                </p>
+              </div>
+
+              <div className="min-w-[92px] p-3.5">
+                <div className="flex items-center gap-1.5">
+                  <Activity size={11} className="!text-[#B4B2A9]" />
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
+                    Completed
+                  </p>
+                </div>
+                <p className="mt-1.5 font-mono text-xl font-semibold tabular-nums !text-[#16211B]">
+                  {String(completedCount).padStart(2, '0')}
+                </p>
+              </div>
+
               {activeBooking && (
-                <StatPill
-                  icon={<CircleDot size={13} className="animate-pulse" />}
-                  label={STATUS_META[activeBooking.status]?.label ?? 'Active'}
-                  value={activeBooking.theatre?.name ?? '—'}
-                  accent="amber"
-                  isText
-                />
+                <div className="min-w-[110px] p-3.5">
+                  <div className="flex items-center gap-1.5">
+                    <CircleDot size={11} className="!text-[#1D9E75]" />
+                    <p className="truncate text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
+                      {STATUS_META[activeBooking.status]?.label ?? 'Active'}
+                    </p>
+                  </div>
+                  <p className="mt-1.5 truncate text-sm font-semibold !text-[#16211B]">
+                    {activeBooking.theatre?.name ?? '—'}
+                  </p>
+                </div>
               )}
             </div>
           </div>
 
-          <div className="mt-7 flex w-full items-center gap-1 overflow-x-auto scrollbar-hide rounded-2xl border border-white/[0.08] bg-black/30 p-1 backdrop-blur-sm sm:w-fit">
+          <div className="mt-6 flex w-full items-center gap-1 overflow-x-auto rounded-xl border !border-[#E8E6E0] !bg-[#F7F7F5] p-1 sm:w-fit">
             <ConsoleTab
               active={view === 'timeline'}
               onClick={() => { setView('timeline'); setSelectedBooking(null); }}
               label="Booking History"
             />
-            {!bookingCompleted && <ConsoleTab
-              active={view === 'create'}
-              onClick={() => { setView('create'); setSelectedBooking(null); }}
-              label="New Booking"
-              accent
-            />}
+            {!bookingCompleted && (
+              <ConsoleTab
+                active={view === 'create'}
+                onClick={() => { setView('create'); setSelectedBooking(null); }}
+                label="New Booking"
+                accent
+              />
+            )}
 
             {view === 'action' && selectedBooking && (
-              <ConsoleTab
-                active
-                onClick={() => { }}
-                label="Manage Booking"
-              />
+              <ConsoleTab active onClick={() => {}} label="Manage Booking" />
             )}
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="flex items-center justify-end">
         <button
           onClick={refresh}
           disabled={refreshing}
-          className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 text-xs font-medium !text-slate-300 transition hover:border-white/20 hover:bg-white/10 hover:!text-white disabled:opacity-40"
+          className="inline-flex h-9 items-center gap-2 rounded-lg border !border-[#E8E6E0] !bg-white px-3.5 text-xs font-medium !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] disabled:opacity-40"
         >
           <RefreshCw size={11} className={refreshing ? 'animate-spin' : ''} />
           Refresh
@@ -321,37 +315,6 @@ export default function TheatreBookingWorkspace({ procedure, initialBookings, th
   );
 }
 
-function StatPill({
-  icon,
-  label,
-  value,
-  accent,
-  isText,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number | string;
-  accent: 'slate' | 'teal' | 'amber';
-  isText?: boolean;
-}) {
-  const colors = {
-    slate: 'border-white/10 bg-white/[0.04] text-slate-300',
-    teal: 'border-teal-600/40 bg-teal-950/50 text-teal-300',
-    amber: 'border-amber-600/40 bg-amber-950/50 text-amber-300',
-  };
-  return (
-    <div className={`flex items-center gap-2.5 rounded-xl border px-3.5 py-2.5 backdrop-blur-sm transition ${colors[accent]}`}>
-      <span className="opacity-90">{icon}</span>
-      {isText ? (
-        <span className="max-w-[110px] truncate text-xs font-bold !text-white sm:max-w-[140px]">{value}</span>
-      ) : (
-        <span className="text-lg font-black leading-none tabular-nums !text-white">{value}</span>
-      )}
-      <span className="hidden text-[10px] font-semibold uppercase tracking-wide opacity-60 xs:inline sm:inline">{label}</span>
-    </div>
-  );
-}
-
 function ConsoleTab({
   active,
   onClick,
@@ -367,10 +330,9 @@ function ConsoleTab({
     return (
       <button
         onClick={onClick}
-        className={`shrink-0 rounded-xl px-4 py-2 text-xs font-bold transition ${accent
-          ? 'bg-gradient-to-br from-teal-400 to-teal-600 text-black shadow-[0_4px_16px_-4px_rgba(45,212,191,0.6)]'
-          : 'bg-white/[0.09] !text-white shadow-inner'
-          }`}
+        className={`shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition !bg-white shadow-sm ${
+          accent ? '!text-[#1D9E75]' : '!text-[#16211B]'
+        }`}
       >
         {label}
       </button>
@@ -379,10 +341,7 @@ function ConsoleTab({
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 rounded-xl px-4 py-2 text-xs font-medium transition !text-white ${accent
-        ? ' hover:bg-teal-500/10'
-        : 'hover:bg-white/5 hover:text-slate-300'
-        }`}
+      className="shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-medium !text-[#767570] transition hover:!text-[#16211B]"
     >
       {label}
     </button>

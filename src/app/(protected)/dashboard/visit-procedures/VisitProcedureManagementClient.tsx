@@ -14,63 +14,67 @@ export default function VisitProcedureManagementClient({
   paginated: GetVisitProceduresQuery['visitProcedures'];
 }) {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [page, setPage] = useState(paginated.page);
+  const [total, setTotal] = useState(paginated.total);
 
-  const triggerRefresh = () => setRefreshKey(prev => prev + 1);
+  const triggerRefresh = () => setRefreshKey((prev) => prev + 1);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 p-3 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-8 sm:space-y-10">
-        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 p-6 sm:p-8 text-white shadow-2xl">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white" />
-            <div className="absolute bottom-0 left-10 h-28 w-28 rounded-full bg-white" />
-          </div>
-
-          <div className="relative z-10">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div>
-                <p className="text-blue-100 font-medium tracking-wide uppercase text-xs sm:text-sm">
-                  Clinical Procedure Management
-                </p>
-
-                <h1 className="mt-2 text-3xl sm:text-4xl font-black tracking-tight">
-                  Visit Procedures
-                </h1>
-
-                <p className="mt-3 text-blue-100 max-w-2xl text-sm sm:text-base leading-relaxed">
-                  Beautifully manage procedure workflow, monitor statuses,
-                  update outcomes, and track clinical execution in real time.
+    <div className="min-h-screen !bg-[#FAFAF8]">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+        <header className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+          <div className="flex flex-col gap-6 p-6 sm:p-8 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-xl">
+              <div className="inline-flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] !text-[#1D9E75]">
+                  Clinical Operations
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 p-4 min-w-[140px]">
-                  <p className="text-blue-100 text-xs uppercase tracking-wider">
-                    Total Records
-                  </p>
-                  <h3 className="mt-2 text-3xl font-black">
-                    {paginated.total}
-                  </h3>
-                </div>
+              <h1 className="mt-3 text-[28px] font-bold leading-tight tracking-tight !text-[#16211B] sm:text-[34px]">
+                Visit Procedures
+              </h1>
 
-                <div className="rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 p-4 min-w-[140px]">
-                  <p className="text-blue-100 text-xs uppercase tracking-wider">
-                    Active Page
-                  </p>
-                  <h3 className="mt-2 text-3xl font-black">
-                    {paginated.page}
-                  </h3>
-                </div>
+              <p className="mt-2.5 text-sm leading-relaxed !text-[#767570] sm:text-[15px]">
+                Track procedure status, review outcomes, and manage clinical
+                execution across every visit.
+              </p>
+            </div>
+
+            <div className="flex gap-8 border-t !border-[#E8E6E0] pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+              <div>
+                <p className="text-[10px] font-medium uppercase tracking-[0.12em] !text-[#B4B2A9]">
+                  Total records
+                </p>
+                <p className="mt-1.5 font-mono text-[26px] font-semibold tabular-nums !text-[#16211B]">
+                  {String(total).padStart(2, '0')}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[10px] font-medium uppercase tracking-[0.12em] !text-[#B4B2A9]">
+                  Page
+                </p>
+                <p className="mt-1.5 font-mono text-[26px] font-semibold tabular-nums !text-[#16211B]">
+                  {String(page).padStart(2, '0')}
+                </p>
               </div>
             </div>
           </div>
-        </div>
+        </header>
 
-        <VisitProcedureHistorySection
-          key={refreshKey}
-          paginated={paginated}
-          onUpdated={triggerRefresh}
-        />
+        <div className="mt-6 sm:mt-8">
+          <VisitProcedureHistorySection
+            key={refreshKey}
+            paginated={paginated}
+            onUpdated={triggerRefresh}
+            onPaginationChange={(nextPage, nextTotal) => {
+              setPage(nextPage);
+              setTotal(nextTotal);
+            }}
+          />
+        </div>
       </div>
     </div>
   );

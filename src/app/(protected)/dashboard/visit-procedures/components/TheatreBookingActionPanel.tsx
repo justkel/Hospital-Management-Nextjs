@@ -42,15 +42,17 @@ const ACTIONS: {
   label: string;
   description: string;
   icon: React.ElementType;
-  color: string;
+  border: string;
+  iconBg: string;
   allowedStatuses: TheatreBookingStatus[];
 }[] = [
     {
       id: 'start',
-      label: 'Start Procedure',
+      label: 'Start procedure',
       description: 'Mark as In Progress — actual start time recorded now',
       icon: Play,
-      color: 'border-teal-700/50 bg-gradient-to-b from-teal-900/40 to-teal-950/60 text-teal-300 hover:border-teal-500/60',
+      border: 'hover:!border-[#CFF0E1] hover:!bg-[#ECFBF5]',
+      iconBg: '!bg-[#ECFBF5] !text-[#1D9E75]',
       allowedStatuses: [
         TheatreBookingStatus.Scheduled,
         TheatreBookingStatus.Ready,
@@ -59,10 +61,11 @@ const ACTIONS: {
     },
     {
       id: 'update',
-      label: 'Edit Booking',
+      label: 'Edit booking',
       description: 'Change scheduled times, priority, or notes',
       icon: Edit3,
-      color: 'border-sky-700/50 bg-gradient-to-b from-sky-900/40 to-sky-950/60 text-sky-300 hover:border-sky-500/60',
+      border: 'hover:!border-[#D6E4FB] hover:!bg-[#EFF5FF]',
+      iconBg: '!bg-[#EFF5FF] !text-[#1D6FE0]',
       allowedStatuses: [
         TheatreBookingStatus.Scheduled,
         TheatreBookingStatus.Ready,
@@ -72,10 +75,11 @@ const ACTIONS: {
     },
     {
       id: 'delay',
-      label: 'Delay Booking',
+      label: 'Delay booking',
       description: 'Reschedule to a later window with a delay reason',
       icon: Hourglass,
-      color: 'border-amber-700/50 bg-gradient-to-b from-amber-900/40 to-amber-950/60 text-amber-300 hover:border-amber-500/60',
+      border: 'hover:!border-[#F5E3C0] hover:!bg-[#FFF8EC]',
+      iconBg: '!bg-[#FFF8EC] !text-[#B9770E]',
       allowedStatuses: [
         TheatreBookingStatus.Scheduled,
         TheatreBookingStatus.Ready,
@@ -83,10 +87,11 @@ const ACTIONS: {
     },
     {
       id: 'reallocate',
-      label: 'Reallocate Theatre',
+      label: 'Reallocate theatre',
       description: 'Move to a different theatre, optionally at a new time',
       icon: LayoutGrid,
-      color: 'border-violet-700/50 bg-gradient-to-b from-violet-900/40 to-violet-950/60 text-violet-300 hover:border-violet-500/60',
+      border: 'hover:!border-[#E5DCFC] hover:!bg-[#F5F2FF]',
+      iconBg: '!bg-[#F5F2FF] !text-[#7C5CFC]',
       allowedStatuses: [
         TheatreBookingStatus.Scheduled,
         TheatreBookingStatus.Ready,
@@ -96,10 +101,11 @@ const ACTIONS: {
     },
     {
       id: 'cancel',
-      label: 'Cancel Booking',
+      label: 'Cancel booking',
       description: 'Cancel with a reason — theatre slot is released',
       icon: XCircle,
-      color: 'border-slate-600/50 bg-gradient-to-b from-slate-800/60 to-slate-900/70 text-slate-400 hover:border-slate-400/60',
+      border: 'hover:!border-[#E8E6E0] hover:!bg-[#F7F7F5]',
+      iconBg: '!bg-[#F7F7F5] !text-[#767570]',
       allowedStatuses: [
         TheatreBookingStatus.Scheduled,
         TheatreBookingStatus.Ready,
@@ -108,10 +114,11 @@ const ACTIONS: {
     },
     {
       id: 'abort',
-      label: 'Abort Procedure',
+      label: 'Abort procedure',
       description: 'Emergency stop — procedure aborted mid-session',
       icon: Ban,
-      color: 'border-rose-700/50 bg-gradient-to-b from-rose-900/40 to-rose-950/60 text-rose-300 hover:border-rose-500/60',
+      border: 'hover:!border-[#FBD5D5] hover:!bg-[#FEF2F2]',
+      iconBg: '!bg-[#FEF2F2] !text-[#DC2626]',
       allowedStatuses: [
         TheatreBookingStatus.InProgress,
       ],
@@ -251,27 +258,34 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
       );
     });
 
+  const confirmButtonClass =
+    activeAction === 'abort' || activeAction === 'cancel'
+      ? '!bg-[#DC2626] hover:!bg-[#C11F1F]'
+      : activeAction === 'start'
+        ? '!bg-[#1D9E75] hover:!bg-[#188A66]'
+        : '!bg-[#0c1a12] hover:!bg-[#16211B]';
+
   return (
-    <div className="overflow-hidden rounded-[24px] border border-white/[0.08] bg-gradient-to-b from-[#111827] to-[#0D131F] shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]">
-      <div className="border-b border-white/[0.07] bg-black/20 px-5 py-4 sm:px-7">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 font-mono text-[10px] font-bold ${meta.badge}`}>
+    <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+      <div className="border-b !border-[#E8E6E0] px-5 py-4 sm:px-7">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-semibold ${meta.badge}`}>
             <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
             {meta.label}
           </span>
-          <span className="font-bold !text-white">{booking.theatre?.name ?? 'Theatre TBD'}</span>
-          <ChevronRight size={12} className="text-slate-700" />
-          <span className="font-mono text-xs text-slate-400">{fmt(booking.scheduledStartTime)}</span>
-          <span className="text-slate-700">→</span>
-          <span className="font-mono text-xs text-slate-400">{fmt(booking.scheduledEndTime)}</span>
+          <span className="text-sm font-semibold !text-[#16211B]">{booking.theatre?.name ?? 'Theatre TBD'}</span>
+          <ChevronRight size={12} className="!text-[#D3D1C7]" />
+          <span className="font-mono text-xs !text-[#767570]">{fmt(booking.scheduledStartTime)}</span>
+          <span className="!text-[#D3D1C7]">→</span>
+          <span className="font-mono text-xs !text-[#767570]">{fmt(booking.scheduledEndTime)}</span>
         </div>
       </div>
 
-      <div className="p-5 sm:p-7 space-y-6">
+      <div className="space-y-6 p-5 sm:p-7">
         {!activeAction ? (
           <div>
-            <p className="mb-3 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">
-              Available Actions
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+              Available actions
             </p>
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
               {availableActions.map((a) => {
@@ -280,14 +294,14 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
                   <button
                     key={a.id}
                     onClick={() => setActiveAction(a.id)}
-                    className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition ${a.color}`}
+                    className={`flex items-start gap-3 rounded-xl border !border-[#E8E6E0] !bg-white p-4 text-left transition ${a.border}`}
                   >
-                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg !text-white bg-white/10">
+                    <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${a.iconBg}`}>
                       <Icon size={15} />
                     </div>
                     <div>
-                      <p className="text-xs font-bold !text-white">{a.label}</p>
-                      <p className="mt-0.5 text-[10px] leading-relaxed opacity-75 !text-white">{a.description}</p>
+                      <p className="text-xs font-semibold !text-[#16211B]">{a.label}</p>
+                      <p className="mt-0.5 text-[11px] leading-relaxed !text-[#767570]">{a.description}</p>
                     </div>
                   </button>
                 );
@@ -295,9 +309,9 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
             </div>
 
             {availableActions.length === 0 && (
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] py-8 text-center">
-                <p className="text-sm font-semibold text-slate-500">No actions available</p>
-                <p className="mt-1 text-xs text-white/50">
+              <div className="rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] py-8 text-center">
+                <p className="text-sm font-semibold !text-[#16211B]">No actions available</p>
+                <p className="mt-1 text-xs !text-[#767570]">
                   This booking is in a terminal state.
                 </p>
               </div>
@@ -306,9 +320,9 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
             <div className="mt-5 flex justify-end">
               <button
                 onClick={onCancel}
-                className="h-10 rounded-xl border border-white/10 px-4 text-xs font-semibold !text-slate-300 transition hover:border-white/20 hover:text-slate-300"
+                className="h-10 rounded-xl border !border-[#E8E6E0] px-4 text-xs font-semibold !text-[#5F5E5A] transition hover:!bg-[#F7F7F5]"
               >
-                Back to Timeline
+                Back to timeline
               </button>
             </div>
           </div>
@@ -317,33 +331,33 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
             <div className="mb-5 flex items-center gap-3">
               <button
                 onClick={() => { setActiveAction(null); setError(null); }}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 !text-white transition hover:border-white/20 hover:text-blue-400"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border !border-[#E8E6E0] !text-[#5F5E5A] transition hover:!bg-[#F7F7F5]"
               >
-                <ArrowLeft size={18} />
+                <ArrowLeft size={16} />
               </button>
               <div>
-                <p className="text-sm font-bold !text-white">{selectedAction?.label}</p>
-                <p className="text-xs text-slate-500">{selectedAction?.description}</p>
+                <p className="text-sm font-semibold !text-[#16211B]">{selectedAction?.label}</p>
+                <p className="text-xs !text-[#767570]">{selectedAction?.description}</p>
               </div>
             </div>
 
             <div className="space-y-4">
               {(activeAction === 'update' || activeAction === 'delay' || activeAction === 'reallocate') && (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label="Start Time">
+                  <Field label="Start time">
                     <input
                       type="datetime-local"
                       value={startTime}
                       onChange={(e) => setStartTime(e.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 font-mono text-sm font-semibold !text-white transition focus:border-teal-500/60 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                      className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3 py-3 font-mono text-sm font-semibold !text-[#16211B] outline-none transition focus:!border-[#1D9E75]"
                     />
                   </Field>
-                  <Field label="End Time">
+                  <Field label="End time">
                     <input
                       type="datetime-local"
                       value={endTime}
                       onChange={(e) => setEndTime(e.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 font-mono text-sm font-semibold !text-white transition focus:border-teal-500/60 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                      className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3 py-3 font-mono text-sm font-semibold !text-[#16211B] outline-none transition focus:!border-[#1D9E75]"
                     />
                   </Field>
                 </div>
@@ -356,22 +370,22 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Update notes…"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm !text-white transition placeholder:text-slate-700 focus:border-teal-500/60 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3 py-3 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75]"
                   />
                 </Field>
               )}
 
               {activeAction === 'reallocate' && (
-                <Field label="New Theatre">
+                <Field label="New theatre">
                   <input
                     type="text"
                     value={theatreSearch}
                     onChange={(e) => setTheatreSearch(e.target.value)}
-                    placeholder="Search theatres..."
-                    className="mb-3 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm !text-white transition placeholder:text-slate-700 focus:border-violet-500/60 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+                    placeholder="Search theatres…"
+                    className="mb-3 w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3 py-3 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#7C5CFC]"
                   />
 
-                  <div className="max-h-72 overflow-y-auto rounded-xl border border-white/10 bg-black/20 scrollbar-hide">
+                  <div className="max-h-72 overflow-y-auto rounded-xl border !border-[#E8E6E0]">
                     {filteredTheatres.map((theatre) => {
                       const selected = theatre.id === newTheatreId;
 
@@ -383,17 +397,17 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
                             setNewTheatreId(theatre.id);
                             setTheatreSearch(theatre.name);
                           }}
-                          className={`flex w-full items-center justify-between border-b border-white/5 px-4 py-3 text-left transition last:border-b-0 ${selected
-                            ? 'bg-violet-500/10'
-                            : 'hover:bg-white/5'
+                          className={`flex w-full items-center justify-between border-b !border-[#E8E6E0] px-4 py-3 text-left transition last:border-b-0 ${selected
+                            ? '!bg-[#F5F2FF]'
+                            : 'hover:!bg-[#FAFAF8]'
                             }`}
                         >
                           <div>
-                            <p className="text-sm font-semibold !text-white">
+                            <p className="text-sm font-semibold !text-[#16211B]">
                               {theatre.name}
                             </p>
 
-                            <p className="font-mono text-[10px] text-slate-500">
+                            <p className="mt-0.5 font-mono text-[10px] !text-[#B4B2A9]">
                               {[
                                 theatre.code,
                                 theatre.department?.replace(/_/g, ' '),
@@ -407,7 +421,7 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
                           {selected && (
                             <CheckCircle2
                               size={16}
-                              className="text-violet-400"
+                              className="!text-[#7C5CFC]"
                             />
                           )}
                         </button>
@@ -415,7 +429,7 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
                     })}
 
                     {filteredTheatres.length === 0 && (
-                      <div className="px-4 py-8 text-center text-sm text-slate-500">
+                      <div className="px-4 py-8 text-center text-sm !text-[#B4B2A9]">
                         No theatres match your search.
                       </div>
                     )}
@@ -424,7 +438,7 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
               )}
 
               {(activeAction === 'delay' || activeAction === 'cancel' || activeAction === 'abort' || activeAction === 'reallocate') && (
-                <Field label={`${activeAction === 'delay' ? 'Delay' : activeAction === 'reallocate' ? 'Reallocation' : 'Cancellation'} Reason${activeAction === 'delay' ? '' : ' (optional)'}`}>
+                <Field label={`${activeAction === 'delay' ? 'Delay' : activeAction === 'reallocate' ? 'Reallocation' : 'Cancellation'} reason${activeAction === 'delay' ? '' : ' (optional)'}`}>
                   <textarea
                     rows={3}
                     value={reason}
@@ -435,18 +449,18 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
                           : activeAction === 'abort' ? 'e.g. Patient deterioration…'
                             : 'e.g. Equipment failure in original theatre…'
                     }
-                    className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm !text-white transition placeholder:text-slate-700 focus:border-teal-500/60 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full resize-none rounded-xl border !border-[#E8E6E0] !bg-white px-3 py-3 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75]"
                   />
                 </Field>
               )}
 
               {activeAction === 'start' && (
-                <div className="rounded-2xl border border-teal-700/40 bg-gradient-to-b from-teal-900/30 to-teal-950/50 px-4 py-4">
+                <div className="rounded-xl border !border-[#CFF0E1] !bg-[#ECFBF5] px-4 py-4">
                   <div className="flex items-start gap-3">
-                    <Play size={15} className="mt-0.5 shrink-0 text-teal-400" />
+                    <Play size={15} className="mt-0.5 shrink-0 !text-[#1D9E75]" />
                     <div>
-                      <p className="text-sm font-bold text-teal-200">Confirm procedure start</p>
-                      <p className="mt-1 text-xs text-teal-400/70">
+                      <p className="text-sm font-semibold !text-[#16211B]">Confirm procedure start</p>
+                      <p className="mt-1 text-xs leading-relaxed !text-[#5F5E5A]">
                         Actual start time will be recorded as now. The booking status will
                         move to <strong>In Progress</strong> and the procedure status will update accordingly.
                       </p>
@@ -457,39 +471,34 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
             </div>
 
             {error && (
-              <div className="mt-4 flex items-start gap-3 rounded-xl border border-rose-800/50 bg-rose-950/50 px-4 py-3.5">
-                <AlertTriangle size={14} className="mt-0.5 shrink-0 text-rose-400" />
-                <p className="text-sm font-medium text-rose-300">{error}</p>
+              <div className="mt-4 flex items-start gap-3 rounded-xl border !border-[#FBD5D5] !bg-[#FEF2F2] px-4 py-3.5">
+                <AlertTriangle size={14} className="mt-0.5 shrink-0 !text-[#DC2626]" />
+                <p className="text-sm font-medium !text-[#DC2626]">{error}</p>
               </div>
             )}
             {saved && (
-              <div className="mt-4 flex items-center gap-3 rounded-xl border border-teal-700/50 bg-teal-950/50 px-4 py-3.5">
-                <CheckCircle2 size={14} className="shrink-0 text-teal-400" />
-                <p className="text-sm font-medium text-teal-300">Action completed successfully!</p>
+              <div className="mt-4 flex items-center gap-3 rounded-xl border !border-[#CFF0E1] !bg-[#ECFBF5] px-4 py-3.5">
+                <CheckCircle2 size={14} className="shrink-0 !text-[#1D9E75]" />
+                <p className="text-sm font-medium !text-[#1D9E75]">Action completed successfully.</p>
               </div>
             )}
 
-            <div className="mt-5 flex flex-col-reverse gap-3 border-t border-white/[0.07] pt-5 xs:flex-row xs:items-center xs:justify-end">
+            <div className="mt-5 flex flex-col-reverse gap-3 border-t !border-[#E8E6E0] pt-5 xs:flex-row xs:items-center xs:justify-end">
               <button
                 onClick={() => { setActiveAction(null); setError(null); }}
                 disabled={saving}
-                className="h-10 rounded-xl border border-white/10 px-4 text-xs font-semibold !text-white transition hover:border-white/20 hover:!text-white disabled:opacity-40"
+                className="h-10 rounded-xl border !border-[#E8E6E0] px-4 text-xs font-semibold !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] disabled:opacity-40"
               >
                 Back
               </button>
               <button
                 onClick={submit}
                 disabled={saving || saved}
-                className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl px-5 text-xs font-bold transition disabled:opacity-50 active:scale-[0.97] ${activeAction === 'abort' || activeAction === 'cancel'
-                  ? 'bg-gradient-to-br from-rose-500 to-rose-600 !text-white shadow-[0_8px_20px_-8px_rgba(244,63,94,0.6)] hover:from-rose-400 hover:to-rose-500'
-                  : activeAction === 'start'
-                    ? 'bg-gradient-to-br from-teal-400 to-teal-500 text-black shadow-[0_8px_20px_-8px_rgba(45,212,191,0.65)] hover:from-teal-300 hover:to-teal-400'
-                    : 'bg-gradient-to-br from-sky-500 to-sky-600 !text-white shadow-[0_8px_20px_-8px_rgba(14,165,233,0.6)] hover:from-sky-400 hover:to-sky-500'
-                  }`}
+                className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl px-5 text-xs font-semibold !text-white transition disabled:cursor-not-allowed disabled:opacity-40 ${confirmButtonClass}`}
               >
                 {saving ? (
                   <>
-                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 !border-white/30 !border-t-white" />
                     Processing…
                   </>
                 ) : (
@@ -510,7 +519,7 @@ export default function TheatreBookingActionPanel({ booking, onDone, onCancel, t
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
         {label}
       </p>
       {children}
