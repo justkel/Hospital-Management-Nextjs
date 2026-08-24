@@ -120,6 +120,9 @@ export default function FeatureFlagsClient({
       if (historyByKey[toggleTarget.flagKey]) {
         await loadHistory(toggleTarget.flagKey, true);
       }
+    } catch (error) {
+      console.error('Error updating feature flag:', error);
+      message.error('An unexpected error occurred');
     } finally {
       setSubmitting(false);
     }
@@ -194,8 +197,8 @@ export default function FeatureFlagsClient({
                       </h2>
                       <span
                         className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase ${flag.enabled
-                            ? '!bg-emerald-100 !text-emerald-700'
-                            : '!bg-slate-100 !text-slate-500'
+                          ? '!bg-emerald-100 !text-emerald-700'
+                          : '!bg-slate-100 !text-slate-500'
                           }`}
                       >
                         {flag.enabled ? 'On' : 'Off'}
@@ -252,8 +255,8 @@ export default function FeatureFlagsClient({
                           >
                             <span
                               className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${event.enabled
-                                  ? '!bg-emerald-500'
-                                  : '!bg-slate-400'
+                                ? '!bg-emerald-500'
+                                : '!bg-slate-400'
                                 }`}
                             />
                             <div className="min-w-0">
