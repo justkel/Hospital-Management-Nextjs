@@ -21,23 +21,17 @@ export default async function WardsPage() {
     },
   });
 
-  if (authOutcome === 'refresh') {
-    return <SessionGuard mode="refresh" />;
-  }
-
   if (authOutcome === 'logout') {
     return <SessionGuard mode="logout" reason={message} />;
   }
 
-  const wards = data?.wards;
-
-  if (!wards) {
-    return <SessionGuard mode="none" />;
+  if (authOutcome === 'refresh' || !data?.wards) {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (
     <SessionGuard mode="none">
-      <WardManagementClient paginated={wards} />
+      <WardManagementClient paginated={data.wards} />
     </SessionGuard>
   );
 }

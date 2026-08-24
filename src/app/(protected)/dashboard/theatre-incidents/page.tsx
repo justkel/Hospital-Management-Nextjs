@@ -41,12 +41,15 @@ export default async function TheatreIncidentsPage() {
     theatresData.authOutcome === 'logout'
   ) {
     const reason = incidentData.message || theatresData.message;
+
     return <SessionGuard mode="logout" reason={reason} />;
   }
 
   if (
     incidentData.authOutcome === 'refresh' ||
-    theatresData.authOutcome === 'refresh'
+    theatresData.authOutcome === 'refresh' ||
+    !incidentData.data?.theatreIncidents ||
+    !theatresData.data?.theatres
   ) {
     return <SessionGuard mode="refresh" />;
   }
@@ -54,8 +57,8 @@ export default async function TheatreIncidentsPage() {
   return (
     <SessionGuard mode="none">
       <TheatreIncidentManagementClient
-        paginated={incidentData.data!.theatreIncidents}
-        theatres={theatresData.data!.theatres?.items || []}
+        paginated={incidentData.data.theatreIncidents}
+        theatres={theatresData.data.theatres.items}
       />
     </SessionGuard>
   );

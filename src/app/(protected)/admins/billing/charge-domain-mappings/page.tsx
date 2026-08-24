@@ -26,20 +26,28 @@ export default async function ChargeDomainMappingPage() {
     }),
   ]);
 
-  if (mappingData.authOutcome === 'logout' || catalogData.authOutcome === 'logout') {
+  if (
+    mappingData.authOutcome === 'logout' ||
+    catalogData.authOutcome === 'logout'
+  ) {
     const reason = mappingData.message || catalogData.message;
     return <SessionGuard mode="logout" reason={reason} />;
   }
 
-  if (mappingData.authOutcome === 'refresh' || catalogData.authOutcome === 'refresh') {
+  if (
+    mappingData.authOutcome === 'refresh' ||
+    catalogData.authOutcome === 'refresh' ||
+    !mappingData.data?.chargeDomainMappings ||
+    !catalogData.data?.organizationChargeCatalogs
+  ) {
     return <SessionGuard mode="refresh" />;
   }
 
   return (
     <SessionGuard mode="none">
       <ChargeDomainMappingClient
-        mappings={mappingData.data!.chargeDomainMappings}
-        catalogs={catalogData.data!.organizationChargeCatalogs.items}
+        mappings={mappingData.data.chargeDomainMappings}
+        catalogs={catalogData.data.organizationChargeCatalogs.items}
       />
     </SessionGuard>
   );

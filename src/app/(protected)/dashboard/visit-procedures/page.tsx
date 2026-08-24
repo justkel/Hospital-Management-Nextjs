@@ -25,14 +25,14 @@ export default async function VisitProceduresPage() {
     return <SessionGuard mode="logout" reason={message} />;
   }
 
-  if (authOutcome === 'refresh') {
+  if (authOutcome === 'refresh' || !data?.visitProcedures) {
     return <SessionGuard mode="refresh" />;
   }
 
   return (
     <SessionGuard mode="none">
       <VisitProcedureManagementClient
-        paginated={data!.visitProcedures}
+        paginated={data.visitProcedures}
       />
     </SessionGuard>
   );

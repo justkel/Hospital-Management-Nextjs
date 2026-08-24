@@ -8,25 +8,23 @@ import {
 } from '@/shared/graphql/generated/graphql';
 
 export default async function OrganizationBillingPage() {
-  const [data] = await Promise.all([
-    graphqlFetch<
-      GetOrganizationBillingCategoriesQuery,
-      GetOrganizationBillingCategoriesQueryVariables
-    >(GetOrganizationBillingCategoriesDocument, {}),
-  ]);
+  const { data, authOutcome, message } = await graphqlFetch<
+    GetOrganizationBillingCategoriesQuery,
+    GetOrganizationBillingCategoriesQueryVariables
+  >(GetOrganizationBillingCategoriesDocument, {});
 
-  if (data.authOutcome === 'logout') {
-    return <SessionGuard mode="logout" reason={data.message} />;
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
   }
 
-  if (data.authOutcome === 'refresh') {
+  if (authOutcome === 'refresh' || !data?.organizationBillingCategories) {
     return <SessionGuard mode="refresh" />;
   }
 
   return (
     <SessionGuard mode="none">
       <OrganizationBillingClient
-        categories={data.data!.organizationBillingCategories}
+        categories={data.organizationBillingCategories}
       />
     </SessionGuard>
   );

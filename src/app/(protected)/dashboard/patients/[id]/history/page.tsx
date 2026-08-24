@@ -109,7 +109,9 @@ export default async function PatientVisitHistoryPage({ params }: Props) {
 
   if (
     patientRes.authOutcome === 'refresh' ||
-    visitsRes.authOutcome === 'refresh'
+    visitsRes.authOutcome === 'refresh' ||
+    !patientRes.data?.patientById ||
+    !visitsRes.data?.patientVisitHistory
   ) {
     return <SessionGuard mode="refresh" />;
   }

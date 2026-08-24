@@ -30,17 +30,17 @@ export default async function StaffPage({
     },
   });
 
-  if (authOutcome === 'refresh') {
-    return <SessionGuard mode="refresh" />;
-  }
-
   if (authOutcome === 'logout') {
     return <SessionGuard mode="logout" reason={message} />;
   }
 
+  if (authOutcome === 'refresh' || !data?.staffs) {
+    return <SessionGuard mode="refresh" />;
+  }
+
   return (
     <SessionGuard mode="none">
-      <StaffManagementClient paginated={data!.staffs} />
+      <StaffManagementClient paginated={data.staffs} />
     </SessionGuard>
   );
 }

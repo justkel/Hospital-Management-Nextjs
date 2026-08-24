@@ -71,7 +71,8 @@ export default async function PatientDetailPage({ params }: Props) {
 
   if (
     patientRes.authOutcome === 'refresh' ||
-    walletBalanceRes.authOutcome === 'refresh'
+    walletBalanceRes.authOutcome === 'refresh' ||
+    !patientRes.data?.patientById
   ) {
     return <SessionGuard mode="refresh" />;
   }
@@ -89,20 +90,20 @@ export default async function PatientDetailPage({ params }: Props) {
   const duplicatePatients =
     patient.likelyDuplicatePatientIds?.length
       ? (
-          await Promise.all(
-            patient.likelyDuplicatePatientIds.map(async (dupId) => {
-              const res = await graphqlFetch<
-                GetPatientByIdQuery,
-                GetPatientByIdQueryVariables
-              >(GetPatientByIdDocument, { id: dupId });
+        await Promise.all(
+          patient.likelyDuplicatePatientIds.map(async (dupId) => {
+            const res = await graphqlFetch<
+              GetPatientByIdQuery,
+              GetPatientByIdQueryVariables
+            >(GetPatientByIdDocument, { id: dupId });
 
-              return res.data?.patientById ?? null;
-            })
-          )
-        ).filter(
-          (p): p is NonNullable<GetPatientByIdQuery['patientById']> =>
-            p !== null
+            return res.data?.patientById ?? null;
+          })
         )
+      ).filter(
+        (p): p is NonNullable<GetPatientByIdQuery['patientById']> =>
+          p !== null
+      )
       : [];
 
   return (
@@ -145,11 +146,10 @@ export default async function PatientDetailPage({ params }: Props) {
                   )}
 
                   <span
-                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] ${
-                      patient.status === PatientStatus.Active
+                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] ${patient.status === PatientStatus.Active
                         ? 'border-[#1D9E75]/30 bg-[#F0FAF5] text-[#1D9E75]'
                         : 'border-white/10 bg-white/[0.07] text-[#5a7a6a]'
-                    }`}
+                      }`}
                   >
                     <span className="h-1 w-1 rounded-full bg-current" />
                     {patient.status}
@@ -407,9 +407,8 @@ function Info({
       </p>
 
       <p
-        className={`text-[13px] font-medium ${
-          value ? 'text-[#2C2C2A]' : 'text-[#B4B2A9]'
-        }`}
+        className={`text-[13px] font-medium ${value ? 'text-[#2C2C2A]' : 'text-[#B4B2A9]'
+          }`}
       >
         {value ?? '—'}
       </p>

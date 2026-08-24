@@ -26,20 +26,29 @@ export default async function ChargeCatalogPage() {
     }),
   ]);
 
-  if (itemsData.authOutcome === 'logout' || catalogData.authOutcome === 'logout') {
+  if (
+    itemsData.authOutcome === 'logout' ||
+    catalogData.authOutcome === 'logout'
+  ) {
     const reason = itemsData.message || catalogData.message;
+
     return <SessionGuard mode="logout" reason={reason} />;
   }
 
-  if (itemsData.authOutcome === 'refresh' || catalogData.authOutcome === 'refresh') {
+  if (
+    itemsData.authOutcome === 'refresh' ||
+    catalogData.authOutcome === 'refresh' ||
+    !itemsData.data?.organizationChargeItems ||
+    !catalogData.data?.organizationChargeCatalogs
+  ) {
     return <SessionGuard mode="refresh" />;
   }
 
   return (
     <SessionGuard mode="none">
       <ChargeCatalogClient
-        items={itemsData.data!.organizationChargeItems}
-        initialCatalogs={catalogData.data!.organizationChargeCatalogs}
+        items={itemsData.data.organizationChargeItems}
+        initialCatalogs={catalogData.data.organizationChargeCatalogs}
       />
     </SessionGuard>
   );

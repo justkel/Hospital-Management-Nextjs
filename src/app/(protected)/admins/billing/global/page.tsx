@@ -8,26 +8,22 @@ import {
 } from '@/shared/graphql/generated/graphql';
 
 export default async function GlobalBillingPage() {
-  const [data] = await Promise.all([
-    graphqlFetch<
-      GetGlobalBillingCategoriesQuery,
-      GetGlobalBillingCategoriesQueryVariables
-    >(GetGlobalBillingCategoriesDocument, {}),
-  ]);
+  const { data, authOutcome, message } = await graphqlFetch<
+    GetGlobalBillingCategoriesQuery,
+    GetGlobalBillingCategoriesQueryVariables
+  >(GetGlobalBillingCategoriesDocument, {});
 
-  if (data.authOutcome === 'logout') {
-    return <SessionGuard mode="logout" reason={data.message} />;
+  if (authOutcome === 'logout') {
+    return <SessionGuard mode="logout" reason={message} />;
   }
 
-  if (data.authOutcome === 'refresh') {
+  if (authOutcome === 'refresh' || !data?.globalBillingCategories) {
     return <SessionGuard mode="refresh" />;
   }
 
   return (
     <SessionGuard mode="none">
-      <GlobalBillingClient
-        categories={data.data!.globalBillingCategories}
-      />
+      <GlobalBillingClient categories={data.globalBillingCategories} />
     </SessionGuard>
   );
 }

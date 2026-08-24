@@ -36,12 +36,14 @@ export default async function VisitProceduresPage({ params }: Props) {
     procedureData.authOutcome === 'logout'
   ) {
     const reason = visitData.message || procedureData.message;
+
     return <SessionGuard mode="logout" reason={reason} />;
   }
 
   if (
     visitData.authOutcome === 'refresh' ||
-    procedureData.authOutcome === 'refresh'
+    procedureData.authOutcome === 'refresh' ||
+    !visitData.data?.visit
   ) {
     return <SessionGuard mode="refresh" />;
   }
@@ -49,8 +51,8 @@ export default async function VisitProceduresPage({ params }: Props) {
   return (
     <SessionGuard mode="none">
       <VisitProcedureClient
-        visit={visitData.data!.visit}
-        initialProcedures={procedureData.data!.visitProceduresByVisit ?? []}
+        visit={visitData.data.visit}
+        initialProcedures={procedureData.data?.visitProceduresByVisit ?? []}
       />
     </SessionGuard>
   );

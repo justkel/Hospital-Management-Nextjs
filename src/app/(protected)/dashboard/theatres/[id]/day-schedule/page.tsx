@@ -21,6 +21,7 @@ function pad(n: number): string {
 
 function todayLocal(): string {
   const d = new Date();
+
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
@@ -41,12 +42,12 @@ export default async function TheatreDayScheduleWorkspacePage({
     date: `${dayString}T00:00:00`,
   });
 
-  if (authOutcome === 'refresh') {
-    return <SessionGuard mode="refresh" />;
-  }
-
   if (authOutcome === 'logout') {
     return <SessionGuard mode="logout" reason={message} />;
+  }
+
+  if (authOutcome === 'refresh' || !data?.theatreScheduleForDay) {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (
@@ -56,7 +57,7 @@ export default async function TheatreDayScheduleWorkspacePage({
           <TheatreDayScheduleWorkspace
             theatreId={id}
             initialDate={dayString}
-            initialSchedule={data!.theatreScheduleForDay}
+            initialSchedule={data.theatreScheduleForDay}
           />
         </div>
       </div>

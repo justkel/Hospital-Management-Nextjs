@@ -49,13 +49,11 @@ export default async function PatientWalletPage({ params }: Props) {
 
   if (
     balanceRes.authOutcome === 'refresh' ||
-    transactionsRes.authOutcome === 'refresh'
+    transactionsRes.authOutcome === 'refresh' ||
+    balanceRes.data?.patientWalletBalance === undefined ||
+    !transactionsRes.data?.patientWalletTransactionsPaginated
   ) {
     return <SessionGuard mode="refresh" />;
-  }
-
-  if (balanceRes.data?.patientWalletBalance === undefined) {
-    return <SessionGuard mode="none" />;
   }
 
   return (
@@ -63,14 +61,7 @@ export default async function PatientWalletPage({ params }: Props) {
       <PatientWalletClient
         patientId={id}
         initialBalance={balanceRes.data.patientWalletBalance}
-        initialPaginated={
-          transactionsRes.data?.patientWalletTransactionsPaginated ?? {
-            items: [],
-            total: 0,
-            page: 1,
-            pageCount: 1,
-          }
-        }
+        initialPaginated={transactionsRes.data.patientWalletTransactionsPaginated}
       />
     </SessionGuard>
   );

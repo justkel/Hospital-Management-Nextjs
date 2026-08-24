@@ -26,12 +26,12 @@ export default async function LabRequestDetailPage({ params }: Props) {
     FindLabRequestByIdQueryVariables
   >(FindLabRequestByIdDocument, { id });
 
-  if (authOutcome === 'refresh') {
-    return <SessionGuard mode="refresh" />;
-  }
-
   if (authOutcome === 'logout') {
     return <SessionGuard mode="logout" reason={message} />;
+  }
+
+  if (authOutcome === 'refresh' || !data?.labRequestById) {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (
@@ -39,25 +39,25 @@ export default async function LabRequestDetailPage({ params }: Props) {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/40 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-10">
         <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
           <PrintLabResultButton
-            labRequestId={data!.labRequestById.id}
-            status={data!.labRequestById.status}
+            labRequestId={data.labRequestById.id}
+            status={data.labRequestById.status}
           />
 
           <CollapsibleSection title="Request Information">
-            <LabRequestInfoSection labRequest={data!.labRequestById} />
+            <LabRequestInfoSection labRequest={data.labRequestById} />
           </CollapsibleSection>
 
           <HasRoles roles={[Roles.LAB_TECH]}>
             <StartLabRequestAction
-              labRequestId={data!.labRequestById.id}
-              status={data!.labRequestById.status}
+              labRequestId={data.labRequestById.id}
+              status={data.labRequestById.status}
             />
           </HasRoles>
 
           <LabResultManager
-            labRequestId={data!.labRequestById.id}
-            status={data!.labRequestById.status}
-            tests={data!.labRequestById.tests}
+            labRequestId={data.labRequestById.id}
+            status={data.labRequestById.status}
+            tests={data.labRequestById.tests}
           />
         </div>
       </div>

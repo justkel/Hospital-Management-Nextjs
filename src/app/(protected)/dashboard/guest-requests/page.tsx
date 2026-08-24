@@ -24,10 +24,12 @@ export default async function GuestAccessPage() {
       GetActiveGuestsDocument,
       {}
     ),
-    graphqlFetch<IsFeatureFlagEnabledQuery, IsFeatureFlagEnabledQueryVariables>(
-      IsFeatureFlagEnabledDocument,
-      { flagKey: FeatureFlagKey.GuestAccess },
-    ),
+    graphqlFetch<
+      IsFeatureFlagEnabledQuery,
+      IsFeatureFlagEnabledQueryVariables
+    >(IsFeatureFlagEnabledDocument, {
+      flagKey: FeatureFlagKey.GuestAccess,
+    }),
   ]);
 
   if (
@@ -35,14 +37,21 @@ export default async function GuestAccessPage() {
     activeGuestsRes.authOutcome === 'logout' ||
     guestAccessFlagRes.authOutcome === 'logout'
   ) {
-    const reason = requestsRes.message || activeGuestsRes.message || guestAccessFlagRes.message;
+    const reason =
+      requestsRes.message ||
+      activeGuestsRes.message ||
+      guestAccessFlagRes.message;
+
     return <SessionGuard mode="logout" reason={reason} />;
   }
 
   if (
     requestsRes.authOutcome === 'refresh' ||
     activeGuestsRes.authOutcome === 'refresh' ||
-    guestAccessFlagRes.authOutcome === 'refresh'
+    guestAccessFlagRes.authOutcome === 'refresh' ||
+    !requestsRes.data?.guestRequests ||
+    !activeGuestsRes.data?.activeGuests ||
+    !guestAccessFlagRes.data
   ) {
     return <SessionGuard mode="refresh" />;
   }
@@ -50,9 +59,11 @@ export default async function GuestAccessPage() {
   return (
     <SessionGuard mode="none">
       <GuestAccessClient
-        initialRequests={requestsRes.data!.guestRequests}
-        initialActiveGuests={activeGuestsRes.data!.activeGuests ?? []}
-        initialGuestAccessEnabled={guestAccessFlagRes.data?.isFeatureFlagEnabled ?? true}
+        initialRequests={requestsRes.data.guestRequests}
+        initialActiveGuests={activeGuestsRes.data.activeGuests}
+        initialGuestAccessEnabled={
+          guestAccessFlagRes.data.isFeatureFlagEnabled ?? true
+        }
       />
     </SessionGuard>
   );

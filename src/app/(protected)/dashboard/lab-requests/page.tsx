@@ -36,12 +36,15 @@ export default async function LabRequestsPage() {
     catalogsData.authOutcome === 'logout'
   ) {
     const reason = labRequestsData.message || catalogsData.message;
+
     return <SessionGuard mode="logout" reason={reason} />;
   }
 
   if (
     labRequestsData.authOutcome === 'refresh' ||
-    catalogsData.authOutcome === 'refresh'
+    catalogsData.authOutcome === 'refresh' ||
+    !labRequestsData.data?.labRequests ||
+    !catalogsData.data?.catalogsByChargeDomain
   ) {
     return <SessionGuard mode="refresh" />;
   }
@@ -49,15 +52,13 @@ export default async function LabRequestsPage() {
   return (
     <SessionGuard mode="none">
       <LabRequestManagementClient
-        paginated={labRequestsData.data!.labRequests}
-        catalogs={
-          catalogsData.data!.catalogsByChargeDomain?.map(item => ({
-            id: item.chargeCatalog.id,
-            name: item.chargeCatalog.name,
-            unitPrice: item.chargeCatalog.unitPrice,
-            currency: item.chargeCatalog.currency,
-          })) || []
-        }
+        paginated={labRequestsData.data.labRequests}
+        catalogs={catalogsData.data.catalogsByChargeDomain.map(item => ({
+          id: item.chargeCatalog.id,
+          name: item.chargeCatalog.name,
+          unitPrice: item.chargeCatalog.unitPrice,
+          currency: item.chargeCatalog.currency,
+        }))}
       />
     </SessionGuard>
   );

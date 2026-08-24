@@ -39,12 +39,12 @@ export default async function VisitDetailPage({ params }: Props) {
     GetVisitByIdQueryVariables
   >(GetVisitByIdDocument, { id });
 
-  if (authOutcome === 'refresh') {
-    return <SessionGuard mode="refresh" />;
-  }
-
   if (authOutcome === 'logout') {
     return <SessionGuard mode="logout" reason={message} />;
+  }
+
+  if (authOutcome === 'refresh') {
+    return <SessionGuard mode="refresh" />;
   }
 
   const visit = data?.visit;

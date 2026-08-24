@@ -18,17 +18,17 @@ export default async function AuditPage() {
     },
   });
 
-  if (authOutcome === 'refresh') {
-    return <SessionGuard mode="refresh" />;
-  }
-
   if (authOutcome === 'logout') {
     return <SessionGuard mode="logout" reason={message} />;
   }
 
+  if (authOutcome === 'refresh' || !data?.auditLogs) {
+    return <SessionGuard mode="refresh" />;
+  }
+
   return (
     <SessionGuard mode="none">
-      <AuditManagementClient paginated={data!.auditLogs} />
+      <AuditManagementClient paginated={data.auditLogs} />
     </SessionGuard>
   );
 }

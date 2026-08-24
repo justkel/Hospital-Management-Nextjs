@@ -26,7 +26,7 @@ export default async function PatientsPage({
 
   const status =
     statusParam &&
-    Object.values(PatientStatus).includes(statusParam as PatientStatus)
+      Object.values(PatientStatus).includes(statusParam as PatientStatus)
       ? (statusParam as PatientStatus)
       : undefined;
 
@@ -46,13 +46,13 @@ export default async function PatientsPage({
     return <SessionGuard mode="logout" reason={message} />;
   }
 
-  if (authOutcome === 'refresh') {
+  if (authOutcome === 'refresh' || !data?.patients) {
     return <SessionGuard mode="refresh" />;
   }
 
   return (
     <SessionGuard mode="none">
-      <PatientManagementClient paginated={data!.patients} />
+      <PatientManagementClient paginated={data.patients} />
     </SessionGuard>
   );
 }

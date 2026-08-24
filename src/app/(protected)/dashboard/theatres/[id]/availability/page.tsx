@@ -40,12 +40,15 @@ export default async function TheatreAvailabilityPage({
     availabilityData.authOutcome === 'logout'
   ) {
     const reason = theatreData.message || availabilityData.message;
+
     return <SessionGuard mode="logout" reason={reason} />;
   }
 
   if (
     theatreData.authOutcome === 'refresh' ||
-    availabilityData.authOutcome === 'refresh'
+    availabilityData.authOutcome === 'refresh' ||
+    !theatreData.data?.theatreById ||
+    !availabilityData.data?.theatreAvailabilities
   ) {
     return <SessionGuard mode="refresh" />;
   }
@@ -55,10 +58,8 @@ export default async function TheatreAvailabilityPage({
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50/40 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-10">
         <div className="mx-auto max-w-7xl">
           <TheatreAvailabilityWorkspace
-            theatre={theatreData.data!.theatreById}
-            initialAvailabilities={
-              availabilityData.data!.theatreAvailabilities ?? []
-            }
+            theatre={theatreData.data.theatreById}
+            initialAvailabilities={availabilityData.data.theatreAvailabilities}
           />
         </div>
       </div>

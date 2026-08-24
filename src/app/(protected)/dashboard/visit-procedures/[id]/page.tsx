@@ -30,30 +30,39 @@ export default async function ProcedureDetailPage({
   const { id } = await params;
 
   const [procedureData, staffData] = await Promise.all([
-    graphqlFetch<GetVisitProcedureByIdQuery, GetVisitProcedureByIdQueryVariables>(
-      GetVisitProcedureByIdDocument,
-      { id }
-    ),
+    graphqlFetch<
+      GetVisitProcedureByIdQuery,
+      GetVisitProcedureByIdQueryVariables
+    >(GetVisitProcedureByIdDocument, { id }),
 
-    graphqlFetch<GetVisitProcedureStaffQuery, GetVisitProcedureStaffQueryVariables>(
-      GetVisitProcedureStaffDocument,
-      {
-        procedureId: id,
-      }
-    ),
+    graphqlFetch<
+      GetVisitProcedureStaffQuery,
+      GetVisitProcedureStaffQueryVariables
+    >(GetVisitProcedureStaffDocument, {
+      procedureId: id,
+    }),
   ]);
 
-  if (procedureData.authOutcome === 'logout' || staffData.authOutcome === 'logout') {
+  if (
+    procedureData.authOutcome === 'logout' ||
+    staffData.authOutcome === 'logout'
+  ) {
     const reason = procedureData.message || staffData.message;
+
     return <SessionGuard mode="logout" reason={reason} />;
   }
 
-  if (procedureData.authOutcome === 'refresh' || staffData.authOutcome === 'refresh') {
+  if (
+    procedureData.authOutcome === 'refresh' ||
+    staffData.authOutcome === 'refresh' ||
+    !procedureData.data?.visitProcedureById ||
+    !staffData.data?.visitProcedureStaff
+  ) {
     return <SessionGuard mode="refresh" />;
   }
 
-  const procedure = procedureData.data!.visitProcedureById;
-  const assignedStaff = staffData.data!.visitProcedureStaff || [];
+  const procedure = procedureData.data.visitProcedureById;
+  const assignedStaff = staffData.data.visitProcedureStaff;
 
   return (
     <SessionGuard mode="none">

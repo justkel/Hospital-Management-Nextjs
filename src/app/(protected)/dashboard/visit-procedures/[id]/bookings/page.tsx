@@ -24,17 +24,17 @@ export default async function ProcedureBookingsPage({ params }: Props) {
   const { id } = await params;
 
   const [procedureData, bookingsData, theatresData] = await Promise.all([
-    graphqlFetch<GetVisitProcedureByIdQuery, GetVisitProcedureByIdQueryVariables>(
-      GetVisitProcedureByIdDocument,
-      { id }
-    ),
+    graphqlFetch<
+      GetVisitProcedureByIdQuery,
+      GetVisitProcedureByIdQueryVariables
+    >(GetVisitProcedureByIdDocument, { id }),
 
-    graphqlFetch
-      <GetProcedureTheatreBookingsQuery,
-        GetProcedureTheatreBookingsQueryVariables
-      >(GetProcedureTheatreBookingsDocument, {
-        procedureId: id,
-      }),
+    graphqlFetch<
+      GetProcedureTheatreBookingsQuery,
+      GetProcedureTheatreBookingsQueryVariables
+    >(GetProcedureTheatreBookingsDocument, {
+      procedureId: id,
+    }),
 
     graphqlFetch<GetTheatresQuery, GetTheatresQueryVariables>(
       GetTheatresDocument,
@@ -63,7 +63,10 @@ export default async function ProcedureBookingsPage({ params }: Props) {
   if (
     procedureData.authOutcome === 'refresh' ||
     bookingsData.authOutcome === 'refresh' ||
-    theatresData.authOutcome === 'refresh'
+    theatresData.authOutcome === 'refresh' ||
+    !procedureData.data?.visitProcedureById ||
+    !bookingsData.data?.getProcedureTheatreBookings ||
+    !theatresData.data?.theatres
   ) {
     return <SessionGuard mode="refresh" />;
   }
@@ -73,9 +76,9 @@ export default async function ProcedureBookingsPage({ params }: Props) {
       <div className="min-h-screen !bg-[#FAFAF8] px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <div className="mx-auto max-w-7xl">
           <TheatreBookingWorkspace
-            procedure={procedureData.data!.visitProcedureById}
-            initialBookings={bookingsData.data!.getProcedureTheatreBookings ?? []}
-            theatres={theatresData.data!.theatres?.items ?? []}
+            procedure={procedureData.data.visitProcedureById}
+            initialBookings={bookingsData.data.getProcedureTheatreBookings}
+            theatres={theatresData.data.theatres.items}
           />
         </div>
       </div>

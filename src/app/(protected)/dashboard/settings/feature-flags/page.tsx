@@ -18,19 +18,13 @@ export default async function FeatureFlagsPage() {
     return <SessionGuard mode="logout" reason={message} />;
   }
 
-  if (authOutcome === 'refresh') {
+  if (authOutcome === 'refresh' || !data?.organizationFeatureFlags) {
     return <SessionGuard mode="refresh" />;
-  }
-
-  if (!data?.organizationFeatureFlags) {
-    return <SessionGuard mode="none" />;
   }
 
   return (
     <SessionGuard mode="none">
-      <FeatureFlagsClient
-        initialFlags={data.organizationFeatureFlags}
-      />
+      <FeatureFlagsClient initialFlags={data.organizationFeatureFlags} />
     </SessionGuard>
   );
 }

@@ -24,7 +24,7 @@ export default async function VisitsPage({
 
   const status =
     statusParam &&
-    Object.values(VisitStatus).includes(statusParam as VisitStatus)
+      Object.values(VisitStatus).includes(statusParam as VisitStatus)
       ? (statusParam as VisitStatus)
       : undefined;
 
@@ -48,16 +48,12 @@ export default async function VisitsPage({
     },
   });
 
-  if (authOutcome === 'refresh') {
-    return <SessionGuard mode="refresh" />;
-  }
-
   if (authOutcome === 'logout') {
     return <SessionGuard mode="logout" reason={message} />;
   }
 
-  if (!data?.visits) {
-    return <SessionGuard mode="none" />;
+  if (authOutcome === 'refresh' || !data?.visits) {
+    return <SessionGuard mode="refresh" />;
   }
 
   return (

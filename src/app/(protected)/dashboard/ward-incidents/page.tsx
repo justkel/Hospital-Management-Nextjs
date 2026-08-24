@@ -33,20 +33,29 @@ export default async function WardIncidentsPage() {
     }),
   ]);
 
-  if (incidentResult.authOutcome === 'logout' || wardsResult.authOutcome === 'logout') {
+  if (
+    incidentResult.authOutcome === 'logout' ||
+    wardsResult.authOutcome === 'logout'
+  ) {
     const reason = incidentResult.message || wardsResult.message;
+
     return <SessionGuard mode="logout" reason={reason} />;
   }
 
-  if (incidentResult.authOutcome === 'refresh' || wardsResult.authOutcome === 'refresh') {
+  if (
+    incidentResult.authOutcome === 'refresh' ||
+    wardsResult.authOutcome === 'refresh' ||
+    !incidentResult.data?.wardIncidents ||
+    !wardsResult.data?.wards
+  ) {
     return <SessionGuard mode="refresh" />;
   }
 
   return (
     <SessionGuard mode="none">
       <WardIncidentManagementClient
-        paginated={incidentResult.data!.wardIncidents}
-        wards={wardsResult.data!.wards?.items || []}
+        paginated={incidentResult.data.wardIncidents}
+        wards={wardsResult.data.wards.items || []}
       />
     </SessionGuard>
   );

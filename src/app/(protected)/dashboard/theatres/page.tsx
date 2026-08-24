@@ -21,19 +21,17 @@ export default async function TheatresPage() {
     },
   });
 
-  if (authOutcome === 'refresh') {
-    return <SessionGuard mode="refresh" />;
-  }
-
   if (authOutcome === 'logout') {
     return <SessionGuard mode="logout" reason={message} />;
   }
 
+  if (authOutcome === 'refresh' || !data?.theatres) {
+    return <SessionGuard mode="refresh" />;
+  }
+
   return (
     <SessionGuard mode="none">
-      <TheatreManagementClient
-        paginated={data!.theatres}
-      />
+      <TheatreManagementClient paginated={data.theatres} />
     </SessionGuard>
   );
 }
