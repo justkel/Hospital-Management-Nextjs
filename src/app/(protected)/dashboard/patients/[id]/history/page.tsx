@@ -130,7 +130,7 @@ export default async function PatientVisitHistoryPage({ params }: Props) {
         <div>
           <Link
             href={`/dashboard/patients/${id}`}
-            className="mb-3 inline-flex items-center gap-1.5 text-[12px] font-medium text-[#5F5E5A] transition-colors hover:text-[#2C2C2A]"
+            className="mb-3 inline-flex items-center gap-1.5 text-[12px] font-medium !text-[#5F5E5A] transition-colors hover:text-[#2C2C2A]"
           >
             <ArrowLeft size={14} />
             Back to patient

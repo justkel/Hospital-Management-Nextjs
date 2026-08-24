@@ -60,7 +60,7 @@ export default function VisitHeaderCard({ visit }: { visit: Visit }) {
 
         <Link
           href={`/dashboard/patients/${patient?.id}`}
-          className="inline-flex h-9 items-center gap-2 rounded-[9px] border border-white/12 bg-white/[0.07] px-4 text-[13px] font-medium text-[#c8d8e8] transition hover:bg-white/[0.12]"
+          className="inline-flex h-9 items-center gap-2 rounded-[9px] border border-white/12 bg-white/[0.07] px-4 text-[13px] font-medium !text-[#c8d8e8] transition hover:bg-white/[0.12]"
         >
           <User size={13} />
           View patient

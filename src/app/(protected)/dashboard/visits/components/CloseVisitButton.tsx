@@ -187,7 +187,7 @@ export default function VisitStatusButton({ visitId, status }: Props) {
 
                 <h2
                   id="reopen-visit-title"
-                  className="mt-4 text-[16px] font-semibold text-[#2C2C2A]"
+                  className="mt-4 text-[16px] font-semibold !text-[#2C2C2A]"
                 >
                   Reopen this visit?
                 </h2>
@@ -207,7 +207,7 @@ export default function VisitStatusButton({ visitId, status }: Props) {
                     type="button"
                     disabled={submitting}
                     onClick={() => resetModal()}
-                    className="inline-flex h-[38px] items-center justify-center rounded-[9px] border border-[#E8E6E0] bg-white px-4 text-[13px] font-medium text-[#2C2C2A] transition hover:bg-[#F5F4F1] disabled:opacity-50"
+                    className="inline-flex h-[38px] items-center justify-center rounded-[9px] border border-[#E8E6E0] bg-white px-4 text-[13px] font-medium !text-[#2C2C2A] transition hover:bg-[#F5F4F1] disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -215,7 +215,7 @@ export default function VisitStatusButton({ visitId, status }: Props) {
                     type="button"
                     disabled={submitting}
                     onClick={handleConfirm}
-                    className="inline-flex h-[38px] items-center justify-center gap-2 rounded-[9px] bg-[#1D9E75] px-4 text-[13px] font-medium !text-white transition hover:bg-[#16835E] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex h-[38px] items-center justify-center gap-2 rounded-[9px] !bg-[#1D9E75] px-4 text-[13px] font-medium !text-white transition hover:bg-[#16835E] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {submitting && <Loader2 size={14} className="animate-spin" />}
                     {submitting ? 'Reopening…' : 'Yes, reopen visit'}
@@ -235,9 +235,9 @@ export default function VisitStatusButton({ visitId, status }: Props) {
         <button
           type="button"
           onClick={handleOpenClose}
-          className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] border border-[#F0D3D3] bg-white px-4 text-[13px] font-medium text-[#B3413E] transition hover:border-[#B3413E]/40 hover:bg-[#FBF2F1]"
+          className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] border border-[#F0D3D3] !bg-white px-4 text-[13px] font-medium !text-[#B3413E] transition hover:border-[#B3413E]/40 hover:bg-[#FBF2F1]"
         >
-          <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-[#FBF2F1] text-[#B3413E]">
+          <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] !bg-[#FBF2F1] !text-[#B3413E]">
             <CircleCheck size={13} />
           </div>
           Close visit

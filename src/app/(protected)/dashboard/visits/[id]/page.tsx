@@ -82,9 +82,9 @@ export default async function VisitDetailPage({ params }: Props) {
 
               <Link
                 href={`/dashboard/visits/${visit.id}/procedures`}
-                className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] bg-[#0c1a12] px-4 text-[13px] font-medium text-white transition hover:bg-[#1D9E75]"
+                className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] !bg-[#0c1a12] px-4 text-[13px] font-medium !text-white transition !hover:bg-[#1D9E75]"
               >
-                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-white/12">
+                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] !bg-white/12">
                   <ClipboardList size={13} />
                 </div>
                 View procedures
@@ -92,9 +92,9 @@ export default async function VisitDetailPage({ params }: Props) {
 
               <Link
                 href={`/dashboard/visits/${visit.id}/lab-requests`}
-                className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] border border-[#E8E6E0] bg-white px-4 text-[13px] font-medium text-[#2C2C2A] transition hover:border-[#1D9E75]/30 hover:bg-[#F0FAF5] hover:text-[#1D9E75]"
+                className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] border border-[#E8E6E0] bg-white px-4 text-[13px] font-medium !text-[#2C2C2A] transition hover:border-[#1D9E75]/30 !hover:bg-[#F0FAF5] !hover:text-[#1D9E75]"
               >
-                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-[#F0FAF5] text-[#1D9E75]">
+                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] !bg-[#F0FAF5] !text-[#1D9E75]">
                   <FlaskConical size={13} />
                 </div>
                 View lab requests
@@ -102,9 +102,9 @@ export default async function VisitDetailPage({ params }: Props) {
 
               <Link
                 href={`/dashboard/visits/${visit.id}/billing`}
-                className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] border border-[#E8E6E0] bg-white px-4 text-[13px] font-medium text-[#2C2C2A] transition hover:border-[#1D9E75]/30 hover:bg-[#F0FAF5] hover:text-[#1D9E75]"
+                className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] border !border-[#E8E6E0] !bg-white px-4 text-[13px] font-medium !text-[#2C2C2A] transition hover:border-[#1D9E75]/30 !hover:bg-[#F0FAF5] !hover:text-[#1D9E75]"
               >
-                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-[#F0FAF5] text-[#1D9E75]">
+                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] !bg-[#F0FAF5] !text-[#1D9E75]">
                   <Receipt size={13} />
                 </div>
                 View billing

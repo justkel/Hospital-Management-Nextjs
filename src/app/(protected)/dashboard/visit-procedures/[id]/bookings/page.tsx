@@ -29,12 +29,12 @@ export default async function ProcedureBookingsPage({ params }: Props) {
       { id }
     ),
 
-    graphqlFetch<
-      GetProcedureTheatreBookingsQuery,
-      GetProcedureTheatreBookingsQueryVariables
-    >(GetProcedureTheatreBookingsDocument, {
-      procedureId: id,
-    }),
+    graphqlFetch
+      <GetProcedureTheatreBookingsQuery,
+        GetProcedureTheatreBookingsQueryVariables
+      >(GetProcedureTheatreBookingsDocument, {
+        procedureId: id,
+      }),
 
     graphqlFetch<GetTheatresQuery, GetTheatresQueryVariables>(
       GetTheatresDocument,
@@ -70,7 +70,7 @@ export default async function ProcedureBookingsPage({ params }: Props) {
 
   return (
     <SessionGuard mode="none">
-      <div className="min-h-screen bg-[#0a0e1a] px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+      <div className="min-h-screen !bg-[#FAFAF8] px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <div className="mx-auto max-w-7xl">
           <TheatreBookingWorkspace
             procedure={procedureData.data!.visitProcedureById}

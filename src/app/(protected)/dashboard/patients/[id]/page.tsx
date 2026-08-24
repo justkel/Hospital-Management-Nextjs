@@ -181,7 +181,7 @@ export default async function PatientDetailPage({ params }: Props) {
               >
                 <Link
                   href={`/dashboard/patients/${id}/history`}
-                  className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium text-white transition-colors hover:bg-white/[0.12]"
+                  className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium !text-white transition-colors hover:bg-white/[0.12]"
                 >
                   <History size={14} />
                   Visit history
@@ -190,7 +190,7 @@ export default async function PatientDetailPage({ params }: Props) {
 
               <Link
                 href={`/dashboard/patients/${id}/wallet`}
-                className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium text-white transition-colors hover:bg-white/[0.12]"
+                className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium !text-white transition-colors hover:bg-white/[0.12]"
               >
                 <Wallet size={14} />
                 Wallet
