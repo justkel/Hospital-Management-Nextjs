@@ -24,6 +24,13 @@ type GraphQLErrorItem = {
 
 export type AuthOutcome = 'ok' | 'refresh' | 'logout';
 
+function isAuthCode(
+  code: string,
+  codes: readonly string[]
+): boolean {
+  return codes.includes(code);
+}
+
 export async function graphqlFetch<TData, TVariables>(
   document: TypedDocumentNode<TData, TVariables>,
   variables?: TVariables
@@ -55,14 +62,21 @@ export async function graphqlFetch<TData, TVariables>(
   );
   if (isNotFound) notFound();
 
-  if (code && FORCE_LOGOUT_CODES.includes(code as any)) {
+  if (code && isAuthCode(code, FORCE_LOGOUT_CODES)) {
     // Terminal: refreshing the token cannot fix an inactive account or
     // revoked/expired guest access, so don't waste a round trip on it.
-    return { data: null, authOutcome: 'logout', message: json.errors[0].message };
+    return {
+      data: null,
+      authOutcome: 'logout',
+      message: json.errors[0].message,
+    };
   }
 
-  if (code && REFRESHABLE_AUTH_CODES.includes(code as any)) {
-    return { data: null, authOutcome: 'refresh' };
+  if (code && isAuthCode(code, REFRESHABLE_AUTH_CODES)) {
+    return {
+      data: null,
+      authOutcome: 'refresh',
+    };
   }
 
   // Genuinely unexpected server error — this is the only case that should

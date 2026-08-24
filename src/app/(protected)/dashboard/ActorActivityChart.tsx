@@ -15,6 +15,14 @@ import { clientFetch } from '@/lib/clientFetch';
 
 type ActorActivityPeriod = 'LAST_24_HOURS' | 'LAST_7_DAYS';
 
+interface ActivityTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value?: number;
+  }>;
+  label?: string;
+}
+
 interface ActorActivityBucket {
   label: string;
   timestamp: string;
@@ -52,10 +60,14 @@ function formatBucketLabel(timestamp: string, period: ActorActivityPeriod): stri
   });
 }
 
-function ActivityTooltip({ active, payload, label }: any) {
+function ActivityTooltip({
+  active,
+  payload,
+  label,
+}: ActivityTooltipProps) {
   if (!active || !payload?.length) return null;
 
-  const value = payload[0].value;
+  const value = payload[0].value ?? 0;
 
   return (
     <div className="rounded-lg border border-[#E8E6E0] bg-white px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.08)]">

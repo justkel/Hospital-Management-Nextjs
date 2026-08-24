@@ -126,9 +126,10 @@ export default function DetailsDrawer({
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-gray-700">Status</p>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[currentStatus ?? StaffStatus.Active]}`}
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[currentStatus ?? StaffStatus.Active]
+                    }`}
                 >
-                  {STATUS_LABELS[currentStatus!!]}
+                  {STATUS_LABELS[currentStatus ?? StaffStatus.Active]}
                 </span>
               </div>
 
@@ -144,10 +145,9 @@ export default function DetailsDrawer({
                         disabled={updatingStatus}
                         onClick={() => handleStatusChange(status)}
                         className={`px-3 py-1 rounded-full text-xs font-medium transition !text-gray-500
-                          ${
-                            currentStatus === status
-                              ? 'ring-2 ring-indigo-500 font-semibold'
-                              : ''
+                          ${currentStatus === status
+                            ? 'ring-2 ring-indigo-500 font-semibold'
+                            : ''
                           }
                           ${STATUS_COLORS[status]}`}
                       >

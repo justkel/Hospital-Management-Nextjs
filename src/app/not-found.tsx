@@ -26,7 +26,7 @@ export default function NotFound() {
 
         <a
           href="/dashboard"
-          className="inline-block bg-black text-white px-5 py-2.5 rounded-lg transition hover:bg-gray-800"
+          className="inline-block !bg-black !text-white px-5 py-2.5 rounded-lg transition hover:bg-gray-800"
         >
           Go to Dashboard
         </a>

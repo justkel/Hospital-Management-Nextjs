@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { GetVisitByIdQuery } from '@/shared/graphql/generated/graphql';
-import { User, Stethoscope, DoorClosedLockedIcon } from 'lucide-react';
+import { User, Stethoscope } from 'lucide-react';
 
 type Visit = GetVisitByIdQuery['visit'];
 

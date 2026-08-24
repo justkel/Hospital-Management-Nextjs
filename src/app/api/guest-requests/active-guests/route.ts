@@ -14,7 +14,7 @@ import {
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
-export async function GET(req: Request) {
+export async function GET() {
   const accessToken = (await cookies()).get('access_token')?.value;
 
   if (!accessToken) {

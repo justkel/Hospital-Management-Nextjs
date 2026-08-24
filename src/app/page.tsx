@@ -24,6 +24,7 @@ import {
   HeartPulse,
   Pill,
   Stethoscope,
+  LucideIcon,
 } from 'lucide-react';
 
 import heroAnimation from '@/animations/health1.json';
@@ -104,7 +105,7 @@ const ROLES = Object.keys(ROLE_DESCRIPTIONS);
 
 const DOMAINS = ['Patients', 'Visits', 'Theatre & Ward', 'Billing', 'Labs', 'Audit & Admin'];
 
-const ROLE_ICONS: Record<string, any> = {
+const ROLE_ICONS: Record<string, LucideIcon> = {
   ADMIN: ShieldCheck,
   DOCTOR: Stethoscope,
   NURSE: HeartPulse,

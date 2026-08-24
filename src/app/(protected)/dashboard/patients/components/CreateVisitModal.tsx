@@ -168,11 +168,10 @@ export default function CreateVisitModal({ patientId }: Props) {
                         <button
                           key={type}
                           onClick={() => setVisitType(type)}
-                          className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                            visitType === type
+                          className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${visitType === type
                               ? 'bg-emerald-600 text-white! shadow-md shadow-emerald-200 scale-[1.02]'
                               : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
-                          }`}
+                            }`}
                         >
                           {type.replace(/_/g, ' ')}
                         </button>
@@ -238,8 +237,7 @@ export default function CreateVisitModal({ patientId }: Props) {
                         Visit created successfully!
                       </p>
                       <p className="text-xs text-emerald-600">
-                        {outstandingBalance?.patientName}'s visit has been
-                        created.
+                        {outstandingBalance?.patientName}&apos;s visit has been created.
                       </p>
                     </div>
                   </div>
@@ -289,11 +287,10 @@ export default function CreateVisitModal({ patientId }: Props) {
                           </div>
 
                           <div
-                            className={`p-4 rounded-xl border transition-all duration-200 ${
-                              lastVisit.outstandingBalance > 0
+                            className={`p-4 rounded-xl border transition-all duration-200 ${lastVisit.outstandingBalance > 0
                                 ? 'bg-amber-50/50 border-amber-200'
                                 : 'bg-gray-50/50 border-gray-200'
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex-1 min-w-0">
@@ -302,13 +299,12 @@ export default function CreateVisitModal({ patientId }: Props) {
                                     {lastVisit.visitType || 'Visit'}
                                   </span>
                                   <span
-                                    className={`text-xs px-2 py-0.5 rounded-full ${
-                                      lastVisit.status === 'OPEN'
+                                    className={`text-xs px-2 py-0.5 rounded-full ${lastVisit.status === 'OPEN'
                                         ? 'bg-emerald-100 text-emerald-700'
                                         : lastVisit.status === 'CLOSED'
-                                        ? 'bg-gray-100 text-gray-600'
-                                        : 'bg-yellow-100 text-yellow-700'
-                                    }`}
+                                          ? 'bg-gray-100 text-gray-600'
+                                          : 'bg-yellow-100 text-yellow-700'
+                                      }`}
                                   >
                                     {lastVisit.status}
                                   </span>
