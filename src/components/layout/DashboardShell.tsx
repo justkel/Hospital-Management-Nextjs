@@ -39,12 +39,12 @@ function NavItem({
     const base =
         'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-colors cursor-pointer';
     const cls = active
-        ? `${base} bg-[#F0FAF5] text-[#1D9E75]`
-        : `${base} text-[#5F5E5A] hover:bg-[#F7F7F5] hover:text-[#2C2C2A]`;
+        ? `${base} !bg-[#F0FAF5] !text-[#1D9E75]`
+        : `${base} !text-[#5F5E5A] hover:!bg-[#F7F7F5] hover:!text-[#2C2C2A]`;
 
     const inner = (
         <>
-            <span className={`text-base w-5 text-center flex-shrink-0 ${active ? 'text-[#1D9E75]' : 'text-[#B4B2A9]'}`}>
+            <span className={`text-base w-5 text-center flex-shrink-0 ${active ? '!text-[#1D9E75]' : '!text-[#B4B2A9]'}`}>
                 {icon}
             </span>
             <span className="flex-1 min-w-0 truncate">{label}</span>
