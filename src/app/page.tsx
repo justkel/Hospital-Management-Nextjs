@@ -28,7 +28,8 @@ import {
 } from 'lucide-react';
 
 import heroAnimation from '@/animations/health1.json';
-import careAnimation from '@/animations/health.json';
+import careAnimation from '@/animations/doc-pat1.json';
+import runAnimation from '@/animations/run1.json';
 
 const SERVICES = [
   { name: 'Main', role: 'Operational core', detail: 'Patients, visits, theatre, wards, billing — the record of truth.' },
@@ -297,33 +298,62 @@ export default function Home() {
 
       <section id="platform" className="border-b !border-[#E8E6E0] !bg-white py-14 sm:py-16 lg:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-10 max-w-lg text-center sm:mb-14">
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Architecture</p>
-            <h2 className="mt-2 text-[24px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[28px]">
-              One gateway. Five services.
+          <div className="mx-auto mb-12 max-w-lg text-center sm:mb-16">
+            <div className="inline-flex items-center gap-2 rounded-full !bg-[#F0FAF5] px-3 py-1">
+              <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.12em] !text-[#1D9E75]">Architecture</span>
+            </div>
+            <h2 className="mt-3 text-[28px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[32px]">
+              One gateway. <span className="!text-[#1D9E75]">Five services.</span>
             </h2>
+            <p className="mt-3 text-[14px] font-medium !text-[#6b6b64] max-w-sm mx-auto">
+              Every request flows through a single entry point, then routes to the right service.
+            </p>
           </div>
 
           <div className="relative mx-auto flex max-w-xs flex-col items-center">
-            <div className="flex w-full max-w-[220px] flex-col items-center rounded-2xl border-2 !border-[#1D9E75] !bg-[#0C1A12] px-5 py-4 shadow-[0_10px_30px_rgba(29,158,117,0.25)]">
-              <p className="text-[13.5px] font-extrabold !text-white">Gateway</p>
-              <p className="mt-0.5 text-[10.5px] font-semibold uppercase tracking-[0.06em] !text-[#5DCAA5]">Public entry point</p>
+            <div className="w-full max-w-[220px] rounded-2xl border-2 !border-[#1D9E75] !bg-[#F0FAF5] px-5 py-4 shadow-[0_4px_16px_rgba(29,158,117,0.12)]">
+              <p className="text-center text-[14px] font-extrabold !text-[#14231A]">Gateway</p>
+              <p className="mt-0.5 text-center text-[10.5px] font-semibold uppercase tracking-[0.06em] !text-[#1D9E75]">Public entry point</p>
             </div>
-            <div className="hidden h-8 w-px !bg-[#1D9E75]/30 md:block" />
+            <div className="relative h-8 w-px">
+              <div className="absolute inset-0 !bg-gradient-to-b !from-[#1D9E75]/30 !to-[#1D9E75]/10" />
+            </div>
           </div>
 
           <div className="relative mx-auto mt-0 hidden max-w-5xl md:block">
-            <div className="mx-auto h-px w-[86%] !bg-[#1D9E75]/25" />
+            <div className="relative mx-auto h-px w-[86%]">
+              <div className="absolute inset-0 !bg-gradient-to-r !from-transparent !via-[#1D9E75]/30 !to-transparent" />
+              <div className="absolute left-[10%] top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full !bg-[#1D9E75]/20" />
+              <div className="absolute left-[30%] top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full !bg-[#1D9E75]/30" />
+              <div className="absolute left-[50%] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full !bg-[#1D9E75]/40" />
+              <div className="absolute left-[70%] top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full !bg-[#1D9E75]/30" />
+              <div className="absolute right-[10%] top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full !bg-[#1D9E75]/20" />
+            </div>
           </div>
 
-          <div className="mx-auto mt-6 grid max-w-5xl grid-cols-1 gap-3 sm:grid-cols-2 md:mt-0 md:grid-cols-4 md:gap-4">
-            {SERVICES.map((s) => (
+          <div className="mx-auto mt-6 grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 md:mt-0 md:grid-cols-4 md:gap-4">
+            {SERVICES.map((s, index) => (
               <div key={s.name} className="flex flex-col items-center">
-                <div className="hidden h-6 w-px !bg-[#1D9E75]/25 md:block" />
-                <div className="h-full w-full rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-4 transition hover:!border-[#1D9E75]/40 hover:shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
-                  <p className="text-[13px] font-extrabold !text-[#14231A]">{s.name}</p>
-                  <p className="mt-0.5 text-[10.5px] font-semibold uppercase tracking-[0.06em] !text-[#B4B2A9]">{s.role}</p>
-                  <p className="mt-2.5 text-[12.5px] font-medium leading-relaxed !text-[#6b6b64]">{s.detail}</p>
+                <div className="hidden h-5 w-px !bg-[#1D9E75]/25 md:block" />
+                <div className="group h-full w-full rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-4 transition-all duration-300 hover:!border-[#1D9E75]/40 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:-translate-y-0.5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-[14px] font-extrabold !text-[#14231A] group-hover:!text-[#1D9E75] transition-colors">
+                        {s.name}
+                      </p>
+                      <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] !text-[#B4B2A9]">
+                        {s.role}
+                      </p>
+                    </div>
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full !bg-[#F0FAF5] text-[10px] font-bold !text-[#1D9E75]">
+                      {index + 1}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-[12.5px] font-medium leading-relaxed !text-[#6b6b64] group-hover:!text-[#5c5c56] transition-colors">
+                    {s.detail}
+                  </p>
+                  <div className="mt-3 h-0.5 w-8 rounded-full !bg-[#1D9E75]/20 group-hover:!bg-[#1D9E75]/60 transition-all group-hover:w-12" />
                 </div>
               </div>
             ))}
@@ -350,7 +380,7 @@ export default function Home() {
                     }`}
                 >
                   <div className="flex items-center justify-between">
-                    <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${f.tint}`}>
+                    <div className={`flex h-11 w-11 mb-5 md:mb-4 items-center justify-center rounded-xl ${f.tint}`}>
                       <Icon size={19} />
                     </div>
                     <span className="rounded-full !bg-[#FAFAF8] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.06em] !text-[#B4B2A9]">
@@ -371,7 +401,7 @@ export default function Home() {
                   </ul>
 
                   {f.big && (
-                    <div className="pointer-events-none absolute -bottom-0 -right-0 h-32 w-32 opacity-90 sm:h-40 sm:w-40 max-[700px]:hidden">
+                    <div className="pointer-events-none absolute -bottom-0 -right-0 hidden min-[700px]:block h-40 w-40 opacity-90 sm:h-48 sm:w-48 md:h-52 md:w-52">
                       <Lottie animationData={careAnimation} loop autoplay />
                     </div>
                   )}
@@ -416,7 +446,39 @@ export default function Home() {
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-[300px_1fr] lg:gap-6">
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-1">
+            <div
+              className="-mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-1 [&::-webkit-scrollbar]:hidden lg:hidden"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >              {ROLES.map((r) => {
+              const Icon = ROLE_ICONS[r];
+              const isActive = r === activeRole;
+              const isGuest = r === 'GUEST';
+              return (
+                <button
+                  key={r}
+                  onClick={() => setActiveRole(r)}
+                  className={`group flex shrink-0 snap-start items-center gap-2 rounded-full border px-3.5 py-2.5 transition-all duration-200 active:scale-95 ${isActive
+                    ? isGuest
+                      ? '!border-[#D97706] !bg-[#D97706] shadow-sm shadow-[#D97706]/25'
+                      : '!border-[#1D9E75] !bg-[#1D9E75] shadow-sm shadow-[#1D9E75]/25'
+                    : '!border-[#E8E6E0] !bg-[#FAFAF8]'
+                    }`}
+                >
+                  <Icon
+                    size={15}
+                    strokeWidth={2.5}
+                    className={isActive ? '!text-white' : isGuest ? '!text-[#D97706]' : '!text-[#1D9E75]'}
+                  />
+                  <span className={`whitespace-nowrap text-[12.5px] font-bold tracking-tight ${isActive ? '!text-white' : '!text-[#14231A]'
+                    }`}>
+                    {r.replace('_', ' ')}
+                  </span>
+                </button>
+              );
+            })}
+            </div>
+
+            <div className="hidden gap-2.5 lg:grid">
               {ROLES.map((r) => {
                 const Icon = ROLE_ICONS[r];
                 const isActive = r === activeRole;
@@ -425,23 +487,32 @@ export default function Home() {
                   <button
                     key={r}
                     onClick={() => setActiveRole(r)}
-                    className={`flex items-center gap-2.5 rounded-xl border px-3.5 py-3 text-left transition ${isActive
-                      ? isGuest
-                        ? '!border-[#D97706] !bg-[#D97706]'
-                        : '!border-[#1D9E75] !bg-[#1D9E75]'
-                      : '!border-[#E8E6E0] !bg-[#FAFAF8] hover:!border-[#D3D1C7]'
+                    className={`group flex w-full items-center gap-3 rounded-md border px-4 py-2.5 text-left transition-all duration-200 ${isActive
+                        ? isGuest
+                          ? '!border-[#D97706] !bg-[#D97706]'
+                          : '!border-[#1D9E75] !bg-[#1D9E75]'
+                        : '!border-[#E8E6E0] !bg-[#FAFAF8] hover:!border-[#D3D1C7]'
                       }`}
                   >
                     <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${isActive ? '!bg-white/20' : isGuest ? '!bg-[#FFFBEB]' : '!bg-white'
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-all duration-200 ${isActive
+                          ? '!bg-white/20 group-hover:scale-105'
+                          : isGuest
+                            ? '!bg-[#FFFBEB] group-hover:bg-[#FEF3C7]'
+                            : '!bg-white group-hover:bg-[#F0FDF4]'
                         }`}
                     >
                       <Icon
                         size={15}
-                        className={isActive ? '!text-white' : isGuest ? '!text-[#D97706]' : '!text-[#1D9E75]'}
+                        strokeWidth={2.5}
+                        className={`transition-all duration-200 ${isActive ? '!text-white' : isGuest ? '!text-[#D97706]' : '!text-[#1D9E75]'
+                          } group-hover:scale-105`}
                       />
                     </div>
-                    <p className={`truncate text-[12px] font-extrabold ${isActive ? '!text-white' : '!text-[#14231A]'}`}>
+                    <p
+                      className={`m-0 min-w-0 flex-1 text-[13px] font-bold leading-none tracking-tight ${isActive ? '!text-white' : '!text-[#14231A]'
+                        }`}
+                    >
                       {r.replace('_', ' ')}
                     </p>
                   </button>
@@ -557,8 +628,8 @@ export default function Home() {
                       : 'rounded-2xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-5 sm:p-6'
                   }
                 >
-                  <div className={`flex h-10 w-10 mb-8 items-center justify-center rounded-lg ${s.accent ? '!bg-[#1D9E75]/15 !text-[#5DCAA5]' : '!bg-[#0C1A12] !text-[#5DCAA5]'}`}>
-                    <Icon size={17} />
+                  <div className={`flex h-10 w-10 mb-8 items-center justify-center rounded-lg ${s.accent ? '!text-[#5DCAA5]' : '!text-[#5DCAA5]'}`}>
+                    <Icon size={22} strokeWidth={2.5} />
                   </div>
                   <p className={`mt-3.5 text-[14px] font-extrabold ${s.accent ? '!text-white' : '!text-[#14231A]'}`}>{s.label}</p>
                   <p className={`mt-1 text-[12.5px] font-medium leading-relaxed ${s.accent ? '!text-[#8fa89a]' : '!text-[#6b6b64]'}`}>{s.copy}</p>
@@ -579,27 +650,39 @@ export default function Home() {
         />
         <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 rounded-full !bg-[#1D9E75]/15 blur-[100px]" />
 
-        <div className="relative mx-auto max-w-2xl px-4 text-center sm:px-6">
-          <h2 className="text-[26px] font-extrabold tracking-[-0.02em] !text-white sm:text-[32px] md:text-[36px]">
-            Ready to see it running?
-          </h2>
-          <p className="mt-3 text-[13.5px] font-medium !text-[#8fa89a] sm:text-[14px]">
-            Sign in if you&apos;re on staff. Request guest access if you&apos;re taking a first look.
-          </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a
-              href="/login"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full !bg-[#1D9E75] px-6 py-3 text-[14px] font-bold !text-white transition hover:!bg-[#1a8a68] active:scale-[0.98] sm:w-auto"
-            >
-              Sign in
-              <ArrowRight size={15} />
-            </a>
-            <a
-              href="/guest-access"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full border !border-white/15 !bg-white/[0.04] px-6 py-3 text-[14px] font-bold !text-white transition hover:!bg-white/[0.09] active:scale-[0.98] sm:w-auto"
-            >
-              Request guest access
-            </a>
+        <div className="relative mx-auto max-w-4xl px-4 sm:px-6">
+          <div className="flex flex-col items-center gap-6 lg:flex-row lg:gap-12">
+            <div className="flex-1 text-center lg:text-left">
+              <h2 className="text-[28px] font-extrabold tracking-[-0.02em] !text-white sm:text-[32px] md:text-[36px]">
+                Ready to see it <span className="italic !text-[#5DCAA5]">running</span>?
+              </h2>
+              <p className="mt-3 text-[14px] font-medium !text-[#8fa89a] sm:text-[14px] max-w-sm mx-auto lg:mx-0">
+                <span className="font-bold !text-[#5DCAA5]">No sprints required</span> — our platform is already in motion.
+                Sign in if you&apos;re on staff, or request guest access for a first look.
+              </p>
+              <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+                <a
+                  href="/login"
+                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full !bg-[#1D9E75] px-6 py-3 text-[14px] font-bold !text-white transition hover:!bg-[#1a8a68] active:scale-[0.98]"
+                >
+                  Sign in
+                  <ArrowRight size={15} />
+                </a>
+                <a
+                  href="/guest-access"
+                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border !border-white/15 !bg-white/[0.04] px-6 py-3 text-[14px] font-bold !text-white transition hover:!bg-white/[0.09] active:scale-[0.98]"
+                >
+                  Request guest access
+                </a>
+              </div>
+            </div>
+
+            <div className="relative flex-shrink-0 w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 -mt-2 sm:mt-0">
+              <div className="absolute inset-0 rounded-full !bg-[#1D9E75]/5 blur-2xl" />
+              <div className="relative h-full w-full animate-[floatSlow_6s_ease-in-out_infinite]">
+                <Lottie animationData={runAnimation} loop autoplay />
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -610,7 +693,7 @@ export default function Home() {
             <div>
               <div className="flex items-center gap-2.5">
                 <span className="text-[20px] font-bold italic tracking-[-0.02em] !text-white sm:text-[22px]">
-                  well<span className="!text-[#1D9E75] font-extrabold">flex</span>ia!
+                  well<span className="!text-[#1D9E75] font-extrabold">flex</span>ia !
                 </span>
               </div>
               <p className="mt-3 max-w-xs text-[12.5px] font-medium leading-relaxed !text-[#5a7a6a]">
