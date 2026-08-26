@@ -29,64 +29,64 @@ const TYPE_OPTIONS: {
     label: string;
     description: string;
     icon: React.ElementType;
-    pill: string;
-    ring: string;
+    active: string;
+    iconActive: string;
 }[] = [
         {
             value: TheatreBlockType.Maintenance,
             label: 'Maintenance',
             description: 'Routine equipment servicing or infrastructure work',
             icon: Wrench,
-            pill: 'bg-amber-50 border-amber-300 text-amber-700',
-            ring: 'ring-amber-400',
+            active: '!border-[#F5E3C0] !bg-[#FFF8EC]',
+            iconActive: '!bg-white !text-[#B9770E]',
         },
         {
             value: TheatreBlockType.Cleaning,
             label: 'Cleaning',
             description: 'Deep clean, terminal clean, or post-case housekeeping',
             icon: Sparkles,
-            pill: 'bg-cyan-50 border-cyan-300 text-cyan-700',
-            ring: 'ring-cyan-400',
+            active: '!border-[#D6E4FB] !bg-[#EFF5FF]',
+            iconActive: '!bg-white !text-[#1D6FE0]',
         },
         {
             value: TheatreBlockType.EquipmentFailure,
-            label: 'Equipment Failure',
+            label: 'Equipment failure',
             description: 'Unplanned breakdown requiring repair or replacement',
             icon: TriangleAlert,
-            pill: 'bg-orange-50 border-orange-300 text-orange-700',
-            ring: 'ring-orange-400',
+            active: '!border-[#FAD9C4] !bg-[#FFF1E9]',
+            iconActive: '!bg-white !text-[#C2571C]',
         },
         {
             value: TheatreBlockType.InfectionControl,
-            label: 'Infection Control',
+            label: 'Infection control',
             description: 'Isolation protocols, outbreak response, decontamination',
             icon: Shield,
-            pill: 'bg-red-50 border-red-300 text-red-700',
-            ring: 'ring-red-400',
+            active: '!border-[#FBD5D5] !bg-[#FEF2F2]',
+            iconActive: '!bg-white !text-[#DC2626]',
         },
         {
             value: TheatreBlockType.Sterilization,
             label: 'Sterilization',
             description: 'Instrument sterilization cycle or autoclave downtime',
             icon: Thermometer,
-            pill: 'bg-violet-50 border-violet-300 text-violet-700',
-            ring: 'ring-violet-400',
+            active: '!border-[#E5DCFC] !bg-[#F5F2FF]',
+            iconActive: '!bg-white !text-[#7C5CFC]',
         },
         {
             value: TheatreBlockType.Reserved,
             label: 'Reserved',
             description: 'Held for a specific team, case, or event',
             icon: Droplets,
-            pill: 'bg-blue-50 border-blue-300 text-blue-700',
-            ring: 'ring-blue-400',
+            active: '!border-[#CFF0E1] !bg-[#ECFBF5]',
+            iconActive: '!bg-white !text-[#1D9E75]',
         },
         {
             value: TheatreBlockType.Other,
             label: 'Other',
             description: 'Any other reason not covered above',
             icon: Zap,
-            pill: 'bg-slate-50 border-slate-300 text-slate-600',
-            ring: 'ring-slate-400',
+            active: '!border-[#16211B] !bg-[#F7F7F5]',
+            iconActive: '!bg-white !text-[#16211B]',
         },
     ];
 
@@ -152,12 +152,12 @@ export default function TheatreBlockCreateForm({
     }, [theatreId, startTime, endTime, type, reason, onSuccess]);
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-5 sm:space-y-6">
             <div>
-                <p className="mb-3 text-xs font-black uppercase tracking-widest text-slate-500">
-                    Block Type
+                <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+                    Block type
                 </p>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                     {TYPE_OPTIONS.map((opt) => {
                         const Icon = opt.icon;
                         const selected = type === opt.value;
@@ -165,22 +165,22 @@ export default function TheatreBlockCreateForm({
                             <button
                                 key={opt.value}
                                 onClick={() => setType(opt.value)}
-                                className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition ${selected
-                                    ? `${opt.pill} ring-2 ${opt.ring}`
-                                    : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60'
+                                className={`flex items-start gap-3 rounded-xl border p-3.5 text-left transition sm:p-4 ${selected
+                                    ? opt.active
+                                    : '!border-[#E8E6E0] !bg-white hover:!bg-[#FAFAF8]'
                                     }`}
                             >
                                 <div
-                                    className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${selected ? 'bg-white/60' : 'bg-slate-100'
+                                    className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${selected ? opt.iconActive : '!bg-[#F7F7F5] !text-[#B4B2A9]'
                                         }`}
                                 >
                                     <Icon size={15} />
                                 </div>
                                 <div>
-                                    <p className="text-xs font-bold text-slate-900">
+                                    <p className="text-xs font-semibold !text-[#16211B]">
                                         {opt.label}
                                     </p>
-                                    <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">
+                                    <p className="mt-0.5 text-[11px] leading-relaxed !text-[#767570]">
                                         {opt.description}
                                     </p>
                                 </div>
@@ -191,69 +191,69 @@ export default function TheatreBlockCreateForm({
             </div>
 
             <div>
-                <p className="mb-3 text-xs font-black uppercase tracking-widest text-slate-500">
-                    Block Window
+                <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+                    Block window
                 </p>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <FieldBox label="Start Date & Time">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <FieldBox label="Start date & time">
                         <input
                             type="datetime-local"
                             value={startTime}
                             onChange={(e) => setStartTime(e.target.value)}
-                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 shadow-sm transition focus:border-rose-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-100"
+                            className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-3 text-sm font-semibold !text-[#16211B] outline-none transition focus:!border-[#DC2626]"
                         />
                     </FieldBox>
-                    <FieldBox label="End Date & Time">
+                    <FieldBox label="End date & time">
                         <input
                             type="datetime-local"
                             value={endTime}
                             onChange={(e) => setEndTime(e.target.value)}
-                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 shadow-sm transition focus:border-rose-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-100"
+                            className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-3 text-sm font-semibold !text-[#16211B] outline-none transition focus:!border-[#DC2626]"
                         />
                     </FieldBox>
                 </div>
             </div>
 
             <div>
-                <p className="mb-3 text-xs font-black uppercase tracking-widest text-slate-500">
-                    Reason <span className="font-normal normal-case text-slate-400">(optional)</span>
+                <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+                    Reason <span className="font-normal normal-case !text-[#D3D1C7]">(optional)</span>
                 </p>
                 <textarea
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     rows={3}
                     placeholder="e.g. Annual deep clean and equipment calibration"
-                    className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 shadow-sm transition placeholder:text-slate-400 focus:border-rose-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-100"
+                    className="w-full resize-none rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-3 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#DC2626]"
                 />
             </div>
 
             {error && (
-                <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4">
-                    <AlertTriangle size={16} className="mt-0.5 shrink-0 text-rose-600" />
-                    <p className="text-sm font-medium text-rose-800">{error}</p>
+                <div className="flex items-start gap-3 rounded-xl border !border-[#FBD5D5] !bg-[#FEF2F2] px-4 py-3.5">
+                    <AlertTriangle size={14} className="mt-0.5 shrink-0 !text-[#DC2626]" />
+                    <p className="text-sm font-medium !text-[#DC2626]">{error}</p>
                 </div>
             )}
 
             {saved && (
-                <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4">
-                    <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
-                    <p className="text-sm font-medium text-emerald-800">
-                        Theatre block created successfully!
+                <div className="flex items-center gap-3 rounded-xl border !border-[#CFF0E1] !bg-[#ECFBF5] px-4 py-3.5">
+                    <CheckCircle2 size={14} className="shrink-0 !text-[#1D9E75]" />
+                    <p className="text-sm font-medium !text-[#1D9E75]">
+                        Theatre block created successfully.
                     </p>
                 </div>
             )}
 
-            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
-                <p className="text-xs text-slate-500">
-                    This will immediately <strong className="text-slate-700">restrict</strong> bookings
+            <div className="flex flex-col gap-4 rounded-xl border !border-[#E8E6E0] !bg-white px-4 py-4 sm:px-5 sm:py-4">
+                <p className="text-xs !text-[#767570] text-center sm:text-left">
+                    This will immediately <strong className="font-semibold !text-[#16211B]">restrict</strong> bookings
                     for the specified window.
                 </p>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
                     <button
                         onClick={onCancel}
                         disabled={saving}
-                        className="rounded-full border border-slate-200 px-5 py-2.5 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 disabled:opacity-50"
+                        className="h-10 w-full sm:w-auto rounded-xl border !border-[#E8E6E0] px-4 text-xs font-semibold !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] disabled:opacity-40 order-2 sm:order-1"
                     >
                         Cancel
                     </button>
@@ -261,17 +261,20 @@ export default function TheatreBlockCreateForm({
                     <button
                         onClick={handleSubmit}
                         disabled={saving || saved}
-                        className="inline-flex items-center gap-2 rounded-full bg-rose-600 px-6 py-2.5 text-xs font-bold !text-white shadow-sm transition hover:bg-rose-700 disabled:opacity-60 active:scale-95"
+                        className="inline-flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-xl !bg-[#DC2626] px-4 sm:px-5 text-xs sm:text-sm font-semibold !text-white transition hover:!bg-[#C11F1F] disabled:cursor-not-allowed disabled:opacity-50 order-1 sm:order-2"
                     >
                         {saving ? (
                             <>
-                                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                                Creating…
+                                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 !border-white/30 !border-t-white" />
+                                <span className="sm:hidden">Creating…</span>
+                                <span className="hidden sm:inline">Creating…</span>
                             </>
                         ) : (
                             <>
-                                <Lock size={13} />
-                                Create Block
+                                <Lock size={14} className="sm:hidden" />
+                                <Lock size={13} className="hidden sm:inline" />
+                                <span className="sm:hidden">Block</span>
+                                <span className="hidden sm:inline">Create block</span>
                             </>
                         )}
                     </button>
@@ -290,7 +293,7 @@ function FieldBox({
 }) {
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
+            <label className="text-[10px] font-semibold uppercase tracking-wide !text-[#B4B2A9]">
                 {label}
             </label>
             {children}

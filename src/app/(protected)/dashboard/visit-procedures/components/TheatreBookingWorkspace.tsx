@@ -147,9 +147,6 @@ export default function TheatreBookingWorkspace({ procedure, initialBookings, th
       b.status === TheatreBookingStatus.Ready,
   );
   const totalBookings = bookings.length;
-  const completedCount = bookings.filter(
-    (b) => b.status === TheatreBookingStatus.Completed,
-  ).length;
 
   const procedureCompleted =
     bookings[0]?.procedure?.events?.some(
@@ -209,52 +206,38 @@ export default function TheatreBookingWorkspace({ procedure, initialBookings, th
             </div>
 
             <div
-              className={`grid divide-x !divide-[#E8E6E0] overflow-hidden rounded-xl border !border-[#E8E6E0] ${
-                activeBooking ? 'grid-cols-3' : 'grid-cols-2'
-              }`}
+              className={`grid divide-x !divide-[#E8E6E0] overflow-hidden rounded-xl border !border-[#E8E6E0] min-w-[180px] grid-cols-2'
+                }`}
             >
-              <div className="min-w-[92px] p-3.5">
-                <div className="flex items-center gap-1.5">
-                  <Calendar size={11} className="!text-[#B4B2A9]" />
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
-                    Total
-                  </p>
-                </div>
-                <p className="mt-1.5 font-mono text-xl font-semibold tabular-nums !text-[#16211B]">
+              <div className="px-3 py-2.5 text-center">
+                <p className="text-[8px] font-semibold uppercase tracking-[0.12em] !text-[#B4B2A9]">
+                  Total
+                </p>
+                <p className="mt-0.5 font-mono text-lg font-semibold tabular-nums !text-[#16211B]">
                   {String(totalBookings).padStart(2, '0')}
                 </p>
               </div>
 
-              <div className="min-w-[92px] p-3.5">
-                <div className="flex items-center gap-1.5">
-                  <Activity size={11} className="!text-[#B4B2A9]" />
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
-                    Completed
-                  </p>
-                </div>
-                <p className="mt-1.5 font-mono text-xl font-semibold tabular-nums !text-[#16211B]">
-                  {String(completedCount).padStart(2, '0')}
+            </div>
+            {activeBooking && (
+              <div className="px-3 py-2.5 text-center min-w-0">
+                <p className="text-[8px] font-semibold uppercase tracking-[0.12em] !text-[#1D9E75]">
+                  {STATUS_META[activeBooking.status]?.label ?? 'Active'}
+                </p>
+                <p className="mt-0.5 truncate text-xs font-semibold !text-[#16211B] max-w-[80px] mx-auto">
+                  {activeBooking.theatre?.name ?? '—'}
                 </p>
               </div>
-
-              {activeBooking && (
-                <div className="min-w-[110px] p-3.5">
-                  <div className="flex items-center gap-1.5">
-                    <CircleDot size={11} className="!text-[#1D9E75]" />
-                    <p className="truncate text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
-                      {STATUS_META[activeBooking.status]?.label ?? 'Active'}
-                    </p>
-                  </div>
-                  <p className="mt-1.5 truncate text-sm font-semibold !text-[#16211B]">
-                    {activeBooking.theatre?.name ?? '—'}
-                  </p>
-                </div>
-              )}
-            </div>
+            )}
           </div>
 
-          <div className="mt-6 flex w-full items-center gap-1 overflow-x-auto rounded-xl border !border-[#E8E6E0] !bg-[#F7F7F5] p-1 sm:w-fit">
-            <ConsoleTab
+          <div
+            className="mt-6 flex w-full items-center gap-1 overflow-x-auto rounded-xl border !border-[#E8E6E0] !bg-[#F7F7F5] p-1 sm:w-fit hide-scrollbar"
+            style={{
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            }}
+          >            <ConsoleTab
               active={view === 'timeline'}
               onClick={() => { setView('timeline'); setSelectedBooking(null); }}
               label="Booking History"
@@ -269,7 +252,7 @@ export default function TheatreBookingWorkspace({ procedure, initialBookings, th
             )}
 
             {view === 'action' && selectedBooking && (
-              <ConsoleTab active onClick={() => {}} label="Manage Booking" />
+              <ConsoleTab active onClick={() => { }} label="Manage Booking" />
             )}
           </div>
         </div>
@@ -330,9 +313,8 @@ function ConsoleTab({
     return (
       <button
         onClick={onClick}
-        className={`shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition !bg-white shadow-sm ${
-          accent ? '!text-[#1D9E75]' : '!text-[#16211B]'
-        }`}
+        className={`shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition !bg-white shadow-sm ${accent ? '!text-[#1D9E75]' : '!text-[#16211B]'
+          }`}
       >
         {label}
       </button>

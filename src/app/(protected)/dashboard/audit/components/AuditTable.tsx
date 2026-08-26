@@ -19,11 +19,11 @@ export default function AuditTable({ list, page, limit }: Props) {
 
   if (list.length === 0) {
     return (
-      <div className="rounded-2xl border border-gray-100 bg-white py-16 shadow-sm">
+      <div className="rounded-2xl border !border-[#E8E6E0] !bg-white py-16 shadow-sm">
         <Empty
-          image={<FileSearch size={40} className="mx-auto text-gray-300" />}
+          image={<FileSearch size={40} className="mx-auto !text-[#B4B2A9]" />}
           description={
-            <span className="text-sm text-gray-500">
+            <span className="text-sm !text-[#767570]">
               No audit logs match these filters
             </span>
           }
@@ -34,50 +34,56 @@ export default function AuditTable({ list, page, limit }: Props) {
 
   return (
     <>
-      <div className="hidden overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm md:block">
-        <div className="overflow-x-auto">
+      <div className="hidden overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white shadow-sm md:block">
+        <div
+          className="overflow-x-auto hide-scrollbar"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+        >
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/80 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                <th className="w-14 px-4 py-3.5">S/N</th>
-                <th className="px-4 py-3.5">Action</th>
-                <th className="px-4 py-3.5">Entity</th>
-                <th className="px-4 py-3.5">Description</th>
-                <th className="px-4 py-3.5">Date</th>
-                <th className="w-16 px-4 py-3.5 text-center">View</th>
+              <tr className="border-b !border-[#E8E6E0] !bg-[#FAFAF8] text-left text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
+                <th className="w-14 px-4 py-3">S/N</th>
+                <th className="px-4 py-3">Action</th>
+                <th className="px-4 py-3">Entity</th>
+                <th className="px-4 py-3">Description</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="w-16 px-4 py-3 text-center">View</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y !divide-[#F0EFE9]">
               {list.map((a, index) => {
                 const style = getActionStyle(a.action);
                 return (
                   <tr
                     key={a.id}
                     onClick={() => setSelectedId(a.id)}
-                    className="cursor-pointer transition-colors hover:bg-gray-50"
+                    className="cursor-pointer transition hover:!bg-[#F7F7F5]"
                   >
-                    <td className="px-4 py-3.5 text-gray-400">
+                    <td className="px-4 py-3.5 !text-[#B4B2A9]">
                       {(page - 1) * limit + index + 1}
                     </td>
                     <td className="px-4 py-3.5">
                       <span
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${style.bg} ${style.text} ${style.border}`}
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${style.bg} ${style.text} ${style.border}`}
                       >
                         <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
                         {a.action}
                       </span>
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="rounded-md bg-gray-100 px-2 py-1 font-mono text-xs text-gray-600">
+                      <span className="rounded-md !bg-[#F7F7F5] px-2 py-1 font-mono text-[10px] font-semibold !text-[#767570]">
                         {a.entity}
                       </span>
                     </td>
-                    <td className="max-w-xs px-4 py-3.5 text-gray-600">
+                    <td className="max-w-xs px-4 py-3.5 !text-[#5F5E5A]">
                       <Tooltip title={a.actorType ?? 'N/A'}>
                         <span className="block truncate">{a.actorType ?? 'N/A'}</span>
                       </Tooltip>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3.5 text-gray-500">
+                    <td className="whitespace-nowrap px-4 py-3.5 !text-[#767570]">
                       <Tooltip title={formatAbsolute(a.createdAt)}>
                         <span>{formatRelative(a.createdAt)}</span>
                       </Tooltip>
@@ -88,7 +94,7 @@ export default function AuditTable({ list, page, limit }: Props) {
                           e.stopPropagation();
                           setSelectedId(a.id);
                         }}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-blue-50 hover:text-blue-600"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg !text-[#B4B2A9] transition hover:!bg-[#EFF5FF] hover:!text-[#1D6FE0]"
                       >
                         <Eye size={15} />
                       </button>
@@ -108,29 +114,33 @@ export default function AuditTable({ list, page, limit }: Props) {
             <button
               key={a.id}
               onClick={() => setSelectedId(a.id)}
-              className="rounded-2xl border border-gray-100 bg-white p-4 text-left shadow-sm transition active:scale-[0.99]"
+              className="overflow-hidden rounded-xl border !border-[#E8E6E0] !bg-white p-4 text-left transition hover:!border-[#D3D1C7]"
             >
               <div className="flex items-center justify-between gap-2">
                 <span
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${style.bg} ${style.text} ${style.border}`}
+                  className={`inline-flex max-w-[70%] items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${style.bg} ${style.text} ${style.border} shrink-0`}
                 >
-                  <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
-                  {a.action}
+                  <span className={`h-1.5 w-1.5 rounded-full ${style.dot} shrink-0`} />
+                  <span className="truncate">{a.action}</span>
                 </span>
-                <span className="text-[11px] text-gray-400">
+                <span className="shrink-0 text-[10px] font-medium !text-[#B4B2A9]">
                   #{(page - 1) * limit + index + 1}
                 </span>
               </div>
 
-              <p className="mt-2.5 truncate text-sm text-gray-600">
-                {a.actorType ?? 'N/A'}
-              </p>
+              <div className="mt-2.5">
+                <p className="break-words text-sm !text-[#5F5E5A]">
+                  {a.actorType ?? 'N/A'}
+                </p>
+              </div>
 
-              <div className="mt-3 flex items-center justify-between text-xs text-gray-400">
-                <span className="rounded-md bg-gray-100 px-2 py-0.5 font-mono text-gray-600">
+              <div className="mt-3 flex items-center justify-between gap-2 text-xs">
+                <span className="shrink-0 rounded-md !bg-[#F7F7F5] px-2 py-0.5 font-mono text-[10px] font-semibold !text-[#767570] max-w-[55%] truncate">
                   {a.entity}
                 </span>
-                <span>{formatRelative(a.createdAt)}</span>
+                <span className="shrink-0 !text-[#B4B2A9]">
+                  {formatRelative(a.createdAt)}
+                </span>
               </div>
             </button>
           );

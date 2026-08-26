@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/solid';
+import { X } from 'lucide-react';
 import { GetAllStaffQuery } from '@/shared/graphql/generated/graphql';
 import { Meta, Avatar, DetailsSkeleton } from '@/components/DetailsParts';
 import { ROLE_STYLES, Roles } from '@/shared/utils/enums/roles';
@@ -69,17 +69,17 @@ export default function DetailsDrawer({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full mt-14 sm:max-w-md h-[92vh] sm:h-full bg-white p-5 sm:p-8 rounded-t-3xl sm:rounded-none animate-drawer-in relative"
+        className="w-full mt-14 sm:max-w-md h-[92vh] sm:h-full !bg-[#FAFAF8] p-5 sm:p-6 rounded-t-2xl sm:rounded-none animate-drawer-in relative"
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition"
+          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-lg border !border-[#E8E6E0] !bg-white !text-[#767570] transition hover:!bg-[#F7F7F5] hover:!text-[#16211B]"
         >
-          <XMarkIcon className="h-5 w-5 text-gray-600" />
+          <X size={18} />
         </button>
 
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+          <div className="mb-4 rounded-xl border !border-[#FBD5D5] !bg-[#FEF2F2] px-4 py-3 text-sm font-medium !text-[#DC2626]">
             {error}
           </div>
         )}
@@ -87,33 +87,35 @@ export default function DetailsDrawer({
         {loading ? (
           <DetailsSkeleton />
         ) : staff ? (
-          <div className="space-y-8">
-            <div className="flex items-center gap-4">
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
               <Avatar name={staff.fullName} />
-              <div>
-                <h2 className="text-lg sm:text-xl font-extrabold">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg font-bold tracking-tight !text-[#16211B] sm:text-xl">
                   {staff.fullName}
                 </h2>
-                <p className="text-sm text-gray-500 break-all">{staff.email}</p>
+                <p className="mt-0.5 truncate text-sm !text-[#767570]">
+                  {staff.email}
+                </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl">
+            <div className="grid grid-cols-2 gap-3 rounded-xl border !border-[#E8E6E0] !bg-white p-4">
               <Meta label="User Code" value={staff.userCode} />
               <Meta label="Phone" value={staff.phoneNumber ?? '—'} />
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm font-semibold text-gray-700">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
                 Assigned roles
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {staff.roles.map((role) => {
                   const style = ROLE_STYLES[role];
                   return (
                     <span
                       key={role}
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}
+                      className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${style.bg} ${style.text}`}
                     >
                       {role}
                     </span>
@@ -122,34 +124,37 @@ export default function DetailsDrawer({
               </div>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-gray-700">Status</p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between rounded-xl border !border-[#E8E6E0] !bg-white p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+                  Status
+                </p>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[currentStatus ?? StaffStatus.Active]
-                    }`}
+                  className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${STATUS_COLORS[currentStatus ?? StaffStatus.Active]}`}
                 >
                   {STATUS_LABELS[currentStatus ?? StaffStatus.Active]}
                 </span>
               </div>
 
               <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR]}>
-                <div className="mt-3">
-                  <p className="text-xs text-gray-400 mb-1.5">
+                <div className="rounded-xl border !border-[#E8E6E0] !bg-white p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+                    Update status
+                  </p>
+                  <p className="mt-0.5 text-xs !text-[#767570]">
                     Click a status to update
                   </p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="mt-3 flex flex-wrap gap-1.5">
                     {Object.values(StaffStatus).map((status: StaffStatus) => (
                       <button
                         key={status}
                         disabled={updatingStatus}
                         onClick={() => handleStatusChange(status)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition !text-gray-500
-                          ${currentStatus === status
-                            ? 'ring-2 ring-indigo-500 font-semibold'
-                            : ''
-                          }
-                          ${STATUS_COLORS[status]}`}
+                        className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide transition ${
+                          currentStatus === status
+                            ? `ring-2 ring-[#1D9E75] ${STATUS_COLORS[status]}`
+                            : `${STATUS_COLORS[status]} opacity-70 hover:opacity-100`
+                        }`}
                       >
                         {STATUS_LABELS[status]}
                       </button>
@@ -160,7 +165,11 @@ export default function DetailsDrawer({
             </div>
           </div>
         ) : (
-          <p className="text-gray-500 mt-12">Staff not found</p>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <p className="text-sm font-medium !text-[#B4B2A9]">
+              Staff not found
+            </p>
+          </div>
         )}
       </div>
     </div>

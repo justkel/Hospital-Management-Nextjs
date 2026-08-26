@@ -84,7 +84,7 @@ export default async function ProcedureDetailPage({
 
               <Link
                 href={`/dashboard/visit-procedures/${procedure.id}/bookings`}
-                className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                className="inline-flex items-center justify-center rounded-lg !bg-blue-600 px-5 py-2.5 text-sm font-semibold !text-white transition !hover:bg-blue-700"
               >
                 Open Theatre Bookings
               </Link>

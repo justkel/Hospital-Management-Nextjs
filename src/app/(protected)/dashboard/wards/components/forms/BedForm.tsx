@@ -15,11 +15,11 @@ import {
 import {
     PlusOutlined,
     DeleteOutlined,
+    CloseOutlined,
 } from '@ant-design/icons';
 
 import {
     BedDouble,
-    ShieldCheck,
     Activity,
 } from 'lucide-react';
 
@@ -49,6 +49,7 @@ type InitialBed = {
 type BedFormProps = {
     wardId: string;
     onSuccess?: () => void;
+    onCancel?: () => void;
     mode?: 'create' | 'edit';
     initial?: InitialBed;
 };
@@ -59,34 +60,20 @@ type BedMutationResponse = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-    AVAILABLE:
-        'bg-emerald-50 text-emerald-700 border-emerald-200',
-
-    OCCUPIED:
-        'bg-red-50 text-red-700 border-red-200',
-
-    CLEANING:
-        'bg-amber-50 text-amber-700 border-amber-200',
-
-    MAINTENANCE:
-        'bg-slate-100 text-slate-700 border-slate-200',
-
-    BLOCKED:
-        'bg-orange-50 text-orange-700 border-orange-200',
-
-    RESERVED:
-        'bg-blue-50 text-blue-700 border-blue-200',
-
-    ISOLATION:
-        'bg-purple-50 text-purple-700 border-purple-200',
-
-    DECOMMISSIONED:
-        'bg-zinc-100 text-zinc-600 border-zinc-200',
+    AVAILABLE: '!bg-[#ECFBF5] !text-[#1D9E75] !border-[#CFF0E1]',
+    OCCUPIED: '!bg-[#FEF2F2] !text-[#DC2626] !border-[#FBD5D5]',
+    CLEANING: '!bg-[#FFF8EC] !text-[#B9770E] !border-[#F5E3C0]',
+    MAINTENANCE: '!bg-[#F7F7F5] !text-[#767570] !border-[#E8E6E0]',
+    BLOCKED: '!bg-[#FFF1E9] !text-[#C2571C] !border-[#FAD9C4]',
+    RESERVED: '!bg-[#EFF5FF] !text-[#1D6FE0] !border-[#D6E4FB]',
+    ISOLATION: '!bg-[#F5F2FF] !text-[#7C5CFC] !border-[#E5DCFC]',
+    DECOMMISSIONED: '!bg-[#F7F7F5] !text-[#B4B2A9] !border-[#E8E6E0]',
 };
 
 export default function BedForm({
     wardId,
     onSuccess,
+    onCancel,
     mode = 'create',
     initial,
 }: BedFormProps) {
@@ -116,12 +103,7 @@ export default function BedForm({
     const [loading, setLoading] = useState(false);
 
     const canSubmit = useMemo(
-        () =>
-            beds.every(
-                b =>
-                    b.name.trim() &&
-                    b.class,
-            ),
+        () => beds.every(b => b.name.trim() && b.class),
         [beds],
     );
 
@@ -132,9 +114,7 @@ export default function BedForm({
     ) {
         setBeds(prev =>
             prev.map((bed, i) =>
-                i === index
-                    ? { ...bed, [key]: value }
-                    : bed,
+                i === index ? { ...bed, [key]: value } : bed,
             ),
         );
     }
@@ -152,32 +132,24 @@ export default function BedForm({
     }
 
     function removeRow(index: number) {
-        setBeds(prev =>
-            prev.filter((_, i) => i !== index),
-        );
+        setBeds(prev => prev.filter((_, i) => i !== index));
     }
 
     async function submit() {
         if (!canSubmit) {
-            message.warning(
-                'Please complete all required fields',
-            );
-
+            message.warning('Please complete all required fields');
             return;
         }
 
         setLoading(true);
 
         let failed = 0;
-
         let lastError: string | null = null;
 
         try {
             await Promise.all(
                 beds.map(async b => {
-                    const url = isEdit
-                        ? '/api/bed/update'
-                        : '/api/bed/create';
+                    const url = isEdit ? '/api/bed/update' : '/api/bed/create';
 
                     const payload = isEdit
                         ? {
@@ -209,35 +181,22 @@ export default function BedForm({
 
                         if (!res.ok) {
                             failed++;
-
-                            lastError =
-                                json?.error ||
-                                json?.message ||
-                                'Operation failed';
+                            lastError = json?.error || json?.message || 'Operation failed';
                         }
                     } catch (err) {
                         failed++;
-
-                        lastError =
-                            err instanceof Error
-                                ? err.message
-                                : 'Network error occurred';
+                        lastError = err instanceof Error ? err.message : 'Network error occurred';
                     }
                 }),
             );
 
             if (failed > 0) {
-                message.error(
-                    lastError || 'Operation failed',
-                );
-
+                message.error(lastError || 'Operation failed');
                 return;
             }
 
             message.success(
-                isEdit
-                    ? 'Bed updated successfully'
-                    : 'Beds deployed successfully',
+                isEdit ? 'Bed updated successfully' : 'Beds deployed successfully',
             );
 
             onSuccess?.();
@@ -258,264 +217,203 @@ export default function BedForm({
     }
 
     return (
-        <div className="relative overflow-hidden rounded-[28px] sm:rounded-[36px]">
+        <div className="space-y-5">
+            <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+                <div className="flex items-start justify-between gap-3 px-5 py-5 sm:px-7 sm:py-6">
+                    <div className="flex items-start gap-3">
+                        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl !bg-[#ECFBF5]">
+                            <BedDouble size={18} className="!text-[#1D9E75]" />
+                        </div>
 
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                <div className="absolute -right-16 -top-16 h-40 w-40 sm:h-72 sm:w-72 rounded-full bg-cyan-200/40 blur-3xl" />
+                        <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <h1 className="text-xl font-bold tracking-tight !text-[#16211B] sm:text-2xl">
+                                    {isEdit ? 'Update bed' : 'Deploy ward beds'}
+                                </h1>
+                            </div>
 
-                <div className="absolute -bottom-16 -left-16 h-40 w-40 sm:h-72 sm:w-72 rounded-full bg-blue-200/40 blur-3xl" />
-            </div>
+                            <p className="mt-1.5 max-w-xl text-sm leading-relaxed !text-[#767570]">
+                                Configure and manage ward beds with status tracking.
+                            </p>
 
-            <div className="relative space-y-5 sm:space-y-6">
-                <div className="overflow-hidden rounded-[28px] border border-white/60 bg-white/80 shadow-[0_12px_45px_rgba(0,0,0,0.06)] backdrop-blur-xl">
-
-                    <div className="bg-gradient-to-br from-slate-950 via-blue-900 to-cyan-700 px-4 py-5 sm:px-7 sm:py-7">
-                        <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
-
-                            <div className="min-w-0 flex-1">
-                                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-2 text-[11px] sm:text-xs font-medium text-blue-100 backdrop-blur">
-                                    <ShieldCheck size={14} />
-                                    Enterprise Bed Management
+                            <div className="mt-4 flex flex-wrap gap-2">
+                                <div className="rounded-lg border !border-[#E8E6E0] !bg-[#FAFAF8] px-3 py-2">
+                                    <p className="text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
+                                        {isEdit ? 'Beds being updated' : 'Beds to be added'}
+                                    </p>
+                                    <p className="mt-0.5 font-mono text-lg font-semibold tabular-nums !text-[#16211B]">
+                                        {beds.length}
+                                    </p>
                                 </div>
 
-                                <div className="mt-4">
-                                    <h1 className="text-2xl font-bold tracking-tight text-white sm:text-4xl">
-                                        {isEdit
-                                            ? 'Update Bed'
-                                            : 'Deploy Ward Beds'}
-                                    </h1>
-
-                                    <p className="mt-2 max-w-2xl text-sm leading-relaxed text-blue-100/90 sm:text-base">
-                                        Configure and manage ward beds with status tracking.
+                                <div className="rounded-lg border !border-[#E8E6E0] !bg-[#FAFAF8] px-3 py-2">
+                                    <p className="text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
+                                        {isEdit ? 'Active after update' : 'Active to be added'}
+                                    </p>
+                                    <p className="mt-0.5 font-mono text-lg font-semibold tabular-nums !text-[#16211B]">
+                                        {beds.filter(b => b.isActive).length}
                                     </p>
                                 </div>
                             </div>
-
-                            <div className="grid w-full grid-cols-2 gap-3 sm:w-auto sm:min-w-[260px]">
-                                <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
-                                    <div className="text-[10px] uppercase tracking-[0.2em] text-blue-100">
-                                        {isEdit
-                                            ? 'Beds being updated'
-                                            : 'Beds to be added'}
-                                    </div>
-
-                                    <div className="mt-1 text-2xl sm:text-3xl font-bold text-white">
-                                        {beds.length}
-                                    </div>
-                                </div>
-
-                                <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
-                                    <div className="text-[10px] uppercase tracking-[0.2em] text-blue-100">
-                                        {isEdit
-                                            ? 'Active after update'
-                                            : 'Active to be added'}
-                                    </div>
-
-                                    <div className="mt-1 text-2xl sm:text-3xl font-bold text-white">
-                                        {
-                                            beds.filter(
-                                                b => b.isActive,
-                                            ).length
-                                        }
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-3 border-t border-slate-100 p-4 sm:grid-cols-2 xl:grid-cols-3 sm:p-5">
-                        <div className="flex items-start gap-3 rounded-2xl bg-slate-50 p-4">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
-                                <BedDouble size={20} />
-                            </div>
-
-                            <div className="min-w-0">
-                                <p className="text-xs text-slate-500">
-                                    Bed Classes
-                                </p>
-
-                                <p className="truncate font-semibold text-slate-900">
-                                    Operational Categories
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    <button
+                        onClick={onCancel}
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border !border-[#E8E6E0] !bg-white !text-[#767570] transition hover:!bg-[#F7F7F5] hover:!text-[#16211B]"
+                    >
+                        <CloseOutlined />
+                    </button>
                 </div>
+            </div>
 
-                <div className="max-h-[58vh] space-y-4 overflow-y-auto pr-0 sm:pr-1">
-                    {beds.map((b, i) => (
-                        <div
-                            key={i}
-                            className="group relative overflow-hidden rounded-[24px] sm:rounded-[30px] border border-slate-200/70 bg-white/90 p-4 sm:p-6 shadow-[0_10px_35px_rgba(0,0,0,0.05)] backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(37,99,235,0.12)]"
-                        >
-                            <div className="absolute right-0 top-0 h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-cyan-100 blur-3xl opacity-40 transition group-hover:opacity-70" />
+            <div
+                className="max-h-[58vh] space-y-3 overflow-y-auto pr-0 sm:pr-1"
+                style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                }}
+            >
+                {beds.map((b, i) => (
+                    <div
+                        key={i}
+                        className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white p-4 sm:p-5"
+                    >
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                            <div className="flex min-w-0 items-center gap-3">
+                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl !bg-[#F7F7F5] !text-[#5F5E5A]">
+                                    <BedDouble size={19} />
+                                </div>
 
-                            <div className="relative space-y-5">
-                                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                                    <div className="flex min-w-0 items-center gap-3">
-                                        <div className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-lg">
-                                            <BedDouble size={22} />
-                                        </div>
-
-                                        <div className="min-w-0">
-                                            <div className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                                                Bed Slot
-                                            </div>
-
-                                            <h3 className="truncate text-lg sm:text-xl font-bold text-slate-900">
-                                                Bed #{i + 1}
-                                            </h3>
-                                        </div>
+                                <div className="min-w-0">
+                                    <div className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+                                        Bed slot
                                     </div>
 
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <Tag
-                                            className={`m-0 rounded-full border px-3 py-1 text-[11px] sm:text-xs font-semibold ${STATUS_STYLES[b.status || BedStatus.Available]}`}
+                                    <h3 className="truncate text-base font-semibold !text-[#16211B] sm:text-lg">
+                                        Bed #{i + 1}
+                                    </h3>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2">
+                                <Tag
+                                    className={`m-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${STATUS_STYLES[b.status || BedStatus.Available]}`}
+                                >
+                                    {b.status}
+                                </Tag>
+
+                                {!isEdit && beds.length > 1 && (
+                                    <Tooltip title="Remove bed">
+                                        <button
+                                            onClick={() => removeRow(i)}
+                                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border !border-[#FBD5D5] !bg-[#FEF2F2] !text-[#DC2626] transition hover:!bg-[#FDE4E4]"
                                         >
-                                            {b.status}
-                                        </Tag>
+                                            <DeleteOutlined />
+                                        </button>
+                                    </Tooltip>
+                                )}
+                            </div>
+                        </div>
 
-                                        {!isEdit &&
-                                            beds.length > 1 && (
-                                                <Tooltip title="Remove bed">
-                                                    <button
-                                                        onClick={() =>
-                                                            removeRow(i)
-                                                        }
-                                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-500 transition hover:scale-105 hover:bg-red-100"
-                                                    >
-                                                        <DeleteOutlined />
-                                                    </button>
-                                                </Tooltip>
-                                            )}
-                                    </div>
-                                </div>
+                        <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+                                    Bed name
+                                </label>
 
-                                <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">
-                                            Bed Name
-                                        </label>
+                                <Input
+                                    size="large"
+                                    placeholder="e.g. ICU-A1"
+                                    value={b.name}
+                                    onChange={e => update(i, 'name', e.target.value)}
+                                    className="rounded-xl"
+                                />
+                            </div>
 
-                                        <Input
-                                            size="large"
-                                            placeholder="e.g. ICU-A1"
-                                            value={b.name}
-                                            onChange={e =>
-                                                update(
-                                                    i,
-                                                    'name',
-                                                    e.target.value,
-                                                )
-                                            }
-                                            className="h-12 sm:h-14 rounded-2xl border-slate-200 text-sm sm:text-base shadow-sm"
-                                        />
-                                    </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+                                    Bed class
+                                </label>
 
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">
-                                            Bed Class
-                                        </label>
+                                <Select
+                                    size="large"
+                                    value={b.class}
+                                    onChange={v => update(i, 'class', v)}
+                                    className="w-full"
+                                    options={Object.values(BedClass).map(c => ({
+                                        value: c,
+                                        label: c,
+                                    }))}
+                                />
+                            </div>
 
-                                        <Select
-                                            size="large"
-                                            value={b.class}
-                                            onChange={v =>
-                                                update(i, 'class', v)
-                                            }
-                                            className="w-full"
-                                            options={Object.values(
-                                                BedClass,
-                                            ).map(c => ({
-                                                value: c,
-                                                label: c,
-                                            }))}
-                                        />
-                                    </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+                                    Initial status
+                                </label>
 
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">
-                                            Initial Status
-                                        </label>
+                                <Select
+                                    size="large"
+                                    value={b.status}
+                                    onChange={v => update(i, 'status', v)}
+                                    className="w-full"
+                                    options={Object.values(BedStatus).map(s => ({
+                                        value: s,
+                                        label: s,
+                                    }))}
+                                />
+                            </div>
 
-                                        <Select
-                                            size="large"
-                                            value={b.status}
-                                            onChange={v =>
-                                                update(i, 'status', v)
-                                            }
-                                            className="w-full"
-                                            options={Object.values(
-                                                BedStatus,
-                                            ).map(s => ({
-                                                value: s,
-                                                label: s,
-                                            }))}
-                                        />
-                                    </div>
-
-                                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                            <div className="min-w-0">
-                                                <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-                                                    <Activity size={16} />
-                                                    Operational State
-                                                </div>
-
-                                                <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                                                    Control whether this bed
-                                                    can be assigned within the
-                                                    ward.
-                                                </p>
-                                            </div>
-
-                                            <Switch
-                                                checked={b.isActive}
-                                                onChange={v =>
-                                                    update(
-                                                        i,
-                                                        'isActive',
-                                                        v,
-                                                    )
-                                                }
-                                            />
+                            <div className="rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-4">
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-2 text-sm font-semibold !text-[#16211B]">
+                                            <Activity size={15} className="!text-[#767570]" />
+                                            Operational state
                                         </div>
+                                        <p className="mt-1 text-xs leading-relaxed !text-[#767570]">
+                                            Control whether this bed can be assigned within the ward.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex shrink-0 items-center">
+                                        <Switch
+                                            checked={b.isActive}
+                                            onChange={v => update(i, 'isActive', v)}
+                                        />
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    ))}
-                </div>
-
-                <div className="sticky bottom-0 z-10 rounded-[24px] sm:rounded-[28px] border border-white/70 bg-white/90 p-3 sm:p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.06)] backdrop-blur-xl">
-                    <div className="flex flex-col gap-3 lg:flex-row">
-                        {!isEdit && (
-                            <Button
-                                icon={<PlusOutlined />}
-                                onClick={addRow}
-                                disabled={loading}
-                                className="h-12 sm:h-14 w-full rounded-2xl border-0 bg-slate-100 text-sm font-semibold text-slate-700 shadow-sm transition hover:!bg-slate-200 lg:flex-1"
-                            >
-                                Add Another Bed
-                            </Button>
-                        )}
-
-                        <Button
-                            type="primary"
-                            loading={loading}
-                            disabled={!canSubmit}
-                            onClick={submit}
-                            className="h-12 sm:h-14 w-full rounded-2xl border-0 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 text-sm font-semibold shadow-[0_12px_30px_rgba(37,99,235,0.35)] transition hover:scale-[1.01] lg:flex-1"
-                        >
-                            {loading
-                                ? isEdit
-                                    ? 'Updating Bed...'
-                                    : 'Deploying Beds...'
-                                : isEdit
-                                    ? 'Update Bed'
-                                    : 'Deploy Beds'}
-                        </Button>
                     </div>
+                ))}
+            </div>
+
+            <div className="sticky bottom-0 z-10 rounded-2xl border !border-[#E8E6E0] !bg-white p-3.5 sm:p-4">
+                <div className="flex flex-col gap-3 lg:flex-row">
+                    {!isEdit && (
+                        <Button
+                            icon={<PlusOutlined />}
+                            onClick={addRow}
+                            disabled={loading}
+                            className="!h-12 w-full !rounded-xl !border !border-[#E8E6E0] !bg-white text-sm font-semibold !text-[#5F5E5A] hover:!bg-[#F7F7F5] lg:flex-1"
+                        >
+                            Add another bed
+                        </Button>
+                    )}
+
+                    <Button
+                        type="primary"
+                        loading={loading}
+                        disabled={!canSubmit}
+                        onClick={submit}
+                        className="!h-12 w-full !rounded-xl !border-0 !bg-[#0c1a12] text-sm font-semibold hover:!bg-[#16211B] lg:flex-1"
+                    >
+                        {loading
+                            ? isEdit ? 'Updating bed…' : 'Deploying beds…'
+                            : isEdit ? 'Update bed' : 'Deploy beds'}
+                    </Button>
                 </div>
             </div>
         </div>

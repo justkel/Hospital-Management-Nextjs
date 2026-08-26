@@ -141,76 +141,50 @@ export default function ProcedureStaffSection({
 
     return (
         <div className="space-y-5">
-            <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/80 shadow-xl backdrop-blur-xl">
-                <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
+            <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+                <div className="border-b !border-[#E8E6E0] px-5 py-4 sm:px-6">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
-                                <Users className="h-6 w-6" />
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl !bg-[#ECFBF5]">
+                                <Users className="h-5 w-5 !text-[#1D9E75]" />
                             </div>
 
                             <div>
-                                <h2 className="text-lg font-black text-slate-900 sm:text-xl">
-                                    Procedure Staff
+                                <h2 className="text-sm font-semibold !text-[#16211B] sm:text-base">
+                                    Procedure staff
                                 </h2>
-
-                                <p className="text-sm text-slate-500">
+                                <p className="text-xs !text-[#767570]">
                                     Manage clinicians assigned to this procedure
                                 </p>
                             </div>
                         </div>
 
                         <button
-                            disabled={
-                                disabled ||
-                                !hasChanges ||
-                                saving
-                            }
-                            onClick={
-                                handleSave
-                            }
-                            className="
-                                inline-flex h-12 items-center justify-center gap-2
-                                rounded-2xl
-                                bg-gradient-to-r from-blue-600 to-indigo-600
-                                px-5
-                                font-bold
-                                !text-white
-                                shadow-lg shadow-blue-600/20
-                                transition-all
-                                hover:scale-[1.01]
-                                disabled:cursor-not-allowed
-                                disabled:opacity-50
-                            "
+                            disabled={disabled || !hasChanges || saving}
+                            onClick={handleSave}
+                            className="inline-flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-xl !bg-[#0c1a12] px-4 sm:px-5 text-xs sm:text-sm font-semibold !text-white transition hover:!bg-[#16211B] disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            <Save className="h-4 w-4" />
-
-                            {saving
-                                ? 'Saving Changes...'
-                                : 'Save Team Changes'}
+                            <Save className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            <span className="sm:hidden">Save</span>
+                            <span className="hidden sm:inline">{saving ? 'Saving...' : 'Save team changes'}</span>
                         </button>
                     </div>
                 </div>
 
-                <div className="space-y-6 p-4 sm:p-6">
+                <div className="space-y-5 p-4 sm:p-6">
                     <UpdateProcedureStaffCard
                         team={team}
                         setTeam={setTeam}
-                        disabled={
-                            disabled
-                        }
+                        disabled={disabled}
                     />
 
                     <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR]}>
                         <AssignProcedureStaffCard
                             team={team}
                             setTeam={setTeam}
-                            disabled={
-                                disabled
-                            }
+                            disabled={disabled}
                         />
                     </HasRoles>
-
                 </div>
             </div>
         </div>

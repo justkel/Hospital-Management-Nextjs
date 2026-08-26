@@ -127,47 +127,48 @@ export default function CreateVisitProcedureForm({
     <>
       {contextHolder}
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white">
-        <div className="px-6 py-7 sm:px-8 sm:py-8">
-          <div className="mb-6">
-            <div className="mb-3.5 inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+      <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+        <div className="px-5 py-6 sm:px-8 sm:py-8">
+          <div className="mb-5 sm:mb-6">
+            <div className="mb-3 inline-flex items-center gap-1.5 rounded-full !bg-[#ECFBF5] px-3 py-1 text-xs font-medium !text-[#1D9E75]">
               <ClipboardPlus size={13} />
               Add procedure
             </div>
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+            <h2 className="text-xl font-bold tracking-tight !text-[#16211B] sm:text-2xl">
               New visit procedure
             </h2>
-            <p className="mt-1.5 text-sm leading-relaxed text-slate-500">
+            <p className="mt-1.5 text-sm leading-relaxed !text-[#767570]">
               Assign a procedure from the catalog or enter custom details for this visit.
             </p>
           </div>
 
-          <div className="mb-6 h-px bg-slate-100" />
+          <div className="mb-5 h-px !bg-[#E8E6E0] sm:mb-6" />
 
-          <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          <div className="mb-5 flex items-start gap-2.5 rounded-xl border !border-[#F5E3C0] !bg-[#FFF8EC] px-4 py-3 text-sm !text-[#B9770E] sm:mb-6">
             <AlertTriangle size={15} className="mt-0.5 shrink-0" />
             <p className="leading-relaxed">
               Use either a <strong className="font-semibold">procedure catalog</strong> or{' '}
               <strong className="font-semibold">custom fields</strong> — not both at the same time.
             </p>
           </div>
+
           <div className="mb-5">
-            <p className="mb-3 text-[11px] font-medium uppercase tracking-widest text-slate-400">
+            <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
               From catalog
             </p>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-500">
+              <label className="text-xs font-medium !text-[#767570]">
                 Procedure catalog
               </label>
               <select
                 disabled={disableCatalog}
                 value={form.procedureCatalogId ?? ''}
                 onChange={e => setCatalog(e.target.value)}
-                className={`h-10 w-full rounded-lg border px-3 text-sm outline-none transition
-    ${disableCatalog
-                    ? 'cursor-not-allowed bg-slate-50 text-slate-400'
-                    : 'border-slate-200 bg-white focus:border-blue-400 focus:ring-3 focus:ring-blue-100'
-                  }`}
+                className={`h-10 w-full rounded-lg border px-3 text-sm outline-none transition ${
+                  disableCatalog
+                    ? 'cursor-not-allowed !border-[#E8E6E0] !bg-[#F7F7F5] !text-[#B4B2A9]'
+                    : '!border-[#E8E6E0] !bg-white !text-[#16211B] focus:!border-[#1D9E75]'
+                }`}
               >
                 <option value="">Select a procedure catalog…</option>
                 {catalogs?.map((c: ChargeCatalogOption) => (
@@ -180,20 +181,20 @@ export default function CreateVisitProcedureForm({
           </div>
 
           <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-slate-100" />
-            <span className="text-[11px] font-medium uppercase tracking-widest text-slate-400">
+            <div className="h-px flex-1 !bg-[#E8E6E0]" />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
               or enter custom
             </span>
-            <div className="h-px flex-1 bg-slate-100" />
+            <div className="h-px flex-1 !bg-[#E8E6E0]" />
           </div>
 
           <div className="mb-5">
-            <p className="mb-3 text-[11px] font-medium uppercase tracking-widest text-slate-400">
+            <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
               Custom procedure
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-500">
+                <label className="text-xs font-medium !text-[#767570]">
                   Procedure name
                 </label>
                 <input
@@ -202,15 +203,15 @@ export default function CreateVisitProcedureForm({
                   placeholder="e.g. Chest X-Ray"
                   value={form.customProcedureName ?? ''}
                   onChange={e => setCustomField('customProcedureName', e.target.value)}
-                  className={`h-10 w-full rounded-lg border px-3 text-sm outline-none transition
-                    ${disableCustom
-                      ? 'cursor-not-allowed bg-slate-50 text-slate-400'
-                      : 'border-slate-200 bg-white focus:border-blue-400 focus:ring-3 focus:ring-blue-100'
-                    }`}
+                  className={`h-10 w-full rounded-lg border px-3 text-sm outline-none transition ${
+                    disableCustom
+                      ? 'cursor-not-allowed !border-[#E8E6E0] !bg-[#F7F7F5] !text-[#B4B2A9]'
+                      : '!border-[#E8E6E0] !bg-white !text-[#16211B] placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75]'
+                  }`}
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-500">
+                <label className="text-xs font-medium !text-[#767570]">
                   Procedure code
                 </label>
                 <input
@@ -219,32 +220,32 @@ export default function CreateVisitProcedureForm({
                   placeholder="e.g. XR-001"
                   value={form.customProcedureCode ?? ''}
                   onChange={e => setCustomField('customProcedureCode', e.target.value)}
-                  className={`h-10 w-full rounded-lg border px-3 text-sm outline-none transition
-                    ${disableCustom
-                      ? 'cursor-not-allowed bg-slate-50 text-slate-400'
-                      : 'border-slate-200 bg-white focus:border-blue-400 focus:ring-3 focus:ring-blue-100'
-                    }`}
+                  className={`h-10 w-full rounded-lg border px-3 text-sm outline-none transition ${
+                    disableCustom
+                      ? 'cursor-not-allowed !border-[#E8E6E0] !bg-[#F7F7F5] !text-[#B4B2A9]'
+                      : '!border-[#E8E6E0] !bg-white !text-[#16211B] placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75]'
+                  }`}
                 />
               </div>
             </div>
           </div>
 
-          <div className="mb-5 h-px bg-slate-100" />
+          <div className="mb-5 h-px !bg-[#E8E6E0]" />
 
           <div>
-            <p className="mb-3 text-[11px] font-medium uppercase tracking-widest text-slate-400">
+            <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
               Details
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-500">
+                <label className="text-xs font-medium !text-[#767570]">
                   Priority
                 </label>
                 <select
                   value={form.priority ?? ''}
                   onChange={e => setForm({ ...form, priority: e.target.value as VisitProcedurePriority })}
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-3 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border !border-[#E8E6E0] !bg-white px-3 text-sm !text-[#16211B] outline-none transition focus:!border-[#1D9E75]"
                 >
                   <option value={VisitProcedurePriority.Normal}>Normal</option>
                   <option value={VisitProcedurePriority.Urgent}>Urgent</option>
@@ -254,7 +255,7 @@ export default function CreateVisitProcedureForm({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-500">
+                <label className="text-xs font-medium !text-[#767570]">
                   Estimated duration (minutes)
                 </label>
                 <input
@@ -262,12 +263,12 @@ export default function CreateVisitProcedureForm({
                   placeholder="e.g. 30"
                   value={form.estimatedDuration ?? ''}
                   onChange={e => setForm({ ...form, estimatedDuration: e.target.value ? Number(e.target.value) : undefined })}
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-3 focus:ring-blue-100"
+                  className="h-10 w-full rounded-lg border !border-[#E8E6E0] !bg-white px-3 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75]"
                 />
               </div>
 
               <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-xs font-medium text-slate-500">
+                <label className="text-xs font-medium !text-[#767570]">
                   Notes
                 </label>
                 <textarea
@@ -275,24 +276,24 @@ export default function CreateVisitProcedureForm({
                   placeholder="Any relevant clinical notes for this procedure…"
                   value={form.notes ?? ''}
                   onChange={e => setForm({ ...form, notes: e.target.value })}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-3 focus:ring-blue-100"
+                  className="w-full rounded-lg border !border-[#E8E6E0] !bg-white px-3 py-2.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75]"
                 />
               </div>
             </div>
           </div>
 
-          <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-100 pt-5">
+          <div className="mt-6 flex flex-col-reverse gap-3 border-t !border-[#E8E6E0] pt-5 xs:flex-row xs:items-center xs:justify-end">
             <button
               type="button"
               onClick={resetForm}
-              className="h-9 rounded-lg border border-slate-200 px-4 text-sm font-medium text-slate-500 transition hover:bg-slate-50"
+              className="h-10 rounded-lg border !border-[#E8E6E0] px-4 text-sm font-medium !text-[#5F5E5A] transition hover:!bg-[#F7F7F5]"
             >
               Cancel
             </button>
             <button
               onClick={submit}
               disabled={loading}
-              className="inline-flex h-9 items-center gap-2 rounded-lg bg-blue-50 border border-blue-200 px-5 text-sm font-medium text-blue-700 transition hover:bg-blue-100 disabled:opacity-50"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg !bg-[#0c1a12] px-5 text-sm font-medium !text-white transition hover:!bg-[#16211B] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? (
                 <>

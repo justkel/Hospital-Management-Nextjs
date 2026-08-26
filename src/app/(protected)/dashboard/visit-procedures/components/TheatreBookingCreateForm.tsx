@@ -192,8 +192,8 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
                     setTheatreOptions([]);
                   }}
                   className={`flex items-start gap-3 rounded-xl border p-4 text-left transition ${sel
-                      ? opt.active
-                      : '!border-[#E8E6E0] !bg-white hover:!bg-[#FAFAF8]'
+                    ? opt.active
+                    : '!border-[#E8E6E0] !bg-white hover:!bg-[#FAFAF8]'
                     }`}
                 >
                   <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${sel ? opt.iconActive : '!bg-[#F7F7F5] !text-[#B4B2A9]'}`}>
@@ -348,31 +348,36 @@ export default function TheatreBookingCreateForm({ procedureId, onSuccess, onCan
         )}
 
         <div className="flex flex-col gap-4 border-t !border-[#E8E6E0] pt-5 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs !text-[#767570]">
+          <p className="text-xs !text-[#767570] text-center sm:text-left">
             Booking will be validated against theatre availability and active blocks.
           </p>
-          <div className="flex items-center gap-3">
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
             <button
               onClick={onCancel}
               disabled={saving}
-              className="h-10 rounded-xl border !border-[#E8E6E0] px-4 text-xs font-semibold !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] disabled:opacity-40"
+              className="h-10 w-full sm:w-auto rounded-xl border !border-[#E8E6E0] px-4 text-xs font-semibold !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] disabled:opacity-40 order-2 sm:order-1"
             >
               Cancel
             </button>
+
             <button
               onClick={handleSubmit}
               disabled={saving || saved || !theatreId}
-              className="inline-flex h-10 items-center gap-2 rounded-xl !bg-[#0c1a12] px-5 text-xs font-semibold !text-white transition hover:!bg-[#16211B] disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-xl !bg-[#0c1a12] px-4 sm:px-5 text-xs sm:text-sm font-semibold !text-white transition hover:!bg-[#16211B] disabled:cursor-not-allowed disabled:opacity-40 order-1 sm:order-2"
             >
               {saving ? (
                 <>
                   <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 !border-white/20 !border-t-white" />
-                  Booking…
+                  <span className="sm:hidden">Booking…</span>
+                  <span className="hidden sm:inline">Booking…</span>
                 </>
               ) : (
                 <>
-                  <Lock size={12} />
-                  Confirm booking
+                  <Lock size={12} className="sm:hidden" />
+                  <Lock size={12} className="hidden sm:inline" />
+                  <span className="sm:hidden">Book</span>
+                  <span className="hidden sm:inline">Confirm booking</span>
                 </>
               )}
             </button>

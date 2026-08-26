@@ -33,59 +33,75 @@ const TYPE_OPTIONS: {
   value: TheatreBlockType;
   label: string;
   icon: React.ElementType;
-  pill: string;
+  color: string;
+  bg: string;
+  border: string;
   ring: string;
 }[] = [
-    {
-      value: TheatreBlockType.Maintenance,
-      label: 'Maintenance',
-      icon: Wrench,
-      pill: 'bg-amber-50 border-amber-300 text-amber-700',
-      ring: 'ring-amber-400',
-    },
-    {
-      value: TheatreBlockType.Cleaning,
-      label: 'Cleaning',
-      icon: Sparkles,
-      pill: 'bg-cyan-50 border-cyan-300 text-cyan-700',
-      ring: 'ring-cyan-400',
-    },
-    {
-      value: TheatreBlockType.EquipmentFailure,
-      label: 'Equipment Failure',
-      icon: TriangleAlert,
-      pill: 'bg-orange-50 border-orange-300 text-orange-700',
-      ring: 'ring-orange-400',
-    },
-    {
-      value: TheatreBlockType.InfectionControl,
-      label: 'Infection Control',
-      icon: Shield,
-      pill: 'bg-red-50 border-red-300 text-red-700',
-      ring: 'ring-red-400',
-    },
-    {
-      value: TheatreBlockType.Sterilization,
-      label: 'Sterilization',
-      icon: Thermometer,
-      pill: 'bg-violet-50 border-violet-300 text-violet-700',
-      ring: 'ring-violet-400',
-    },
-    {
-      value: TheatreBlockType.Reserved,
-      label: 'Reserved',
-      icon: Droplets,
-      pill: 'bg-blue-50 border-blue-300 text-blue-700',
-      ring: 'ring-blue-400',
-    },
-    {
-      value: TheatreBlockType.Other,
-      label: 'Other',
-      icon: Zap,
-      pill: 'bg-slate-50 border-slate-300 text-slate-600',
-      ring: 'ring-slate-400',
-    },
-  ];
+  {
+    value: TheatreBlockType.Maintenance,
+    label: 'Maintenance',
+    icon: Wrench,
+    color: '!text-amber-700',
+    bg: '!bg-amber-50',
+    border: '!border-amber-200',
+    ring: 'focus:ring-amber-500/20',
+  },
+  {
+    value: TheatreBlockType.Cleaning,
+    label: 'Cleaning',
+    icon: Sparkles,
+    color: '!text-cyan-700',
+    bg: '!bg-cyan-50',
+    border: '!border-cyan-200',
+    ring: 'focus:ring-cyan-500/20',
+  },
+  {
+    value: TheatreBlockType.EquipmentFailure,
+    label: 'Equipment Failure',
+    icon: TriangleAlert,
+    color: '!text-orange-700',
+    bg: '!bg-orange-50',
+    border: '!border-orange-200',
+    ring: 'focus:ring-orange-500/20',
+  },
+  {
+    value: TheatreBlockType.InfectionControl,
+    label: 'Infection Control',
+    icon: Shield,
+    color: '!text-red-700',
+    bg: '!bg-red-50',
+    border: '!border-red-200',
+    ring: 'focus:ring-red-500/20',
+  },
+  {
+    value: TheatreBlockType.Sterilization,
+    label: 'Sterilization',
+    icon: Thermometer,
+    color: '!text-violet-700',
+    bg: '!bg-violet-50',
+    border: '!border-violet-200',
+    ring: 'focus:ring-violet-500/20',
+  },
+  {
+    value: TheatreBlockType.Reserved,
+    label: 'Reserved',
+    icon: Droplets,
+    color: '!text-blue-700',
+    bg: '!bg-blue-50',
+    border: '!border-blue-200',
+    ring: 'focus:ring-blue-500/20',
+  },
+  {
+    value: TheatreBlockType.Other,
+    label: 'Other',
+    icon: Zap,
+    color: '!text-slate-600',
+    bg: '!bg-slate-50',
+    border: '!border-slate-200',
+    ring: 'focus:ring-slate-500/20',
+  },
+];
 
 function toLocalDatetime(iso: string): string {
   const d = new Date(iso);
@@ -149,21 +165,32 @@ export default function TheatreBlockUpdateForm({
     }
   }, [block.id, startTime, endTime, type, reason, onSuccess]);
 
+  const selectedTypeConfig = TYPE_OPTIONS.find(opt => opt.value === type) || TYPE_OPTIONS[0];
+
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-100 bg-gradient-to-r from-amber-50/60 to-white px-6 py-5">
-        <h3 className="text-base font-bold text-slate-900">Edit Block</h3>
-        <p className="text-xs text-slate-500">
-          Updating block{' '}
-          <span className="font-mono font-bold text-slate-700">
-            {block.id.slice(0, 8)}…
-          </span>
-        </p>
+    <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+      <div className="border-b !border-[#E8E6E0] px-5 py-4 sm:px-6 sm:py-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-semibold !text-[#16211B]">
+              Edit block
+            </h3>
+            <p className="mt-0.5 text-xs !text-[#767570]">
+              Update block{' '}
+              <span className="font-mono font-semibold !text-[#16211B]">
+                {block.id.slice(0, 8)}…
+              </span>
+            </p>
+          </div>
+          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${selectedTypeConfig.bg} ${selectedTypeConfig.color}`}>
+            <selectedTypeConfig.icon size={16} />
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-6 p-6">
+      <div className="space-y-5 p-5 sm:p-6">
         <div>
-          <p className="mb-3 text-xs font-black uppercase tracking-widest text-slate-500">
+          <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
             Block Type
           </p>
           <div className="flex flex-wrap gap-2">
@@ -174,12 +201,13 @@ export default function TheatreBlockUpdateForm({
                 <button
                   key={opt.value}
                   onClick={() => setType(opt.value)}
-                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[11px] font-bold transition ${selected
-                      ? `${opt.pill} ring-2 ${opt.ring}`
-                      : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300'
-                    }`}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide transition ${
+                    selected
+                      ? `${opt.bg} ${opt.color} ${opt.border} ring-2 ${opt.ring}`
+                      : '!border-[#E8E6E0] !bg-white !text-[#B4B2A9] hover:!border-[#D3D1C7] hover:!text-[#5F5E5A]'
+                  }`}
                 >
-                  <Icon size={11} />
+                  <Icon size={10} />
                   {opt.label}
                 </button>
               );
@@ -189,69 +217,63 @@ export default function TheatreBlockUpdateForm({
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
+            <label className="text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
               Start Date & Time
             </label>
             <input
               type="datetime-local"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 shadow-sm transition focus:border-amber-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-100"
+              className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm font-semibold !text-[#16211B] outline-none transition focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20"
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
+            <label className="text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
               End Date & Time
             </label>
             <input
               type="datetime-local"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 shadow-sm transition focus:border-amber-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-100"
+              className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm font-semibold !text-[#16211B] outline-none transition focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20"
             />
           </div>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
-            Reason{' '}
-            <span className="font-normal normal-case text-slate-400">
-              (optional)
-            </span>
+          <label className="text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
+            Reason <span className="font-normal normal-case !text-[#B4B2A9]">(optional)</span>
           </label>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={3}
             placeholder="Reason for the block…"
-            className="resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 shadow-sm transition placeholder:text-slate-400 focus:border-amber-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-100"
+            className="w-full resize-none rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20"
           />
         </div>
 
         {error && (
-          <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4">
-            <AlertTriangle
-              size={16}
-              className="mt-0.5 shrink-0 text-rose-600"
-            />
-            <p className="text-sm font-medium text-rose-800">{error}</p>
+          <div className="flex items-start gap-3 rounded-xl border !border-[#FBD5D5] !bg-[#FEF2F2] px-4 py-3.5">
+            <AlertTriangle size={15} className="mt-0.5 shrink-0 !text-[#DC2626]" />
+            <p className="text-sm font-medium !text-[#DC2626]">{error}</p>
           </div>
         )}
 
         {saved && (
-          <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4">
-            <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
-            <p className="text-sm font-medium text-emerald-800">
+          <div className="flex items-center gap-3 rounded-xl border !border-[#CFF0E1] !bg-[#ECFBF5] px-4 py-3.5">
+            <CheckCircle2 size={15} className="shrink-0 !text-[#1D9E75]" />
+            <p className="text-sm font-medium !text-[#1D9E75]">
               Block updated successfully!
             </p>
           </div>
         )}
 
-        <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end border-t !border-[#E8E6E0] pt-4">
           <button
             onClick={onCancel}
             disabled={saving}
-            className="rounded-full border border-slate-200 px-5 py-2.5 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 disabled:opacity-50"
+            className="h-10 w-full sm:w-auto rounded-xl border !border-[#E8E6E0] px-4 text-xs font-semibold !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] disabled:opacity-40 order-2 sm:order-1"
           >
             Cancel
           </button>
@@ -259,17 +281,20 @@ export default function TheatreBlockUpdateForm({
           <button
             onClick={handleSubmit}
             disabled={saving || saved}
-            className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-6 py-2.5 text-xs font-bold !text-white shadow-sm transition hover:bg-amber-600 disabled:opacity-60 active:scale-95"
+            className="inline-flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-xl !bg-[#0c1a12] px-4 sm:px-5 text-xs sm:text-sm font-semibold !text-white transition hover:!bg-[#16211B] disabled:cursor-not-allowed disabled:opacity-50 order-1 sm:order-2"
           >
             {saving ? (
               <>
-                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Saving…
+                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 !border-white/30 !border-t-white" />
+                <span className="sm:hidden">Saving…</span>
+                <span className="hidden sm:inline">Saving…</span>
               </>
             ) : (
               <>
-                <Save size={13} />
-                Save Changes
+                <Save size={14} className="sm:hidden" />
+                <Save size={13} className="hidden sm:inline" />
+                <span className="sm:hidden">Save</span>
+                <span className="hidden sm:inline">Save Changes</span>
               </>
             )}
           </button>

@@ -85,187 +85,111 @@ export default function ProcedureInfoSection({
         isCancelled || isCompleted;
 
     return (
-        <div className="w-full max-w-5xl mx-auto space-y-5 py-2 sm:py-4">
-            <div className="rounded-[2rem] bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 p-5 sm:p-7 text-white shadow-2xl">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="min-w-0">
-                        <p className="text-xs sm:text-sm uppercase tracking-[0.2em] text-blue-100">
-                            Procedure
-                        </p>
+        <div className="mx-auto w-full max-w-5xl space-y-5 py-2 sm:py-4">
+            <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+                <div className="p-5 sm:p-7">
+                    <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0">
+                            <div className="inline-flex items-center gap-2">
+                                <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] !text-[#1D9E75]">
+                                    Procedure
+                                </p>
+                            </div>
 
-                        <h1 className="mt-2 text-2xl sm:text-3xl font-black leading-tight break-words">
-                            {procedure.procedureCatalog
-                                ?.name ||
-                                procedure.customProcedureName ||
-                                'Procedure'}
-                        </h1>
+                            <h1 className="mt-2.5 break-words text-2xl font-bold leading-tight tracking-tight !text-[#16211B] sm:text-[28px]">
+                                {procedure.procedureCatalog?.name ||
+                                    procedure.customProcedureName ||
+                                    'Procedure'}
+                            </h1>
 
-                        {procedure.procedureCatalog
-                            ?.code && (
-                                <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm text-blue-50 backdrop-blur">
-                                    <Hash className="h-4 w-4" />
-
-                                    {
-                                        procedure
-                                            .procedureCatalog
-                                            .code
-                                    }
+                            {procedure.procedureCatalog?.code && (
+                                <div className="mt-3 inline-flex items-center gap-2 rounded-full !bg-[#F7F7F5] px-3 py-1.5 font-mono text-sm !text-[#5F5E5A]">
+                                    <Hash className="h-3.5 w-3.5" />
+                                    {procedure.procedureCatalog.code}
                                 </div>
                             )}
-                    </div>
+                        </div>
 
-                    <div className="flex flex-wrap gap-2">
-                        {status && (
-                            <StatusPill
-                                label={status.label}
-                                dotClass={
-                                    status.dot
-                                }
-                                badge={
-                                    status.badge
-                                }
-                            />
-                        )}
+                        <div className="flex flex-wrap gap-2">
+                            {status && (
+                                <StatusPill
+                                    label={status.label}
+                                    dotClass={status.dot}
+                                    badge={status.badge}
+                                />
+                            )}
 
-                        {priority && (
-                            <StatusPill
-                                label={
-                                    priority.label
-                                }
-                                dotClass={
-                                    priority.dot
-                                }
-                                badge={
-                                    priority.badge
-                                }
-                            />
-                        )}
+                            {priority && (
+                                <StatusPill
+                                    label={priority.label}
+                                    dotClass={priority.dot}
+                                    badge={priority.badge}
+                                />
+                            )}
 
-                        {outcome && (
-                            <StatusPill
-                                label={
-                                    outcome.label
-                                }
-                                dotClass={
-                                    outcome.dot
-                                }
-                                badge={
-                                    outcome.badge
-                                }
-                            />
-                        )}
+                            {outcome && (
+                                <StatusPill
+                                    label={outcome.label}
+                                    dotClass={outcome.dot}
+                                    badge={outcome.badge}
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div>
-                <div
-                    className="
-                        grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3
-                        gap-3
-                        rounded-[1.5rem]
-                        border border-white/40
-                        bg-white/80
-                        backdrop-blur-xl
-                        p-3 sm:p-4
-                        shadow-xl
-                    "
-                >
-                    {!isCancelled && (
-                        <button
-                            onClick={() => setShowDrawer(true)}
-                            className="
-                                group
-                                w-full
-                                min-h-[56px]
-                                inline-flex items-center justify-center gap-2
-                                rounded-2xl
-                                bg-gradient-to-r from-blue-600 to-indigo-600
-                                px-4 py-3
-                                text-sm sm:text-base
-                                font-bold
-                                !text-white
-                                shadow-lg shadow-blue-600/20
-                                transition-all duration-200
-                                hover:-translate-y-0.5
-                                hover:shadow-xl
-                                active:scale-[0.98]
-                            "
-                        >
-                            <Activity className="h-4 w-4 shrink-0" />
+            <div className="grid grid-cols-1 gap-3 rounded-2xl border !border-[#E8E6E0] !bg-white p-3 sm:grid-cols-2 sm:p-4 xl:grid-cols-3">
+                {!isCancelled && (
+                    <button
+                        onClick={() => setShowDrawer(true)}
+                        className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl !bg-[#0c1a12] px-4 py-3 text-sm font-semibold !text-white transition hover:!bg-[#16211B] sm:text-base"
+                    >
+                        <Activity className="h-4 w-4 shrink-0" />
+                        <span className="truncate">Update procedure</span>
+                    </button>
+                )}
 
-                            <span className="truncate">
-                                Update Procedure
-                            </span>
-                        </button>
+                <button
+                    onClick={() => {
+                        if (!disableCancellation) {
+                            setShowCancelModal(true);
+                        }
+                    }}
+                    disabled={disableCancellation}
+                    className={`inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition sm:text-base ${
+                        disableCancellation
+                            ? 'cursor-not-allowed border !border-[#E8E6E0] !bg-[#F7F7F5] !text-[#B4B2A9]'
+                            : 'border !border-[#FBD5D5] !bg-[#FEF2F2] !text-[#DC2626] hover:!bg-[#FDE4E4]'
+                    }`}
+                >
+                    {isCancelled ? (
+                        <XCircle className="h-4 w-4 shrink-0" />
+                    ) : isCompleted ? (
+                        <CheckCircle2 className="h-4 w-4 shrink-0" />
+                    ) : (
+                        <AlertTriangle className="h-4 w-4 shrink-0" />
                     )}
 
-                    <button
-                        onClick={() => {
-                            if (!disableCancellation) {
-                                setShowCancelModal(true);
-                            }
-                        }}
-                        disabled={disableCancellation}
-                        className={`
-                            group
-                            w-full
-                            min-h-[56px]
-                            inline-flex items-center justify-center gap-2
-                            rounded-2xl
-                            px-4 py-3
-                            text-sm sm:text-base
-                            font-bold
-                            transition-all duration-200
-                            active:scale-[0.98]
-
-                            ${disableCancellation
-                                                    ? `
-                                cursor-not-allowed
-                                border border-slate-200
-                                bg-slate-50
-                                text-slate-500
-                                shadow-sm
-                            `
-                                                    : `
-                                bg-gradient-to-r from-red-600 to-rose-600
-                                !text-white
-                                shadow-lg shadow-red-600/20
-                                hover:-translate-y-0.5
-                                hover:shadow-xl
-                            `
-                                                }
-                        `}
-                    >
-                        {isCancelled ? (
-                            <XCircle className="h-4 w-4 shrink-0" />
-                        ) : isCompleted ? (
-                            <CheckCircle2 className="h-4 w-4 shrink-0" />
-                        ) : (
-                            <AlertTriangle className="h-4 w-4 shrink-0" />
-                        )}
-
-                        <span className="truncate">
-                            {isCancelled
-                                ? 'Procedure Cancelled'
-                                : isCompleted
-                                    ? 'Procedure Completed'
-                                    : 'Cancel Procedure'}
-                        </span>
-                    </button>
-                </div>
+                    <span className="truncate">
+                        {isCancelled
+                            ? 'Procedure cancelled'
+                            : isCompleted
+                                ? 'Procedure completed'
+                                : 'Cancel procedure'}
+                    </span>
+                </button>
             </div>
 
             <CollapsibleSection title="Procedure Details" defaultOpen={false}>
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                     <ProcedureCard title="">
                         <DetailRow
                             icon={ClipboardList}
                             label="Procedure Name"
                             value={
-                                procedure
-                                    .procedureCatalog
-                                    ?.name ||
+                                procedure.procedureCatalog?.name ||
                                 procedure.customProcedureName
                             }
                         />
@@ -274,9 +198,7 @@ export default function ProcedureInfoSection({
                             icon={Hash}
                             label="Procedure Code"
                             value={
-                                procedure
-                                    .procedureCatalog
-                                    ?.code ||
+                                procedure.procedureCatalog?.code ||
                                 procedure.customProcedureCode
                             }
                         />
@@ -284,25 +206,19 @@ export default function ProcedureInfoSection({
                         <DetailRow
                             icon={ShieldAlert}
                             label="Priority"
-                            value={
-                                procedure.priority
-                            }
+                            value={procedure.priority}
                         />
 
                         <DetailRow
                             icon={Activity}
                             label="Status"
-                            value={
-                                procedure.status
-                            }
+                            value={procedure.status}
                         />
 
                         <DetailRow
                             icon={CheckCircle2}
                             label="Outcome"
-                            value={
-                                procedure.outcome
-                            }
+                            value={procedure.outcome}
                         />
 
                         <DetailRow
@@ -320,9 +236,7 @@ export default function ProcedureInfoSection({
                         <DetailRow
                             icon={CalendarDays}
                             label="Ordered At"
-                            value={formatDateTime(
-                                procedure.orderedAt
-                            )}
+                            value={formatDateTime(procedure.orderedAt)}
                         />
 
                         <DetailRow
@@ -360,19 +274,13 @@ export default function ProcedureInfoSection({
                         <DetailRow
                             icon={User2}
                             label="Ordered By"
-                            value={
-                                procedure.orderedBy
-                                    ?.fullName
-                            }
+                            value={procedure.orderedBy?.fullName}
                         />
 
                         <DetailRow
                             icon={ClipboardList}
                             label="Bed Allocation"
-                            value={
-                                procedure
-                                    .bedAllocation?.id
-                            }
+                            value={procedure.bedAllocation?.id}
                         />
                     </ProcedureCard>
 
@@ -386,9 +294,7 @@ export default function ProcedureInfoSection({
                         <DetailRow
                             icon={AlertTriangle}
                             label="Cancellation Reason"
-                            value={
-                                procedure.cancellationReason
-                            }
+                            value={procedure.cancellationReason}
                         />
                     </ProcedureCard>
                 </div>
@@ -405,7 +311,7 @@ export default function ProcedureInfoSection({
                 }}
             />
 
-            <div className="space-y-6 pt-2">
+            <div className="space-y-5 pt-2">
                 <CreateVisitProcedureEventCard
                     procedureId={procedure.id}
                     status={procedure.status as VisitProcedureStatus}
@@ -423,9 +329,7 @@ export default function ProcedureInfoSection({
 
             <CancelVisitProcedureModal
                 open={showCancelModal}
-                onClose={() =>
-                    setShowCancelModal(false)
-                }
+                onClose={() => setShowCancelModal(false)}
                 procedureId={procedure.id}
             />
         </div>

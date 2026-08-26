@@ -6,6 +6,7 @@ import {
     BloodGroup,
     CreatePatientInput,
 } from '@/shared/graphql/generated/graphql';
+import { X, User, Phone, Heart, Users, MapPin, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react';
 
 const NIGERIAN_STATES = [
     'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa',
@@ -162,95 +163,78 @@ export default function CreatePatientModal({
     const hasErrors = Object.keys(validate(form)).length > 0;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-br from-slate-900/70 via-purple-900/50 to-slate-900/70 backdrop-blur-md">
-            <div className="relative w-full max-w-6xl max-h-[95vh] overflow-hidden rounded-3xl bg-white shadow-2xl flex flex-col animate-in slide-in-from-bottom-4 duration-300">
-                
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400" />
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto sm:items-center">
+            <div className="relative w-full max-w-5xl my-4 sm:my-8 overflow-hidden rounded-2xl !bg-white shadow-2xl flex flex-col max-h-[95vh]">
+                <div className="sticky top-0 z-10 border-b !border-[#E8E6E0] !bg-white px-5 py-4 sm:px-6 sm:py-5">
+                    <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3">
+                            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl !bg-[#ECFBF5]">
+                                <User size={18} className="!text-[#1D9E75]" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-bold tracking-tight !text-[#16211B] sm:text-2xl">
+                                    Register Patient
+                                </h2>
+                                <p className="mt-1 text-sm !text-[#767570]">
+                                    Emergency cases allow partial registration
+                                </p>
+                            </div>
+                        </div>
 
-                <div className="relative bg-gradient-to-r from-slate-50 to-white border-b border-slate-200/60 px-6 py-5 flex items-center justify-between flex-wrap gap-3">
-                    <div className="flex items-center gap-4">
-                        <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 !text-white shadow-lg shadow-emerald-200">
-                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                                Register Patient
-                            </h2>
-                            <p className="text-sm text-slate-500">
-                                Emergency cases allow partial registration
-                            </p>
-                        </div>
+                        <button
+                            onClick={onClose}
+                            disabled={loading}
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border !border-[#E8E6E0] !bg-white !text-[#767570] transition hover:!bg-[#F7F7F5] hover:!text-[#16211B] disabled:opacity-40"
+                        >
+                            <X size={18} />
+                        </button>
                     </div>
-
-                    <button
-                        onClick={onClose}
-                        disabled={loading}
-                        className="group rounded-full p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 disabled:opacity-40 transition-all duration-200"
-                    >
-                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6" ref={contentRef}>
+                <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-6 sm:py-6 space-y-5 hide-scrollbar" ref={contentRef}>
                     <div className="space-y-3">
                         {success && (
-                            <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3.5 text-emerald-800">
-                                <svg className="h-5 w-5 flex-shrink-0 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span className="font-medium">{success}</span>
+                            <div className="flex items-start gap-3 rounded-xl border !border-[#CFF0E1] !bg-[#ECFBF5] px-4 py-3">
+                                <CheckCircle size={18} className="mt-0.5 shrink-0 !text-[#1D9E75]" />
+                                <span className="text-sm font-medium !text-[#1D9E75]">{success}</span>
                             </div>
                         )}
 
                         {warning && (
-                            <div className="flex items-center gap-3 rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3.5 text-amber-800">
-                                <svg className="h-5 w-5 flex-shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                                <span className="font-medium">⚠️ {warning}</span>
+                            <div className="flex items-start gap-3 rounded-xl border !border-[#F5E3C0] !bg-[#FFF8EC] px-4 py-3">
+                                <AlertTriangle size={18} className="mt-0.5 shrink-0 !text-[#B9770E]" />
+                                <span className="text-sm font-medium !text-[#B9770E]">{warning}</span>
                             </div>
                         )}
 
                         {addressWarning && (
-                            <div className="flex items-center gap-3 rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3.5 text-amber-800">
-                                <svg className="h-5 w-5 flex-shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span className="font-medium">{addressWarning}</span>
+                            <div className="flex items-start gap-3 rounded-xl border !border-[#F5E3C0] !bg-[#FFF8EC] px-4 py-3">
+                                <AlertTriangle size={18} className="mt-0.5 shrink-0 !text-[#B9770E]" />
+                                <span className="text-sm font-medium !text-[#B9770E]">{addressWarning}</span>
                             </div>
                         )}
 
                         {error && (
-                            <div className="flex items-center gap-3 rounded-2xl bg-red-50 border border-red-200 px-4 py-3.5 text-red-800">
-                                <svg className="h-5 w-5 flex-shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span className="font-medium">{error}</span>
+                            <div className="flex items-start gap-3 rounded-xl border !border-[#FBD5D5] !bg-[#FEF2F2] px-4 py-3">
+                                <AlertCircle size={18} className="mt-0.5 shrink-0 !text-[#DC2626]" />
+                                <span className="text-sm font-medium !text-[#DC2626]">{error}</span>
                             </div>
                         )}
                     </div>
 
-                    <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200/80 p-5 transition-all hover:border-emerald-300 hover:shadow-md">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 !text-white shadow-lg shadow-amber-200">
-                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                    </svg>
+                    <div className="rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex items-start gap-3">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg !bg-[#FFF8EC]">
+                                    <AlertTriangle size={16} className="!text-[#B9770E]" />
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-slate-800">Emergency Case</p>
-                                    <p className="text-sm text-slate-500">
-                                        Skip non-critical fields (Gender required)
-                                    </p>
+                                    <p className="text-sm font-semibold !text-[#16211B]">Emergency Case</p>
+                                    <p className="text-xs !text-[#767570]">Skip non-critical fields (Gender required)</p>
                                 </div>
                             </div>
 
-                            <label className="relative inline-flex cursor-pointer items-center">
+                            <label className="relative inline-flex cursor-pointer items-center shrink-0">
                                 <input
                                     type="checkbox"
                                     checked={form.emergency}
@@ -258,38 +242,38 @@ export default function CreatePatientModal({
                                     onChange={e => update('emergency', e.target.checked)}
                                     className="peer sr-only"
                                 />
-                                <div className="h-7 w-12 rounded-full bg-slate-300 transition-all duration-300 peer-checked:bg-emerald-500 peer-disabled:opacity-40 peer-disabled:cursor-not-allowed">
-                                    <div className="absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition-all duration-300 peer-checked:translate-x-5 shadow-md"></div>
+                                <div className="h-7 w-12 rounded-full !bg-[#D3D1C7] transition-all duration-300 peer-checked:!bg-[#1D9E75] peer-disabled:opacity-40 peer-disabled:cursor-not-allowed">
+                                    <div className="absolute left-1 top-1 h-5 w-5 rounded-full !bg-white transition-all duration-300 peer-checked:translate-x-5 shadow-sm"></div>
                                 </div>
                             </label>
                         </div>
                     </div>
 
-                    <div className="grid gap-6 md:grid-cols-2">
-                        <Section title="Identity" icon="person">
+                    <div className="grid gap-5 sm:grid-cols-2">
+                        <Section title="Identity" icon={<User size={16} />}>
                             <Input disabled={isLocked} label="Full Name" onChange={v => update('fullName', v)} />
                             <Input disabled={isLocked} label="Date of Birth" type="date" onChange={v => update('dateOfBirth', v)} />
                             <Select disabled={isLocked} label="Gender" options={['MALE', 'FEMALE']} onChange={v => update('gender', v as string)} />
                         </Section>
 
-                        <Section title="Contact" icon="phone">
+                        <Section title="Contact" icon={<Phone size={16} />}>
                             <Input disabled={isLocked} label="Phone Number" onChange={v => update('phoneNumber', v)} />
                             <Input disabled={isLocked} label="Secondary Phone" onChange={v => update('secondaryPhoneNumber', v)} />
                             <Input disabled={isLocked} label="Email" type="email" onChange={v => update('email', v)} />
                         </Section>
 
-                        <Section title="Medical" icon="heart">
+                        <Section title="Medical" icon={<Heart size={16} />}>
                             <Select disabled={isLocked} label="Blood Group" options={Object.values(BloodGroup)} onChange={v => update('bloodGroup', v as BloodGroup)} />
                             <Input disabled={isLocked} label="Allergies (comma separated)" onChange={v => update('allergies', v.split(',').map(s => s.trim()).filter(Boolean))} />
                         </Section>
 
-                        <Section title="Next of Kin" icon="users">
+                        <Section title="Next of Kin" icon={<Users size={16} />}>
                             <Input disabled={isLocked} label="Name" onChange={v => update('nextOfKinName', v)} />
                             <Input disabled={isLocked} label="Phone" onChange={v => update('nextOfKinPhone', v)} />
                         </Section>
                     </div>
 
-                    <Section title="Address" icon="location">
+                    <Section title="Address" icon={<MapPin size={16} />}>
                         <Input disabled={isLocked} label="Address Line" onChange={v => updateAddress({ addressLine1: v })} />
                         <Input disabled={isLocked} label="City" onChange={v => updateAddress({ city: v })} />
                         <Select
@@ -307,72 +291,40 @@ export default function CreatePatientModal({
                     </Section>
                 </div>
 
-                <div className="relative bg-gradient-to-r from-slate-50 to-white border-t border-slate-200/60 px-6 py-4 flex flex-col sm:flex-row justify-end gap-3">
-                    <button
-                        onClick={onClose}
-                        disabled={loading}
-                        className="px-6 py-2.5 rounded-xl text-slate-600 hover:text-slate-800 hover:bg-slate-100 disabled:opacity-40 transition-all duration-200 font-medium order-2 sm:order-1"
-                    >
-                        Cancel
-                    </button>
+                <div className="sticky bottom-0 z-10 border-t !border-[#E8E6E0] !bg-white px-5 py-4 sm:px-6 sm:py-5">
+                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                        <button
+                            onClick={onClose}
+                            disabled={loading}
+                            className="h-10 w-full sm:w-auto rounded-xl border !border-[#E8E6E0] !bg-white px-5 text-xs font-semibold !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] disabled:opacity-40"
+                        >
+                            Cancel
+                        </button>
 
-                    <button
-                        disabled={hasErrors || isLocked}
-                        onClick={submit}
-                        className="relative overflow-hidden px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 !text-white font-medium shadow-lg shadow-emerald-200 hover:shadow-emerald-300 hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100 transition-all duration-200 order-1 sm:order-2"
-                    >
-                        <span className="relative z-10">
+                        <button
+                            disabled={hasErrors || isLocked}
+                            onClick={submit}
+                            className="h-10 w-full sm:w-auto rounded-xl !bg-[#0c1a12] px-6 text-xs font-semibold !text-white transition hover:!bg-[#16211B] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
                             {success ? '✓ Created' : loading ? 'Creating...' : 'Create Patient'}
-                        </span>
-                        {!success && !loading && (
-                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 opacity-0 hover:opacity-100 transition-opacity duration-200" />
-                        )}
-                    </button>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     );
 }
 
-function Section({ title, icon, children }: { title: string; icon?: string; children: ReactNode }) {
-    const icons = {
-        person: (
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-        ),
-        phone: (
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-            </svg>
-        ),
-        heart: (
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-        ),
-        users: (
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-        ),
-        location: (
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-        ),
-    };
-
+function Section({ title, icon, children }: { title: string; icon?: ReactNode; children: ReactNode }) {
     return (
         <div className="space-y-3">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
                 {icon && (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-600">
-                        {icons[icon as keyof typeof icons] || null}
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg !bg-[#ECFBF5] !text-[#1D9E75]">
+                        {icon}
                     </div>
                 )}
-                <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
+                <h3 className="text-sm font-semibold !text-[#16211B]">{title}</h3>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">{children}</div>
         </div>
@@ -392,17 +344,16 @@ function Input({
 }) {
     return (
         <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">
+            <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
                 {label}
             </label>
             <input
                 type={type}
-                value={undefined}
                 defaultValue=""
                 placeholder={type === 'date' ? 'DD/MM/YYYY' : ''}
                 disabled={disabled}
                 onChange={e => onChange(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all duration-200 disabled:bg-slate-50 disabled:cursor-not-allowed"
+                className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20 disabled:!bg-[#F7F7F5] disabled:cursor-not-allowed"
             />
         </div>
     );
@@ -413,26 +364,24 @@ export function Select({
     options,
     onChange,
     disabled,
-    value,
 }: {
     label: string;
     options: string[];
     onChange: (v: string) => void;
     disabled?: boolean;
-    value?: string;
 }) {
     return (
         <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">
+            <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
                 {label}
             </label>
             <select
-                value={value}
+                defaultValue=""
                 disabled={disabled}
                 onChange={e => onChange(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all duration-200 disabled:bg-slate-50 disabled:cursor-not-allowed"
+                className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20 disabled:!bg-[#F7F7F5] disabled:cursor-not-allowed cursor-pointer"
             >
-                {!value && <option value="">Select {label}</option>}
+                <option value="">Select {label}</option>
                 {options.map(o => (
                     <option key={o} value={o}>
                         {o}
