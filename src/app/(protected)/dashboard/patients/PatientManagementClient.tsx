@@ -155,7 +155,7 @@ export default function PatientManagementClient({
                         </div>
                         <button
                             onClick={() => setOpenCreate(true)}
-                            className="inline-flex h-[38px] items-center gap-2 rounded-[9px] bg-[#1D9E75] px-5 text-[13px] font-medium text-white transition hover:bg-[#0F6E56]"
+                            className="inline-flex h-[38px] items-center gap-2 rounded-[9px] bg-[#1D9E75] px-5 text-[13px] font-medium !text-white transition hover:bg-[#0F6E56]"
                         >
                             <UserPlus size={14} />
                             New patient
@@ -180,13 +180,12 @@ export default function PatientManagementClient({
                         <button
                             key={s}
                             onClick={() => setStatusFilter(s)}
-                            className={`h-8 rounded-full px-3.5 text-[12px] font-medium transition border ${
-                                statusFilter === s
-                                    ? 'border-[#0c1a12] bg-[#0c1a12] text-white!'
-                                    : 'border-[#E8E6E0] bg-white text-[#5F5E5A] hover:border-[#D3D1C7] hover:text-[#2C2C2A]'
-                            }`}
+                            className={`h-8 rounded-full px-3.5 text-[11px] font-semibold uppercase tracking-[0.06em] transition border ${statusFilter === s
+                                    ? '!border-[#0c1a12] !bg-[#0c1a12] !text-white'
+                                    : '!border-[#E8E6E0] !bg-white !text-[#767570] hover:!border-[#D3D1C7] hover:!text-[#16211B]'
+                                }`}
                         >
-                            {s}
+                            {s === 'ALL' ? 'All' : s.replace(/_/g, ' ')}
                         </button>
                     ))}
                 </div>

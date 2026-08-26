@@ -121,34 +121,36 @@ export default async function PatientDetailPage({ params }: Props) {
 
           <div className="pointer-events-none absolute -bottom-12 -right-12 h-44 w-44 rounded-full bg-[#1D9E75]/15 blur-[50px]" />
 
-          <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-[12px] border border-[#5DCAA5]/30 bg-[#1D9E75]/18 text-[22px] font-medium text-[#5DCAA5]">
+          <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-start gap-3 sm:items-center">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border !border-[#5DCAA5]/30 !bg-[#1D9E75]/18 text-lg font-medium !text-[#5DCAA5] sm:h-14 sm:w-14 sm:text-[22px]">
                 {patient.fullName?.charAt(0)?.toUpperCase()}
               </div>
 
-              <div>
-                <h1 className="mb-1 text-[18px] font-medium tracking-[-0.02em] !text-white">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-base font-medium tracking-[-0.02em] !text-white sm:text-[18px]">
                   {patient.fullName}
                 </h1>
 
-                <p className="mb-2.5 text-[12px] text-[#3B6D11]">
+                <p className="text-[11px] !text-[#3B6D11] sm:text-[12px]">
                   {patient.patientNumber}
-                  &nbsp;&nbsp;·&nbsp;&nbsp;Code: {patient.userCode}
+                  <span className="hidden sm:inline"> &nbsp;&nbsp;·&nbsp;&nbsp;</span>
+                  <span className="sm:hidden"> · </span>
+                  Code: {patient.userCode}
                 </p>
 
-                <div className="flex flex-wrap gap-1.5">
+                <div className="mt-1.5 flex flex-wrap gap-1.5 sm:mt-0">
                   {patient.emergency && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-[#DC2626]/30 bg-[#DC2626]/15 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] text-[#FDA9A9]">
+                    <span className="inline-flex items-center gap-1 rounded-full border !border-[#DC2626]/30 !bg-[#DC2626]/15 px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.06em] !text-[#FDA9A9] sm:px-2.5 sm:text-[10px]">
                       <span className="h-1 w-1 rounded-full bg-current" />
                       Emergency
                     </span>
                   )}
 
                   <span
-                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] ${patient.status === PatientStatus.Active
-                        ? 'border-[#1D9E75]/30 bg-[#F0FAF5] text-[#1D9E75]'
-                        : 'border-white/10 bg-white/[0.07] text-[#5a7a6a]'
+                    className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.06em] sm:px-2.5 sm:text-[10px] ${patient.status === PatientStatus.Active
+                        ? '!border-[#1D9E75]/30 !bg-[#F0FAF5] !text-[#1D9E75]'
+                        : '!border-white/10 !bg-white/[0.07] !text-[#5a7a6a]'
                       }`}
                   >
                     <span className="h-1 w-1 rounded-full bg-current" />
@@ -156,13 +158,13 @@ export default async function PatientDetailPage({ params }: Props) {
                   </span>
 
                   {patient.gender && (
-                    <span className="inline-flex rounded-full border border-white/10 bg-white/[0.07] px-2.5 py-0.5 text-[10px] uppercase tracking-[0.06em] text-[#8ba0b8]">
+                    <span className="inline-flex rounded-full border !border-white/10 !bg-white/[0.07] px-2 py-0.5 text-[9px] uppercase tracking-[0.06em] !text-[#8ba0b8] sm:px-2.5 sm:text-[10px]">
                       {patient.gender}
                     </span>
                   )}
 
                   {patient.bloodGroup && (
-                    <span className="inline-flex rounded-full border border-[#DC2626]/25 bg-[#DC2626]/12 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.06em] text-[#FDA9A9]">
+                    <span className="inline-flex rounded-full border !border-[#DC2626]/25 !bg-[#DC2626]/12 px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.06em] !text-[#FDA9A9] sm:px-2.5 sm:text-[10px]">
                       {patient.bloodGroup}
                     </span>
                   )}
@@ -170,7 +172,7 @@ export default async function PatientDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <HasRoles
                 roles={[
                   Roles.ADMIN,
@@ -181,22 +183,24 @@ export default async function PatientDetailPage({ params }: Props) {
               >
                 <Link
                   href={`/dashboard/patients/${id}/history`}
-                  className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium !text-white transition-colors hover:bg-white/[0.12]"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border !border-white/15 !bg-white/[0.06] px-3 text-[11px] font-medium !text-white transition-colors hover:!bg-white/[0.12] sm:px-3.5 sm:text-[12px]"
                 >
-                  <History size={14} />
-                  Visit history
+                  <History size={13} className="sm:size-[14px]" />
+                  <span className="hidden xs:inline">Visit history</span>
+                  <span className="xs:hidden">History</span>
                 </Link>
               </HasRoles>
 
               <Link
                 href={`/dashboard/patients/${id}/wallet`}
-                className="inline-flex items-center gap-1.5 rounded-[8px] border border-white/15 bg-white/[0.06] px-3.5 py-2 text-[12px] font-medium !text-white transition-colors hover:bg-white/[0.12]"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border !border-white/15 !bg-white/[0.06] px-3 text-[11px] font-medium !text-white transition-colors hover:!bg-white/[0.12] sm:px-3.5 sm:text-[12px]"
               >
-                <Wallet size={14} />
-                Wallet
+                <Wallet size={13} className="sm:size-[14px]" />
+                <span className="hidden xs:inline">Wallet</span>
+                <span className="xs:hidden">Wallet</span>
 
                 {walletBalance > 0.01 && (
-                  <span className="ml-0.5 rounded-full border border-[#5DCAA5]/30 bg-[#1D9E75]/20 px-1.5 py-0.5 text-[10px] font-semibold text-[#5DCAA5]">
+                  <span className="ml-0.5 rounded-full border !border-[#5DCAA5]/30 !bg-[#1D9E75]/20 px-1.5 py-0.5 text-[9px] font-semibold !text-[#5DCAA5] sm:text-[10px]">
                     {formatWalletBalance(walletBalance)}
                   </span>
                 )}

@@ -57,18 +57,17 @@ export default async function VisitDetailPage({ params }: Props) {
     <SessionGuard mode="none">
       <div className="relative min-h-screen bg-gray-50 p-4 sm:p-6 md:p-10">
         <div className="mx-auto max-w-7xl space-y-8">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#E8E6E0] bg-white px-5 py-4">
-            <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-[#B4B2A9]">
+          <div className="flex flex-col gap-4 rounded-xl border !border-[#E8E6E0] !bg-white px-4 py-4 sm:px-5 sm:py-4">
+            <div className="flex flex-col gap-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
                 Visit workspace
               </p>
-
-              <p className="mt-0.5 text-[14px] font-medium text-[#2C2C2A]">
+              <p className="text-sm font-medium !text-[#16211B]">
                 Manage everything related to this visit
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center">
               <HasRoles
                 roles={[
                   Roles.ADMIN,
@@ -77,37 +76,39 @@ export default async function VisitDetailPage({ params }: Props) {
                   Roles.GUEST,
                 ]}
               >
-                <CloseVisitButton visitId={visit.id} status={visit.status} />
+                <div className="w-full sm:w-auto">
+                  <CloseVisitButton visitId={visit.id} status={visit.status} />
+                </div>
               </HasRoles>
 
               <Link
                 href={`/dashboard/visits/${visit.id}/procedures`}
-                className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] !bg-[#0c1a12] px-4 text-[13px] font-medium !text-white transition !hover:bg-[#1D9E75]"
+                className="inline-flex h-[38px] w-full sm:w-auto items-center justify-center sm:justify-start gap-2.5 rounded-[9px] !bg-[#0c1a12] px-4 text-[13px] font-medium !text-white transition hover:!bg-[#16211B]"
               >
-                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] !bg-white/12">
+                <div className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-[6px] !bg-white/12">
                   <ClipboardList size={13} />
                 </div>
-                View procedures
+                <span>View procedures</span>
               </Link>
 
               <Link
                 href={`/dashboard/visits/${visit.id}/lab-requests`}
-                className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] border border-[#E8E6E0] bg-white px-4 text-[13px] font-medium !text-[#2C2C2A] transition hover:border-[#1D9E75]/30 !hover:bg-[#F0FAF5] !hover:text-[#1D9E75]"
+                className="inline-flex h-[38px] w-full sm:w-auto items-center justify-center sm:justify-start gap-2.5 rounded-[9px] border !border-[#E8E6E0] !bg-white px-4 text-[13px] font-medium !text-[#5F5E5A] transition hover:!border-[#1D9E75]/30 hover:!bg-[#F0FAF5] hover:!text-[#1D9E75]"
               >
-                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] !bg-[#F0FAF5] !text-[#1D9E75]">
+                <div className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-[6px] !bg-[#F0FAF5] !text-[#1D9E75]">
                   <FlaskConical size={13} />
                 </div>
-                View lab requests
+                <span>View lab requests</span>
               </Link>
 
               <Link
                 href={`/dashboard/visits/${visit.id}/billing`}
-                className="inline-flex h-[38px] items-center gap-2.5 rounded-[9px] border !border-[#E8E6E0] !bg-white px-4 text-[13px] font-medium !text-[#2C2C2A] transition hover:border-[#1D9E75]/30 !hover:bg-[#F0FAF5] !hover:text-[#1D9E75]"
+                className="inline-flex h-[38px] w-full sm:w-auto items-center justify-center sm:justify-start gap-2.5 rounded-[9px] border !border-[#E8E6E0] !bg-white px-4 text-[13px] font-medium !text-[#5F5E5A] transition hover:!border-[#1D9E75]/30 hover:!bg-[#F0FAF5] hover:!text-[#1D9E75]"
               >
-                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] !bg-[#F0FAF5] !text-[#1D9E75]">
+                <div className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-[6px] !bg-[#F0FAF5] !text-[#1D9E75]">
                   <Receipt size={13} />
                 </div>
-                View billing
+                <span>View billing</span>
               </Link>
             </div>
           </div>

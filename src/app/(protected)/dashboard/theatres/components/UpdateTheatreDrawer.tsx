@@ -152,31 +152,24 @@ export default function UpdateTheatreDrawer({
       styles={{
         body: {
           padding: 0,
-          background:
-            'linear-gradient(to bottom, #f8fafc, #ffffff)',
+          background: '#FAFAF8',
         },
       }}
     >
       <div className="flex h-full flex-col">
 
-        <div className="relative overflow-hidden border-b border-cyan-100 bg-gradient-to-r from-cyan-50 via-white to-blue-50 px-6 py-6">
-
-          <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-cyan-100/40 blur-3xl" />
-
-          <div className="relative flex items-start gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700 shadow-sm">
-              <Building2 className="h-7 w-7" />
+        <div className="border-b !border-[#E8E6E0] !bg-white px-6 py-6">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl !bg-[#ECFBF5] !text-[#1D9E75]">
+              <Building2 className="h-6 w-6" />
             </div>
 
             <div>
-              <h2 className="text-2xl font-black tracking-tight text-slate-900">
-                Update Theatre
+              <h2 className="text-xl font-bold tracking-tight !text-[#16211B]">
+                Update theatre
               </h2>
-
-              <p className="mt-1 text-sm text-slate-500">
-                Modify theatre details,
-                capacity and operational
-                availability.
+              <p className="mt-1 text-sm !text-[#767570]">
+                Modify theatre details, capacity and operational availability.
               </p>
             </div>
           </div>
@@ -185,45 +178,30 @@ export default function UpdateTheatreDrawer({
         <div className="flex-1 overflow-y-auto px-6 py-6">
 
           <div className="mb-6 grid grid-cols-3 gap-3">
-
             <MiniStatCard
-              icon={
-                <Activity className="h-4 w-4" />
-              }
+              icon={<Activity className="h-4 w-4" />}
               label="Status"
-              value={
-                form.isActive
-                  ? 'Active'
-                  : 'Inactive'
-              }
+              value={form.isActive ? 'Active' : 'Inactive'}
             />
 
             <MiniStatCard
-              icon={
-                <Layers3 className="h-4 w-4" />
-              }
+              icon={<Layers3 className="h-4 w-4" />}
               label="Floor"
-              value={
-                form.floor || '—'
-              }
+              value={form.floor || '—'}
             />
 
             <MiniStatCard
-              icon={
-                <Users className="h-4 w-4" />
-              }
+              icon={<Users className="h-4 w-4" />}
               label="Capacity"
-              value={
-                form.capacity || '—'
-              }
+              value={form.capacity || '—'}
             />
           </div>
 
           <div className="space-y-5">
 
             <Input
-              label="Theatre Name"
-              placeholder="e.g Main Surgical Theatre"
+              label="Theatre name"
+              placeholder="e.g. Main Surgical Theatre"
               value={form.name}
               onChange={v =>
                 setForm(prev => ({
@@ -233,11 +211,10 @@ export default function UpdateTheatreDrawer({
               }
             />
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input
-                label="Theatre Code"
-                placeholder="e.g T-001"
+                label="Theatre code"
+                placeholder="e.g. T-001"
                 value={form.code}
                 onChange={v =>
                   setForm(prev => ({
@@ -250,7 +227,7 @@ export default function UpdateTheatreDrawer({
               <Input
                 label="Floor"
                 type="number"
-                placeholder="e.g 3"
+                placeholder="e.g. 3"
                 value={form.floor}
                 onChange={v =>
                   setForm(prev => ({
@@ -263,12 +240,11 @@ export default function UpdateTheatreDrawer({
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input
                 label="Capacity"
                 type="number"
-                placeholder="e.g 6"
+                placeholder="e.g. 6"
                 value={form.capacity}
                 onChange={v =>
                   setForm(prev => ({
@@ -286,27 +262,21 @@ export default function UpdateTheatreDrawer({
                 onChange={v =>
                   setForm(prev => ({
                     ...prev,
-                    department:
-                      v as TheatreDepartment,
+                    department: v as TheatreDepartment,
                   }))
                 }
-                options={Object.values(
-                  TheatreDepartment
-                )}
+                options={Object.values(TheatreDepartment)}
               />
             </div>
 
-            <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border !border-[#E8E6E0] !bg-white p-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-base font-bold text-slate-900">
-                    Theatre Availability
+                  <p className="text-sm font-semibold !text-[#16211B]">
+                    Theatre availability
                   </p>
-
-                  <p className="mt-1 text-sm text-slate-500">
-                    Enable or disable this
-                    theatre for operations
-                    and scheduling.
+                  <p className="mt-0.5 text-xs !text-[#767570]">
+                    Enable or disable this theatre for operations and scheduling.
                   </p>
                 </div>
 
@@ -324,12 +294,11 @@ export default function UpdateTheatreDrawer({
           </div>
         </div>
 
-        <div className="border-t border-gray-100 bg-white p-6">
-          <div className="flex flex-col gap-3 sm:flex-row">
-
+        <div className="border-t !border-[#E8E6E0] !bg-white p-4 sm:p-5">
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-3">
             <button
               onClick={onClose}
-              className="h-12 flex-1 rounded-2xl border border-gray-200 bg-white font-semibold text-slate-700 transition hover:bg-slate-50"
+              className="h-11 w-full rounded-xl border !border-[#E8E6E0] !bg-white text-sm font-semibold !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] sm:w-auto sm:flex-1"
             >
               Cancel
             </button>
@@ -337,11 +306,16 @@ export default function UpdateTheatreDrawer({
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="h-12 flex-1 rounded-2xl bg-cyan-600 font-semibold !text-white shadow-lg shadow-cyan-200 transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl !bg-[#0c1a12] text-sm font-semibold !text-white transition hover:!bg-[#16211B] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:flex-1"
             >
-              {loading
-                ? 'Updating Theatre...'
-                : 'Update Theatre'}
+              {loading ? (
+                <>
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 !border-white/30 !border-t-white" />
+                  Updating…
+                </>
+              ) : (
+                'Update theatre'
+              )}
             </button>
           </div>
         </div>
@@ -360,19 +334,18 @@ function MiniStatCard({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border !border-[#E8E6E0] !bg-white p-3.5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
             {label}
           </p>
-
-          <p className="mt-2 text-lg font-black text-slate-900">
+          <p className="mt-1.5 truncate text-sm font-semibold !text-[#16211B]">
             {value}
           </p>
         </div>
 
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-700">
+        <div className="hidden min-[500px]:flex h-9 w-9 shrink-0 items-center justify-center rounded-lg !bg-[#F7F7F5] !text-[#5F5E5A]">
           {icon}
         </div>
       </div>
@@ -388,8 +361,8 @@ function Input({
   type = 'text',
 }: InputProps) {
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-bold text-slate-700">
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
         {label}
       </label>
 
@@ -399,7 +372,7 @@ function Input({
         value={value}
         placeholder={placeholder}
         onChange={e => onChange(e.target.value)}
-        className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-600"
+        className="h-11 w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75]"
       />
     </div>
   );
@@ -412,23 +385,18 @@ function Select({
   options,
 }: SelectProps) {
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-bold text-slate-700">
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
         {label}
       </label>
 
       <select
         value={value}
-        onChange={e =>
-          onChange(e.target.value)
-        }
-        className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-slate-900 shadow-sm transition focus:outline-none focus:ring-2 focus:ring-cyan-600"
+        onChange={e => onChange(e.target.value)}
+        className="h-11 w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 text-sm !text-[#16211B] outline-none transition focus:!border-[#1D9E75]"
       >
         {options.map(item => (
-          <option
-            key={item}
-            value={item}
-          >
+          <option key={item} value={item}>
             {item.replace(/_/g, ' ')}
           </option>
         ))}

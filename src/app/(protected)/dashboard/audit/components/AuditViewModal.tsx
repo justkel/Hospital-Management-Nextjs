@@ -93,23 +93,23 @@ export default function AuditViewModal({
         </div>
       ) : audit && style ? (
         <div>
-          <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">
+          <div className="border-b !border-[#E8E6E0] !bg-[#FAFAF8] px-6 py-5">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <span
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${style.bg} ${style.text} ${style.border}`}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${style.bg} ${style.text} ${style.border}`}
                 >
                   <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
                   {audit.action}
                 </span>
-                <p className="mt-2 text-sm text-gray-500">
-                  on <span className="font-mono text-gray-700">{audit.entity}</span>
+                <p className="mt-2 text-sm !text-[#767570]">
+                  on <span className="font-mono !text-[#16211B]">{audit.entity}</span>
                 </p>
               </div>
 
               <button
                 onClick={onClose}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg !text-[#B4B2A9] transition hover:!bg-[#F7F7F5] hover:!text-[#16211B]"
               >
                 <X size={16} />
               </button>
@@ -124,10 +124,10 @@ export default function AuditViewModal({
                 value={
                   staff ? (
                     <span className="flex items-center gap-2">
-                      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-semibold text-blue-700">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full !bg-[#EFF5FF] text-[10px] font-semibold !text-[#1D6FE0]">
                         {getInitials(staff.fullName)}
                       </span>
-                      <span className="truncate">{staff.fullName}</span>
+                      <span className="truncate !text-[#16211B]">{staff.fullName}</span>
                     </span>
                   ) : (
                     audit.actorId ?? 'N/A'
@@ -156,29 +156,35 @@ export default function AuditViewModal({
             </div>
 
             {audit.actorDescription && (
-              <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4">
-                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+              <div className="rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-4">
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
                   Description
                 </p>
-                <p className="text-sm text-gray-600">{audit.actorDescription}</p>
+                <p className="text-sm !text-[#5F5E5A]">{audit.actorDescription}</p>
               </div>
             )}
 
             {audit.metadata && Object.keys(audit.metadata).length > 0 && (
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
                     Metadata
                   </p>
                   <button
                     onClick={copyMetadata}
-                    className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-gray-700"
+                    className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9] transition hover:!text-[#16211B]"
                   >
                     {copied ? <Check size={12} /> : <Copy size={12} />}
                     {copied ? 'Copied' : 'Copy'}
                   </button>
                 </div>
-                <pre className="max-h-64 overflow-auto rounded-xl bg-gray-900 p-4 text-xs leading-relaxed text-gray-100">
+                <pre 
+                  className="max-h-64 overflow-auto rounded-xl !bg-[#16211B] p-4 text-xs leading-relaxed !text-[#E8E6E0] hide-scrollbar"
+                  style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                  }}
+                >
                   {JSON.stringify(audit.metadata, null, 2)}
                 </pre>
               </div>
@@ -186,7 +192,7 @@ export default function AuditViewModal({
           </div>
         </div>
       ) : (
-        <div className="p-6 text-sm text-gray-500">Audit log not found.</div>
+        <div className="p-6 text-sm !text-[#767570]">Audit log not found.</div>
       )}
     </Modal>
   );
@@ -203,11 +209,11 @@ function InfoTile({
 }) {
   return (
     <div>
-      <p className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+      <p className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
         {icon}
         {label}
       </p>
-      <div className="text-sm font-medium text-gray-800">{value}</div>
+      <div className="text-sm font-medium !text-[#16211B]">{value}</div>
     </div>
   );
 }

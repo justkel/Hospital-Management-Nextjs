@@ -47,86 +47,86 @@ export default function EditChargeCatalogModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm overflow-y-auto">
-      
       <div className="min-h-screen flex items-start sm:items-center justify-center px-4 py-10">
-        
-        <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
+        <div className="w-full max-w-2xl overflow-hidden rounded-2xl !bg-white shadow-2xl">
+          <div className="border-b !border-[#E8E6E0] px-5 py-5 sm:px-6 sm:py-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div>
+                  <h2 className="text-xl font-bold tracking-tight !text-[#16211B] sm:text-2xl">
+                    Edit Charge
+                  </h2>
+                  <p className="mt-1 text-sm !text-[#767570]">
+                    Update charge configuration
+                  </p>
+                </div>
+              </div>
 
-          <div className="flex items-center justify-between px-6 sm:px-8 py-5 sm:py-4 bg-white rounded-t-3xl">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-semibold">
-                Edit Charge
-              </h2>
-              <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                Update charge configuration
-              </p>
+              <button
+                onClick={onClose}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border !border-[#E8E6E0] !bg-white !text-[#767570] transition hover:!bg-[#F7F7F5] hover:!text-[#16211B]"
+              >
+                <X size={18} />
+              </button>
             </div>
-
-            <button
-              onClick={onClose}
-              className="p-2 rounded-full hover:bg-gray-100 transition"
-            >
-              <X size={20} />
-            </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-6">
-
+          <div className="space-y-5 p-5 sm:p-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-4 rounded-xl">
+              <div className="rounded-xl border !border-[#FBD5D5] !bg-[#FEF2F2] px-4 py-3 text-sm font-medium !text-[#DC2626]">
                 {error}
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
                   Charge Name
                 </label>
                 <input
                   value={form.name}
-                  onChange={e =>
-                    setForm({ ...form, name: e.target.value })
-                  }
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                  onChange={e => setForm({ ...form, name: e.target.value })}
+                  className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20"
                   placeholder="Delivery Fee"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
                   Charge Code
                 </label>
                 <input
                   value={form.code}
-                  onChange={e =>
-                    setForm({ ...form, code: e.target.value })
-                  }
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                  onChange={e => setForm({ ...form, code: e.target.value })}
+                  className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20"
                   placeholder="DLV001"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
                   Unit Price
                 </label>
-                <input
-                  type="number"
-                  value={form.unitPrice}
-                  onChange={e =>
-                    setForm({
-                      ...form,
-                      unitPrice: Number(e.target.value),
-                    })
-                  }
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
-                />
+                <div className="relative">
+                  <span className="absolute left-3.5 top-2.5 text-sm !text-[#B4B2A9]">
+                    ₦
+                  </span>
+                  <input
+                    type="number"
+                    value={form.unitPrice}
+                    onChange={e =>
+                      setForm({
+                        ...form,
+                        unitPrice: Number(e.target.value),
+                      })
+                    }
+                    className="w-full pl-7 rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20"
+                  />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
                   Billing Type
                 </label>
                 <select
@@ -137,7 +137,7 @@ export default function EditChargeCatalogModal({
                       billingType: e.target.value as BillingType,
                     })
                   }
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                  className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20 cursor-pointer"
                 >
                   {Object.values(BillingType).map(type => (
                     <option key={type} value={type}>
@@ -148,56 +148,51 @@ export default function EditChargeCatalogModal({
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
                 Description
               </label>
               <textarea
                 rows={3}
                 value={form.description}
-                onChange={e =>
-                  setForm({ ...form, description: e.target.value })
-                }
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition resize-none"
+                onChange={e => setForm({ ...form, description: e.target.value })}
+                className="w-full resize-none rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20"
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gray-50 p-5 rounded-2xl border">
-              
-              <div>
-                <p className="text-sm font-semibold text-gray-800">
-                  Active Status
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Enable or disable this charge
-                </p>
-              </div>
+            <div className="rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold !text-[#16211B]">
+                    Active Status
+                  </p>
+                  <p className="text-xs !text-[#767570]">
+                    Enable or disable this charge
+                  </p>
+                </div>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setForm({ ...form, isActive: !form.isActive })
-                }
-                className={`relative w-16 h-9 rounded-full transition-all duration-300 ${
-                  form.isActive ? 'bg-indigo-600' : 'bg-gray-300'
-                }`}
-              >
-                <span
-                  className={`absolute top-1 left-1 h-7 w-7 bg-white rounded-full shadow-md transition-all duration-300 ${
-                    form.isActive ? 'translate-x-7' : ''
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, isActive: !form.isActive })}
+                  className={`relative h-7 w-12 rounded-full transition-all duration-300 ${
+                    form.isActive ? '!bg-[#1D9E75]' : '!bg-[#D3D1C7]'
                   }`}
-                />
-              </button>
+                >
+                  <span
+                    className={`absolute top-1 left-1 h-5 w-5 rounded-full !bg-white shadow-md transition-all duration-300 ${
+                      form.isActive ? 'translate-x-5' : ''
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
-
           </div>
 
-          <div className="border-t px-6 sm:px-8 py-4 bg-white rounded-b-3xl">
-            <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
-              
+          <div className="border-t !border-[#E8E6E0] px-5 py-4 sm:px-6 sm:py-5 !bg-white">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 onClick={onClose}
-                className="w-full sm:w-auto px-5 py-3 rounded-xl border border-gray-300 text-sm font-medium hover:bg-gray-100 transition"
+                className="h-10 w-full sm:w-auto rounded-xl border !border-[#E8E6E0] !bg-white px-5 text-xs font-semibold !text-[#5F5E5A] transition hover:!bg-[#F7F7F5]"
               >
                 Cancel
               </button>
@@ -205,14 +200,12 @@ export default function EditChargeCatalogModal({
               <button
                 disabled={loading}
                 onClick={handleUpdate}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 text-white! text-sm font-semibold hover:bg-indigo-700 disabled:bg-gray-400 transition cursor-pointer"
+                className="h-10 w-full sm:w-auto rounded-xl !bg-[#0c1a12] px-5 text-xs font-semibold !text-white transition hover:!bg-[#16211B] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Updating...' : 'Save Changes'}
               </button>
-
             </div>
           </div>
-
         </div>
       </div>
     </div>

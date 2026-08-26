@@ -54,20 +54,20 @@ const TYPE_CONFIG: Record<
   [TheatreAvailabilityType.Regular]: {
     label: 'Regular',
     icon: Star,
-    pill: 'bg-cyan-50 border-cyan-200 text-cyan-700',
-    bar: 'bg-cyan-400',
+    pill: '!bg-[#EFF5FF] !border-[#D6E4FB] !text-[#1D6FE0]',
+    bar: '!bg-[#1D6FE0]',
   },
   [TheatreAvailabilityType.Emergency]: {
     label: 'Emergency',
     icon: Flame,
-    pill: 'bg-rose-50 border-rose-200 text-rose-700',
-    bar: 'bg-rose-400',
+    pill: '!bg-[#FEF2F2] !border-[#FBD5D5] !text-[#DC2626]',
+    bar: '!bg-[#DC2626]',
   },
   [TheatreAvailabilityType.SpecialSession]: {
     label: 'Special',
     icon: Zap,
-    pill: 'bg-violet-50 border-violet-200 text-violet-700',
-    bar: 'bg-violet-400',
+    pill: '!bg-[#F5F2FF] !border-[#E5DCFC] !text-[#7C5CFC]',
+    bar: '!bg-[#7C5CFC]',
   },
 };
 
@@ -102,8 +102,8 @@ export default function TheatreAvailabilityBoard({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold text-slate-500">
+      <div className="flex flex-col gap-3 xs:flex-row xs:items-center xs:justify-between">
+        <p className="text-sm font-medium !text-[#767570]">
           {hasAny
             ? `${availabilities.length} active slot${availabilities.length !== 1 ? 's' : ''} across the week`
             : 'No availability configured'}
@@ -111,25 +111,28 @@ export default function TheatreAvailabilityBoard({
 
         <button
           onClick={onEditRequest}
-          className="inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-xs font-bold !text-white shadow-sm transition hover:bg-violet-700 active:scale-95"
+          className="inline-flex items-center justify-center gap-2 rounded-xl !bg-[#0c1a12] px-4 py-2.5 text-xs font-semibold !text-white transition hover:!bg-[#16211B]"
         >
           <Edit3 size={13} />
-          Edit Schedule
+          Edit schedule
         </button>
       </div>
 
       {!hasAny ? (
         <EmptyState onEditRequest={onEditRequest} />
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          {Array.from({ length: 7 }, (_, d) => (
-            <DayColumn
-              key={d}
-              day={d}
-              slots={grouped[d]}
-              onEditRequest={onEditRequest}
-            />
-          ))}
+        <div className="-mx-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0">
+          <div className="flex gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
+            {Array.from({ length: 7 }, (_, d) => (
+              <div key={d} className="w-[240px] shrink-0 sm:w-auto">
+                <DayColumn
+                  day={d}
+                  slots={grouped[d]}
+                  onEditRequest={onEditRequest}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -148,33 +151,25 @@ function DayColumn({
 
   return (
     <div
-      className={`overflow-hidden rounded-[1.5rem] border transition ${
-        isEmpty
-          ? 'border-slate-100 bg-slate-50/60'
-          : 'border-slate-200 bg-white shadow-sm'
+      className={`h-full overflow-hidden rounded-2xl border ${
+        isEmpty ? '!border-[#E8E6E0] !bg-[#FAFAF8]' : '!border-[#E8E6E0] !bg-white'
       }`}
     >
-      <div
-        className={`flex items-center justify-between px-5 py-4 ${
-          isEmpty
-            ? 'border-b border-slate-100'
-            : 'border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white'
-        }`}
-      >
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between border-b !border-[#E8E6E0] px-4 py-3.5">
+        <div className="flex items-center gap-2.5">
           <div
-            className={`flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black tracking-wide ${
+            className={`flex h-8 w-8 items-center justify-center rounded-lg text-[10px] font-bold tracking-wide ${
               isEmpty
-                ? 'bg-slate-100 text-slate-400'
-                : 'bg-violet-100 text-violet-700'
+                ? '!bg-[#F7F7F5] !text-[#B4B2A9]'
+                : '!bg-[#ECFBF5] !text-[#1D9E75]'
             }`}
           >
             {DAY_SHORT[day]}
           </div>
 
           <span
-            className={`text-sm font-bold ${
-              isEmpty ? 'text-slate-400' : 'text-slate-800'
+            className={`text-sm font-semibold ${
+              isEmpty ? '!text-[#B4B2A9]' : '!text-[#16211B]'
             }`}
           >
             {DAY_LABELS[day]}
@@ -182,19 +177,17 @@ function DayColumn({
         </div>
 
         <span
-          className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
-            isEmpty
-              ? 'bg-slate-100 text-slate-400'
-              : 'bg-violet-100 text-violet-700'
+          className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+            isEmpty ? '!bg-[#F7F7F5] !text-[#B4B2A9]' : '!bg-[#ECFBF5] !text-[#1D9E75]'
           }`}
         >
           {slots.length}
         </span>
       </div>
 
-      <div className="divide-y divide-slate-50 p-3 space-y-2">
+      <div className="space-y-2 p-3">
         {isEmpty ? (
-          <p className="py-4 text-center text-xs font-medium text-slate-400">
+          <p className="py-4 text-center text-xs font-medium !text-[#B4B2A9]">
             No slots
           </p>
         ) : (
@@ -215,38 +208,35 @@ function SlotCard({ slot }: { slot: Availability }) {
   const dur = durationMinutes(slot.startTime, slot.endTime);
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition hover:border-slate-200 hover:shadow-md">
-      <div
-        className={`absolute left-0 top-3 bottom-3 w-[0.3] rounded-r-full ${config.bar}`}
-      />
+    <div className="relative overflow-hidden rounded-xl border !border-[#E8E6E0] !bg-white p-3.5 transition hover:!border-[#D3D1C7]">
 
-      <div className="pl-3">
+      <div className="pl-2.5">
         <div className="mb-2 flex items-center justify-between">
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${config.pill}`}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${config.pill}`}
           >
             <Icon size={9} />
             {config.label}
           </span>
 
-          <span className="text-[10px] font-semibold text-slate-400">
+          <span className="text-[10px] font-medium !text-[#B4B2A9]">
             {dur}m
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <Clock size={11} className="text-slate-400 shrink-0" />
-          <span className="text-xs font-bold text-slate-800">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Clock size={11} className="shrink-0 !text-[#B4B2A9]" />
+          <span className="text-xs font-semibold !text-[#16211B]">
             {formatTime(slot.startTime)}
           </span>
-          <span className="text-xs text-slate-400">→</span>
-          <span className="text-xs font-bold text-slate-800">
+          <span className="text-xs !text-[#B4B2A9]">→</span>
+          <span className="text-xs font-semibold !text-[#16211B]">
             {formatTime(slot.endTime)}
           </span>
         </div>
 
         {slot.notes && (
-          <p className="mt-2 text-[11px] leading-relaxed text-slate-500 line-clamp-2">
+          <p className="mt-2 line-clamp-2 text-[11px] leading-relaxed !text-[#767570]">
             {slot.notes}
           </p>
         )}
@@ -261,25 +251,25 @@ function EmptyState({
   onEditRequest: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-[2rem] border border-dashed border-slate-200 bg-white py-20 text-center">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-violet-50">
-        <CalendarX className="h-8 w-8 text-violet-400" />
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed !border-[#E8E6E0] !bg-white py-16 text-center sm:py-20">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl !bg-[#F7F7F5]">
+        <CalendarX className="h-6 w-6 !text-[#B4B2A9]" />
       </div>
 
-      <p className="text-lg font-black text-slate-800">
+      <p className="text-base font-semibold !text-[#16211B]">
         No schedule yet
       </p>
 
-      <p className="mt-2 max-w-sm text-sm text-slate-500">
-        This theatre has no weekly availability configured.
-        Set operating windows to enable bookings.
+      <p className="mt-1.5 max-w-sm px-6 text-sm !text-[#767570]">
+        This theatre has no weekly availability configured. Set operating
+        windows to enable bookings.
       </p>
 
       <button
         onClick={onEditRequest}
-        className="mt-6 inline-flex items-center gap-2 rounded-full bg-violet-600 px-6 py-3 text-sm font-bold !text-white shadow-sm transition hover:bg-violet-700 active:scale-95"
+        className="mt-6 inline-flex items-center gap-2 rounded-xl !bg-[#0c1a12] px-5 py-2.5 text-sm font-semibold !text-white transition hover:!bg-[#16211B]"
       >
-        Configure Schedule
+        Configure schedule
       </button>
     </div>
   );

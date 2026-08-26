@@ -37,8 +37,8 @@ export default function DomainSelector({
   setSelectedCatalogIds,
 }: Props) {
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-gray-700">
+    <div className="space-y-1.5">
+      <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
         Select Domain
       </label>
 
@@ -59,7 +59,7 @@ export default function DomainSelector({
           setSelectedCatalogIds(existing);
         }}
         options={AVAILABLE_DOMAINS.map((domain) => ({
-          label: domain.replace(/_/g, ' ').toUpperCase(),
+          label: domain.replace(/_/g, ' '),
           value: domain,
         }))}
       />

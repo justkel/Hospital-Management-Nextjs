@@ -8,7 +8,6 @@ import {
   ArrowUpCircle,
   CheckCircle2,
   CircleDollarSign,
-  Filter,
   Gift,
   Loader2,
   PlusCircle,
@@ -533,44 +532,35 @@ export default function PatientWalletClient({
               {total} transaction{total === 1 ? '' : 's'}
             </h2>
 
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1.5 text-xs font-medium !text-[#B4B2A9]">
-                <Filter size={13} />
-                Filter
-              </div>
-              <Select
-                allowClear
-                placeholder="Type"
-                className="w-36"
-                size="small"
-                value={typeFilter}
-                onChange={(v) =>
-                  applyFilters({ page: 1, limit, type: v, status: statusFilter })
-                }
-                options={TYPE_FILTER_OPTIONS}
-              />
-              <Select
-                allowClear
-                placeholder="Status"
-                className="w-36"
-                size="small"
-                value={statusFilter}
-                onChange={(v) =>
-                  applyFilters({ page: 1, limit, type: typeFilter, status: v })
-                }
-                options={STATUS_FILTER_OPTIONS}
-              />
-              {hasActiveFilters && (
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="inline-flex items-center gap-1 rounded-lg border !border-[#E8E6E0] !bg-white px-2.5 py-1 text-xs font-medium !text-[#767570] transition hover:!bg-[#F7F7F5]"
-                >
-                  <X size={12} />
-                  Clear
-                </button>
-              )}
-            </div>
+            <select
+              value={typeFilter}
+              onChange={(e) =>
+                applyFilters({ page: 1, limit, type: e.target.value, status: statusFilter })
+              }
+              className="h-9 w-full sm:w-32 rounded-lg border !border-[#E8E6E0] !bg-white px-3 text-xs font-medium !text-[#16211B] outline-none transition focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20 cursor-pointer"
+            >
+              <option value="">All types</option>
+              {TYPE_FILTER_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={statusFilter}
+              onChange={(e) =>
+                applyFilters({ page: 1, limit, type: typeFilter, status: e.target.value })
+              }
+              className="h-9 w-full sm:w-32 rounded-lg border !border-[#E8E6E0] !bg-white px-3 text-xs font-medium !text-[#16211B] outline-none transition focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20 cursor-pointer"
+            >
+              <option value="">All status</option>
+              {STATUS_FILTER_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           {transactions.length === 0 ? (

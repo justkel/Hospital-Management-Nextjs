@@ -126,7 +126,6 @@ export default function CreateChargeCatalogCard({
       setSearch('');
 
       setTimeout(() => setSuccess(false), 2000);
-
     } catch (err: unknown) {
       if (err instanceof Error) {
         setServerError(err.message);
@@ -151,183 +150,185 @@ export default function CreateChargeCatalogCard({
   const isDisabled = loading;
 
   return (
-    <div className="w-full max-w-4xl mx-auto pb-32">
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8 space-y-10">
-
-        <div>
-          <h2 className="text-2xl font-semibold text-gray-900">
-            Create Charge Catalog
-          </h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Configure billing structure and pricing.
-          </p>
-        </div>
-
-        <div className="border-t border-gray-100" />
-
-        <div className="space-y-2 relative" ref={dropdownRef}>
-          <label className="text-sm font-medium text-gray-700">
-            Charge Item
-          </label>
-
-          <input
-            value={search}
-            onChange={e => {
-              setSearch(e.target.value);
-              setShowDropdown(true);
-            }}
-            onFocus={() => setShowDropdown(true)}
-            placeholder="Search by name or code..."
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
-          />
-
-          {errors.item && (
-            <p className="text-xs text-red-500">{errors.item}</p>
-          )}
-
-          {showDropdown && (
-            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
-              {sortedItems.length === 0 && (
-                <div className="p-3 text-sm text-gray-500">
-                  No results found
-                </div>
-              )}
-              {sortedItems.map(item => (
-                <div
-                  key={item.id}
-                  onClick={() => handleSelect(item)}
-                  className="px-4 py-3 text-sm hover:bg-gray-50 cursor-pointer"
-                >
-                  {item.name} ({item.code})
-                </div>
-              ))}
+    <div className="w-full max-w-4xl mx-auto">
+      <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+        <div className="border-b !border-[#E8E6E0] px-5 py-5 sm:px-6 sm:py-6">
+          <div className="flex items-start gap-3">
+            <div>
+              <h2 className="text-xl font-bold tracking-tight !text-[#16211B] sm:text-2xl">
+                Create Charge Catalog
+              </h2>
+              <p className="mt-1 text-sm !text-[#767570]">
+                Configure billing structure and pricing.
+              </p>
             </div>
-          )}
+          </div>
         </div>
 
-        <div className="border-t border-gray-100" />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">Name</label>
-            <input
-              value={form.name}
-              onChange={e => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
-            />
-            {errors.name && (
-              <p className="text-xs text-red-500">{errors.name}</p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">Code</label>
-            <input
-              value={form.code}
-              onChange={e => setForm({ ...form, code: e.target.value })}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
-            />
-            {errors.code && (
-              <p className="text-xs text-red-500">{errors.code}</p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Unit Price
+        <div className="space-y-5 p-5 sm:p-6">
+          <div className="space-y-1.5 relative" ref={dropdownRef}>
+            <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+              Charge Item
             </label>
-            <div className="relative">
-              <span className="absolute left-4 top-3 text-gray-400 text-sm">
-                ₦
-              </span>
+
+            <input
+              value={search}
+              onChange={e => {
+                setSearch(e.target.value);
+                setShowDropdown(true);
+              }}
+              onFocus={() => setShowDropdown(true)}
+              placeholder="Search by name or code..."
+              className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20"
+            />
+
+            {errors.item && (
+              <p className="text-xs !text-[#DC2626]">{errors.item}</p>
+            )}
+
+            {showDropdown && (
+              <div className="absolute z-10 mt-1 w-full rounded-xl border !border-[#E8E6E0] !bg-white shadow-lg max-h-60 overflow-y-auto">
+                {sortedItems.length === 0 && (
+                  <div className="p-3 text-sm !text-[#767570]">
+                    No results found
+                  </div>
+                )}
+                {sortedItems.map(item => (
+                  <div
+                    key={item.id}
+                    onClick={() => handleSelect(item)}
+                    className="px-4 py-3 text-sm !text-[#16211B] hover:!bg-[#F7F7F5] cursor-pointer transition"
+                  >
+                    {item.name} ({item.code})
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="border-t !border-[#E8E6E0]" />
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+                Name
+              </label>
               <input
-                type="number"
-                value={form.unitPrice}
+                value={form.name}
+                onChange={e => setForm({ ...form, name: e.target.value })}
+                className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20"
+              />
+              {errors.name && (
+                <p className="text-xs !text-[#DC2626]">{errors.name}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+                Code
+              </label>
+              <input
+                value={form.code}
+                onChange={e => setForm({ ...form, code: e.target.value })}
+                className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20"
+              />
+              {errors.code && (
+                <p className="text-xs !text-[#DC2626]">{errors.code}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+                Unit Price
+              </label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-2.5 text-sm !text-[#B4B2A9]">
+                  ₦
+                </span>
+                <input
+                  type="number"
+                  value={form.unitPrice}
+                  onChange={e =>
+                    setForm({
+                      ...form,
+                      unitPrice: Number(e.target.value),
+                    })
+                  }
+                  className="w-full pl-7 rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20"
+                />
+              </div>
+              <p className="text-xs !text-[#767570]">
+                {formatter.format(form.unitPrice || 0)}
+              </p>
+              {errors.unitPrice && (
+                <p className="text-xs !text-[#DC2626]">{errors.unitPrice}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+                Billing Type
+              </label>
+              <select
+                value={form.billingType}
                 onChange={e =>
                   setForm({
                     ...form,
-                    unitPrice: Number(e.target.value),
+                    billingType: e.target.value as BillingType,
                   })
                 }
-                className="w-full pl-8 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
-              />
+                className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20 cursor-pointer"
+              >
+                {Object.values(BillingType).map(type => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
             </div>
-            <p className="text-xs text-gray-400">
-              {formatter.format(form.unitPrice || 0)}
-            </p>
-            {errors.unitPrice && (
-              <p className="text-xs text-red-500">
-                {errors.unitPrice}
-              </p>
-            )}
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Billing Type
+          <div className="border-t !border-[#E8E6E0]" />
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
+              Description
             </label>
-            <select
-              value={form.billingType}
+            <textarea
+              rows={4}
+              value={form.description ?? ''}
               onChange={e =>
-                setForm({
-                  ...form,
-                  billingType: e.target.value as BillingType,
-                })
+                setForm({ ...form, description: e.target.value })
               }
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
-            >
-              {Object.values(BillingType).map(type => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
+              className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20 resize-none"
+            />
           </div>
-        </div>
 
-        <div className="border-t border-gray-100" />
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">
-            Description
-          </label>
-          <textarea
-            rows={4}
-            value={form.description ?? ''}
-            onChange={e =>
-              setForm({ ...form, description: e.target.value })
-            }
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-600 outline-none resize-none"
-          />
-        </div>
-
-      </div>
-
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 md:static md:border-none md:p-0 md:mt-8">
-        {serverError && (
-          <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 mb-4 text-sm text-red-700">
-            {serverError}
-          </div>
-        )}
-
-        <button
-          disabled={isDisabled}
-          onClick={handleSubmit}
-          className={`w-full rounded-xl py-3 text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer
-          ${isDisabled
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : success
-                ? 'bg-green-600 text-white!'
-                : 'bg-blue-700 text-white! hover:bg-blue-800 active:scale-[0.98]'
-            }`}
-        >
-          {loading && (
-            <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          {serverError && (
+            <div className="rounded-xl border !border-[#FBD5D5] !bg-[#FEF2F2] px-4 py-3 text-sm font-medium !text-[#DC2626]">
+              {serverError}
+            </div>
           )}
 
-          {success ? 'Created Successfully ✓' : 'Create Charge'}
-        </button>
+          <div className="pt-4 border-t !border-[#E8E6E0]">
+            <button
+              disabled={isDisabled}
+              onClick={handleSubmit}
+              className={`w-full rounded-xl py-3 text-sm font-semibold transition flex items-center justify-center gap-2
+                ${isDisabled
+                  ? '!bg-[#F7F7F5] !text-[#B4B2A9] cursor-not-allowed'
+                  : success
+                    ? '!bg-[#ECFBF5] !text-[#1D9E75]'
+                    : '!bg-[#0c1a12] !text-white hover:!bg-[#16211B]'
+                }`}
+            >
+              {loading && (
+                <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              )}
+              {success ? '✓ Created Successfully' : 'Create Charge'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

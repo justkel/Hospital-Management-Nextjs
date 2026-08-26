@@ -179,8 +179,13 @@ export default function WardIncidentHistorySection({
             </div>
 
             <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
-                <div className="overflow-x-auto">
-                    <table className="w-full min-w-[860px]">
+                <div
+                    className="overflow-x-auto hide-scrollbar"
+                    style={{
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none',
+                    }}
+                >                    <table className="w-full min-w-[860px]">
                         <thead>
                             <tr className="border-b !border-[#E8E6E0] text-left text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
                                 <th className="px-4 py-3 sm:px-5">Type</th>
@@ -301,45 +306,45 @@ function Badge({
 }
 
 type Option =
-  | string
-  | { value: string; label: string };
+    | string
+    | { value: string; label: string };
 
 function FilterSelect<T extends string>({
-  value,
-  onChange,
-  options,
-  placeholder,
+    value,
+    onChange,
+    options,
+    placeholder,
 }: {
-  value: T | '';
-  onChange: (v: T | '') => void;
-  options: Option[];
-  placeholder: string;
+    value: T | '';
+    onChange: (v: T | '') => void;
+    options: Option[];
+    placeholder: string;
 }) {
-  return (
-    <div className="relative w-full">
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value as T)}
-        className="h-10 w-full appearance-none rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 text-sm !text-[#16211B] outline-none transition focus:!border-[#1D9E75]"
-      >
-        <option value="">{placeholder}</option>
+    return (
+        <div className="relative w-full">
+            <select
+                value={value}
+                onChange={e => onChange(e.target.value as T)}
+                className="h-10 w-full appearance-none rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 text-sm !text-[#16211B] outline-none transition focus:!border-[#1D9E75]"
+            >
+                <option value="">{placeholder}</option>
 
-        {options.map(opt => {
-          if (typeof opt === 'string') {
-            return (
-              <option key={opt} value={opt}>
-                {opt.replace(/_/g, ' ')}
-              </option>
-            );
-          }
+                {options.map(opt => {
+                    if (typeof opt === 'string') {
+                        return (
+                            <option key={opt} value={opt}>
+                                {opt.replace(/_/g, ' ')}
+                            </option>
+                        );
+                    }
 
-          return (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          );
-        })}
-      </select>
-    </div>
-  );
+                    return (
+                        <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                        </option>
+                    );
+                })}
+            </select>
+        </div>
+    );
 }

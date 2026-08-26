@@ -115,23 +115,26 @@ export default function UpdateWardIncidentDrawer({
                 reset();
             }}
             placement="right"
-            size={520}
+            size="default"
             className="md:!max-w-[600px]"
+            styles={{ body: { background: '#FAFAF8' } }}
             title={
                 <div className="flex flex-col">
-                    <span className="text-lg font-semibold text-slate-900">
-                        Update Ward Incident
+                    <span className="text-lg font-semibold !text-[#16211B]">
+                        Update ward incident
                     </span>
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs !text-[#767570]">
                         Edit severity, status, and clinical notes
                     </span>
                 </div>
             }
         >
             {incident && (
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 mb-6">
-                    <p className="text-xs text-slate-500">Incident ID</p>
-                    <p className="text-sm font-medium text-slate-900 break-all">
+                <div className="mb-6 rounded-xl border !border-[#E8E6E0] !bg-white p-4">
+                    <p className="text-xs !text-[#B4B2A9]">
+                        Incident ID
+                    </p>
+                    <p className="break-all text-sm font-medium !text-[#16211B]">
                         {incident.id}
                     </p>
                 </div>
@@ -139,28 +142,28 @@ export default function UpdateWardIncidentDrawer({
 
             <div className="space-y-6">
                 <div>
-                    <label className="text-sm font-medium text-slate-700">
-                        Severity Level
+                    <label className="text-sm font-medium !text-[#5F5E5A]">
+                        Severity level
                     </label>
 
                     <Select
                         value={severity}
                         onChange={setSeverity}
-                        className="w-full mt-2"
+                        className="mt-2 w-full"
                         size="large"
                         options={severityOptions}
                     />
                 </div>
 
                 <div>
-                    <label className="text-sm font-medium text-slate-700">
-                        Incident Status
+                    <label className="text-sm font-medium !text-[#5F5E5A]">
+                        Incident status
                     </label>
 
                     <Select
                         value={status}
                         onChange={setStatus}
-                        className="w-full mt-2"
+                        className="mt-2 w-full"
                         size="large"
                         options={statusOptions}
                     />
@@ -169,11 +172,11 @@ export default function UpdateWardIncidentDrawer({
                 <Divider className="!my-2" />
 
                 <div>
-                    <label className="text-sm font-medium text-slate-700">
-                        Clinical Notes
+                    <label className="text-sm font-medium !text-[#5F5E5A]">
+                        Clinical notes
                     </label>
 
-                    <p className="text-xs text-slate-500 mb-2">
+                    <p className="mb-2 text-xs !text-[#B4B2A9]">
                         Add observations, actions taken, or escalation details
                     </p>
 
@@ -181,21 +184,21 @@ export default function UpdateWardIncidentDrawer({
                         rows={6}
                         value={notes}
                         onChange={e => setNotes(e.target.value)}
-                        placeholder="Enter detailed clinical notes..."
+                        placeholder="Enter detailed clinical notes…"
                         className="rounded-xl"
                     />
                 </div>
 
-                <div className="pt-4 flex flex-col gap-3">
+                <div className="flex flex-col gap-3 pt-4">
                     <Button
                         type="primary"
                         block
                         size="large"
                         loading={loading}
                         onClick={submit}
-                        className="!rounded-xl !h-12 !font-medium"
+                        className="!h-12 !rounded-xl !bg-[#0c1a12] !font-medium hover:!bg-[#16211B]"
                     >
-                        Save Updates
+                        Save updates
                     </Button>
 
                     <Button
@@ -205,7 +208,7 @@ export default function UpdateWardIncidentDrawer({
                             onClose?.();
                             reset();
                         }}
-                        className="!rounded-xl !h-12"
+                        className="!h-12 !rounded-xl"
                     >
                         Cancel
                     </Button>

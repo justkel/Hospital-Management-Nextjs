@@ -27,14 +27,14 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div className="border-b border-slate-100 px-6 py-4">
-        <h2 className="text-lg font-semibold text-slate-900">
+    <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+      <div className="border-b !border-[#E8E6E0] px-5 py-4 sm:px-6">
+        <h2 className="text-sm font-semibold !text-[#16211B] sm:text-base">
           {title}
         </h2>
       </div>
 
-      <div className="divide-y divide-slate-100">
+      <div className="divide-y !divide-[#E8E6E0]">
         {children}
       </div>
     </div>
@@ -51,17 +51,17 @@ function DetailRow({
   value?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-4 px-6 py-5">
-      <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
-        <Icon size={18} />
+    <div className="flex items-start gap-3.5 px-5 py-4 transition hover:!bg-[#FAFAF8] sm:gap-4 sm:px-6 sm:py-5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl !bg-[#F7F7F5] !text-[#5F5E5A] sm:h-10 sm:w-10">
+        <Icon size={16} />
       </div>
 
-      <div className="flex-1 min-w-0">
-        <p className="text-sm text-slate-500">
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-medium !text-[#B4B2A9] sm:text-sm">
           {label}
         </p>
 
-        <p className="text-sm sm:text-base font-semibold text-slate-900 mt-1 break-words">
+        <p className="mt-1 break-words text-sm font-semibold !text-[#16211B]">
           {value || '—'}
         </p>
       </div>
@@ -73,24 +73,24 @@ export default function WardInfoSection({
   ward,
 }: Props) {
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 py-4">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
-            {ward.name}
-          </h1>
+    <div className="mx-auto w-full max-w-4xl space-y-5 py-2 sm:space-y-6 sm:py-4">
+      <header className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+        <div className="flex flex-col gap-4 p-5 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight !text-[#16211B] sm:text-2xl">
+              {ward.name}
+            </h1>
 
-          <p className="text-slate-500 mt-2">
-            Hospital ward profile and operational details.
-          </p>
-        </div>
+            <p className="mt-1.5 text-sm !text-[#767570]">
+              Hospital ward profile and operational details.
+            </p>
+          </div>
 
-        <div>
           <span
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${
+            className={`inline-flex w-fit items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-semibold ${
               ward.isActive
-                ? 'bg-green-100 text-green-700'
-                : 'bg-red-100 text-red-700'
+                ? '!border-[#CFF0E1] !bg-[#ECFBF5] !text-[#1D9E75]'
+                : '!border-[#FBD5D5] !bg-[#FEF2F2] !text-[#DC2626]'
             }`}
           >
             {ward.isActive ? (
@@ -98,24 +98,21 @@ export default function WardInfoSection({
             ) : (
               <ShieldX size={16} />
             )}
-
-            {ward.isActive
-              ? 'ACTIVE'
-              : 'INACTIVE'}
+            {ward.isActive ? 'Active' : 'Inactive'}
           </span>
         </div>
-      </div>
+      </header>
 
-      <Card title="Ward Details">
+      <Card title="Ward details">
         <DetailRow
           icon={BedDouble}
-          label="Ward Name"
+          label="Ward name"
           value={ward.name}
         />
 
         <DetailRow
           icon={Hash}
-          label="Ward Code"
+          label="Ward code"
           value={ward.code}
         />
 
@@ -128,19 +125,13 @@ export default function WardInfoSection({
         <DetailRow
           icon={Building}
           label="Department"
-          value={ward.department?.replace(
-            /_/g,
-            ' '
-          )}
+          value={ward.department?.replace(/_/g, ' ')}
         />
 
         <DetailRow
           icon={Building2}
-          label="Ward Class"
-          value={ward.wardClass?.replace(
-            /_/g,
-            ' '
-          )}
+          label="Ward class"
+          value={ward.wardClass?.replace(/_/g, ' ')}
         />
       </Card>
     </div>

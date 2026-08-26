@@ -112,37 +112,54 @@ export default function DomainSyncPanel({
     <>
       {contextHolder}
 
-      <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 space-y-6">
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-          <DomainSelector
-            selectedDomain={selectedDomain}
-            grouped={grouped}
-            setSelectedDomain={setSelectedDomain}
-            setSelectedCatalogIds={setSelectedCatalogIds}
-          />
-
-          <CatalogSelector
-            catalogs={catalogs}
-            catalogDomainMap={catalogDomainMap}
-            selectedDomain={selectedDomain}
-            selectedCatalogIds={selectedCatalogIds}
-            setSelectedCatalogIds={setSelectedCatalogIds}
-          />
-
+      <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+        <div className="border-b !border-[#E8E6E0] px-5 py-5 sm:px-6 sm:py-6">
+          <div className="flex items-start gap-3">
+            <div>
+              <h2 className="text-xl font-bold tracking-tight !text-[#16211B] sm:text-2xl">
+                Domain Sync
+              </h2>
+              <p className="mt-1 text-sm !text-[#767570]">
+                Map charge catalogs to billing domains
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="flex justify-end">
-          <Button
-            type="primary"
-            size="large"
-            loading={loading}
-            onClick={handleSync}
-            className="rounded-2xl px-8 font-semibold h-12"
-          >
-            Sync Domain
-          </Button>
+        <div className="space-y-5 p-5 sm:p-6">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <DomainSelector
+              selectedDomain={selectedDomain}
+              grouped={grouped}
+              setSelectedDomain={setSelectedDomain}
+              setSelectedCatalogIds={setSelectedCatalogIds}
+            />
+
+            <CatalogSelector
+              catalogs={catalogs}
+              catalogDomainMap={catalogDomainMap}
+              selectedDomain={selectedDomain}
+              selectedCatalogIds={selectedCatalogIds}
+              setSelectedCatalogIds={setSelectedCatalogIds}
+            />
+          </div>
+
+          <div className="border-t !border-[#E8E6E0] pt-4">
+            <button
+              onClick={handleSync}
+              disabled={loading}
+              className="inline-flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-xl !bg-[#0c1a12] px-6 text-xs font-semibold !text-white transition hover:!bg-[#16211B] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 !border-white/20 !border-t-white" />
+                  Syncing...
+                </>
+              ) : (
+                'Sync Domain'
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </>

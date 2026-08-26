@@ -64,8 +64,8 @@ export default function CatalogSelector({
   }, [catalogs, catalogDomainMap, selectedDomain]);
 
   return (
-    <div className="md:col-span-2 space-y-2">
-      <label className="text-sm font-semibold text-gray-700">
+    <div className="space-y-1.5 md:col-span-2">
+      <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
         Assign Charge Catalogs
       </label>
 
@@ -81,13 +81,12 @@ export default function CatalogSelector({
           const { label, closable, onClose } = props;
 
           return (
-            <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-sm mr-2">
+            <span className="inline-flex items-center gap-1 rounded-full !bg-[#F7F7F5] px-2.5 py-1 text-xs font-medium !text-[#5F5E5A] mr-1.5">
               {label}
-
               {closable && (
                 <span
                   onClick={onClose}
-                  className="ml-2 cursor-pointer text-gray-500 hover:text-red-600"
+                  className="ml-1 cursor-pointer !text-[#B4B2A9] hover:!text-[#DC2626] transition"
                 >
                   ×
                 </span>

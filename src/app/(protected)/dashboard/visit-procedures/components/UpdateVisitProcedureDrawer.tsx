@@ -266,11 +266,9 @@ export default function UpdateVisitProcedureDrawer({
     return (
         <Drawer
             title={
-                <div>
-                    <h2 className="text-xl font-black text-gray-900">
-                        Update Procedure
-                    </h2>
-                </div>
+                <h2 className="text-lg font-semibold !text-[#16211B]">
+                    Update procedure
+                </h2>
             }
             placement={isMobile ? 'bottom' : 'right'}
             onClose={() => {
@@ -281,16 +279,17 @@ export default function UpdateVisitProcedureDrawer({
             size={isMobile ? 'large' : 'default'}
             rootClassName={
                 isMobile
-                    ? '[&_.ant-drawer-content]:h-[95vh] [&_.ant-drawer-content]:rounded-t-[2rem]'
+                    ? '[&_.ant-drawer-content]:h-[95vh] [&_.ant-drawer-content]:rounded-t-2xl'
                     : '[&_.ant-drawer-content]:w-[720px]'
             }
             styles={{
                 body: {
                     padding: isMobile ? 16 : 24,
+                    background: '#FAFAF8',
                 },
             }}
         >
-            <div className="space-y-6 pb-10">
+            <div className="space-y-5 pb-10">
                 <ProcedureDrawerHeader
                     procedure={procedure}
                 />
@@ -306,25 +305,25 @@ export default function UpdateVisitProcedureDrawer({
                         setCustomField={setCustomField}
                     />
                 ) : (
-                    <div className="space-y-5 rounded-[2rem] border border-emerald-200 bg-emerald-50/60 p-5">
+                    <div className="space-y-4 rounded-2xl border !border-[#CFF0E1] !bg-[#ECFBF5] p-5">
                         <div>
-                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-500">
-                                Procedure Completion
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] !text-[#1D9E75]">
+                                Procedure completion
                             </p>
 
-                            <h3 className="mt-1 text-xl font-black text-emerald-900">
-                                Finalize Procedure Outcome
+                            <h3 className="mt-1 text-lg font-bold !text-[#16211B]">
+                                Finalize procedure outcome
                             </h3>
 
-                            <p className="mt-2 text-sm leading-relaxed text-emerald-700">
+                            <p className="mt-2 text-sm leading-relaxed !text-[#5F5E5A]">
                                 This procedure is being marked as completed.
                                 Select the final clinical outcome.
                             </p>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700">
-                                Procedure Outcome
+                        <div className="space-y-1.5">
+                            <label className="block text-xs font-semibold !text-[#5F5E5A]">
+                                Procedure outcome
                             </label>
 
                             <select
@@ -332,68 +331,42 @@ export default function UpdateVisitProcedureDrawer({
                                 onChange={e =>
                                     setForm(prev => ({
                                         ...prev,
-                                        outcome:
-                                            e.target.value as VisitProcedureOutcome,
+                                        outcome: e.target.value as VisitProcedureOutcome,
                                     }))
                                 }
-                                className="
-                                    h-14 w-full rounded-2xl
-                                    border border-emerald-300
-                                    bg-white px-4
-                                    text-sm font-medium text-slate-800
-                                    outline-none transition-all
-                                    focus:border-emerald-500
-                                    focus:ring-4 focus:ring-emerald-100
-                                "
+                                className="h-12 w-full rounded-xl border !border-[#CFF0E1] !bg-white px-3.5 text-sm font-medium !text-[#16211B] outline-none transition focus:!border-[#1D9E75]"
                             >
-                                <option value="">
-                                    Select outcome
-                                </option>
+                                <option value="">Select outcome</option>
 
-                                {Object.values(VisitProcedureOutcome).map(
-                                    outcome => (
-                                        <option
-                                            key={outcome}
-                                            value={outcome}
-                                        >
-                                            {outcome.replace(/_/g, ' ')}
-                                        </option>
-                                    )
-                                )}
+                                {Object.values(VisitProcedureOutcome).map(outcome => (
+                                    <option key={outcome} value={outcome}>
+                                        {outcome.replace(/_/g, ' ')}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>
                 )}
 
                 {error && (
-                    <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    <div className="rounded-xl border !border-[#FBD5D5] !bg-[#FEF2F2] px-4 py-3 text-sm !text-[#DC2626]">
                         {error}
                     </div>
                 )}
 
                 {success && (
-                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                    <div className="rounded-xl border !border-[#CFF0E1] !bg-[#ECFBF5] px-4 py-3 text-sm !text-[#1D9E75]">
                         {success}
                     </div>
                 )}
 
-                <div className="sticky bottom-0 bg-white pt-3">
+                <div className="sticky bottom-0 !bg-[#FAFAF8] pt-3">
                     <button
                         onClick={handleSubmit}
                         disabled={loading || !canSubmit}
-                        className="
-                            w-full h-14 rounded-2xl
-                            bg-gradient-to-r from-blue-600 to-indigo-600
-                            !text-white font-bold text-base
-                            shadow-xl hover:shadow-2xl
-                            hover:scale-[1.01]
-                            transition-all duration-200
-                            disabled:opacity-50 disabled:cursor-not-allowed
-                        "
+                        className="h-12 w-full rounded-xl !bg-[#0c1a12] text-sm font-semibold !text-white transition hover:!bg-[#16211B] disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {loading
-                            ? 'Updating Procedure...'
-                            : 'Save Procedure Changes'}
+                        {loading ? 'Updating procedure…' : 'Save procedure changes'}
                     </button>
                 </div>
             </div>

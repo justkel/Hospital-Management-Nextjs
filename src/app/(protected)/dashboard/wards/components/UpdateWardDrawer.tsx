@@ -119,25 +119,40 @@ export default function UpdateWardDrawer({
       open={open}
       onClose={onClose}
       title={null}
-      size={520}
+      size="default"
+      className="md:!max-w-[600px]"
       styles={{
         body: {
           padding: 0,
+          background: '#FAFAF8',
         },
       }}
     >
-      <div className="h-full flex flex-col">
-        <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Update Ward
-          </h2>
+      <div className="flex h-full flex-col">
+        <div className="border-b !border-[#E8E6E0] !bg-white px-5 py-5 sm:px-6 sm:py-6">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
 
-          <p className="text-sm text-gray-500 mt-1">
-            Modify ward details and availability.
-          </p>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-xl font-bold tracking-tight !text-[#16211B] sm:text-2xl">
+                  Update ward
+                </h2>
+                <p className="mt-1 text-sm !text-[#767570]">
+                  Modify ward details and availability.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={onClose}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border !border-[#E8E6E0] !bg-white !text-[#767570] transition hover:!bg-[#F7F7F5] hover:!text-[#16211B]"
+            >
+              <span className="text-lg">✕</span>
+            </button>
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
+        <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5 sm:px-6 sm:py-6 hide-scrollbar">
           <Input
             label="Ward Name"
             placeholder="e.g Male Surgical Ward"
@@ -199,34 +214,37 @@ export default function UpdateWardDrawer({
             options={Object.values(WardClass)}
           />
 
-          <div className="rounded-2xl border border-gray-200 p-4 flex items-center justify-between">
-            <div>
-              <p className="font-semibold text-gray-900">
-                Ward Status
-              </p>
+          <div className="rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold !text-[#16211B]">
+                  Ward Status
+                </p>
+                <p className="text-sm !text-[#767570]">
+                  Enable or disable this ward
+                </p>
+              </div>
 
-              <p className="text-sm text-gray-500">
-                Enable or disable this ward
-              </p>
+              <div className="flex shrink-0 items-center">
+                <Switch
+                  checked={form.isActive}
+                  onChange={checked =>
+                    setForm(prev => ({
+                      ...prev,
+                      isActive: checked,
+                    }))
+                  }
+                />
+              </div>
             </div>
-
-            <Switch
-              checked={form.isActive}
-              onChange={checked =>
-                setForm(prev => ({
-                  ...prev,
-                  isActive: checked,
-                }))
-              }
-            />
           </div>
         </div>
 
-        <div className="border-t border-gray-100 p-6 bg-white">
+        <div className="border-t !border-[#E8E6E0] !bg-white p-4 sm:p-5">
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 !text-white font-semibold transition disabled:opacity-50"
+            className="h-12 w-full rounded-xl !bg-[#0c1a12] font-semibold !text-white transition hover:!bg-[#16211B] disabled:opacity-50"
           >
             {loading
               ? 'Updating Ward...'
@@ -246,8 +264,8 @@ function Input({
   type = 'text',
 }: InputProps) {
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-gray-700">
+    <div className="space-y-1.5">
+      <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
         {label}
       </label>
 
@@ -256,7 +274,7 @@ function Input({
         value={value}
         placeholder={placeholder}
         onChange={e => onChange(e.target.value)}
-        className="w-full h-12 rounded-2xl border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-gray-400"
+        className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20"
       />
     </div>
   );
@@ -269,15 +287,15 @@ function Select({
   options,
 }: SelectProps) {
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-gray-700">
+    <div className="space-y-1.5">
+      <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
         {label}
       </label>
 
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="w-full h-12 rounded-2xl border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600"
+        className="w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 py-2.5 text-sm !text-[#16211B] outline-none transition focus:!border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/20 cursor-pointer"
       >
         {options.map(item => (
           <option

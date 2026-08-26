@@ -150,7 +150,12 @@ export default function LabRequestHistorySection({
       </div>
 
       <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
+        <div
+          className="overflow-x-auto hide-scrollbar"
+          style={{
+            scrollbarWidth: 'none',
+          }}
+        >
           <table className="min-w-[850px] w-full">
             <thead className="bg-gray-50">
               <tr className="text-left text-xs sm:text-sm text-gray-500">
@@ -193,13 +198,13 @@ export default function LabRequestHistorySection({
 
                     <td className="px-4 sm:px-6 py-4">
                       <div className="flex justify-end gap-2">
-                          <Link
-                            href={`/dashboard/lab-requests/${item.id}`}
-                            className="w-10 h-10 rounded-xl !bg-green-50 !hover:bg-green-100 flex items-center justify-center !text-green-700 transition"
-                            title="View Request"
-                          >
-                            <EyeOutlined />
-                          </Link>
+                        <Link
+                          href={`/dashboard/lab-requests/${item.id}`}
+                          className="w-10 h-10 rounded-xl !bg-green-50 !hover:bg-green-100 flex items-center justify-center !text-green-700 transition"
+                          title="View Request"
+                        >
+                          <EyeOutlined />
+                        </Link>
 
                         <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
                           <button

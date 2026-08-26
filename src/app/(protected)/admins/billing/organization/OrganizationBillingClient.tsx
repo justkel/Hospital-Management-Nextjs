@@ -12,6 +12,7 @@ import EditCategoryCard from './components/EditCategoryCard';
 import AddItemCard from './components/AddItemCard';
 import ItemsGrid from './components/ItemsGrid';
 import Link from 'next/link';
+import CollapsibleSection from '@/app/(protected)/dashboard/visits/components/CollapsibleSection';
 
 export type Category =
   GetOrganizationBillingCategoriesQuery['organizationBillingCategories'][number];
@@ -142,22 +143,22 @@ export default function OrganizationBillingClient({ categories: initial }: Props
               models tailored to your organization.
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4">
-
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link
               href="/admins/billing/organization/charge-catalog"
-              className="inline-flex items-center justify-center rounded-2xl bg-black text-white px-6 py-3 text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200"
+              className="inline-flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-xl !bg-[#0c1a12] px-5 text-xs font-semibold !text-white transition hover:!bg-[#16211B]"
             >
-              Visit Charge Catalog →
+              Visit Charge Catalog
+              <span className="text-white/50">→</span>
             </Link>
 
             <Link
               href="/admins/billing/charge-domain-mappings"
-              className="inline-flex items-center justify-center rounded-2xl bg-white border border-gray-200 text-gray-900 px-6 py-3 text-sm font-semibold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-200"
+              className="inline-flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-xl border !border-[#E8E6E0] !bg-white px-5 text-xs font-semibold !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] hover:!text-[#16211B]"
             >
-              Manage Domain Mapping →
+              Manage Domain Mapping
+              <span className="!text-[#B4B2A9]">→</span>
             </Link>
-
           </div>
         </div>
 
@@ -168,13 +169,6 @@ export default function OrganizationBillingClient({ categories: initial }: Props
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
-          <CategorySidebar
-            categories={categories}
-            selectedId={selectedId}
-            setSelectedId={setSelectedId}
-            startEdit={startEdit}
-          />
 
           <div className="lg:col-span-3 space-y-8">
 
@@ -187,20 +181,29 @@ export default function OrganizationBillingClient({ categories: initial }: Props
               />
             )}
 
-            {selectedCategory && !isEditing && (
-              <>
-                <AddItemCard
-                  selectedCategory={selectedCategory}
-                  newItem={newItem}
-                  setNewItem={setNewItem}
-                  createItem={createItem}
-                />
-
-                <ItemsGrid selectedCategory={selectedCategory} />
-              </>
-            )}
-
           </div>
+
+          <CategorySidebar
+            categories={categories}
+            selectedId={selectedId}
+            setSelectedId={setSelectedId}
+            startEdit={startEdit}
+          />
+
+          {selectedCategory && !isEditing && (
+            <>
+              <CollapsibleSection title="Items Grid" defaultOpen={false}>
+                <ItemsGrid selectedCategory={selectedCategory} />
+              </CollapsibleSection>
+
+              <AddItemCard
+                selectedCategory={selectedCategory}
+                newItem={newItem}
+                setNewItem={setNewItem}
+                createItem={createItem}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -17,13 +17,9 @@ import type { EditableProcedureStaff } from './ProcedureStaffSection';
 
 type Props = {
     team: EditableProcedureStaff[];
-
     setTeam: React.Dispatch<
-        React.SetStateAction<
-            EditableProcedureStaff[]
-        >
+        React.SetStateAction<EditableProcedureStaff[]>
     >;
-
     disabled?: boolean;
 };
 
@@ -95,108 +91,59 @@ export default function AssignProcedureStaffCard({
     }
 
     return (
-        <div className="rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm">
+        <div className="rounded-2xl border !border-[#E8E6E0] !bg-white p-4 sm:p-5">
             <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
-                    <UserPlus2 className="h-5 w-5" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl !bg-[#ECFBF5]">
+                    <UserPlus2 className="h-4.5 w-4.5 !text-[#1D9E75]" />
                 </div>
 
                 <div>
-                    <h3 className="text-lg font-black text-slate-900">
-                        Assign Staff
+                    <h3 className="text-base font-semibold !text-[#16211B]">
+                        Assign staff
                     </h3>
 
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm !text-[#767570]">
                         Add clinicians to this procedure team
                     </p>
                 </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-1 xl:grid-cols-3 gap-4">
+            <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-3">
                 <select
                     value={staffId}
                     disabled={disabled}
-                    onChange={e =>
-                        setStaffId(
-                            e.target.value
-                        )
-                    }
-                    className="
-                        h-14 rounded-2xl
-                        border border-slate-200
-                        bg-white px-4
-                        text-sm font-medium
-                    "
+                    onChange={e => setStaffId(e.target.value)}
+                    className="h-11 rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 text-sm !text-[#16211B] outline-none transition focus:!border-[#1D9E75] disabled:!bg-[#F7F7F5] disabled:!text-[#B4B2A9]"
                 >
-                    <option value="">
-                        Select Staff
-                    </option>
+                    <option value="">Select staff</option>
 
-                    {availableStaff.map(
-                        member => (
-                            <option
-                                key={member.id}
-                                value={member.id}
-                            >
-                                {member.label}
-                            </option>
-                        )
-                    )}
+                    {availableStaff.map(member => (
+                        <option key={member.id} value={member.id}>
+                            {member.label}
+                        </option>
+                    ))}
                 </select>
 
                 <select
-                    value={
-                        functionInProcedure
-                    }
+                    value={functionInProcedure}
                     disabled={disabled}
-                    onChange={e =>
-                        setFunction(
-                            e.target
-                                .value as StaffFunction
-                        )
-                    }
-                    className="
-                        h-14 rounded-2xl
-                        border border-slate-200
-                        bg-white px-4
-                        text-sm font-medium
-                    "
+                    onChange={e => setFunction(e.target.value as StaffFunction)}
+                    className="h-11 rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 text-sm !text-[#16211B] outline-none transition focus:!border-[#1D9E75] disabled:!bg-[#F7F7F5] disabled:!text-[#B4B2A9]"
                 >
-                    {Object.values(
-                        StaffFunction
-                    ).map(role => (
-                        <option
-                            key={role}
-                            value={role}
-                        >
-                            {formatFunctionLabel(
-                                role
-                            )}
+                    {Object.values(StaffFunction).map(role => (
+                        <option key={role} value={role}>
+                            {formatFunctionLabel(role)}
                         </option>
                     ))}
                 </select>
 
                 <button
-                    disabled={
-                        disabled || !staffId
-                    }
+                    disabled={disabled || !staffId}
                     onClick={handleAddStaff}
-                    className="
-                        h-14 rounded-2xl
-                        bg-gradient-to-r
-                        from-emerald-600
-                        to-teal-600
-                        px-5 font-bold !text-white
-                        shadow-lg transition-all
-                        hover:scale-[1.01]
-                        disabled:opacity-50
-                    "
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl !bg-[#0c1a12] px-5 text-sm font-semibold !text-white transition hover:!bg-[#16211B] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    <span className="inline-flex items-center gap-2">
-                        <Plus className="h-4 w-4" />
-
-                        Add To Team
-                    </span>
+                    <Plus className="h-4 w-4" />
+                    Add to team
                 </button>
             </div>
         </div>
