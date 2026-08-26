@@ -152,8 +152,6 @@ export default function CreditsTab({
   };
 
   useEffect(() => {
-    refreshBalance();
-    refreshCredits();
     refreshFeatureFlags();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);

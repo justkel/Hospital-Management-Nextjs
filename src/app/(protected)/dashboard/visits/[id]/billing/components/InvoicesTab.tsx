@@ -108,7 +108,6 @@ export default function InvoicesTab({
   };
 
   useEffect(() => {
-    refresh();
     refreshCurrentTotals();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);

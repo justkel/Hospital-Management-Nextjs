@@ -350,7 +350,7 @@ export default function BillingClient({
           </div>
 
           <div className="px-4 sm:px-6">
-            {activeTab === 'summary' && (
+            <div className={activeTab === 'summary' ? '' : 'hidden'}>
               <ChargeSummaryTab
                 visitId={visit.id}
                 summary={summary}
@@ -359,9 +359,9 @@ export default function BillingClient({
                 onSummaryChange={setSummary}
                 onUnbilledChange={setUnbilled}
               />
-            )}
+            </div>
 
-            {activeTab === 'adjustments' && (
+            <div className={activeTab === 'adjustments' ? '' : 'hidden'}>
               <AdjustmentsTab
                 visitId={visit.id}
                 adjustments={adjustments}
@@ -369,9 +369,9 @@ export default function BillingClient({
                 isReconciled={isReconciled}
                 onAdjustmentsChange={setAdjustments}
               />
-            )}
+            </div>
 
-            {activeTab === 'invoices' && (
+            <div className={activeTab === 'invoices' ? '' : 'hidden'}>
               <InvoicesTab
                 visitId={visit.id}
                 latestInvoice={latestInvoice}
@@ -380,9 +380,9 @@ export default function BillingClient({
                 onLatestInvoiceChange={setLatestInvoice}
                 onInvoicesChange={setInvoices}
               />
-            )}
+            </div>
 
-            {activeTab === 'payments' && (
+            <div className={activeTab === 'payments' ? '' : 'hidden'}>
               <PaymentsTab
                 visitId={visit.id}
                 patientId={visit.patientId}
@@ -393,9 +393,9 @@ export default function BillingClient({
                 onPaymentsChange={setPayments}
                 onLatestInvoiceChange={setLatestInvoice}
               />
-            )}
+            </div>
 
-            {activeTab === 'credits' && (
+            <div className={activeTab === 'credits' ? '' : 'hidden'}>
               <CreditsTab
                 visitId={visit.id}
                 patientId={visit.patientId}
@@ -406,7 +406,7 @@ export default function BillingClient({
                 onCreditsChange={setCredits}
                 onCreditBalanceChange={setCreditBalance}
               />
-            )}
+            </div>
           </div>
         </div>
       </div>

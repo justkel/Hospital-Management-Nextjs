@@ -175,7 +175,7 @@ export default function ChargeSummaryTab({
   };
 
   useEffect(() => {
-    refreshAll();
+    Promise.all([refreshBalances(), refreshCurrentTotals()]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 

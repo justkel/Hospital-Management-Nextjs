@@ -148,9 +148,7 @@ export default function AdjustmentsTab({
   };
 
   useEffect(() => {
-    refresh();
-    refreshBalances();
-    refreshCurrentTotals();
+    Promise.all([refreshBalances(), refreshCurrentTotals()]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 

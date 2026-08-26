@@ -19,6 +19,7 @@ const forceLogoutCodes = [
 ];
 
 let logoutTriggered = false;
+const inFlightGets = new Map<string, Promise<Response>>();
 
 let refreshing = false;
 let refreshPromise: Promise<boolean> | null = null;
@@ -69,7 +70,7 @@ function wait(ms: number): Promise<void> {
 const DEFAULT_RETRY_AFTER_SECONDS = 5;
 const MAX_RETRY_AFTER_SECONDS = 30; // cap so a bad/huge value can't hang a request indefinitely
 
-export async function clientFetch(
+async function clientFetchUncached(
   input: RequestInfo,
   init: RequestInit = {},
   options: { skipRateLimitRetry?: boolean } = {}
@@ -141,4 +142,31 @@ export async function clientFetch(
     ...(init as object),
     _retry: true as unknown as boolean,
   } as RequestInit);
+}
+
+export function clientFetch(
+  input: RequestInfo,
+  init: RequestInit = {},
+  options: { skipRateLimitRetry?: boolean } = {}
+): Promise<Response> {
+  const method = (init.method ?? 'GET').toUpperCase();
+  if (method !== 'GET') {
+    return clientFetchUncached(input, init, options);
+  }
+
+  const url =
+    typeof input === 'string'
+      ? input
+      : input.url;
+  const key = `${url}|${JSON.stringify(init.headers ?? {})}`;
+  const existing = inFlightGets.get(key);
+  if (existing) {
+    return existing.then((response) => response.clone());
+  }
+
+  const request = clientFetchUncached(input, init, options).finally(() => {
+    inFlightGets.delete(key);
+  });
+  inFlightGets.set(key, request);
+  return request.then((response) => response.clone());
 }

@@ -219,7 +219,6 @@ export default function PaymentsTab({
   };
 
   useEffect(() => {
-    refreshPayments();
     refreshBalancePayments();
     refreshBalances();
     refreshCurrentTotals();
