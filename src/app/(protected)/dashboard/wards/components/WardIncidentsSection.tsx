@@ -137,7 +137,12 @@ export default function WardIncidentsSection({
                 </select>
             </div>
             <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-                <div className="overflow-x-auto">
+                <div
+                    className="overflow-x-auto"
+                    style={{
+                        scrollbarWidth: 'none',
+                    }}
+                >
                     <table className="min-w-[1000px] w-full">
                         <thead className="bg-gray-50">
                             <tr className="text-left text-sm text-gray-500">

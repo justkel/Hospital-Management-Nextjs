@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation'; // <-- 1. IMPORT USEROUTER
+import { useRouter } from 'next/navigation';
 
 import {
   ArrowLeft,
@@ -55,13 +55,13 @@ export default function TheatreAvailabilityWorkspace({
         const mappedAvailabilities = json.map((item: TheatreAvailability) => ({
           ...item,
           type: item.type === 'REGULAR' ? TheatreAvailabilityType.Regular :
-                item.type === 'EMERGENCY' ? TheatreAvailabilityType.Emergency :
-                item.type === 'SPECIAL_SESSION' ? TheatreAvailabilityType.SpecialSession : item.type
+            item.type === 'EMERGENCY' ? TheatreAvailabilityType.Emergency :
+              item.type === 'SPECIAL_SESSION' ? TheatreAvailabilityType.SpecialSession : item.type
         }));
 
         setAvailabilities(mappedAvailabilities);
       }
-      router.refresh(); 
+      router.refresh();
     } finally {
       setSyncing(false);
     }
@@ -86,94 +86,100 @@ export default function TheatreAvailabilityWorkspace({
   ).length;
 
   return (
-    <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-50/60 via-white to-cyan-50/40" />
-
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(0deg,#000 0,#000 1px,transparent 1px,transparent 40px), repeating-linear-gradient(90deg,#000 0,#000 1px,transparent 1px,transparent 40px)',
-          }}
-        />
-
-        <div className="relative px-6 py-6 sm:px-8 sm:py-8">
+    <div className="space-y-4 sm:space-y-6">
+      <header className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+        <div className="p-5 sm:p-8">
           <Link
             href={`/dashboard/theatres/${theatre.id}`}
-            className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-semibold text-slate-600 shadow-sm backdrop-blur-sm transition hover:border-slate-300 hover:bg-white hover:text-slate-900"
+            className="mb-5 inline-flex items-center gap-1.5 rounded-lg border !border-[#E8E6E0] !bg-white px-3 py-1.5 text-xs font-medium !text-[#767570] transition hover:!bg-[#F7F7F5] hover:!text-[#16211B]"
           >
-            <ArrowLeft size={13} />
-            Back to Theatre
+            <ArrowLeft size={12} />
+            Back to theatre
           </Link>
 
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-violet-100 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-violet-700">
-                <CalendarDays className="h-3.5 w-3.5" />
-                Availability Console
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-xl">
+              <div className="inline-flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-md !bg-[#ECFBF5]">
+                  <CalendarDays size={12} className="!text-[#1D9E75]" />
+                </span>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] !text-[#1D9E75]">
+                  Availability Console
+                </p>
               </div>
 
-              <h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
+              <h1 className="mt-3 text-[22px] font-bold leading-tight tracking-tight !text-[#16211B] sm:text-[28px]">
                 {theatre.name}
               </h1>
 
-              <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-500">
+              <p className="mt-2 text-sm leading-relaxed !text-[#767570]">
                 Configure weekly operating windows, session types, and
                 scheduling constraints for this theatre.
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-              <StatChip
-                label="Total slots"
-                value={totalSlots}
-                color="violet"
-              />
-              <StatChip
-                label="Regular"
-                value={regularCount}
-                color="cyan"
-              />
-              <StatChip
-                label="Emergency"
-                value={emergencyCount}
-                color="rose"
-              />
+            {/* Ledger stats — same pattern as every other header in the app */}
+            <div className="grid grid-cols-3 divide-x !divide-[#E8E6E0] overflow-hidden rounded-xl border !border-[#E8E6E0]">
+              <div className="min-w-[76px] p-3.5">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
+                  Total
+                </p>
+                <p className="mt-1.5 font-mono text-xl font-semibold tabular-nums !text-[#16211B]">
+                  {String(totalSlots).padStart(2, '0')}
+                </p>
+              </div>
+              <div className="min-w-[76px] p-3.5">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
+                  Regular
+                </p>
+                <p className="mt-1.5 font-mono text-xl font-semibold tabular-nums !text-[#16211B]">
+                  {String(regularCount).padStart(2, '0')}
+                </p>
+              </div>
+              <div className="min-w-[76px] p-3.5">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
+                  Emergency
+                </p>
+                <p className="mt-1.5 font-mono text-xl font-semibold tabular-nums !text-[#16211B]">
+                  {String(emergencyCount).padStart(2, '0')}
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="mt-6 flex items-center gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-1 w-fit">
-            <TabButton
+          <div
+            className="mt-6 flex w-full items-center gap-1 overflow-x-auto rounded-xl border !border-[#E8E6E0] !bg-[#F7F7F5] p-1 sm:w-fit hide-scrollbar"
+            style={{
+              scrollbarWidth: 'none', /* Firefox */
+              msOverflowStyle: 'none', /* IE and Edge */
+            }}
+          >            <TabButton
               active={view === 'board'}
               onClick={() => setView('board')}
-              label="Slot Board"
+              label="Slot board"
             />
             <TabButton
               active={view === 'calendar'}
               onClick={() => setView('calendar')}
-              label="Week View"
+              label="Week view"
             />
             <TabButton
               active={view === 'sync'}
               onClick={() => setView('sync')}
-              label="Sync Schedule"
+              label="Sync schedule"
               accent
             />
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="flex items-center justify-end gap-3">
+      <div className="flex items-center justify-end">
         <button
           onClick={refresh}
           disabled={syncing}
-          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-slate-300 hover:text-slate-900 disabled:opacity-50"
+          className="inline-flex h-9 items-center gap-2 rounded-lg border !border-[#E8E6E0] !bg-white px-3.5 text-xs font-medium !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] disabled:opacity-40"
         >
-          <RefreshCw
-            size={13}
-            className={syncing ? 'animate-spin' : ''}
-          />
+          <RefreshCw size={11} className={syncing ? 'animate-spin' : ''} />
           Refresh
         </button>
       </div>
@@ -203,35 +209,6 @@ export default function TheatreAvailabilityWorkspace({
   );
 }
 
-function StatChip({
-  label,
-  value,
-  color,
-}: {
-  label: string;
-  value: number;
-  color: 'violet' | 'cyan' | 'rose';
-}) {
-  const palette = {
-    violet: 'bg-violet-50 border-violet-200 text-violet-700',
-    cyan: 'bg-cyan-50 border-cyan-200 text-cyan-700',
-    rose: 'bg-rose-50 border-rose-200 text-rose-700',
-  };
-
-  return (
-    <div
-      className={`flex items-center gap-2 rounded-2xl border px-4 py-2.5 ${palette[color]}`}
-    >
-      <span className="text-2xl font-black leading-none">
-        {value}
-      </span>
-      <span className="text-xs font-semibold uppercase tracking-wide">
-        {label}
-      </span>
-    </div>
-  );
-}
-
 function TabButton({
   active,
   onClick,
@@ -247,11 +224,8 @@ function TabButton({
     return (
       <button
         onClick={onClick}
-        className={`rounded-xl px-5 py-2 text-xs font-bold shadow-sm transition ${
-          accent
-            ? 'bg-violet-600 !text-white'
-            : 'bg-white text-slate-900'
-        }`}
+        className={`shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition !bg-white shadow-sm ${accent ? '!text-[#1D9E75]' : '!text-[#16211B]'
+          }`}
       >
         {label}
       </button>
@@ -261,11 +235,7 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`rounded-xl px-5 py-2 text-xs font-semibold transition ${
-        accent
-          ? 'text-violet-600 hover:bg-violet-50'
-          : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'
-      }`}
+      className="shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-medium !text-[#767570] transition hover:!text-[#16211B]"
     >
       {label}
     </button>

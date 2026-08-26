@@ -724,9 +724,6 @@ export default function DashboardClient({
         <div className="rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 p-2 text-purple-600">
-                <Activity className="h-4 w-4" />
-              </div>
             </div>
             <span className="text-[11px] text-gray-400">Live updates</span>
           </div>

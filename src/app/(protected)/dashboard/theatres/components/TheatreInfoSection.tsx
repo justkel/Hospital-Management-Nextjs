@@ -9,7 +9,6 @@ import {
   ShieldCheck,
   ShieldX,
   Users,
-  Sparkles,
 } from 'lucide-react';
 
 import { GetTheatreByIdQuery } from '@/shared/graphql/generated/graphql';
@@ -31,20 +30,20 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-100 bg-gradient-to-r from-cyan-50/70 to-white px-6 py-5">
-        <h2 className="text-lg font-bold text-slate-900">
+    <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+      <div className="border-b !border-[#E8E6E0] px-5 py-4 sm:px-6 sm:py-5">
+        <h2 className="text-sm font-semibold !text-[#16211B] sm:text-base">
           {title}
         </h2>
 
         {description && (
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-xs !text-[#767570] sm:text-sm">
             {description}
           </p>
         )}
       </div>
 
-      <div className="divide-y divide-slate-100">
+      <div className="divide-y !divide-[#E8E6E0]">
         {children}
       </div>
     </div>
@@ -55,34 +54,23 @@ function DetailRow({
   icon: Icon,
   label,
   value,
-  accent = 'cyan',
 }: {
   icon: React.ElementType;
   label: string;
   value?: React.ReactNode;
-  accent?: 'cyan' | 'emerald' | 'blue';
 }) {
-  const accentStyles = {
-    cyan: 'bg-cyan-50 text-cyan-700',
-    emerald:
-      'bg-emerald-50 text-emerald-700',
-    blue: 'bg-blue-50 text-blue-700',
-  };
-
   return (
-    <div className="flex items-start gap-4 px-6 py-5 transition hover:bg-slate-50/60">
-      <div
-        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${accentStyles[accent]}`}
-      >
-        <Icon size={18} />
+    <div className="flex items-start gap-3.5 px-5 py-4 transition hover:!bg-[#FAFAF8] sm:gap-4 sm:px-6 sm:py-5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl !bg-[#F7F7F5] !text-[#5F5E5A] sm:h-10 sm:w-10">
+        <Icon size={16} />
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-slate-500">
+        <p className="text-xs font-medium !text-[#B4B2A9] sm:text-sm">
           {label}
         </p>
 
-        <p className="mt-1 break-words text-sm font-bold text-slate-900 sm:text-base">
+        <p className="mt-1 break-words text-sm font-semibold !text-[#16211B]">
           {value || '—'}
         </p>
       </div>
@@ -100,19 +88,19 @@ function MetricCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border !border-[#E8E6E0] !bg-white p-4 sm:p-5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
             {label}
           </p>
 
-          <p className="mt-2 text-3xl font-black tracking-tight text-slate-900">
+          <p className="mt-1.5 font-mono text-2xl font-semibold tabular-nums !text-[#16211B] sm:text-[26px]">
             {value}
           </p>
         </div>
 
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-700">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl !bg-[#F7F7F5] !text-[#5F5E5A] sm:h-11 sm:w-11">
           {icon}
         </div>
       </div>
@@ -124,100 +112,83 @@ export default function TheatreInfoSection({
   theatre,
 }: Props) {
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6 py-4">
+    <div className="mx-auto w-full max-w-5xl space-y-5 py-2 sm:space-y-6 sm:py-4">
 
-      <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-50/70 via-white to-blue-50/40" />
-
-        <div className="relative p-6 sm:p-8">
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+      <header className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+        <div className="p-5 sm:p-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
 
             <div className="min-w-0">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-cyan-100 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-cyan-700">
-                <Sparkles className="h-4 w-4" />
-                Operating Theatre
+              <div className="inline-flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] !text-[#1D9E75]">
+                  Operating Theatre
+                </p>
               </div>
 
-              <h1 className="break-words text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
+              <h1 className="mt-3 break-words text-2xl font-bold tracking-tight !text-[#16211B] sm:text-[32px]">
                 {theatre.name}
               </h1>
 
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-500 sm:text-base">
+              <p className="mt-2.5 max-w-2xl text-sm leading-relaxed !text-[#767570]">
                 Theatre operational profile, scheduling readiness,
                 departmental assignment, and surgical capacity overview.
               </p>
             </div>
 
-            <div>
-              <span
-                className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold shadow-sm ${
-                  theatre.isActive
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-rose-100 text-rose-700'
-                }`}
-              >
-                {theatre.isActive ? (
-                  <ShieldCheck size={18} />
-                ) : (
-                  <ShieldX size={18} />
-                )}
+            <span
+              className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold ${
+                theatre.isActive
+                  ? '!border-[#CFF0E1] !bg-[#ECFBF5] !text-[#1D9E75]'
+                  : '!border-[#FBD5D5] !bg-[#FEF2F2] !text-[#DC2626]'
+              }`}
+            >
+              {theatre.isActive ? (
+                <ShieldCheck size={17} />
+              ) : (
+                <ShieldX size={17} />
+              )}
 
-                {theatre.isActive
-                  ? 'ACTIVE THEATRE'
-                  : 'INACTIVE THEATRE'}
-              </span>
-            </div>
+              {theatre.isActive ? 'Active theatre' : 'Inactive theatre'}
+            </span>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
         <MetricCard
           label="Capacity"
-          value={
-            theatre.capacity
-              ? `${theatre.capacity}`
-              : '—'
-          }
-          icon={<Users className="h-5 w-5" />}
+          value={theatre.capacity ? `${theatre.capacity}` : '—'}
+          icon={<Users className="h-4 w-4" />}
         />
 
         <MetricCard
           label="Floor"
-          value={
-            theatre.floor
-              ? `${theatre.floor}`
-              : '—'
-          }
-          icon={<Layers3 className="h-5 w-5" />}
+          value={theatre.floor ? `${theatre.floor}` : '—'}
+          icon={<Layers3 className="h-4 w-4" />}
         />
 
         <MetricCard
           label="Status"
-          value={
-            theatre.isActive
-              ? 'READY'
-              : 'OFFLINE'
-          }
-          icon={<Activity className="h-5 w-5" />}
+          value={theatre.isActive ? 'Ready' : 'Offline'}
+          icon={<Activity className="h-4 w-4" />}
         />
       </div>
 
       <Card
-        title="Theatre Details"
+        title="Theatre details"
         description="Core operational and administrative information."
       >
         <DetailRow
           icon={Building2}
-          label="Theatre Name"
+          label="Theatre name"
           value={theatre.name}
         />
 
         <DetailRow
           icon={Hash}
-          label="Theatre Code"
+          label="Theatre code"
           value={theatre.code}
-          accent="blue"
         />
 
         <DetailRow
@@ -229,22 +200,13 @@ export default function TheatreInfoSection({
         <DetailRow
           icon={Building}
           label="Department"
-          value={theatre.department?.replace(
-            /_/g,
-            ' '
-          )}
-          accent="blue"
+          value={theatre.department?.replace(/_/g, ' ')}
         />
 
         <DetailRow
           icon={Users}
-          label="Surgical Capacity"
-          value={
-            theatre.capacity
-              ? `${theatre.capacity} persons`
-              : '—'
-          }
-          accent="emerald"
+          label="Surgical capacity"
+          value={theatre.capacity ? `${theatre.capacity} persons` : '—'}
         />
       </Card>
     </div>

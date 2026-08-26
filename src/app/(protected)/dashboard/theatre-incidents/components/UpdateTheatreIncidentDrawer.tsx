@@ -176,27 +176,26 @@ export default function UpdateTheatreIncidentDrawer({
             placement="right"
             size="default"
             className="md:!max-w-[600px]"
+            styles={{ body: { background: '#FAFAF8' } }}
             title={
                 <div className="flex flex-col">
-                    <span className="text-lg font-semibold text-slate-900">
-                        Update Theatre Incident
+                    <span className="text-lg font-semibold !text-[#16211B]">
+                        Update theatre incident
                     </span>
 
-                    <span className="text-xs text-slate-500">
-                        Edit severity,
-                        status, and surgical
-                        incident notes
+                    <span className="text-xs !text-[#767570]">
+                        Edit severity, status, and surgical incident notes
                     </span>
                 </div>
             }
         >
             {incident && (
-                <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-xs text-slate-500">
+                <div className="mb-6 rounded-xl border !border-[#E8E6E0] !bg-white p-4">
+                    <p className="text-xs !text-[#B4B2A9]">
                         Incident ID
                     </p>
 
-                    <p className="break-all text-sm font-medium text-slate-900">
+                    <p className="break-all text-sm font-medium !text-[#16211B]">
                         {incident.id}
                     </p>
                 </div>
@@ -204,64 +203,49 @@ export default function UpdateTheatreIncidentDrawer({
 
             <div className="space-y-6">
                 <div>
-                    <label className="text-sm font-medium text-slate-700">
-                        Severity Level
+                    <label className="text-sm font-medium !text-[#5F5E5A]">
+                        Severity level
                     </label>
 
                     <Select
                         value={severity}
-                        onChange={
-                            setSeverity
-                        }
+                        onChange={setSeverity}
                         className="mt-2 w-full"
                         size="large"
-                        options={
-                            severityOptions
-                        }
+                        options={severityOptions}
                     />
                 </div>
 
                 <div>
-                    <label className="text-sm font-medium text-slate-700">
-                        Incident Status
+                    <label className="text-sm font-medium !text-[#5F5E5A]">
+                        Incident status
                     </label>
 
                     <Select
                         value={status}
-                        onChange={
-                            setStatus
-                        }
+                        onChange={setStatus}
                         className="mt-2 w-full"
                         size="large"
-                        options={
-                            statusOptions
-                        }
+                        options={statusOptions}
                     />
                 </div>
 
                 <Divider className="!my-2" />
 
                 <div>
-                    <label className="text-sm font-medium text-slate-700">
-                        Surgical Notes
+                    <label className="text-sm font-medium !text-[#5F5E5A]">
+                        Surgical notes
                     </label>
 
-                    <p className="mb-2 text-xs text-slate-500">
-                        Add observations,
-                        actions taken, or
-                        escalation details
+                    <p className="mb-2 text-xs !text-[#B4B2A9]">
+                        Add observations, actions taken, or escalation details
                     </p>
 
                     <Input.TextArea
                         rows={6}
                         value={notes}
-                        onChange={e =>
-                            setNotes(
-                                e.target
-                                    .value,
-                            )
-                        }
-                        placeholder="Enter detailed surgical incident notes..."
+                        onChange={e => setNotes(e.target.value)}
+                        placeholder="Enter detailed surgical incident notes…"
                         className="rounded-xl"
                     />
                 </div>
@@ -273,9 +257,9 @@ export default function UpdateTheatreIncidentDrawer({
                         size="large"
                         loading={loading}
                         onClick={submit}
-                        className="!h-12 !rounded-xl !bg-cyan-600 !font-medium hover:!bg-cyan-700"
+                        className="!h-12 !rounded-xl !bg-[#0c1a12] !font-medium hover:!bg-[#16211B]"
                     >
-                        Save Updates
+                        Save updates
                     </Button>
 
                     <Button
@@ -283,7 +267,6 @@ export default function UpdateTheatreIncidentDrawer({
                         size="large"
                         onClick={() => {
                             onClose?.();
-
                             reset();
                         }}
                         className="!h-12 !rounded-xl"

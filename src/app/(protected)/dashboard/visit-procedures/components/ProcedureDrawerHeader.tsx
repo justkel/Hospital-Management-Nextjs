@@ -15,41 +15,35 @@ export default function ProcedureDrawerHeader({
     procedure: ProcedureItem | null;
 }) {
     return (
-        <div className="rounded-[2rem] bg-gradient-to-br from-blue-600 to-indigo-700 p-6 text-white shadow-xl">
-            <p className="text-sm text-blue-100 uppercase tracking-wider">
-                Procedure
-            </p>
+        <div className="!bg-[#FAFAF8] border-b !border-[#E8E6E0] p-5 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 flex-1">
+                    <div className="inline-flex items-center gap-2">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] !text-[#1D9E75]">
+                            Procedure
+                        </p>
+                    </div>
 
-            <h3 className="mt-2 text-2xl font-black">
-                {procedure?.procedureCatalog?.name ||
-                    procedure?.customProcedureName ||
-                    'Procedure'}
-            </h3>
+                    <h3 className="mt-3 text-[22px] font-bold leading-tight tracking-tight !text-[#16211B] sm:text-[28px]">
+                        {procedure?.procedureCatalog?.name ||
+                            procedure?.customProcedureName ||
+                            'Procedure'}
+                    </h3>
 
-            <div className="mt-4 flex flex-wrap gap-3 text-sm text-blue-100">
+                    {procedure?.orderedBy?.fullName && (
+                        <p className="mt-1.5 text-sm !text-[#767570]">
+                            Ordered by: {procedure.orderedBy.fullName}
+                        </p>
+                    )}
+                </div>
+
                 <Link
                     href={`/dashboard/visits/${procedure?.visitId}`}
-                    className="
-                        inline-flex items-center gap-2
-                        rounded-full border border-white/20
-                        bg-white/10 backdrop-blur-md
-                        px-4 py-2
-                        text-sm font-medium text-white
-                        hover:bg-white/20
-                        transition-all duration-200
-                    "
+                    className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl !bg-[#0c1a12] px-4 text-xs font-semibold !text-white transition hover:!bg-[#16211B]"
                 >
-                    <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
-
-                    <span>Open Visit</span>
+                    <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
+                    Open Visit
                 </Link>
-
-                {procedure?.orderedBy?.fullName && (
-                    <span>
-                        Ordered By:{' '}
-                        {procedure.orderedBy.fullName}
-                    </span>
-                )}
             </div>
         </div>
     );

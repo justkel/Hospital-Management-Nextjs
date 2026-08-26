@@ -144,77 +144,64 @@ export default function TheatreHistorySection({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [department, isActive]);
 
-  return (
-    <section className="space-y-6">
+  const hasActiveFilters = !!department || !!isActive;
 
-      <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
+  const clearFilters = () => {
+    setDepartment('');
+    setIsActive('');
+  };
+
+  return (
+    <section className="space-y-5 sm:space-y-6">
+
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-            Theatre Directory
+          <h2 className="text-xl font-bold tracking-tight !text-[#16211B] sm:text-2xl">
+            Theatre directory
           </h2>
 
-          <p className="text-slate-500 mt-2">
+          <p className="mt-0.5 text-sm !text-[#767570]">
             Manage operating theatres and monitor departmental availability.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm">
+        <div className="inline-flex w-fit items-center gap-1.5 rounded-full !bg-[#ECFBF5] px-3 py-1.5 text-xs font-semibold !text-[#1D9E75]">
           <FilterOutlined />
-          Smart Filters Enabled
+          Smart filters enabled
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard
-          icon={<Building2 className="w-5 h-5" />}
-          label="Total Theatres"
+          icon={<Building2 className="h-4 w-4" />}
+          label="Total theatres"
           value={String(total)}
         />
 
         <StatCard
-          icon={<Activity className="w-5 h-5" />}
-          label="Active Theatres"
-          value={String(
-            list.filter(i => i.isActive)
-              .length
-          )}
+          icon={<Activity className="h-4 w-4" />}
+          label="Active theatres"
+          value={String(list.filter(i => i.isActive).length)}
         />
 
         <StatCard
-          icon={<Users className="w-5 h-5" />}
-          label="Combined Capacity"
+          icon={<Users className="h-4 w-4" />}
+          label="Combined capacity"
           value={String(
-            list.reduce(
-              (acc, item) =>
-                acc +
-                (item.capacity || 0),
-              0
-            )
+            list.reduce((acc, item) => acc + (item.capacity || 0), 0)
           )}
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <select
           value={department}
-          onChange={e =>
-            setDepartment(
-              e.target.value
-            )
-          }
-          className="h-13 rounded-2xl border border-gray-200 bg-white px-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-600"
+          onChange={e => setDepartment(e.target.value)}
+          className="h-11 w-full sm:flex-1 rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
         >
-          <option value="">
-            All Departments
-          </option>
-
-          {Object.values(
-            TheatreDepartment
-          ).map(item => (
-            <option
-              key={item}
-              value={item}
-            >
+          <option value="">All departments</option>
+          {Object.values(TheatreDepartment).map(item => (
+            <option key={item} value={item}>
               {item.replace(/_/g, ' ')}
             </option>
           ))}
@@ -222,139 +209,114 @@ export default function TheatreHistorySection({
 
         <select
           value={isActive}
-          onChange={e =>
-            setIsActive(
-              e.target.value
-            )
-          }
-          className="h-13 rounded-2xl border border-gray-200 bg-white px-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-600"
+          onChange={e => setIsActive(e.target.value)}
+          className="h-11 w-full sm:flex-1 rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
         >
-          <option value="">
-            All Status
-          </option>
-
-          <option value="true">
-            Active
-          </option>
-
-          <option value="false">
-            Inactive
-          </option>
+          <option value="">All status</option>
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
         </select>
+
+        {hasActiveFilters && (
+          <button
+            onClick={clearFilters}
+            className="inline-flex shrink-0 items-center gap-1 rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 text-xs font-medium !text-[#767570] transition hover:!bg-[#F7F7F5]"
+          >
+            Clear
+          </button>
+        )}
       </div>
 
-      <div className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="min-w-[1100px] w-full">
-            <thead className="bg-slate-50">
-              <tr className="text-left text-sm text-slate-500">
-                <th className="px-6 py-5">
-                  Theatre
-                </th>
-
-                <th className="px-6 py-5">
-                  Department
-                </th>
-
-                <th className="px-6 py-5">
-                  Floor
-                </th>
-
-                <th className="px-6 py-5">
-                  Capacity
-                </th>
-
-                <th className="px-6 py-5">
-                  Status
-                </th>
-
-                <th className="px-6 py-5 text-right">
-                  Actions
-                </th>
+      <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+        <div
+          className="overflow-x-auto hide-scrollbar"
+          style={{
+            scrollbarWidth: 'none',
+          }}
+        >
+          <table className="w-full min-w-[1000px]">
+            <thead>
+              <tr className="border-b !border-[#E8E6E0] text-left text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
+                <th className="px-5 py-3.5">Theatre</th>
+                <th className="py-3.5">Department</th>
+                <th className="py-3.5">Floor</th>
+                <th className="py-3.5">Capacity</th>
+                <th className="py-3.5">Status</th>
+                <th className="px-5 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y !divide-[#E8E6E0]">
               {list.map(item => (
-                <tr
-                  key={item.id}
-                  className="hover:bg-cyan-50/40 transition"
-                >
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-700 flex items-center justify-center">
-                        <Building2 className="w-5 h-5" />
+                <tr key={item.id} className="transition hover:!bg-[#FAFAF8]">
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3.5">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl !bg-[#F7F7F5] !text-[#5F5E5A]">
+                        <Building2 className="h-4.5 w-4.5" />
                       </div>
 
-                      <div>
-                        <p className="font-bold text-slate-900">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold !text-[#16211B]">
                           {item.name}
                         </p>
-
-                        <p className="text-sm text-slate-500">
-                          {item.code ||
-                            'No code assigned'}
+                        <p className="truncate text-xs !text-[#B4B2A9]">
+                          {item.code || 'No code assigned'}
                         </p>
                       </div>
                     </div>
                   </td>
 
-                  <td className="px-6 py-5">
-                    <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
-                      {item.department}
+                  <td className="py-4">
+                    <span className="inline-flex items-center rounded-full !bg-[#EFF5FF] px-2.5 py-1 text-[11px] font-semibold !text-[#1D6FE0]">
+                      {item.department?.replace(/_/g, ' ')}
                     </span>
                   </td>
 
-                  <td className="px-6 py-5 text-slate-700">
+                  <td className="py-4 text-sm !text-[#5F5E5A]">
                     <div className="flex items-center gap-2">
-                      <Layers3 className="w-4 h-4 text-slate-400" />
+                      <Layers3 className="h-3.5 w-3.5 !text-[#B4B2A9]" />
                       {item.floor || '—'}
                     </div>
                   </td>
 
-                  <td className="px-6 py-5 text-slate-700">
+                  <td className="py-4 text-sm !text-[#5F5E5A]">
                     <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-slate-400" />
+                      <Users className="h-3.5 w-3.5 !text-[#B4B2A9]" />
                       {item.capacity || '—'}
                     </div>
                   </td>
 
-                  <td className="px-6 py-5">
+                  <td className="py-4">
                     <span
-                      className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${item.isActive
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-rose-100 text-rose-700'
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${item.isActive
+                        ? '!bg-[#ECFBF5] !text-[#1D9E75]'
+                        : '!bg-[#FEF2F2] !text-[#DC2626]'
                         }`}
                     >
-                      {item.isActive
-                        ? 'ACTIVE'
-                        : 'INACTIVE'}
+                      <span className={`h-1.5 w-1.5 rounded-full ${item.isActive ? '!bg-[#1D9E75]' : '!bg-[#DC2626]'}`} />
+                      {item.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
 
-                  <td className="px-6 py-5">
+                  <td className="px-5 py-4">
                     <div className="flex justify-end gap-2">
-
                       <Link
                         href={`/dashboard/theatres/${item.id}`}
-                        className="w-10 h-10 rounded-xl bg-cyan-50 hover:bg-cyan-100 text-cyan-700 transition flex items-center justify-center"
+                        aria-label="View theatre"
+                        className="flex h-9 w-9 items-center justify-center rounded-lg border !border-[#E8E6E0] !bg-white !text-[#5F5E5A] transition hover:!bg-[#F7F7F5]"
                       >
                         <EyeOutlined />
                       </Link>
 
                       <HasRoles roles={[Roles.ADMIN, Roles.GUEST]}>
                         <button
-                          onClick={() =>
-                            setEditingTheatre(
-                              item
-                            )
-                          }
-                          className="w-10 h-10 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition"
+                          onClick={() => setEditingTheatre(item)}
+                          aria-label="Edit theatre"
+                          className="flex h-9 w-9 items-center justify-center rounded-lg border !border-[#E8E6E0] !bg-white !text-[#5F5E5A] transition hover:!bg-[#F7F7F5]"
                         >
                           <EditOutlined />
                         </button>
                       </HasRoles>
-
                     </div>
                   </td>
                 </tr>
@@ -364,17 +326,17 @@ export default function TheatreHistorySection({
         </div>
 
         {list.length === 0 && (
-          <div className="py-24 text-center">
-            <div className="mx-auto w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-5">
-              <Building2 className="w-8 h-8 text-slate-400" />
+          <div className="px-4 py-16 text-center sm:py-20">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl !bg-[#F7F7F5]">
+              <Building2 className="h-6 w-6 !text-[#B4B2A9]" />
             </div>
 
-            <p className="text-lg font-bold text-slate-700">
-              No theatres found
+            <p className="mt-4 text-sm font-semibold !text-[#16211B]">
+              {hasActiveFilters ? 'No theatres match these filters' : 'No theatres found'}
             </p>
 
-            <p className="text-sm text-slate-500 mt-2">
-              Try adjusting filters or create a new theatre.
+            <p className="mt-1 text-sm !text-[#767570]">
+              {hasActiveFilters ? 'Try adjusting or clearing the filters above.' : 'Create a new theatre to get started.'}
             </p>
           </div>
         )}
@@ -383,18 +345,15 @@ export default function TheatreHistorySection({
       <UpdateTheatreDrawer
         theatre={editingTheatre}
         open={!!editingTheatre}
-        onClose={() =>
-          setEditingTheatre(null)
-        }
+        onClose={() => setEditingTheatre(null)}
         onUpdated={() => {
           fetchPage(page);
-
           setEditingTheatre(null);
           triggerRefresh();
         }}
       />
 
-      <div className="flex justify-center">
+      <div className="flex justify-center overflow-x-auto pt-1">
         <Pagination
           current={page}
           pageSize={limit}
@@ -403,7 +362,6 @@ export default function TheatreHistorySection({
           responsive
           onChange={(p, l) => {
             setLimit(l);
-
             fetchPage(p, l);
           }}
         />
@@ -422,19 +380,18 @@ function StatCard({
   value: string;
 }) {
   return (
-    <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border !border-[#E8E6E0] !bg-white p-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-slate-500">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
             {label}
           </p>
-
-          <p className="mt-2 text-3xl font-black text-slate-900">
+          <p className="mt-1.5 font-mono text-2xl font-semibold tabular-nums !text-[#16211B]">
             {value}
           </p>
         </div>
 
-        <div className="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-700 flex items-center justify-center">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl !bg-[#F7F7F5] !text-[#5F5E5A]">
           {icon}
         </div>
       </div>

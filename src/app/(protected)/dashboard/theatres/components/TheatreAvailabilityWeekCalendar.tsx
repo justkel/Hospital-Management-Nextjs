@@ -18,22 +18,22 @@ const DAY_SHORT = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
 const TYPE_COLORS: Record<TheatreAvailabilityType, string> = {
   [TheatreAvailabilityType.Regular]:
-    'bg-cyan-100 border-cyan-300 text-cyan-800',
+    '!bg-[#EFF5FF] !border-[#D6E4FB] !text-[#1D6FE0]',
   [TheatreAvailabilityType.Emergency]:
-    'bg-rose-100 border-rose-300 text-rose-800',
+    '!bg-[#FEF2F2] !border-[#FBD5D5] !text-[#DC2626]',
   [TheatreAvailabilityType.SpecialSession]:
-    'bg-violet-100 border-violet-300 text-violet-800',
+    '!bg-[#F5F2FF] !border-[#E5DCFC] !text-[#7C5CFC]',
 };
 
 const TYPE_DOT: Record<TheatreAvailabilityType, string> = {
-  [TheatreAvailabilityType.Regular]: 'bg-cyan-500',
-  [TheatreAvailabilityType.Emergency]: 'bg-rose-500',
-  [TheatreAvailabilityType.SpecialSession]: 'bg-violet-500',
+  [TheatreAvailabilityType.Regular]: '!bg-[#1D6FE0]',
+  [TheatreAvailabilityType.Emergency]: '!bg-[#DC2626]',
+  [TheatreAvailabilityType.SpecialSession]: '!bg-[#7C5CFC]',
 };
 
 const GRID_START = 6 * 60;
-const GRID_END   = 22 * 60;
-const GRID_SPAN  = GRID_END - GRID_START;
+const GRID_END = 22 * 60;
+const GRID_SPAN = GRID_END - GRID_START;
 
 function toMinutes(t: string): number {
   const [h, m] = t.split(':').map(Number);
@@ -68,57 +68,63 @@ export default function TheatreAvailabilityWeekCalendar({
   }
 
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-100 bg-gradient-to-r from-violet-50/60 to-white px-6 py-5">
+    <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+      <div className="flex flex-col gap-3 border-b !border-[#E8E6E0] px-4 py-4 sm:flex-row sm:items-center sm:gap-3 sm:px-6 sm:py-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-100">
-            <Clock className="h-4 w-4 text-violet-700" />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg !bg-[#ECFBF5]">
+            <Clock className="h-4 w-4 !text-[#1D9E75]" />
           </div>
 
           <div>
-            <h2 className="text-base font-bold text-slate-900">
-              Weekly Time Grid
+            <h2 className="text-sm font-semibold !text-[#16211B] sm:text-base">
+              Weekly time grid
             </h2>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs !text-[#767570]">
               06:00 – 22:00 operating window
             </p>
           </div>
+        </div>
 
-          <div className="ml-auto flex items-center gap-4">
-            {Object.entries(TYPE_DOT).map(([type, dot]) => (
-              <div key={type} className="flex items-center gap-1.5">
-                <div className={`h-2 w-2 rounded-full ${dot}`} />
-                <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                  {type.replace(/_/g, ' ')}
-                </span>
-              </div>
-            ))}
-          </div>
+        <div className="flex flex-wrap items-center gap-3 sm:ml-auto sm:gap-4">
+          {Object.entries(TYPE_DOT).map(([type, dot]) => (
+            <div key={type} className="flex items-center gap-1.5">
+              <div className={`h-2 w-2 rounded-full ${dot}`} />
+              <span className="text-[10px] font-semibold uppercase tracking-wide !text-[#767570]">
+                {type.replace(/_/g, ' ')}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <div className="min-w-[700px]">
-          <div className="grid grid-cols-[56px_repeat(7,1fr)] border-b border-slate-100 bg-slate-50/60">
+      <div
+        className="overflow-x-auto hide-scrollbar"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
+      >
+        <div className="min-w-[640px]">
+          <div className="grid grid-cols-[48px_repeat(7,1fr)] border-b !border-[#E8E6E0] !bg-[#FAFAF8]">
             <div />
             {DAY_SHORT.map((d) => (
               <div
                 key={d}
-                className="border-l border-slate-100 px-3 py-3 text-center text-[10px] font-black uppercase tracking-widest text-slate-500"
+                className="border-l !border-[#E8E6E0] px-2 py-3 text-center text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]"
               >
                 {d}
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-[56px_repeat(7,1fr)]">
-            <div className="relative" style={{ height: 480 }}>
+          <div className="grid grid-cols-[48px_repeat(7,1fr)]">
+            <div className="relative" style={{ height: 440 }}>
               {HOUR_MARKS.map((h) => {
                 const pct = ((h * 60 - GRID_START) / GRID_SPAN) * 100;
                 return (
                   <div
                     key={h}
-                    className="absolute right-3 -translate-y-1/2 text-[10px] font-semibold tabular-nums text-slate-400"
+                    className="absolute right-2 -translate-y-1/2 text-[9px] font-medium tabular-nums !text-[#B4B2A9]"
                     style={{ top: `${pct}%` }}
                   >
                     {fmtHour(h)}
@@ -143,15 +149,15 @@ export default function TheatreAvailabilityWeekCalendar({
 function DayCell({ slots }: { slots: Availability[] }) {
   return (
     <div
-      className="relative border-l border-slate-100"
-      style={{ height: 480 }}
+      className="relative border-l !border-[#E8E6E0]"
+      style={{ height: 440 }}
     >
       {HOUR_MARKS.map((h) => {
         const pct = ((h * 60 - GRID_START) / GRID_SPAN) * 100;
         return (
           <div
             key={h}
-            className="absolute left-0 right-0 border-t border-slate-100"
+            className="absolute left-0 right-0 border-t !border-[#F0EFE9]"
             style={{ top: `${pct}%` }}
           />
         );
@@ -169,7 +175,7 @@ function DayCell({ slots }: { slots: Availability[] }) {
         return (
           <div
             key={slot.id}
-            className={`absolute left-1 right-1 overflow-hidden rounded-xl border px-2 py-1.5 text-[10px] font-semibold leading-tight shadow-sm ${colorClass}`}
+            className={`absolute left-1 right-1 overflow-hidden rounded-lg border px-2 py-1.5 text-[10px] font-semibold leading-tight ${colorClass}`}
             style={{
               top: `${top}%`,
               height: `${height}%`,

@@ -32,6 +32,31 @@ import { formatDateTime } from '@/utils/formatDateTime';
 type Incident =
     GetTheatreIncidentsQuery['theatreIncidents']['items'][number];
 
+const SEVERITY_META: Record<string, { dot: string; badge: string }> = {
+    LOW: { dot: '!bg-[#1D9E75]', badge: '!bg-[#ECFBF5] !text-[#1D9E75]' },
+    MEDIUM: { dot: '!bg-[#D08A2E]', badge: '!bg-[#FFF8EC] !text-[#B9770E]' },
+    HIGH: { dot: '!bg-[#EA6C2E]', badge: '!bg-[#FFF1E9] !text-[#C2571C]' },
+    CRITICAL: { dot: '!bg-[#DC2626]', badge: '!bg-[#FEF2F2] !text-[#DC2626]' },
+};
+
+const STATUS_META: Record<string, { dot: string; badge: string }> = {
+    ESCALATED: { dot: '!bg-[#DC2626]', badge: '!bg-[#FEF2F2] !text-[#DC2626]' },
+    RESOLVED: { dot: '!bg-[#1D9E75]', badge: '!bg-[#ECFBF5] !text-[#1D9E75]' },
+    ACTIVE: { dot: '!bg-[#1D6FE0]', badge: '!bg-[#EFF5FF] !text-[#1D6FE0]' },
+};
+
+const FALLBACK_META = { dot: '!bg-[#B4B2A9]', badge: '!bg-[#F7F7F5] !text-[#767570]' };
+
+function Badge({ value, meta }: { value: string; meta: Record<string, { dot: string; badge: string }> }) {
+    const m = meta[value] ?? FALLBACK_META;
+    return (
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${m.badge}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${m.dot}`} />
+            {value.replace(/_/g, ' ')}
+        </span>
+    );
+}
+
 export default function TheatreIncidentHistorySection({
     paginated,
     theatres,
@@ -152,173 +177,136 @@ export default function TheatreIncidentHistorySection({
         theatreIdFilter,
     ]);
 
+    const hasActiveFilters = !!severityFilter || !!statusFilter || !!typeFilter || !!theatreIdFilter;
+
+    const clearFilters = () => {
+        setSeverityFilter('');
+        setStatusFilter('');
+        setTypeFilter('');
+        setTheatreIdFilter('');
+    };
+
     return (
-        <section className="space-y-6">
-            <div className="border-t border-slate-200 pt-8">
-                <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-                    Theatre Incidents
+        <section className="space-y-5 sm:space-y-6">
+            <div className="border-t !border-[#E8E6E0] pt-6 sm:pt-8">
+                <h2 className="text-xl font-bold tracking-tight !text-[#16211B] sm:text-2xl">
+                    Theatre incidents
                 </h2>
 
-                <p className="text-sm text-slate-500">
-                    Surgical incidents, safety
-                    escalations, and operational
-                    reports.
+                <p className="mt-0.5 text-sm !text-[#767570]">
+                    Surgical incidents, safety escalations, and operational reports.
                 </p>
             </div>
 
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex items-center gap-2 font-medium text-slate-700">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
                     <FilterOutlined />
                     Filters
                 </div>
 
-                <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:w-auto lg:grid-cols-4">
+                <div className="grid w-full grid-cols-2 gap-2.5 sm:grid-cols-4 lg:w-auto">
                     <FilterSelect
                         value={severityFilter}
-                        onChange={
-                            setSeverityFilter
-                        }
-                        options={Object.values(
-                            TheatreIncidentSeverity,
-                        )}
+                        onChange={setSeverityFilter}
+                        options={Object.values(TheatreIncidentSeverity)}
                         placeholder="Severity"
                     />
 
                     <FilterSelect
                         value={statusFilter}
-                        onChange={
-                            setStatusFilter
-                        }
-                        options={Object.values(
-                            TheatreIncidentStatus,
-                        )}
+                        onChange={setStatusFilter}
+                        options={Object.values(TheatreIncidentStatus)}
                         placeholder="Status"
                     />
 
                     <FilterSelect
                         value={typeFilter}
-                        onChange={
-                            setTypeFilter
-                        }
-                        options={Object.values(
-                            TheatreIncidentType,
-                        )}
+                        onChange={setTypeFilter}
+                        options={Object.values(TheatreIncidentType)}
                         placeholder="Type"
                     />
 
                     <FilterSelect
                         value={theatreIdFilter}
-                        onChange={
-                            setTheatreIdFilter
-                        }
-                        options={theatres.map(
-                            theatre => ({
-                                value: theatre.id,
-                                label:
-                                    theatre.name,
-                            }),
-                        )}
+                        onChange={setTheatreIdFilter}
+                        options={theatres.map(theatre => ({
+                            value: theatre.id,
+                            label: theatre.name,
+                        }))}
                         placeholder="Theatre"
                     />
                 </div>
+
+                {hasActiveFilters && (
+                    <button
+                        onClick={clearFilters}
+                        className="inline-flex shrink-0 items-center gap-1 self-start rounded-lg border !border-[#E8E6E0] !bg-white px-2.5 py-1.5 text-xs font-medium !text-[#767570] transition hover:!bg-[#F7F7F5] lg:self-auto"
+                    >
+                        Clear
+                    </button>
+                )}
             </div>
 
-            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-                <div className="overflow-x-auto">
-                    <table className="min-w-[1000px] w-full">
-                        <thead className="sticky top-0 z-10 bg-slate-50">
-                            <tr className="text-left text-xs text-slate-500">
-                                <th className="px-4 py-4">
-                                    Type
-                                </th>
-
-                                <th>
-                                    Severity
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Theatre
-                                </th>
-
-                                <th>
-                                    Reported
-                                </th>
-
-                                <th className="px-4 text-right">
-                                    Actions
-                                </th>
+            <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+                <div
+                    className="overflow-x-auto hide-scrollbar"
+                    style={{
+                        scrollbarWidth: 'none',
+                    }}
+                >
+                    <table className="w-full min-w-[900px]">
+                        <thead>
+                            <tr className="border-b !border-[#E8E6E0] text-left text-[10px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
+                                <th className="px-4 py-3 sm:px-5">Type</th>
+                                <th className="py-3">Severity</th>
+                                <th className="py-3">Status</th>
+                                <th className="py-3">Theatre</th>
+                                <th className="py-3">Reported</th>
+                                <th className="px-4 py-3 text-right sm:px-5">Actions</th>
                             </tr>
                         </thead>
 
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y !divide-[#E8E6E0]">
                             {list.map(item => (
-                                <tr
-                                    key={item.id}
-                                    className="transition hover:bg-slate-50"
-                                >
-                                    <td className="px-4 py-4 font-medium text-slate-900">
-                                        {item.type}
+                                <tr key={item.id} className="transition hover:!bg-[#FAFAF8]">
+                                    <td className="px-4 py-4 text-sm font-medium !text-[#16211B] sm:px-5">
+                                        {item.type.replace(/_/g, ' ')}
                                     </td>
 
-                                    <td>
-                                        <SeverityBadge
-                                            value={
-                                                item.severity
-                                            }
-                                        />
+                                    <td className="py-4">
+                                        <Badge value={item.severity} meta={SEVERITY_META} />
                                     </td>
 
-                                    <td>
-                                        <StatusBadge
-                                            value={
-                                                item.status
-                                            }
-                                        />
+                                    <td className="py-4">
+                                        <Badge value={item.status} meta={STATUS_META} />
                                     </td>
 
-                                    <td className="text-sm text-slate-600">
-                                        {
-                                            item.theatre
-                                                ?.name
-                                        }
+                                    <td className="py-4 text-sm !text-[#5F5E5A]">
+                                        {item.theatre?.name ?? '—'}
                                     </td>
 
-                                    <td className="text-sm text-slate-500">
-                                        {formatDateTime(
-                                            item.reportedAt,
-                                        )}
+                                    <td className="py-4 text-sm !text-[#767570]">
+                                        {formatDateTime(item.reportedAt)}
                                     </td>
 
-                                    <td className="px-4">
+                                    <td className="px-4 py-4 sm:px-5">
                                         <div className="flex justify-end gap-2">
                                             <Link
                                                 href={`/dashboard/theatre-incidents/${item.id}`}
-                                                className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-50 text-green-700 hover:bg-green-100"
+                                                aria-label="View incident"
+                                                className="flex h-9 w-9 items-center justify-center rounded-lg border !border-[#E8E6E0] !bg-white !text-[#5F5E5A] transition hover:!bg-[#F7F7F5]"
                                             >
                                                 <EyeOutlined />
                                             </Link>
 
-                                            <HasRoles
-                                                roles={[
-                                                    Roles.ADMIN,
-                                                    Roles.NURSE,
-                                                ]}
-                                            >
+                                            <HasRoles roles={[Roles.ADMIN, Roles.NURSE]}>
                                                 <button
                                                     onClick={() => {
-                                                        setEditing(
-                                                            item,
-                                                        );
-
-                                                        setOpenDrawer(
-                                                            true,
-                                                        );
+                                                        setEditing(item);
+                                                        setOpenDrawer(true);
                                                     }}
-                                                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100"
+                                                    aria-label="Edit incident"
+                                                    className="flex h-9 w-9 items-center justify-center rounded-lg border !border-[#E8E6E0] !bg-white !text-[#5F5E5A] transition hover:!bg-[#F7F7F5]"
                                                 >
                                                     <EditOutlined />
                                                 </button>
@@ -332,8 +320,13 @@ export default function TheatreIncidentHistorySection({
                 </div>
 
                 {list.length === 0 && (
-                    <div className="py-16 text-center text-slate-500">
-                        No incidents found.
+                    <div className="px-4 py-16 text-center">
+                        <p className="text-sm font-semibold !text-[#16211B]">
+                            {hasActiveFilters ? 'No incidents match these filters' : 'No incidents found'}
+                        </p>
+                        <p className="mt-1 text-sm !text-[#767570]">
+                            {hasActiveFilters ? 'Try adjusting or clearing the filters above.' : 'Check back later.'}
+                        </p>
                     </div>
                 )}
             </div>
@@ -343,22 +336,19 @@ export default function TheatreIncidentHistorySection({
                 incident={editing}
                 onClose={() => {
                     setOpenDrawer(false);
-
                     setEditing(null);
                 }}
-                onUpdated={() =>
-                    fetchPage(page)
-                }
+                onUpdated={() => fetchPage(page)}
             />
 
-            <div className="flex justify-center pt-4">
+            <div className="flex justify-center overflow-x-auto pt-2">
                 <Pagination
                     current={page}
                     pageSize={limit}
                     total={total}
+                    responsive
                     onChange={(p, l) => {
                         setLimit(l);
-
                         fetchPage(p, l);
                     }}
                 />
@@ -367,60 +357,12 @@ export default function TheatreIncidentHistorySection({
     );
 }
 
-function SeverityBadge({
-    value,
-}: {
-    value: string;
-}) {
-    const map: Record<string, string> = {
-        LOW: 'bg-green-100 text-green-700',
-        MEDIUM:
-            'bg-yellow-100 text-yellow-700',
-        HIGH: 'bg-orange-100 text-orange-700',
-        CRITICAL:
-            'bg-red-100 text-red-700',
-    };
-
-    return (
-        <span
-            className={`rounded-full px-3 py-1 text-xs ${map[value]}`}
-        >
-            {value}
-        </span>
-    );
-}
-
-function StatusBadge({
-    value,
-}: {
-    value: string;
-}) {
-    const map: Record<string, string> = {
-        ESCALATED:
-            'bg-red-100 text-red-700',
-
-        RESOLVED:
-            'bg-green-100 text-green-700',
-
-        ACTIVE:
-            'bg-blue-100 text-black',
-    };
-
-    return (
-        <span
-            className={`rounded-full px-3 py-1 text-xs ${map[value]}`}
-        >
-            {value}
-        </span>
-    );
-}
-
 type Option =
     | string
     | {
-          value: string;
-          label: string;
-      };
+        value: string;
+        label: string;
+    };
 
 function FilterSelect<T extends string>({
     value,
@@ -429,51 +371,30 @@ function FilterSelect<T extends string>({
     placeholder,
 }: {
     value: T | '';
-
     onChange: (v: T | '') => void;
-
     options: Option[];
-
     placeholder: string;
 }) {
     return (
         <div className="relative w-full">
             <select
                 value={value}
-                onChange={e =>
-                    onChange(
-                        e.target.value as T,
-                    )
-                }
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                onChange={e => onChange(e.target.value as T)}
+                className="h-10 w-full appearance-none rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 text-sm !text-[#16211B] outline-none transition focus:!border-[#1D9E75]"
             >
-                <option value="">
-                    {placeholder}
-                </option>
+                <option value="">{placeholder}</option>
 
                 {options.map(opt => {
-                    if (
-                        typeof opt ===
-                        'string'
-                    ) {
+                    if (typeof opt === 'string') {
                         return (
-                            <option
-                                key={opt}
-                                value={opt}
-                            >
-                                {opt.replace(
-                                    /_/g,
-                                    ' ',
-                                )}
+                            <option key={opt} value={opt}>
+                                {opt.replace(/_/g, ' ')}
                             </option>
                         );
                     }
 
                     return (
-                        <option
-                            key={opt.value}
-                            value={opt.value}
-                        >
+                        <option key={opt.value} value={opt.value}>
                             {opt.label}
                         </option>
                     );

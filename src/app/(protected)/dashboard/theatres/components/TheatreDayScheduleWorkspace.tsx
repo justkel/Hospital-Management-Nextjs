@@ -7,7 +7,6 @@ import {
     AlertTriangle,
     ArrowLeft,
     Ban,
-    CalendarClock,
     ChevronLeft,
     ChevronRight,
     Clock,
@@ -51,73 +50,57 @@ const AVAILABILITY_CONFIG: Record<
     [TheatreAvailabilityType.Regular]: {
         label: 'Regular',
         icon: Star,
-        band: 'bg-cyan-100/70 border-cyan-300',
-        dot: 'bg-cyan-500',
-        pill: 'bg-cyan-50 border-cyan-200 text-cyan-700',
+        band: '!bg-[#EFF5FF] !border-[#D6E4FB]',
+        dot: '!bg-[#1D6FE0]',
+        pill: '!bg-[#EFF5FF] !border-[#D6E4FB] !text-[#1D6FE0]',
     },
     [TheatreAvailabilityType.Emergency]: {
         label: 'Emergency',
         icon: Flame,
-        band: 'bg-rose-100/70 border-rose-300',
-        dot: 'bg-rose-500',
-        pill: 'bg-rose-50 border-rose-200 text-rose-700',
+        band: '!bg-[#FEF2F2] !border-[#FBD5D5]',
+        dot: '!bg-[#DC2626]',
+        pill: '!bg-[#FEF2F2] !border-[#FBD5D5] !text-[#DC2626]',
     },
     [TheatreAvailabilityType.SpecialSession]: {
         label: 'Special',
         icon: Zap,
-        band: 'bg-violet-100/70 border-violet-300',
-        dot: 'bg-violet-500',
-        pill: 'bg-violet-50 border-violet-200 text-violet-700',
+        band: '!bg-[#F5F2FF] !border-[#E5DCFC]',
+        dot: '!bg-[#7C5CFC]',
+        pill: '!bg-[#F5F2FF] !border-[#E5DCFC] !text-[#7C5CFC]',
     },
 };
 
 const STATUS_CONFIG: Record<
     TheatreScheduleStatus,
-    { label: string; sub: string; icon: React.ElementType; ring: string; text: string; chip: string; dot: string }
+    { label: string; sub: string; icon: React.ElementType; accent: string; text: string; chip: string }
 > = {
     [TheatreScheduleStatus.Available]: {
         label: 'Available',
         sub: 'Open operating windows with no active holds',
         icon: ShieldCheck,
-        ring: 'from-emerald-50 via-white to-cyan-50/40 border-emerald-100',
-        text: 'text-emerald-700',
-        chip: 'bg-emerald-100 text-emerald-700',
-        dot: 'bg-emerald-500',
+        accent: '!bg-[#1D9E75]',
+        text: '!text-[#1D9E75]',
+        chip: '!bg-[#ECFBF5]',
     },
     [TheatreScheduleStatus.Partial]: {
-        label: 'Partially Blocked',
+        label: 'Partially blocked',
         sub: 'Some operating windows overlap with active holds',
         icon: ShieldQuestion,
-        ring: 'from-amber-50 via-white to-cyan-50/40 border-amber-100',
-        text: 'text-amber-700',
-        chip: 'bg-amber-100 text-amber-700',
-        dot: 'bg-amber-500',
+        accent: '!bg-[#D08A2E]',
+        text: '!text-[#B9770E]',
+        chip: '!bg-[#FFF8EC]',
     },
     [TheatreScheduleStatus.Blocked]: {
         label: 'Blocked',
         sub: 'No open windows — theatre is held for the full day',
         icon: Ban,
-        ring: 'from-rose-50 via-white to-cyan-50/40 border-rose-100',
-        text: 'text-rose-700',
-        chip: 'bg-rose-100 text-rose-700',
-        dot: 'bg-rose-500',
+        accent: '!bg-[#DC2626]',
+        text: '!text-[#DC2626]',
+        chip: '!bg-[#FEF2F2]',
     },
 };
 
-const TAG_PALETTE = [
-    'bg-slate-50 border-slate-200 text-slate-600',
-    'bg-orange-50 border-orange-200 text-orange-700',
-    'bg-indigo-50 border-indigo-200 text-indigo-700',
-    'bg-teal-50 border-teal-200 text-teal-700',
-    'bg-fuchsia-50 border-fuchsia-200 text-fuchsia-700',
-];
-
-function tagStyle(value?: string | null): string {
-    if (!value) return TAG_PALETTE[0];
-    let hash = 0;
-    for (let i = 0; i < value.length; i++) hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
-    return TAG_PALETTE[hash % TAG_PALETTE.length];
-}
+const NEUTRAL_TAG = '!bg-[#F7F7F5] !border-[#E8E6E0] !text-[#767570]';
 
 function formatEnumLabel(value?: string | null): string {
     if (!value) return 'Unspecified';
@@ -311,68 +294,60 @@ export default function TheatreDayScheduleWorkspace({
     if (!theatre) return null;
 
     return (
-        <div className="space-y-6">
-            <div className={`relative overflow-hidden rounded-[2rem] border bg-white shadow-sm bg-gradient-to-br ${statusConfig.ring}`}>
-                <div
-                    className="pointer-events-none absolute inset-0 opacity-[0.03]"
-                    style={{
-                        backgroundImage:
-                            'repeating-linear-gradient(0deg,#000 0,#000 1px,transparent 1px,transparent 40px), repeating-linear-gradient(90deg,#000 0,#000 1px,transparent 1px,transparent 40px)',
-                    }}
-                />
-
-                <div className="relative px-6 py-6 sm:px-8 sm:py-8">
+        <div className="space-y-4 sm:space-y-6">
+            <header className="relative overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+                <div className="p-5 sm:p-8">
                     <Link
                         href={`/dashboard/theatres/${theatreId}`}
-                        className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-semibold text-slate-600 shadow-sm backdrop-blur-sm transition hover:border-slate-300 hover:bg-white hover:text-slate-900"
+                        className="mb-5 inline-flex items-center gap-1.5 rounded-lg border !border-[#E8E6E0] !bg-white px-3 py-1.5 text-xs font-medium !text-[#767570] transition hover:!bg-[#F7F7F5] hover:!text-[#16211B]"
                     >
-                        <ArrowLeft size={13} />
-                        Back to Theatre
+                        <ArrowLeft size={12} />
+                        Back to theatre
                     </Link>
 
-                    <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                        <div>
-                            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-slate-600 shadow-sm backdrop-blur-sm">
-                                <CalendarClock className="h-3.5 w-3.5" />
-                                Day Schedule Console
+                    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                        <div className="max-w-xl">
+                            <div className="inline-flex items-center gap-2">
+                                <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] !text-[#1D9E75]">
+                                    Day Schedule Console
+                                </p>
                             </div>
 
-                            <h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
+                            <h1 className="mt-3 text-[22px] font-bold leading-tight tracking-tight !text-[#16211B] sm:text-[28px]">
                                 {theatre.name}
                             </h1>
 
-                            <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-500">
+                            <p className="mt-2 text-sm leading-relaxed !text-[#767570]">
                                 {theatre.code ?? 'No code'} · {theatre.department?.replace(/_/g, ' ')}
                                 {theatre.floor ? ` · Floor ${theatre.floor}` : ''}
                             </p>
                         </div>
 
-                        <div
-                            className={`flex items-center gap-3 rounded-2xl border bg-white px-5 py-3.5 shadow-sm ${statusConfig.chip.includes('emerald') ? 'border-emerald-200' : statusConfig.chip.includes('amber') ? 'border-amber-200' : 'border-rose-200'}`}
-                        >
-                            <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${statusConfig.chip}`}>
-                                <StatusIcon size={18} />
+                        <div className="flex items-center gap-3 rounded-xl border !border-[#E8E6E0] !bg-white px-4 py-3">
+                            <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${statusConfig.chip}`}>
+                                <StatusIcon size={17} className={statusConfig.text} />
                             </span>
                             <div>
-                                <p className={`text-sm font-black ${statusConfig.text}`}>{statusConfig.label}</p>
-                                <p className="text-[11px] text-slate-400">{statusConfig.sub}</p>
+                                <p className={`text-sm font-semibold ${statusConfig.text}`}>{statusConfig.label}</p>
+                                <p className="text-[11px] !text-[#B4B2A9]">{statusConfig.sub}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white/90 p-2 shadow-sm backdrop-blur-sm w-fit">
+                    <div className="mt-6 flex w-fit max-w-full flex-wrap items-center gap-2 rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-2">
                         <button
                             onClick={() => shiftDay(-1)}
                             disabled={loading}
-                            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
+                            className="flex h-9 w-9 items-center justify-center rounded-lg !text-[#767570] transition hover:!bg-white hover:!text-[#16211B] disabled:opacity-50"
                         >
                             <ChevronLeft size={16} />
                         </button>
 
                         <div className="flex items-center gap-2 px-1">
-                            <span className="text-sm font-bold text-slate-800">{dateHeading}</span>
+                            <span className="text-sm font-semibold !text-[#16211B]">{dateHeading}</span>
                             {isToday && (
-                                <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-violet-700">
+                                <span className="rounded-full !bg-[#ECFBF5] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide !text-[#1D9E75]">
                                     Today
                                 </span>
                             )}
@@ -381,7 +356,7 @@ export default function TheatreDayScheduleWorkspace({
                         <button
                             onClick={() => shiftDay(1)}
                             disabled={loading}
-                            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
+                            className="flex h-9 w-9 items-center justify-center rounded-lg !text-[#767570] transition hover:!bg-white hover:!text-[#16211B] disabled:opacity-50"
                         >
                             <ChevronRight size={16} />
                         </button>
@@ -390,75 +365,81 @@ export default function TheatreDayScheduleWorkspace({
                             type="date"
                             value={dayString}
                             onChange={(e) => e.target.value && loadDay(e.target.value)}
-                            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition focus:border-violet-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-100"
+                            className="rounded-lg border !border-[#E8E6E0] !bg-white px-3 py-2 text-xs font-semibold !text-[#16211B] outline-none transition focus:!border-[#1D9E75]"
                         />
 
                         {!isToday && (
                             <button
                                 onClick={() => loadDay(toLocalDayString(new Date()))}
                                 disabled={loading}
-                                className="rounded-xl px-3 py-2 text-xs font-bold text-violet-600 transition hover:bg-violet-50 disabled:opacity-50"
+                                className="rounded-lg px-3 py-2 text-xs font-semibold !text-[#1D9E75] transition hover:!bg-[#ECFBF5] disabled:opacity-50"
                             >
-                                Jump to Today
+                                Jump to today
                             </button>
                         )}
 
                         <button
                             onClick={() => loadDay(dayString)}
                             disabled={loading}
-                            className="ml-auto inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
+                            className="ml-auto inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium !text-[#767570] transition hover:!bg-white hover:!text-[#16211B] disabled:opacity-50"
                         >
                             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
                             Refresh
                         </button>
                     </div>
                 </div>
-            </div>
+            </header>
 
             {error && (
-                <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4">
-                    <AlertTriangle size={16} className="mt-0.5 shrink-0 text-rose-600" />
-                    <p className="text-sm font-medium text-rose-800">{error}</p>
+                <div className="flex items-start gap-3 rounded-xl border !border-[#FBD5D5] !bg-[#FEF2F2] px-4 py-3.5">
+                    <AlertTriangle size={15} className="mt-0.5 shrink-0 !text-[#DC2626]" />
+                    <p className="text-sm font-medium !text-[#DC2626]">{error}</p>
                 </div>
             )}
 
-            <div className={`overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition ${loading ? 'opacity-60' : ''}`}>
-                <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-violet-50/60 to-white px-6 py-5">
+            <div className={`overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white transition ${loading ? 'opacity-60' : ''}`}>
+                <div className="flex flex-col gap-3 border-b !border-[#E8E6E0] px-4 py-4 sm:flex-row sm:items-center sm:px-6 sm:py-5">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-100">
-                            <Clock className="h-4 w-4 text-violet-700" />
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg !bg-[#ECFBF5]">
+                            <Clock className="h-4 w-4 !text-[#1D9E75]" />
                         </div>
                         <div>
-                            <h2 className="text-base font-bold text-slate-900">Day Timeline</h2>
-                            <p className="text-xs text-slate-500">06:00 – 22:00 · holds are cut directly into their availability window</p>
+                            <h2 className="text-sm font-semibold !text-[#16211B] sm:text-base">Day timeline</h2>
+                            <p className="text-xs !text-[#767570]">06:00 – 22:00 · holds are cut directly into their availability window</p>
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-3 sm:ml-auto sm:gap-4">
                         {Object.entries(AVAILABILITY_CONFIG).map(([type, cfg]) => (
                             <div key={type} className="flex items-center gap-1.5">
                                 <div className={`h-2 w-2 rounded-full ${cfg.dot}`} />
-                                <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{cfg.label}</span>
+                                <span className="text-[10px] font-semibold uppercase tracking-wide !text-[#767570]">{cfg.label}</span>
                             </div>
                         ))}
                         <div className="flex items-center gap-1.5">
-                            <div className="h-2 w-2 rounded-full bg-slate-800" />
-                            <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Hold</span>
+                            <div className="h-2 w-2 rounded-full !bg-[#16211B]" />
+                            <span className="text-[10px] font-semibold uppercase tracking-wide !text-[#767570]">Hold</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                            <div className="h-2 w-2 rounded-full bg-indigo-500" />
-                            <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Booking</span>
+                            <div className="h-2 w-2 rounded-full !bg-[#1D9E75]" />
+                            <span className="text-[10px] font-semibold uppercase tracking-wide !text-[#767570]">Booking</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <div className="grid grid-cols-[56px_1fr] min-w-[560px]">
-                        <div className="relative" style={{ height: 480 }}>
+                <div
+                    className="overflow-x-auto hide-scrollbar"
+                    style={{
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none',
+                    }}
+                >
+                    <div className="grid min-w-[560px] grid-cols-[48px_1fr]">
+                        <div className="relative" style={{ height: 440 }}>
                             {HOUR_MARKS.map((h) => (
                                 <div
                                     key={h}
-                                    className="absolute right-3 -translate-y-1/2 text-[10px] font-semibold tabular-nums text-slate-400"
+                                    className="absolute right-2 -translate-y-1/2 text-[9px] font-medium tabular-nums !text-[#B4B2A9]"
                                     style={{ top: `${topPercent(h * 60)}%` }}
                                 >
                                     {fmtHour(h)}
@@ -466,18 +447,18 @@ export default function TheatreDayScheduleWorkspace({
                             ))}
                         </div>
 
-                        <div className="relative border-l border-slate-100" style={{ height: 480 }}>
+                        <div className="relative border-l !border-[#E8E6E0]" style={{ height: 440 }}>
                             {HOUR_MARKS.map((h) => (
                                 <div
                                     key={h}
-                                    className="absolute left-0 right-0 border-t border-slate-100"
+                                    className="absolute left-0 right-0 border-t !border-[#F0EFE9]"
                                     style={{ top: `${topPercent(h * 60)}%` }}
                                 />
                             ))}
 
                             {availability.length === 0 && blocks.length === 0 && bookings.length === 0 && (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                                    <p className="text-sm font-semibold text-slate-400">Nothing scheduled for this day</p>
+                                    <p className="text-sm font-medium !text-[#B4B2A9]">Nothing scheduled for this day</p>
                                 </div>
                             )}
 
@@ -491,14 +472,14 @@ export default function TheatreDayScheduleWorkspace({
                                 return (
                                     <div
                                         key={slot.id}
-                                        className={`absolute left-2 right-[36%] overflow-hidden rounded-xl border px-3 py-2 shadow-sm ${cfg.band}`}
+                                        className={`absolute left-2 right-[36%] overflow-hidden rounded-lg border px-2.5 py-1.5 ${cfg.band}`}
                                         style={{ top: `${topPercent(startMin)}%`, height: `${height}%`, minHeight: 30 }}
                                         title={`${formatTimeLabel(slot.startTime.slice(0, 5))} – ${formatTimeLabel(slot.endTime.slice(0, 5))}${slot.notes ? ` · ${slot.notes}` : ''}`}
                                     >
-                                        <p className="truncate text-[11px] font-bold text-slate-700">
+                                        <p className="truncate text-[11px] font-semibold !text-[#16211B]">
                                             {formatTimeLabel(slot.startTime.slice(0, 5))} – {formatTimeLabel(slot.endTime.slice(0, 5))}
                                         </p>
-                                        <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                                        <p className="truncate text-[10px] font-semibold uppercase tracking-wide !text-[#767570]">
                                             {cfg.label}
                                         </p>
                                     </div>
@@ -512,22 +493,22 @@ export default function TheatreDayScheduleWorkspace({
                                 return (
                                     <div
                                         key={block.id}
-                                        className="absolute left-3 right-[calc(36%+4px)] z-10 overflow-hidden rounded-lg border border-slate-700 bg-slate-800/95 px-3 py-2 text-white shadow-md"
+                                        className="absolute left-3 right-[calc(36%+4px)] z-10 overflow-hidden rounded-lg border !border-[#16211B] !bg-[#0c1a12] px-2.5 py-1.5 !text-white"
                                         style={{
                                             top: `${topPercent(startMin)}%`,
                                             height: `${height}%`,
                                             minHeight: 26,
                                             backgroundImage:
-                                                'repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 6px, transparent 6px, transparent 12px)',
+                                                'repeating-linear-gradient(45deg, rgba(255,255,255,0.06) 0, rgba(255,255,255,0.06) 6px, transparent 6px, transparent 12px)',
                                         }}
                                         title={block.reason ?? 'Active hold'}
                                     >
-                                        <p className="flex items-center gap-1 truncate text-[10px] font-black uppercase tracking-wide">
+                                        <p className="flex items-center gap-1 truncate text-[10px] font-semibold uppercase tracking-wide">
                                             <Ban size={9} />
                                             {formatEnumLabel(block.type as unknown as string)}
                                         </p>
                                         {block.reason && (
-                                            <p className="mt-0.5 truncate text-[10px] text-white/70">{block.reason}</p>
+                                            <p className="mt-0.5 truncate text-[10px] !text-white/70">{block.reason}</p>
                                         )}
                                     </div>
                                 );
@@ -547,15 +528,15 @@ export default function TheatreDayScheduleWorkspace({
                                 return (
                                     <div
                                         key={booking.id}
-                                        className="absolute left-[66%] right-2 overflow-hidden rounded-xl border border-indigo-300 bg-indigo-100/80 px-3 py-2 shadow-sm"
+                                        className="absolute left-[66%] right-2 overflow-hidden rounded-lg border !border-[#CFF0E1] !bg-[#ECFBF5] px-2.5 py-1.5"
                                         style={{ top: `${topPercent(startMin)}%`, height: `${height}%`, minHeight: 30 }}
                                         title={`${procedureLabel} · ${formatEnumLabel(booking.status as unknown as string)}`}
                                     >
-                                        <p className="flex items-center gap-1 truncate text-[10px] font-black uppercase tracking-wide text-indigo-800">
+                                        <p className="flex items-center gap-1 truncate text-[10px] font-semibold uppercase tracking-wide !text-[#1D9E75]">
                                             <Stethoscope size={9} />
                                             {procedureLabel}
                                         </p>
-                                        <p className="truncate text-[10px] text-indigo-600">
+                                        <p className="truncate text-[10px] !text-[#1D9E75]/70">
                                             {formatEnumLabel(booking.status as unknown as string)}
                                         </p>
                                     </div>
@@ -566,12 +547,13 @@ export default function TheatreDayScheduleWorkspace({
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
                 <ListPanel
-                    title="Available Windows"
+                    title="Available windows"
                     subtitle={`${availability.length} slot${availability.length !== 1 ? 's' : ''} configured for this day of week`}
                     icon={Clock}
-                    accentIcon="bg-cyan-100 text-cyan-700"
+                    iconBg="!bg-[#EFF5FF]"
+                    iconColor="!text-[#1D6FE0]"
                     empty="No recurring availability configured for this day."
                 >
                     {availability.map((slot: Availability) => {
@@ -592,24 +574,24 @@ export default function TheatreDayScheduleWorkspace({
                         return (
                             <div
                                 key={slot.id}
-                                className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition hover:border-slate-200 hover:shadow-md"
+                                className="rounded-xl border !border-[#E8E6E0] !bg-white p-4 transition hover:!border-[#D3D1C7]"
                             >
-                                <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0">
-                                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${cfg.pill}`}>
+                                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${cfg.pill}`}>
                                             <Icon size={9} />
                                             {cfg.label}
                                         </span>
-                                        <p className="mt-2 text-sm font-bold text-slate-800">
+                                        <p className="mt-2 text-sm font-semibold !text-[#16211B]">
                                             {formatTimeLabel(slot.startTime.slice(0, 5))} → {formatTimeLabel(slot.endTime.slice(0, 5))}
                                         </p>
                                         {slot.notes && (
-                                            <p className="mt-1 truncate text-xs text-slate-500">{slot.notes}</p>
+                                            <p className="mt-1 truncate text-xs !text-[#767570]">{slot.notes}</p>
                                         )}
                                     </div>
 
                                     {overlappingBlocks.length > 0 && (
-                                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full border !border-[#F5E3C0] !bg-[#FFF8EC] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide !text-[#B9770E]">
                                             <AlertTriangle size={10} />
                                             {overlappingBlocks.length} hold{overlappingBlocks.length !== 1 ? 's' : ''}
                                         </span>
@@ -617,14 +599,14 @@ export default function TheatreDayScheduleWorkspace({
                                 </div>
 
                                 {overlappingBlocks.length > 0 && (
-                                    <div className="mt-3 space-y-1.5 border-t border-dashed border-slate-100 pt-3">
+                                    <div className="mt-3 space-y-1.5 border-t border-dashed !border-[#E8E6E0] pt-3">
                                         {overlappingBlocks.map(({ block, overlapStart, overlapEnd }) => (
                                             <div
                                                 key={block.id}
-                                                className="flex items-center gap-2 rounded-lg bg-slate-50 px-2.5 py-1.5"
+                                                className="flex items-center gap-2 rounded-lg !bg-[#FAFAF8] px-2.5 py-1.5"
                                             >
-                                                <Ban size={10} className="shrink-0 text-slate-500" />
-                                                <p className="truncate text-[11px] font-semibold text-slate-600">
+                                                <Ban size={10} className="shrink-0 !text-[#B4B2A9]" />
+                                                <p className="truncate text-[11px] font-medium !text-[#5F5E5A]">
                                                     {formatMinutesRange(overlapStart, overlapEnd)}
                                                     {block.reason ? ` · ${block.reason}` : ` · ${formatEnumLabel(block.type as unknown as string)}`}
                                                 </p>
@@ -638,34 +620,35 @@ export default function TheatreDayScheduleWorkspace({
                 </ListPanel>
 
                 <ListPanel
-                    title="Active Holds"
+                    title="Active holds"
                     subtitle={`${blocks.length} hold${blocks.length !== 1 ? 's' : ''} overlapping this day`}
                     icon={Ban}
-                    accentIcon="bg-rose-100 text-rose-700"
+                    iconBg="!bg-[#FEF2F2]"
+                    iconColor="!text-[#DC2626]"
                     empty="No maintenance holds or closures affect this day."
                 >
                     {blocks.map((block: Block) => (
                         <div
                             key={block.id}
-                            className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition hover:border-slate-200 hover:shadow-md"
+                            className="rounded-xl border !border-[#E8E6E0] !bg-white p-4 transition hover:!border-[#D3D1C7]"
                         >
                             <div className="flex flex-wrap items-center gap-2">
-                                <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${tagStyle(block.type as unknown as string)}`}>
+                                <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${NEUTRAL_TAG}`}>
                                     {formatEnumLabel(block.type as unknown as string)}
                                 </span>
-                                <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${tagStyle(block.status as unknown as string)}`}>
+                                <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${NEUTRAL_TAG}`}>
                                     {formatEnumLabel(block.status as unknown as string)}
                                 </span>
                             </div>
 
-                            <p className="mt-2 text-sm font-bold text-slate-800">
+                            <p className="mt-2 text-sm font-semibold !text-[#16211B]">
                                 {formatBookingDateTime(block.startTime, true)}
                                 {' → '}
                                 {formatBookingDateTime(block.endTime, true)}
                             </p>
 
                             {block.reason && (
-                                <p className="mt-1 text-xs leading-relaxed text-slate-500">{block.reason}</p>
+                                <p className="mt-1 text-xs leading-relaxed !text-[#767570]">{block.reason}</p>
                             )}
                         </div>
                     ))}
@@ -673,10 +656,11 @@ export default function TheatreDayScheduleWorkspace({
             </div>
 
             <ListPanel
-                title="Scheduled Procedures"
+                title="Scheduled procedures"
                 subtitle={`${bookings.length} booking${bookings.length !== 1 ? 's' : ''} scheduled for this day`}
                 icon={Stethoscope}
-                accentIcon="bg-indigo-100 text-indigo-700"
+                iconBg="!bg-[#ECFBF5]"
+                iconColor="!text-[#1D9E75]"
                 empty="No procedures are booked into this theatre for this day."
             >
                 {bookings.length > 0 && (
@@ -691,22 +675,22 @@ export default function TheatreDayScheduleWorkspace({
                             return (
                                 <div
                                     key={booking.id}
-                                    className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition hover:border-slate-200 hover:shadow-md"
+                                    className="rounded-xl border !border-[#E8E6E0] !bg-white p-4 transition hover:!border-[#D3D1C7]"
                                 >
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${tagStyle(booking.status as unknown as string)}`}>
+                                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${NEUTRAL_TAG}`}>
                                             {formatEnumLabel(booking.status as unknown as string)}
                                         </span>
                                         {booking.procedure?.customProcedureCode && (
-                                            <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-mono font-semibold text-slate-500">
+                                            <span className="rounded-full border !border-[#E8E6E0] !bg-[#FAFAF8] px-2 py-0.5 font-mono text-[10px] font-semibold !text-[#B4B2A9]">
                                                 {booking.procedure.customProcedureCode}
                                             </span>
                                         )}
                                     </div>
 
-                                    <p className="mt-2 truncate text-sm font-bold text-slate-800">{procedureLabel}</p>
+                                    <p className="mt-2 truncate text-sm font-semibold !text-[#16211B]">{procedureLabel}</p>
 
-                                    <p className="mt-1 text-xs text-slate-500">
+                                    <p className="mt-1 text-xs !text-[#767570]">
                                         {formatBookingDateTime(booking.scheduledStartTime, true)}
                                         {' → '}
                                         {formatBookingDateTime(booking.scheduledEndTime)}
@@ -725,37 +709,39 @@ function ListPanel({
     title,
     subtitle,
     icon: Icon,
-    accentIcon,
+    iconBg,
+    iconColor,
     empty,
     children,
 }: {
     title: string;
     subtitle: string;
     icon: React.ElementType;
-    accentIcon: string;
+    iconBg: string;
+    iconColor: string;
     empty: string;
     children: React.ReactNode;
 }) {
     const hasChildren = Array.isArray(children) ? children.length > 0 : !!children;
 
     return (
-        <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-            <div className="flex items-center gap-3 border-b border-slate-100 bg-gradient-to-r from-slate-50/80 to-white px-6 py-5">
-                <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${accentIcon}`}>
+        <div className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white">
+            <div className="flex items-center gap-3 border-b !border-[#E8E6E0] px-4 py-4 sm:px-6 sm:py-5">
+                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${iconBg} ${iconColor}`}>
                     <Icon size={16} />
                 </div>
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900">{title}</h3>
-                    <p className="text-xs text-slate-500">{subtitle}</p>
+                    <h3 className="text-sm font-semibold !text-[#16211B]">{title}</h3>
+                    <p className="text-xs !text-[#767570]">{subtitle}</p>
                 </div>
             </div>
 
-            <div className="space-y-3 p-5">
+            <div className="space-y-3 p-4 sm:p-5">
                 {hasChildren ? (
                     children
                 ) : (
                     <div className="flex flex-col items-center justify-center py-10 text-center">
-                        <p className="text-xs font-medium text-slate-400">{empty}</p>
+                        <p className="text-xs font-medium !text-[#B4B2A9]">{empty}</p>
                     </div>
                 )}
             </div>

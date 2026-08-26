@@ -93,159 +93,146 @@ export default function CreateTheatreSection({
   }
 
   return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-gray-200 bg-white shadow-sm">
-      <div className="absolute inset-0 bg-gradient-to-br from-cyan-50/70 via-transparent to-blue-50/40" />
+    <section className="overflow-hidden rounded-2xl border !border-[#E8E6E0] !bg-white p-5 sm:p-8">
+      <div className="mb-6 flex items-start gap-3 sm:mb-8">
+        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl !bg-[#ECFBF5]">
+          <Building2 size={17} className="!text-[#1D9E75]" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold tracking-tight !text-[#16211B] sm:text-2xl">
+            Register theatre
+          </h2>
+          <p className="mt-1 text-sm !text-[#767570]">
+            Configure surgical theatre details, floor location,
+            departmental assignment, and operational capacity.
+          </p>
+        </div>
+      </div>
 
-      <div className="relative p-6 sm:p-8">
-        <div className="mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+      >
+        <Input
+          label="Theatre name"
+          placeholder="e.g. Main Surgical Theatre"
+          value={form.name || ''}
+          onChange={v =>
+            setForm(prev => ({
+              ...prev,
+              name: v,
+            }))
+          }
+          icon={<Building2 className="w-4 h-4" />}
+          required
+        />
+
+        <Input
+          label="Theatre code"
+          placeholder="e.g. T-01"
+          value={form.code || ''}
+          onChange={v =>
+            setForm(prev => ({
+              ...prev,
+              code: v,
+            }))
+          }
+          icon={<Hash className="w-4 h-4" />}
+        />
+
+        <Input
+          label="Floor"
+          placeholder="e.g. 2"
+          type="number"
+          value={
+            form.floor?.toString() || ''
+          }
+          onChange={v =>
+            setForm(prev => ({
+              ...prev,
+              floor: v
+                ? Math.max(0, Number(v))
+                : undefined,
+            }))
+          }
+          icon={<Layers3 className="w-4 h-4" />}
+        />
+
+        <Select
+          label="Department"
+          value={
+            form.department ||
+            TheatreDepartment.GeneralSurgery
+          }
+          onChange={v =>
+            setForm(prev => ({
+              ...prev,
+              department:
+                v as TheatreDepartment,
+            }))
+          }
+          options={Object.values(
+            TheatreDepartment
+          )}
+        />
+
+        <Input
+          label="Capacity"
+          placeholder="e.g. 10"
+          type="number"
+          value={
+            form.capacity?.toString() ||
+            ''
+          }
+          onChange={v =>
+            setForm(prev => ({
+              ...prev,
+              capacity: v
+                ? Math.max(0, Number(v))
+                : undefined,
+            }))
+          }
+          icon={<Users className="w-4 h-4" />}
+        />
+
+        <div className="flex items-center justify-between rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-4">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-cyan-100 px-4 py-1.5 text-xs font-semibold text-cyan-700 mb-4">
-              <Building2 className="w-4 h-4" />
-              New Operating Theatre
-            </div>
-
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-              Register Theatre
-            </h2>
-
-            <p className="text-slate-500 mt-2 max-w-2xl">
-              Configure surgical theatre details, floor location,
-              departmental assignment, and operational capacity.
+            <p className="text-sm font-semibold !text-[#16211B]">
+              Active theatre
+            </p>
+            <p className="text-xs !text-[#767570]">
+              Enable for scheduling
             </p>
           </div>
 
-          <div className="rounded-3xl border border-cyan-100 bg-cyan-50 px-5 py-4">
-            <p className="text-sm font-semibold text-cyan-700">
-              Surgical Operations
-            </p>
-
-            <p className="text-xs text-cyan-600 mt-1">
-              Optimized for multi-department coordination
-            </p>
-          </div>
+          <Switch
+            checked={!!form.isActive}
+            onChange={checked =>
+              setForm(prev => ({
+                ...prev,
+                isActive: checked,
+              }))
+            }
+          />
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
-        >
-          <Input
-            label="Theatre Name"
-            placeholder="e.g Main Surgical Theatre"
-            value={form.name || ''}
-            onChange={v =>
-              setForm(prev => ({
-                ...prev,
-                name: v,
-              }))
-            }
-            icon={<Building2 className="w-4 h-4" />}
-            required
-          />
-
-          <Input
-            label="Theatre Code"
-            placeholder="e.g T-01"
-            value={form.code || ''}
-            onChange={v =>
-              setForm(prev => ({
-                ...prev,
-                code: v,
-              }))
-            }
-            icon={<Hash className="w-4 h-4" />}
-          />
-
-          <Input
-            label="Floor"
-            placeholder="e.g 2"
-            type="number"
-            value={
-              form.floor?.toString() || ''
-            }
-            onChange={v =>
-              setForm(prev => ({
-                ...prev,
-                floor: v
-                  ? Math.max(0, Number(v))
-                  : undefined,
-              }))
-            }
-            icon={<Layers3 className="w-4 h-4" />}
-          />
-
-          <Select
-            label="Department"
-            value={
-              form.department ||
-              TheatreDepartment.GeneralSurgery
-            }
-            onChange={v =>
-              setForm(prev => ({
-                ...prev,
-                department:
-                  v as TheatreDepartment,
-              }))
-            }
-            options={Object.values(
-              TheatreDepartment
+        <div className="sm:col-span-2 xl:col-span-3">
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl !bg-[#0c1a12] px-6 text-sm font-semibold !text-white transition hover:!bg-[#16211B] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            {loading ? (
+              <>
+                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 !border-white/30 !border-t-white" />
+                Creating theatre…
+              </>
+            ) : (
+              'Create theatre'
             )}
-          />
-
-          <Input
-            label="Capacity"
-            placeholder="e.g 10"
-            type="number"
-            value={
-              form.capacity?.toString() ||
-              ''
-            }
-            onChange={v =>
-              setForm(prev => ({
-                ...prev,
-                capacity: v
-                  ? Math.max(0, Number(v))
-                  : undefined,
-              }))
-            }
-            icon={<Users className="w-4 h-4" />}
-          />
-
-          <div className="rounded-3xl border border-gray-200 bg-gray-50/60 p-5 flex items-center justify-between">
-            <div>
-              <p className="font-semibold text-slate-900">
-                Active Theatre
-              </p>
-
-              <p className="text-sm text-slate-500">
-                Enable for scheduling
-              </p>
-            </div>
-
-            <Switch
-              checked={!!form.isActive}
-              onChange={checked =>
-                setForm(prev => ({
-                  ...prev,
-                  isActive: checked,
-                }))
-              }
-            />
-          </div>
-
-          <div className="xl:col-span-3 pt-2">
-            <button
-              type="submit"
-              disabled={loading}
-              className="h-14 w-full sm:w-auto px-8 rounded-2xl bg-cyan-600 hover:bg-cyan-700 !text-white font-bold transition-all disabled:opacity-50 shadow-lg shadow-cyan-200"
-            >
-              {loading
-                ? 'Creating Theatre...'
-                : 'Create Theatre'}
-            </button>
-          </div>
-        </form>
-      </div>
+          </button>
+        </div>
+      </form>
     </section>
   );
 }
@@ -268,13 +255,13 @@ function Input({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-slate-700">
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
         {label}
       </label>
 
       <div className="relative">
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+        <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 !text-[#B4B2A9]">
           {icon}
         </div>
 
@@ -287,7 +274,7 @@ function Input({
           onChange={e =>
             onChange(e.target.value)
           }
-          className="w-full h-13 rounded-2xl border border-gray-200 bg-white pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-cyan-600 placeholder:text-gray-400"
+          className="h-11 w-full rounded-xl border !border-[#E8E6E0] !bg-white pl-10 pr-3.5 text-sm !text-[#16211B] outline-none transition placeholder:!text-[#D3D1C7] focus:!border-[#1D9E75]"
         />
       </div>
     </div>
@@ -306,8 +293,8 @@ function Select({
   options: string[];
 }) {
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-slate-700">
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[10px] font-semibold uppercase tracking-[0.14em] !text-[#B4B2A9]">
         {label}
       </label>
 
@@ -316,7 +303,7 @@ function Select({
         onChange={e =>
           onChange(e.target.value)
         }
-        className="w-full h-13 rounded-2xl border border-gray-200 bg-white px-4 focus:outline-none focus:ring-2 focus:ring-cyan-600"
+        className="h-11 w-full rounded-xl border !border-[#E8E6E0] !bg-white px-3.5 text-sm !text-[#16211B] outline-none transition focus:!border-[#1D9E75]"
       >
         {options.map(item => (
           <option

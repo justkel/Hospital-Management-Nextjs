@@ -78,7 +78,7 @@ export default function WardBedsSection({
             if (!res.ok) return;
 
             setAllocations(json.bedAllocations ?? []);
-        } catch {}
+        } catch { }
     }, [wardId]);
 
     useEffect(() => {
@@ -225,345 +225,299 @@ export default function WardBedsSection({
         typeof activeFilter === 'boolean';
 
     return (
-        <section className="space-y-6">
-            <div className="flex flex-col gap-4 rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <section className="space-y-5 sm:space-y-6">
+            <div className="flex flex-col gap-4 rounded-2xl border !border-[#E8E6E0] !bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-                        Ward Bed Layout
+                    <h2 className="text-xl font-bold tracking-tight !text-[#16211B] sm:text-2xl">
+                        Ward bed layout
                     </h2>
 
-                    <p className="mt-1 text-sm text-slate-500">
-                        Live occupancy management,
-                        monitoring and operational
-                        control
+                    <p className="mt-1 text-sm !text-[#767570]">
+                        Live occupancy management, monitoring and operational control
                     </p>
                 </div>
 
                 <button
                     onClick={() => setCreateOpen(true)}
-                    className="flex h-11 items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 text-sm font-semibold !text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.98] cursor-pointer"
+                    className="flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl !bg-[#0c1a12] px-5 text-sm font-semibold !text-white transition hover:!bg-[#16211B]"
                 >
                     <PlusOutlined />
-                    <span className="hidden sm:inline">
-                        Add Beds
-                    </span>
-
-                    <span className="sm:hidden">
-                        Add
-                    </span>
+                    <span className="hidden sm:inline">Add beds</span>
+                    <span className="sm:hidden">Add</span>
                 </button>
             </div>
 
             {loading ? (
-                <div className="rounded-[30px] border bg-white p-6 shadow-sm">
+                <div className="rounded-2xl border !border-[#E8E6E0] !bg-white p-6">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                        {Array.from({
-                            length: 6,
-                        }).map((_, i) => (
+                        {Array.from({ length: 6 }).map((_, i) => (
                             <div
                                 key={i}
-                                className="rounded-3xl border border-slate-200 p-5"
+                                className="rounded-2xl border !border-[#E8E6E0] p-5"
                             >
-                                <Skeleton
-                                    active
-                                    paragraph={{
-                                        rows: 4,
-                                    }}
-                                />
+                                <Skeleton active paragraph={{ rows: 4 }} />
                             </div>
                         ))}
                     </div>
                 </div>
-            ) : hasFilters ? <div className="rounded-[28px] border border-slate-200 bg-white p-8 text-center shadow-sm">
-                <div className="flex justify-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
-                        <Bed
-                            size={28}
-                            className="text-slate-500"
-                        />
+            ) : hasFilters && beds.length === 0 ? (
+                <div className="rounded-2xl border !border-[#E8E6E0] !bg-white p-8 text-center">
+                    <div className="flex justify-center">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl !bg-[#F7F7F5]">
+                            <Bed size={22} className="!text-[#B4B2A9]" />
+                        </div>
                     </div>
+
+                    <h3 className="mt-4 text-base font-semibold !text-[#16211B]">
+                        No matching beds found
+                    </h3>
+
+                    <p className="mx-auto mt-1.5 max-w-md text-sm !text-[#767570]">
+                        Try changing or clearing your filters.
+                    </p>
+
+                    <button
+                        onClick={() => {
+                            setClassFilter(undefined);
+                            setStatusFilter(undefined);
+                            setActiveFilter(undefined);
+                            setPage(1);
+                        }}
+                        className="mt-5 rounded-xl !bg-[#0c1a12] px-4 py-2.5 text-sm font-medium !text-white transition hover:!bg-[#16211B]"
+                    >
+                        Clear filters
+                    </button>
                 </div>
-
-                <h3 className="mt-5 text-lg font-semibold text-slate-900">
-                    No matching beds found
-                </h3>
-
-                <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-                    Try changing or clearing your filters.
-                </p>
-
-                <button
-                    onClick={() => {
-                        setClassFilter(undefined);
-                        setStatusFilter(undefined);
-                        setActiveFilter(undefined);
-                        setPage(1);
-                    }}
-                    className="mt-6 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium !text-white transition hover:bg-slate-800"
-                >
-                    Clear Filters
-                </button>
-            </div> :
-                beds.length === 0 ? (
-                    <div className="rounded-[32px] border border-slate-200 bg-white p-8 text-center shadow-sm sm:p-14">
-                        <div className="flex justify-center">
-                            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-cyan-100">
-                                <Bed
-                                    size={34}
-                                    className="text-blue-600"
-                                />
-                            </div>
+            ) : beds.length === 0 ? (
+                <div className="rounded-2xl border !border-[#E8E6E0] !bg-white p-8 text-center sm:p-14">
+                    <div className="flex justify-center">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-xl !bg-[#ECFBF5]">
+                            <Bed size={26} className="!text-[#1D9E75]" />
                         </div>
-
-                        <h3 className="mt-6 text-2xl font-bold text-slate-900">
-                            No beds in this ward yet
-                        </h3>
-
-                        <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-slate-500">
-                            Start building your ward
-                            infrastructure by deploying
-                            operational beds for
-                            occupancy management,
-                            assignments and monitoring.
-                        </p>
-
-                        <button
-                            onClick={() =>
-                                setCreateOpen(true)
-                            }
-                            className="mt-8 rounded-2xl bg-blue-700 px-6 py-3 font-semibold !text-white shadow-lg shadow-blue-200 transition hover:scale-[1.02]"
-                        >
-                            Create First Beds
-                        </button>
                     </div>
-                ) : (
-                    <>
-                        <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm">
-                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                                <Select
-                                    allowClear
-                                    placeholder="Filter by class"
-                                    value={classFilter}
-                                    onChange={value => {
-                                        setPage(1);
-                                        setClassFilter(value);
-                                    }}
-                                    className="w-full"
-                                    options={Object.values(
-                                        BedClass,
-                                    ).map(c => ({
-                                        value: c,
-                                        label: c,
-                                    }))}
-                                />
 
-                                <Select
-                                    allowClear
-                                    placeholder="Filter by status"
-                                    value={statusFilter}
-                                    onChange={value => {
-                                        setPage(1);
-                                        setStatusFilter(value);
-                                    }}
-                                    className="w-full"
-                                    options={Object.values(
-                                        BedStatus,
-                                    ).map(s => ({
-                                        value: s,
-                                        label: s,
-                                    }))}
-                                />
+                    <h3 className="mt-5 text-xl font-bold !text-[#16211B]">
+                        No beds in this ward yet
+                    </h3>
 
-                                <Select
-                                    allowClear
-                                    placeholder="Filter by activity"
-                                    value={activeFilter}
-                                    onChange={value => {
-                                        setPage(1);
-                                        setActiveFilter(value);
-                                    }}
-                                    className="w-full"
-                                    options={[
-                                        {
-                                            label: 'Active',
-                                            value: true,
-                                        },
-                                        {
-                                            label: 'Disabled',
-                                            value: false,
-                                        },
-                                    ]}
-                                />
+                    <p className="mx-auto mt-2.5 max-w-lg text-sm leading-relaxed !text-[#767570]">
+                        Start building your ward infrastructure by deploying
+                        operational beds for occupancy management, assignments and
+                        monitoring.
+                    </p>
 
-                                <button
-                                    onClick={() => {
-                                        setClassFilter(undefined);
-                                        setStatusFilter(undefined);
-                                        setActiveFilter(undefined);
-                                        setPage(1);
-                                    }}
-                                    className="h-10 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                                >
-                                    Clear Filters
-                                </button>
-                            </div>
+                    <button
+                        onClick={() => setCreateOpen(true)}
+                        className="mt-6 rounded-xl !bg-[#0c1a12] px-6 py-3 font-semibold !text-white transition hover:!bg-[#16211B]"
+                    >
+                        Create first beds
+                    </button>
+                </div>
+            ) : (
+                <>
+                    <div className="rounded-2xl border !border-[#E8E6E0] !bg-white p-4">
+                        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
+                            <Select
+                                allowClear
+                                placeholder="Filter by class"
+                                value={classFilter}
+                                onChange={value => {
+                                    setPage(1);
+                                    setClassFilter(value);
+                                }}
+                                className="w-full"
+                                options={Object.values(BedClass).map(c => ({
+                                    value: c,
+                                    label: c,
+                                }))}
+                            />
+
+                            <Select
+                                allowClear
+                                placeholder="Filter by status"
+                                value={statusFilter}
+                                onChange={value => {
+                                    setPage(1);
+                                    setStatusFilter(value);
+                                }}
+                                className="w-full"
+                                options={Object.values(BedStatus).map(s => ({
+                                    value: s,
+                                    label: s,
+                                }))}
+                            />
+
+                            <Select
+                                allowClear
+                                placeholder="Filter by activity"
+                                value={activeFilter}
+                                onChange={value => {
+                                    setPage(1);
+                                    setActiveFilter(value);
+                                }}
+                                className="w-full"
+                                options={[
+                                    { label: 'Active', value: true },
+                                    { label: 'Disabled', value: false },
+                                ]}
+                            />
+
+                            <button
+                                onClick={() => {
+                                    setClassFilter(undefined);
+                                    setStatusFilter(undefined);
+                                    setActiveFilter(undefined);
+                                    setPage(1);
+                                }}
+                                className="h-10 rounded-xl border !border-[#E8E6E0] !bg-white px-4 text-sm font-medium !text-[#5F5E5A] transition hover:!bg-[#F7F7F5]"
+                            >
+                                Clear filters
+                            </button>
                         </div>
-                        <div className="rounded-[28px] border border-slate-200 bg-white p-3 shadow-sm sm:p-5">
-                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                                {beds.map(bed => {
-                                    const allocation = allocationByBedId.get(bed.id);
+                    </div>
 
-                                    return (
-                                        <div
-                                            key={bed.id}
-                                            className={`group relative overflow-hidden rounded-[22px] border p-3.5 sm:p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${STATUS_COLORS[bed.status]}`}
-                                        >
-                                            <div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-white/30 blur-2xl" />
+                    <div className="rounded-2xl border !border-[#E8E6E0] !bg-white p-3 sm:p-5">
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                            {beds.map(bed => {
+                                const allocation = allocationByBedId.get(bed.id);
 
-                                            <div className="relative">
-                                                <div className="flex items-start justify-between gap-2">
-                                                    <div className="flex min-w-0 items-center gap-3">
-                                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/70 shadow-sm">
-                                                            <Bed size={18} />
-                                                        </div>
-
-                                                        <div className="min-w-0">
-                                                            <h3 className="truncate text-sm sm:text-base font-bold">
-                                                                {bed.name}
-                                                            </h3>
-
-                                                            <p className="hidden sm:block truncate text-[11px] opacity-60">
-                                                                {bed.bedCode || 'No code'}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-
-                                                    <button
-                                                        onClick={e => {
-                                                            e.stopPropagation();
-                                                            setSelectedBed(bed);
-                                                        }}
-                                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/70 text-slate-700 shadow-sm transition hover:scale-105"
-                                                    >
-                                                        <EditOutlined className="text-[13px]" />
-                                                    </button>
+                                return (
+                                    <div
+                                        key={bed.id}
+                                        className={`relative overflow-hidden rounded-2xl border p-3.5 transition sm:p-4 ${STATUS_COLORS[bed.status]}`}
+                                    >
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div className="flex min-w-0 items-center gap-3">
+                                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl !bg-white/70">
+                                                    <Bed size={16} />
                                                 </div>
 
-                                                <div className="mt-3 flex flex-wrap items-center gap-2">
-                                                    <Tag
-                                                        className={`m-0 flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${CLASS_STYLES[bed.class]}`}
-                                                    >
-                                                        <span className="sm:hidden">
-                                                            {getClassIcon(bed.class)}
-                                                        </span>
+                                                <div className="min-w-0">
+                                                    <h3 className="truncate text-sm font-semibold sm:text-base">
+                                                        {bed.name}
+                                                    </h3>
 
-                                                        <span className="hidden sm:flex items-center gap-1">
-                                                            {getClassIcon(bed.class)}
-                                                            {bed.class}
-                                                        </span>
-                                                    </Tag>
+                                                    <p className="hidden truncate text-[11px] opacity-60 sm:block">
+                                                        {bed.bedCode || 'No code'}
+                                                    </p>
+                                                </div>
+                                            </div>
 
-                                                    <Tag
-                                                        className={`m-0 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${bed.isActive
-                                                            ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
-                                                            : 'border-red-200 bg-red-100 text-red-700'
-                                                            }`}
-                                                    >
-                                                        <span className="sm:hidden">
-                                                            {bed.isActive ? '🟢' : '🔴'}
-                                                        </span>
+                                            <button
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    setSelectedBed(bed);
+                                                }}
+                                                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg !bg-white/70 !text-[#5F5E5A] transition hover:!bg-white"
+                                            >
+                                                <EditOutlined className="text-[13px]" />
+                                            </button>
+                                        </div>
 
-                                                        <span className="hidden sm:flex items-center gap-1">
-                                                            {bed.isActive ? (
-                                                                <>
-                                                                    <CheckCircleFilled />
-                                                                    Active
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <StopFilled />
-                                                                    Disabled
-                                                                </>
-                                                            )}
-                                                        </span>
-                                                    </Tag>
+                                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                                            <Tag
+                                                className={`m-0 flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${CLASS_STYLES[bed.class]}`}
+                                            >
+                                                <span className="sm:hidden">
+                                                    {getClassIcon(bed.class)}
+                                                </span>
+
+                                                <span className="hidden items-center gap-1 sm:flex">
+                                                    {getClassIcon(bed.class)}
+                                                    {bed.class}
+                                                </span>
+                                            </Tag>
+
+                                            <Tag
+                                                className={`m-0 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${bed.isActive
+                                                    ? '!border-[#CFF0E1] !bg-[#ECFBF5] !text-[#1D9E75]'
+                                                    : '!border-[#FBD5D5] !bg-[#FEF2F2] !text-[#DC2626]'
+                                                    }`}
+                                            >
+                                                <span className="hidden items-center gap-1 sm:flex">
+                                                    {bed.isActive ? (
+                                                        <>
+                                                            <CheckCircleFilled />
+                                                            Active
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <StopFilled />
+                                                            Disabled
+                                                        </>
+                                                    )}
+                                                </span>
+                                                <span className="sm:hidden">
+                                                    {bed.isActive ? 'Active' : 'Disabled'}
+                                                </span>
+                                            </Tag>
+                                        </div>
+
+                                        {allocation ? (
+                                            <div className="mt-3 rounded-xl border !border-white/50 !bg-white/60 px-3 py-2.5">
+                                                <div className="flex items-center gap-1.5">
+                                                    <UserRound size={12} className="opacity-60" />
+                                                    <p className="text-[10px] font-semibold uppercase tracking-wide opacity-60">
+                                                        {allocation.status}
+                                                    </p>
                                                 </div>
 
-                                                {allocation ? (
-                                                    <div className="mt-3 rounded-xl border border-white/50 bg-white/60 px-3 py-2.5">
-                                                        <div className="flex items-center gap-1.5">
-                                                            <UserRound size={12} className="opacity-60" />
-                                                            <p className="text-[10px] font-semibold uppercase tracking-wide opacity-60">
-                                                                {allocation.status}
-                                                            </p>
-                                                        </div>
+                                                <p className="mt-1 text-xs font-medium">
+                                                    Allocated by{' '}
+                                                    {allocation.allocatedBy?.fullName ?? 'Unknown staff'}
+                                                </p>
 
-                                                        <p className="mt-1 text-xs font-medium">
-                                                            Allocated by{' '}
-                                                            {allocation.allocatedBy?.fullName ?? 'Unknown staff'}
-                                                        </p>
+                                                <p className="text-[11px] opacity-70">
+                                                    Since {formatAllocatedAt(allocation.allocatedAt)}
+                                                </p>
 
-                                                        <p className="text-[11px] opacity-70">
-                                                            Since {formatAllocatedAt(allocation.allocatedAt)}
-                                                        </p>
-
-                                                        {allocation.reason && (
-                                                            <p className="mt-1 text-[11px] italic opacity-60">
-                                                                {allocation.reason}
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <div className="mt-3">
-                                                        <select
-                                                            className="h-10 w-full rounded-xl border border-white/40 bg-white/80 px-3 text-xs sm:text-sm font-medium shadow-sm outline-none"
-                                                            value={bed.status}
-                                                            onChange={e =>
-                                                                updateStatus(
-                                                                    bed,
-                                                                    e.target.value as BedStatus,
-                                                                )
-                                                            }
-                                                        >
-                                                            {Object.values(BedStatus).map(s => (
-                                                                <option
-                                                                    key={s}
-                                                                    value={s}
-                                                                >
-                                                                    {s}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
+                                                {allocation.reason && (
+                                                    <p className="mt-1 text-[11px] italic opacity-60">
+                                                        {allocation.reason}
+                                                    </p>
                                                 )}
                                             </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                                        ) : (
+                                            <div className="mt-3">
+                                                <select
+                                                    className="h-10 w-full rounded-lg border !border-white/40 !bg-white/80 px-3 text-xs font-medium outline-none sm:text-sm"
+                                                    value={bed.status}
+                                                    onChange={e =>
+                                                        updateStatus(bed, e.target.value as BedStatus)
+                                                    }
+                                                >
+                                                    {Object.values(BedStatus).map(s => (
+                                                        <option key={s} value={s}>
+                                                            {s}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
+                    </div>
 
-                        <div className="flex justify-center">
-                            <Pagination
-                                current={page}
-                                pageSize={limit}
-                                total={total}
-                                responsive
-                                onChange={(p, l) => {
-                                    setLimit(l);
-
-                                    fetchBeds(p, l);
-                                }}
-                            />
-                        </div>
-                    </>
-                )}
+                    <div className="flex justify-center overflow-x-auto pt-1">
+                        <Pagination
+                            current={page}
+                            pageSize={limit}
+                            total={total}
+                            responsive
+                            onChange={(p, l) => {
+                                setLimit(l);
+                                fetchBeds(p, l);
+                            }}
+                        />
+                    </div>
+                </>
+            )}
 
             <Drawer
                 open={createOpen}
-                onClose={() =>
-                    setCreateOpen(false)
-                }
+                onClose={() => setCreateOpen(false)}
                 placement="right"
                 size="large"
                 title={null}
@@ -572,8 +526,7 @@ export default function WardBedsSection({
                 styles={{
                     body: {
                         padding: 0,
-                        background:
-                            'linear-gradient(to bottom right, #f8fafc, #eef6ff)',
+                        background: '#FAFAF8',
                     },
                 }}
             >
@@ -582,18 +535,16 @@ export default function WardBedsSection({
                         wardId={wardId}
                         onSuccess={() => {
                             setCreateOpen(false);
-
                             fetchBeds();
                         }}
+                        onCancel={() => setCreateOpen(false)}
                     />
                 </div>
             </Drawer>
 
             <Drawer
                 open={!!selectedBed}
-                onClose={() =>
-                    setSelectedBed(null)
-                }
+                onClose={() => setSelectedBed(null)}
                 placement="right"
                 size="large"
                 title={null}
@@ -602,8 +553,7 @@ export default function WardBedsSection({
                 styles={{
                     body: {
                         padding: 0,
-                        background:
-                            'linear-gradient(to bottom right, #f8fafc, #eef6ff)',
+                        background: '#FAFAF8',
                     },
                 }}
             >
@@ -615,9 +565,9 @@ export default function WardBedsSection({
                             wardId={wardId}
                             onSuccess={() => {
                                 setSelectedBed(null);
-
                                 fetchBeds();
                             }}
+                            onCancel={() => setSelectedBed(null)}
                         />
                     </div>
                 )}
