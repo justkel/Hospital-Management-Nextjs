@@ -187,35 +187,46 @@ export default function ActorActivityChart() {
         )}
 
         {!loading && !error && stats && (
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart
-              data={chartData}
-              margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
-            >
-              <CartesianGrid vertical={false} stroke="#F0F0EC" />
-              <XAxis
-                dataKey="label"
-                tick={{ fontSize: 11, fill: '#B4B2A9' }}
-                axisLine={{ stroke: '#E8E6E0' }}
-                tickLine={false}
-                interval={period === 'LAST_24_HOURS' ? 2 : 0}
-              />
-              <YAxis
-                allowDecimals={false}
-                tick={{ fontSize: 11, fill: '#B4B2A9' }}
-                axisLine={false}
-                tickLine={false}
-                width={32}
-              />
-              <Tooltip content={<ActivityTooltip />} cursor={{ fill: '#F0FAF5' }} />
-              <Bar
-                dataKey="count"
-                fill="#1D9E75"
-                radius={[4, 4, 0, 0]}
-                maxBarSize={period === 'LAST_24_HOURS' ? 14 : 32}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          stats.total > 0 ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart
+                data={chartData}
+                margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+              >
+                <CartesianGrid vertical={false} stroke="#F0F0EC" />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fontSize: 11, fill: '#B4B2A9' }}
+                  axisLine={{ stroke: '#E8E6E0' }}
+                  tickLine={false}
+                  interval={period === 'LAST_24_HOURS' ? 2 : 0}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fontSize: 11, fill: '#B4B2A9' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={32}
+                />
+                <Tooltip content={<ActivityTooltip />} cursor={{ fill: '#F0FAF5' }} />
+                <Bar
+                  dataKey="count"
+                  fill="#1D9E75"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={period === 'LAST_24_HOURS' ? 14 : 32}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-[220px] items-center justify-center text-center">
+              <div>
+                <Activity className="mx-auto h-10 w-10 text-[#D8EDE3]" />
+                <p className="mt-3 text-[13px] text-[#B4B2A9]">
+                  No activity in this period
+                </p>
+              </div>
+            </div>
+          )
         )}
       </div>
     </div>
