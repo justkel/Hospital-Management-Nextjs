@@ -703,6 +703,159 @@ export enum CreditResolutionMethod {
   Transfer = 'TRANSFER'
 }
 
+export type DashboardBedMetrics = {
+  __typename?: 'DashboardBedMetrics';
+  allocatedInPeriod: Scalars['Int']['output'];
+  occupied: Scalars['Int']['output'];
+  totalActive: Scalars['Int']['output'];
+};
+
+export type DashboardCount = {
+  __typename?: 'DashboardCount';
+  count: Scalars['Int']['output'];
+  label: Scalars['String']['output'];
+};
+
+export type DashboardFinancialMetrics = {
+  __typename?: 'DashboardFinancialMetrics';
+  outstandingBalanceInPeriod: Scalars['Float']['output'];
+  overallOutstandingBalance: Scalars['Float']['output'];
+  paymentsReceivedInPeriod: Scalars['Int']['output'];
+  pendingCredits: Scalars['Int']['output'];
+  recentTransactions: Array<DashboardFinancialTransaction>;
+  revenueInPeriod: Scalars['Float']['output'];
+  revenueToday: Scalars['Float']['output'];
+  revenueTrend: Array<DashboardRevenueTrendBucket>;
+  successfulCreditsInPeriod: Scalars['Int']['output'];
+};
+
+export type DashboardFinancialTransaction = {
+  __typename?: 'DashboardFinancialTransaction';
+  amount: Scalars['Float']['output'];
+  currency: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  recordedAt: Scalars['DateTime']['output'];
+  status: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
+export type DashboardGuestMetrics = {
+  __typename?: 'DashboardGuestMetrics';
+  pendingRequests: Scalars['Int']['output'];
+};
+
+export type DashboardIncidentMetrics = {
+  __typename?: 'DashboardIncidentMetrics';
+  activeTheatreIncidents: Scalars['Int']['output'];
+  activeTotal: Scalars['Int']['output'];
+  activeWardIncidents: Scalars['Int']['output'];
+};
+
+export type DashboardLabRequestItem = {
+  __typename?: 'DashboardLabRequestItem';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  priority: Scalars['String']['output'];
+  status: Scalars['String']['output'];
+  visitId: Scalars['String']['output'];
+};
+
+export type DashboardLaboratoryMetrics = {
+  __typename?: 'DashboardLaboratoryMetrics';
+  completedInPeriod: Scalars['Int']['output'];
+  inProgress: Scalars['Int']['output'];
+  pending: Scalars['Int']['output'];
+  recentRequests: Array<DashboardLabRequestItem>;
+  urgent: Scalars['Int']['output'];
+};
+
+export type DashboardOpenVisit = {
+  __typename?: 'DashboardOpenVisit';
+  id: Scalars['String']['output'];
+  patientId: Scalars['String']['output'];
+  status: Scalars['String']['output'];
+  visitDateTime: Scalars['DateTime']['output'];
+};
+
+export type DashboardOverview = {
+  __typename?: 'DashboardOverview';
+  beds?: Maybe<DashboardBedMetrics>;
+  financial?: Maybe<DashboardFinancialMetrics>;
+  generatedAt: Scalars['DateTime']['output'];
+  guests?: Maybe<DashboardGuestMetrics>;
+  incidents?: Maybe<DashboardIncidentMetrics>;
+  laboratory?: Maybe<DashboardLaboratoryMetrics>;
+  patients: DashboardPatientMetrics;
+  period: DashboardPeriod;
+  periodStart: Scalars['DateTime']['output'];
+  theatre?: Maybe<DashboardTheatreMetrics>;
+  visits: DashboardVisitMetrics;
+};
+
+export type DashboardOverviewInput = {
+  limit?: Scalars['Int']['input'];
+  period?: DashboardPeriod;
+};
+
+export type DashboardPatientMetrics = {
+  __typename?: 'DashboardPatientMetrics';
+  activePatients: Scalars['Int']['output'];
+  registeredInPeriod: Scalars['Int']['output'];
+  registeredToday: Scalars['Int']['output'];
+};
+
+/** Global time window used by dashboard trend and period metrics */
+export enum DashboardPeriod {
+  Last_7Days = 'LAST_7_DAYS',
+  Last_24Hours = 'LAST_24_HOURS',
+  ThisMonth = 'THIS_MONTH',
+  ThisWeek = 'THIS_WEEK',
+  Today = 'TODAY'
+}
+
+export type DashboardRevenueTrendBucket = {
+  __typename?: 'DashboardRevenueTrendBucket';
+  amount: Scalars['Float']['output'];
+  label: Scalars['String']['output'];
+  start: Scalars['DateTime']['output'];
+};
+
+export type DashboardTheatreMetrics = {
+  __typename?: 'DashboardTheatreMetrics';
+  cancelled: Scalars['Int']['output'];
+  delayed: Scalars['Int']['output'];
+  inProgress: Scalars['Int']['output'];
+  todayProcedures: Scalars['Int']['output'];
+  upcoming: Scalars['Int']['output'];
+  upcomingSchedule: Array<DashboardTheatreScheduleItem>;
+};
+
+export type DashboardTheatreScheduleItem = {
+  __typename?: 'DashboardTheatreScheduleItem';
+  id: Scalars['String']['output'];
+  priority: Scalars['String']['output'];
+  procedureId: Scalars['String']['output'];
+  scheduledEndTime: Scalars['DateTime']['output'];
+  scheduledStartTime: Scalars['DateTime']['output'];
+  status: Scalars['String']['output'];
+};
+
+export type DashboardTrendBucket = {
+  __typename?: 'DashboardTrendBucket';
+  count: Scalars['Int']['output'];
+  label: Scalars['String']['output'];
+  start: Scalars['DateTime']['output'];
+};
+
+export type DashboardVisitMetrics = {
+  __typename?: 'DashboardVisitMetrics';
+  byStatus: Array<DashboardCount>;
+  openVisits: Scalars['Int']['output'];
+  recentOpenVisits: Array<DashboardOpenVisit>;
+  visitsInPeriod: Scalars['Int']['output'];
+  volumeTrend: Array<DashboardTrendBucket>;
+};
+
 export type DelayTheatreBookingInput = {
   delayReason: Scalars['String']['input'];
   newScheduledEndTime?: InputMaybe<Scalars['DateTime']['input']>;
@@ -1736,6 +1889,7 @@ export type Query = {
   canReconcileVisit: VisitReconcileResult;
   catalogsByChargeDomain: Array<ChargeDomainCatalogMapping>;
   chargeDomainMappings: Array<ChargeDomainCatalogMapping>;
+  dashboardOverview: DashboardOverview;
   getActorActivityStats: ActorActivityStats;
   getAuditDistinctValues: Array<Scalars['String']['output']>;
   getAuditLogById: AuditLog;
@@ -1863,6 +2017,11 @@ export type QueryCanReconcileVisitArgs = {
 
 export type QueryCatalogsByChargeDomainArgs = {
   chargeDomain: ChargeDomain;
+};
+
+
+export type QueryDashboardOverviewArgs = {
+  input?: InputMaybe<DashboardOverviewInput>;
 };
 
 
@@ -4798,6 +4957,13 @@ export type IsFeatureFlagEnabledQueryVariables = Exact<{
 
 export type IsFeatureFlagEnabledQuery = { __typename?: 'Query', isFeatureFlagEnabled: boolean };
 
+export type DashboardOverviewQueryVariables = Exact<{
+  input?: InputMaybe<DashboardOverviewInput>;
+}>;
+
+
+export type DashboardOverviewQuery = { __typename?: 'Query', dashboardOverview: { __typename?: 'DashboardOverview', period: DashboardPeriod, periodStart: string, generatedAt: string, patients: { __typename?: 'DashboardPatientMetrics', activePatients: number, registeredToday: number, registeredInPeriod: number }, visits: { __typename?: 'DashboardVisitMetrics', openVisits: number, visitsInPeriod: number, byStatus: Array<{ __typename?: 'DashboardCount', label: string, count: number }>, volumeTrend: Array<{ __typename?: 'DashboardTrendBucket', label: string, start: string, count: number }>, recentOpenVisits: Array<{ __typename?: 'DashboardOpenVisit', id: string, patientId: string, visitDateTime: string, status: string }> }, laboratory?: { __typename?: 'DashboardLaboratoryMetrics', pending: number, urgent: number, inProgress: number, completedInPeriod: number, recentRequests: Array<{ __typename?: 'DashboardLabRequestItem', id: string, visitId: string, priority: string, status: string, createdAt: string }> } | null, beds?: { __typename?: 'DashboardBedMetrics', occupied: number, totalActive: number, allocatedInPeriod: number } | null, theatre?: { __typename?: 'DashboardTheatreMetrics', todayProcedures: number, upcoming: number, delayed: number, inProgress: number, cancelled: number, upcomingSchedule: Array<{ __typename?: 'DashboardTheatreScheduleItem', id: string, procedureId: string, scheduledStartTime: string, scheduledEndTime: string, status: string, priority: string }> } | null, financial?: { __typename?: 'DashboardFinancialMetrics', revenueToday: number, revenueInPeriod: number, overallOutstandingBalance: number, outstandingBalanceInPeriod: number, paymentsReceivedInPeriod: number, pendingCredits: number, successfulCreditsInPeriod: number, revenueTrend: Array<{ __typename?: 'DashboardRevenueTrendBucket', label: string, start: string, amount: number }>, recentTransactions: Array<{ __typename?: 'DashboardFinancialTransaction', id: string, type: string, amount: number, currency: string, status: string, recordedAt: string }> } | null, incidents?: { __typename?: 'DashboardIncidentMetrics', activeWardIncidents: number, activeTheatreIncidents: number, activeTotal: number } | null, guests?: { __typename?: 'DashboardGuestMetrics', pendingRequests: number } | null } };
+
 export type GetVisitBillingPageQueryVariables = Exact<{
   id: Scalars['String']['input'];
   visitId: Scalars['ID']['input'];
@@ -4998,4 +5164,5 @@ export const RejectGuestRequestDocument = {"kind":"Document","definitions":[{"ki
 export const RevokeGuestAccessDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RevokeGuestAccess"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"revokeGuestAccess"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"revokedAt"}},{"kind":"Field","name":{"kind":"Name","value":"revokedBy"}},{"kind":"Field","name":{"kind":"Name","value":"guest"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"email"}}]}}]}}]}}]} as unknown as DocumentNode<RevokeGuestAccessMutation, RevokeGuestAccessMutationVariables>;
 export const RestoreGuestAccessDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RestoreGuestAccess"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"restoreGuestAccess"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"approvedAt"}},{"kind":"Field","name":{"kind":"Name","value":"expiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"reviewedAt"}},{"kind":"Field","name":{"kind":"Name","value":"reviewedBy"}},{"kind":"Field","name":{"kind":"Name","value":"guest"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"phone"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}}]} as unknown as DocumentNode<RestoreGuestAccessMutation, RestoreGuestAccessMutationVariables>;
 export const IsFeatureFlagEnabledDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"IsFeatureFlagEnabled"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"flagKey"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"FeatureFlagKey"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isFeatureFlagEnabled"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"flagKey"},"value":{"kind":"Variable","name":{"kind":"Name","value":"flagKey"}}}]}]}}]} as unknown as DocumentNode<IsFeatureFlagEnabledQuery, IsFeatureFlagEnabledQueryVariables>;
+export const DashboardOverviewDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"DashboardOverview"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"DashboardOverviewInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"dashboardOverview"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"period"}},{"kind":"Field","name":{"kind":"Name","value":"periodStart"}},{"kind":"Field","name":{"kind":"Name","value":"generatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"patients"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"activePatients"}},{"kind":"Field","name":{"kind":"Name","value":"registeredToday"}},{"kind":"Field","name":{"kind":"Name","value":"registeredInPeriod"}}]}},{"kind":"Field","name":{"kind":"Name","value":"visits"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"openVisits"}},{"kind":"Field","name":{"kind":"Name","value":"visitsInPeriod"}},{"kind":"Field","name":{"kind":"Name","value":"byStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"count"}}]}},{"kind":"Field","name":{"kind":"Name","value":"volumeTrend"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"start"}},{"kind":"Field","name":{"kind":"Name","value":"count"}}]}},{"kind":"Field","name":{"kind":"Name","value":"recentOpenVisits"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"patientId"}},{"kind":"Field","name":{"kind":"Name","value":"visitDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"laboratory"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"pending"}},{"kind":"Field","name":{"kind":"Name","value":"urgent"}},{"kind":"Field","name":{"kind":"Name","value":"inProgress"}},{"kind":"Field","name":{"kind":"Name","value":"completedInPeriod"}},{"kind":"Field","name":{"kind":"Name","value":"recentRequests"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"beds"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"occupied"}},{"kind":"Field","name":{"kind":"Name","value":"totalActive"}},{"kind":"Field","name":{"kind":"Name","value":"allocatedInPeriod"}}]}},{"kind":"Field","name":{"kind":"Name","value":"theatre"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"todayProcedures"}},{"kind":"Field","name":{"kind":"Name","value":"upcoming"}},{"kind":"Field","name":{"kind":"Name","value":"delayed"}},{"kind":"Field","name":{"kind":"Name","value":"inProgress"}},{"kind":"Field","name":{"kind":"Name","value":"cancelled"}},{"kind":"Field","name":{"kind":"Name","value":"upcomingSchedule"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"procedureId"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledStartTime"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledEndTime"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"financial"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"revenueToday"}},{"kind":"Field","name":{"kind":"Name","value":"revenueInPeriod"}},{"kind":"Field","name":{"kind":"Name","value":"overallOutstandingBalance"}},{"kind":"Field","name":{"kind":"Name","value":"outstandingBalanceInPeriod"}},{"kind":"Field","name":{"kind":"Name","value":"paymentsReceivedInPeriod"}},{"kind":"Field","name":{"kind":"Name","value":"pendingCredits"}},{"kind":"Field","name":{"kind":"Name","value":"successfulCreditsInPeriod"}},{"kind":"Field","name":{"kind":"Name","value":"revenueTrend"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"start"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}}]}},{"kind":"Field","name":{"kind":"Name","value":"recentTransactions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"recordedAt"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"incidents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"activeWardIncidents"}},{"kind":"Field","name":{"kind":"Name","value":"activeTheatreIncidents"}},{"kind":"Field","name":{"kind":"Name","value":"activeTotal"}}]}},{"kind":"Field","name":{"kind":"Name","value":"guests"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"pendingRequests"}}]}}]}}]}}]} as unknown as DocumentNode<DashboardOverviewQuery, DashboardOverviewQueryVariables>;
 export const GetVisitBillingPageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetVisitBillingPage"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"visit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"visitDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"closedAt"}},{"kind":"Field","name":{"kind":"Name","value":"patient"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}}]}},{"kind":"Field","name":{"kind":"Name","value":"patientId"}},{"kind":"Field","name":{"kind":"Name","value":"attendingStaffId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"visitChargeSummary"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"lockedCharges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"overrideReason"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"chargeType"}},{"kind":"Field","name":{"kind":"Name","value":"billingType"}},{"kind":"Field","name":{"kind":"Name","value":"chargeDomain"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalog"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"editableCharges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalogId"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"overrideReason"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"chargeType"}},{"kind":"Field","name":{"kind":"Name","value":"billingType"}},{"kind":"Field","name":{"kind":"Name","value":"chargeDomain"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"chargeCatalog"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"unbilledPrescriptions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"drug"}},{"kind":"Field","name":{"kind":"Name","value":"dose"}},{"kind":"Field","name":{"kind":"Name","value":"route"}},{"kind":"Field","name":{"kind":"Name","value":"frequency"}},{"kind":"Field","name":{"kind":"Name","value":"isProvidedInHouse"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"prescribingDoctorId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"visitCharge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"prescribingDoctor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userCode"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"billingAdjustments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}},{"kind":"Field","name":{"kind":"Name","value":"appliedOn"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"method"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"direction"}},{"kind":"Field","name":{"kind":"Name","value":"reversesAdjustmentId"}},{"kind":"Field","name":{"kind":"Name","value":"requestedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"approvedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"appliedAt"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"reversesAdjustment"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"method"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"direction"}}]}},{"kind":"Field","name":{"kind":"Name","value":"chargeLinks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitCharge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"latestVisitInvoice"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"subtotal"}},{"kind":"Field","name":{"kind":"Name","value":"discountTotal"}},{"kind":"Field","name":{"kind":"Name","value":"totalPayable"}},{"kind":"Field","name":{"kind":"Name","value":"totalPaid"}},{"kind":"Field","name":{"kind":"Name","value":"outstandingBalance"}},{"kind":"Field","name":{"kind":"Name","value":"issuedAt"}},{"kind":"Field","name":{"kind":"Name","value":"lockedAt"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"visitInvoices"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"subtotal"}},{"kind":"Field","name":{"kind":"Name","value":"discountTotal"}},{"kind":"Field","name":{"kind":"Name","value":"totalPayable"}},{"kind":"Field","name":{"kind":"Name","value":"totalPaid"}},{"kind":"Field","name":{"kind":"Name","value":"outstandingBalance"}},{"kind":"Field","name":{"kind":"Name","value":"issuedAt"}},{"kind":"Field","name":{"kind":"Name","value":"lockedAt"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"visitPayments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"amountPaid"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"paidAt"}},{"kind":"Field","name":{"kind":"Name","value":"confirmedAt"}},{"kind":"Field","name":{"kind":"Name","value":"receivedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"reference"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"allocations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"amountAllocated"}},{"kind":"Field","name":{"kind":"Name","value":"visitCharge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"visitCredits"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitId"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"method"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"processedByStaffId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"confirmedAt"}},{"kind":"Field","name":{"kind":"Name","value":"organizationId"}},{"kind":"Field","name":{"kind":"Name","value":"visit"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"visitType"}},{"kind":"Field","name":{"kind":"Name","value":"visitDateTime"}},{"kind":"Field","name":{"kind":"Name","value":"patient"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"dateOfBirth"}},{"kind":"Field","name":{"kind":"Name","value":"gender"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"visitCharge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"chargeName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"visitChargeId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"visitCreditBalance"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"visitId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"visitId"}}}]}]}}]} as unknown as DocumentNode<GetVisitBillingPageQuery, GetVisitBillingPageQueryVariables>;

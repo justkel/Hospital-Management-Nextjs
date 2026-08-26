@@ -1,0 +1,102 @@
+query DashboardOverview($input: DashboardOverviewInput) {
+  dashboardOverview(input: $input) {
+    period
+    periodStart
+    generatedAt
+
+    patients {
+      activePatients
+      registeredToday
+      registeredInPeriod
+    }
+
+    visits {
+      openVisits
+      visitsInPeriod
+      byStatus {
+        label
+        count
+      }
+      volumeTrend {
+        label
+        start
+        count
+      }
+      recentOpenVisits {
+        id
+        patientId
+        visitDateTime
+        status
+      }
+    }
+
+    laboratory {
+      pending
+      urgent
+      inProgress
+      completedInPeriod
+      recentRequests {
+        id
+        visitId
+        priority
+        status
+        createdAt
+      }
+    }
+
+    beds {
+      occupied
+      totalActive
+      allocatedInPeriod
+    }
+
+    theatre {
+      todayProcedures
+      upcoming
+      delayed
+      inProgress
+      cancelled
+      upcomingSchedule {
+        id
+        procedureId
+        scheduledStartTime
+        scheduledEndTime
+        status
+        priority
+      }
+    }
+
+    financial {
+      revenueToday
+      revenueInPeriod
+      overallOutstandingBalance
+      outstandingBalanceInPeriod
+      paymentsReceivedInPeriod
+      pendingCredits
+      successfulCreditsInPeriod
+      revenueTrend {
+        label
+        start
+        amount
+      }
+      recentTransactions {
+        id
+        type
+        amount
+        currency
+        status
+        recordedAt
+      }
+    }
+
+    incidents {
+      activeWardIncidents
+      activeTheatreIncidents
+      activeTotal
+    }
+
+    guests {
+      pendingRequests
+    }
+  }
+}
