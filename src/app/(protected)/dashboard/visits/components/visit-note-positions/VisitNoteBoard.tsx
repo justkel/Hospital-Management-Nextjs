@@ -14,17 +14,17 @@ const NOTE_WIDTH = 220;
 const NOTE_HEIGHT = 140;
 
 export default function VisitNoteBoard({ visitId }: Props) {
+  const [isDesktop, setIsDesktop] = useState(false);
+
   const { notes, loading, creating, updatingId, createNote, updateNote } =
-    useVisitNotes(visitId);
+    useVisitNotes(visitId, isDesktop);
 
   const { getPosition, moveLocal, commitPosition, bringToFront } =
-    useVisitNotePositions(visitId);
+    useVisitNotePositions(visitId, isDesktop);
 
   const [boardOpen, setBoardOpen] = useState(true);
   const [composing, setComposing] = useState(false);
   const [draft, setDraft] = useState('');
-
-  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     const checkScreen = () => setIsDesktop(window.innerWidth >= 768);

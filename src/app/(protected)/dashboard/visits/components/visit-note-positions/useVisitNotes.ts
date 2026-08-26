@@ -8,7 +8,7 @@ import { GetVisitNotesByVisitQuery } from '@/shared/graphql/generated/graphql';
 export type VisitNoteItem =
   GetVisitNotesByVisitQuery['visitNotesByVisit'][number];
 
-export function useVisitNotes(visitId: string) {
+export function useVisitNotes(visitId: string, enabled = true) {
   const [notes, setNotes] = useState<VisitNoteItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -30,8 +30,9 @@ export function useVisitNotes(visitId: string) {
   }, [visitId]);
 
   useEffect(() => {
+    if (!enabled) return;
     fetchNotes();
-  }, [fetchNotes]);
+  }, [enabled, fetchNotes]);
 
   const createNote = useCallback(
     async (note: string): Promise<boolean> => {

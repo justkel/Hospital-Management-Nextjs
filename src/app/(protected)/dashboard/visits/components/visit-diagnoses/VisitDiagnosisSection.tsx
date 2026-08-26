@@ -43,7 +43,7 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [form, setForm] = useState(initialForm);
 
-    const { catalogs } = useBilling(ChargeDomain.Diagnosis);
+    const { catalogs } = useBilling(ChargeDomain.Diagnosis, inView);
     useEffect(() => {
         if (!error) return;
 
@@ -196,6 +196,7 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
                 onUpdate={handleUpdate}
                 onCancel={resetForm}
                 visitId={visitId}
+                enabled={inView}
             />
 
             {error && (

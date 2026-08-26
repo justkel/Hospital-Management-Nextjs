@@ -21,38 +21,43 @@ interface ChargeCatalog {
   };
 }
 
-export function useBilling(domain: ChargeDomain) {
+const catalogRequests = new Map<ChargeDomain, Promise<ChargeCatalogOption[]>>();
+
+export function useBilling(domain: ChargeDomain, enabled = true) {
   const [catalogs, setCatalogs] = useState<ChargeCatalogOption[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchCatalogs = useCallback(async () => {
-    if (!domain) return;
+    if (!domain || !enabled) return;
 
     setLoading(true);
 
     try {
-      const res = await clientFetch(
-        `/api/charge-catalog/by-domain?domain=${domain}`
-      );
+      let request = catalogRequests.get(domain);
+      if (!request) {
+        request = clientFetch(`/api/charge-catalog/by-domain?domain=${domain}`)
+          .then(async res => {
+            if (!res.ok) throw new Error('Failed to fetch catalogs');
+            const json: { catalogs: ChargeCatalog[] } = await res.json();
+            const result = (json.catalogs ?? []).map(c => ({
+              id: c.chargeCatalog.id,
+              name: c.chargeCatalog.name,
+              unitPrice: Number(c.chargeCatalog.unitPrice),
+              currency: c.chargeCatalog.currency,
+            }));
+            return result;
+          })
+          .finally(() => catalogRequests.delete(domain));
+        catalogRequests.set(domain, request);
+      }
 
-      if (!res.ok) throw new Error('Failed to fetch catalogs');
-
-      const json: { catalogs: ChargeCatalog[] } = await res.json();
-
-      setCatalogs(
-        (json.catalogs ?? []).map(c => ({
-          id: c.chargeCatalog.id,
-          name: c.chargeCatalog.name,
-          unitPrice: Number(c.chargeCatalog.unitPrice),
-          currency: c.chargeCatalog.currency,
-        }))
-      );
+      setCatalogs(await request);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [domain]);
+  }, [domain, enabled]);
 
   useEffect(() => {
     fetchCatalogs();

@@ -18,7 +18,7 @@ interface RawPosition {
   zIndex: number;
 }
 
-export function useVisitNotePositions(visitId: string) {
+export function useVisitNotePositions(visitId: string, enabled = true) {
   const [positions, setPositions] = useState<PositionMap>({});
   const [loaded, setLoaded] = useState(false);
   const [topZ, setTopZ] = useState(1);
@@ -50,8 +50,9 @@ export function useVisitNotePositions(visitId: string) {
   }, [visitId]);
 
   useEffect(() => {
+    if (!enabled) return;
     fetchPositions();
-  }, [fetchPositions]);
+  }, [enabled, fetchPositions]);
 
   const moveLocal = useCallback((noteId: string, x: number, y: number) => {
     setPositions(prev => ({

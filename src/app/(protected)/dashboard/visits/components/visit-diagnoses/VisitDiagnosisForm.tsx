@@ -15,6 +15,7 @@ interface Props {
   onUpdate: () => void;
   onCancel: () => void;
   visitId: string;
+  enabled?: boolean;
 }
 
 type DiagnosisFormValues = {
@@ -35,6 +36,7 @@ export default function VisitDiagnosisForm({
   onUpdate,
   onCancel,
   visitId,
+  enabled = true,
 }: Props) {
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +47,7 @@ export default function VisitDiagnosisForm({
   } = useVisitChargeExists({
     visitId,
     chargeDomain: ChargeDomain.Diagnosis,
-    enabled: !!visitId && !isEditing,
+    enabled: enabled && !!visitId && !isEditing,
   });
 
   const noCatalogs = !catalogs || catalogs.length === 0;

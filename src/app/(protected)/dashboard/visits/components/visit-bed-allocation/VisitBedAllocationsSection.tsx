@@ -37,7 +37,7 @@ export default function VisitBedAllocationsSection({ visitId }: Props) {
   const [transferring, setTransferring] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
 
-  const { catalogs } = useBilling(ChargeDomain.Bed);
+  const { catalogs } = useBilling(ChargeDomain.Bed, inView);
 
   const fetchAllocations = useCallback(async () => {
     setLoading(true);
