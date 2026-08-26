@@ -25,6 +25,7 @@ import {
   Pill,
   Stethoscope,
   LucideIcon,
+  Minus,
 } from 'lucide-react';
 
 import heroAnimation from '@/animations/health1.json';
@@ -117,15 +118,17 @@ const ROLE_ICONS: Record<string, LucideIcon> = {
   GUEST: KeyRound,
 };
 
-const ROLE_ACCESS: Record<string, boolean[]> = {
-  ADMIN: [true, true, true, true, true, true],
-  DOCTOR: [true, true, true, false, true, false],
-  NURSE: [true, true, true, false, false, false],
-  PHARMACIST: [true, true, false, false, false, false],
-  RECEPTIONIST: [true, true, false, false, false, false],
+type AccessType = boolean | 'partial';
+
+const ROLE_ACCESS: Record<string, AccessType[]> = {
+  ADMIN: [true, 'partial', true, true, 'partial', true],
+  DOCTOR: [true, true, true, false, 'partial', false],
+  NURSE: [true, true, true, false, 'partial', false],
+  PHARMACIST: [false, 'partial', false, false, false, false],
+  RECEPTIONIST: ['partial', 'partial', false, false, false, false],
   LAB_TECH: [false, false, false, false, true, false],
   BILLING_OFFICER: [false, false, false, true, false, false],
-  GUEST: [true, true, true, true, true, false],
+  GUEST: [true, 'partial', true, true, 'partial', false],
 };
 
 const GUEST_STEPS = [
@@ -449,33 +452,34 @@ export default function Home() {
             <div
               className="-mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-1 [&::-webkit-scrollbar]:hidden lg:hidden"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >              {ROLES.map((r) => {
-              const Icon = ROLE_ICONS[r];
-              const isActive = r === activeRole;
-              const isGuest = r === 'GUEST';
-              return (
-                <button
-                  key={r}
-                  onClick={() => setActiveRole(r)}
-                  className={`group flex shrink-0 snap-start items-center gap-2 rounded-full border px-3.5 py-2.5 transition-all duration-200 active:scale-95 ${isActive
-                    ? isGuest
-                      ? '!border-[#D97706] !bg-[#D97706] shadow-sm shadow-[#D97706]/25'
-                      : '!border-[#1D9E75] !bg-[#1D9E75] shadow-sm shadow-[#1D9E75]/25'
-                    : '!border-[#E8E6E0] !bg-[#FAFAF8]'
-                    }`}
-                >
-                  <Icon
-                    size={15}
-                    strokeWidth={2.5}
-                    className={isActive ? '!text-white' : isGuest ? '!text-[#D97706]' : '!text-[#1D9E75]'}
-                  />
-                  <span className={`whitespace-nowrap text-[12.5px] font-bold tracking-tight ${isActive ? '!text-white' : '!text-[#14231A]'
-                    }`}>
-                    {r.replace('_', ' ')}
-                  </span>
-                </button>
-              );
-            })}
+            >
+              {ROLES.map((r) => {
+                const Icon = ROLE_ICONS[r];
+                const isActive = r === activeRole;
+                const isGuest = r === 'GUEST';
+                return (
+                  <button
+                    key={r}
+                    onClick={() => setActiveRole(r)}
+                    className={`group flex shrink-0 snap-start items-center gap-2 rounded-full border px-3.5 py-2.5 transition-all duration-200 active:scale-95 ${isActive
+                        ? isGuest
+                          ? '!border-[#D97706] !bg-[#D97706] shadow-sm shadow-[#D97706]/25'
+                          : '!border-[#1D9E75] !bg-[#1D9E75] shadow-sm shadow-[#1D9E75]/25'
+                        : '!border-[#E8E6E0] !bg-[#FAFAF8]'
+                      }`}
+                  >
+                    <Icon
+                      size={15}
+                      strokeWidth={2.5}
+                      className={isActive ? '!text-white' : isGuest ? '!text-[#D97706]' : '!text-[#1D9E75]'}
+                    />
+                    <span className={`whitespace-nowrap text-[12.5px] font-bold tracking-tight ${isActive ? '!text-white' : '!text-[#14231A]'
+                      }`}>
+                      {r.replace('_', ' ')}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
 
             <div className="hidden gap-2.5 lg:grid">
@@ -541,21 +545,40 @@ export default function Home() {
 
               <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {DOMAINS.map((d, i) => {
-                  const allowed = ROLE_ACCESS[activeRole][i];
+                  const access = ROLE_ACCESS[activeRole][i];
+                  const isFull = access === true;
+                  const isPartial = access === 'partial';
+
                   return (
                     <div
                       key={d}
-                      className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${allowed ? '!border-[#1D9E75]/20 !bg-[#F0FAF5]' : '!border-[#E8E6E0] !bg-white'
+                      className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${isFull
+                          ? '!border-[#1D9E75]/20 !bg-[#F0FAF5]'
+                          : isPartial
+                            ? '!border-[#D97706]/20 !bg-[#FFFBEB]'
+                            : '!border-[#E8E6E0] !bg-white'
                         }`}
                     >
-                      {allowed ? (
+                      {isFull ? (
                         <Check size={13} className="!text-[#1D9E75]" />
+                      ) : isPartial ? (
+                        <Minus size={13} className="!text-[#D97706]" />
                       ) : (
                         <X size={13} className="!text-[#B4B2A9]" />
                       )}
-                      <span className={`text-[11.5px] font-semibold ${allowed ? '!text-[#14231A]' : '!text-[#B4B2A9]'}`}>
+                      <span className={`text-[11.5px] font-semibold ${isFull
+                          ? '!text-[#14231A]'
+                          : isPartial
+                            ? '!text-[#D97706]'
+                            : '!text-[#B4B2A9]'
+                        }`}>
                         {d}
                       </span>
+                      {isPartial && (
+                        <span className="ml-0.5 text-[9px] font-bold uppercase tracking-[0.06em] !text-[#D97706]">
+                          partial
+                        </span>
+                      )}
                     </div>
                   );
                 })}
