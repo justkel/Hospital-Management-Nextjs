@@ -122,7 +122,7 @@ export default function TheatreAvailabilityBoard({
         <EmptyState onEditRequest={onEditRequest} />
       ) : (
         <div className="-mx-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0">
-          <div className="flex gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
+          <div className="flex gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {Array.from({ length: 7 }, (_, d) => (
               <div key={d} className="w-[240px] shrink-0 sm:w-auto">
                 <DayColumn

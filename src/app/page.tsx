@@ -15,7 +15,6 @@ import {
   KeyRound,
   Lock,
   Menu,
-  Receipt,
   ShieldCheck,
   Timer,
   UserRound,
@@ -27,6 +26,7 @@ import {
   LucideIcon,
   Minus,
 } from 'lucide-react';
+import { NairaIcon } from '@/components/icon/NairaIcon';
 
 import heroAnimation from '@/animations/health1.json';
 import careAnimation from '@/animations/doc-pat1.json';
@@ -71,7 +71,7 @@ const FEATURES = [
     big: false,
   },
   {
-    icon: Receipt,
+    icon: NairaIcon,
     tint: '!text-[#D97706] !bg-[#FFFBEB]',
     ring: '!border-[#D97706]/20',
     tag: 'Finance',
@@ -114,7 +114,7 @@ const ROLE_ICONS: Record<string, LucideIcon> = {
   PHARMACIST: Pill,
   RECEPTIONIST: UserRound,
   LAB_TECH: FlaskConical,
-  BILLING_OFFICER: Receipt,
+  BILLING_OFFICER: NairaIcon,
   GUEST: KeyRound,
 };
 

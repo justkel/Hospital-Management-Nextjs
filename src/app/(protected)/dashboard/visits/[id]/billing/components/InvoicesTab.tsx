@@ -10,7 +10,6 @@ import {
   Info,
   Loader2,
   Printer,
-  Receipt,
   RefreshCw,
   ShieldCheck,
 } from 'lucide-react';
@@ -18,6 +17,7 @@ import {
 import { clientFetch } from '@/lib/clientFetch';
 import StatusBadge from './StatusBadge';
 import type { InvoiceRow } from '../billing-client';
+import { NairaIcon } from '@/components/icon/NairaIcon';
 
 function formatCurrency(amount: number | string | null | undefined) {
   const n = Number(amount ?? 0);
@@ -190,8 +190,8 @@ export default function InvoicesTab({
 
   if (isReconciled) {
     return (
-      <div className="space-y-6 py-5">
-        <div className="flex flex-col items-center justify-center rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-6 py-16 text-center">
+      <div className="space-y-6 py-5 sm:space-y-7">
+        <div className="flex flex-col items-center justify-center rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-5 py-12 text-center sm:px-6 sm:py-16">
           <ShieldCheck size={32} className="!text-emerald-600" />
           <h3 className="mt-4 text-base font-bold !text-emerald-800">
             Visit is reconciled
@@ -201,10 +201,9 @@ export default function InvoicesTab({
           </p>
         </div>
 
-        {/* Still show existing invoices for reference */}
-        {latestInvoice && (
+=        {latestInvoice && (
           <div className="overflow-hidden rounded-2xl border !border-slate-200">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b !border-slate-100 !bg-slate-50 px-5 py-4">
+            <div className="flex flex-col gap-3 border-b !border-slate-100 !bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                   Invoice number
@@ -214,7 +213,7 @@ export default function InvoicesTab({
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={latestInvoice.status} />
                 <Link
                   href={printHref(latestInvoice.id)}
@@ -228,7 +227,7 @@ export default function InvoicesTab({
             </div>
 
             <div className="grid grid-cols-1 divide-y !divide-slate-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-              <div className="px-5 py-4">
+              <div className="px-4 py-4 sm:px-5">
                 <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                   Subtotal
                 </p>
@@ -236,7 +235,7 @@ export default function InvoicesTab({
                   {formatCurrency(latestInvoice.subtotal)}
                 </p>
               </div>
-              <div className="px-5 py-4">
+              <div className="px-4 py-4 sm:px-5">
                 <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                   Discounts applied
                 </p>
@@ -244,7 +243,7 @@ export default function InvoicesTab({
                   −{formatCurrency(latestInvoice.discountTotal)}
                 </p>
               </div>
-              <div className="px-5 py-4">
+              <div className="px-4 py-4 sm:px-5">
                 <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                   Total payable
                 </p>
@@ -254,8 +253,8 @@ export default function InvoicesTab({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 divide-x !divide-slate-100 border-t !border-slate-100">
-              <div className="px-5 py-4">
+            <div className="grid grid-cols-1 divide-y !divide-slate-100 border-t !border-slate-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+              <div className="px-4 py-4 sm:px-5">
                 <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                   Total paid
                 </p>
@@ -263,7 +262,7 @@ export default function InvoicesTab({
                   {formatCurrency(latestInvoice.totalPaid)}
                 </p>
               </div>
-              <div className="px-5 py-4">
+              <div className="px-4 py-4 sm:px-5">
                 <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                   Outstanding
                 </p>
@@ -297,7 +296,7 @@ export default function InvoicesTab({
                 {invoices.map((inv) => (
                   <div
                     key={inv.id}
-                    className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
+                    className="grid grid-cols-2 items-center gap-3 px-4 py-3 sm:flex sm:flex-wrap sm:justify-between"
                   >
                     <span className="font-mono text-sm font-medium !text-slate-700">
                       {inv.invoiceNumber}
@@ -314,7 +313,7 @@ export default function InvoicesTab({
                     <Link
                       href={printHref(inv.id)}
                       target="_blank"
-                      className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 !bg-white px-2.5 py-1 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700"
+                      className="col-span-2 inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border !border-slate-200 !bg-white px-2.5 py-1 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700 sm:col-span-1"
                     >
                       <Printer size={12} />
                       Print
@@ -330,9 +329,9 @@ export default function InvoicesTab({
   }
 
   return (
-    <div className="space-y-6 py-5">
+    <div className="space-y-6 py-5 sm:space-y-7">
       <div className="overflow-hidden rounded-2xl border !border-blue-200 !bg-blue-50/40">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b !border-blue-200 px-5 py-4">
+        <div className="flex flex-col gap-3 border-b !border-blue-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div>
             <p className="text-xs font-bold uppercase tracking-wide !text-blue-700">
               Current totals (live)
@@ -355,7 +354,7 @@ export default function InvoicesTab({
         {currentTotals ? (
           <>
             <div className="grid grid-cols-1 divide-y !divide-blue-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-              <div className="px-5 py-4">
+              <div className="px-4 py-4 sm:px-5">
                 <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
                   Subtotal
                 </p>
@@ -363,7 +362,7 @@ export default function InvoicesTab({
                   {formatCurrency(currentTotals.subtotal)}
                 </p>
               </div>
-              <div className="px-5 py-4">
+              <div className="px-4 py-4 sm:px-5">
                 <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
                   Discounts
                 </p>
@@ -371,7 +370,7 @@ export default function InvoicesTab({
                   −{formatCurrency(currentTotals.discountTotal)}
                 </p>
               </div>
-              <div className="px-5 py-4">
+              <div className="px-4 py-4 sm:px-5">
                 <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
                   Total payable
                 </p>
@@ -381,8 +380,8 @@ export default function InvoicesTab({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 divide-x !divide-blue-100 border-t !border-blue-100">
-              <div className="px-5 py-4">
+            <div className="grid grid-cols-1 divide-y !divide-blue-100 border-t !border-blue-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+              <div className="px-4 py-4 sm:px-5">
                 <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
                   Total paid
                 </p>
@@ -390,7 +389,7 @@ export default function InvoicesTab({
                   {formatCurrency(currentTotals.totalPaid)}
                 </p>
               </div>
-              <div className="px-5 py-4">
+              <div className="px-4 py-4 sm:px-5">
                 <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
                   Outstanding
                 </p>
@@ -449,17 +448,17 @@ export default function InvoicesTab({
         </div>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-2xl border !border-slate-100 !bg-white/70 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <h3 className="text-sm font-bold !text-slate-800">
           Latest invoice
         </h3>
 
-        <div className="flex gap-2">
+        <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto">
           <button
             type="button"
             onClick={generate}
             disabled={generating || isReconciled}
-            className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium shadow-sm transition disabled:opacity-60 ${
+            className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium shadow-sm transition disabled:opacity-60 sm:w-auto ${
               isReconciled
                 ? 'border !border-slate-200 !bg-slate-100 !text-slate-400 cursor-not-allowed'
                 : 'border !border-slate-200 !bg-white !text-slate-700 hover:!bg-slate-50'
@@ -478,7 +477,7 @@ export default function InvoicesTab({
               type="button"
               onClick={issue}
               disabled={issuing || isReconciled}
-              className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition disabled:opacity-60 ${
+              className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition disabled:opacity-60 sm:w-auto ${
                 isReconciled
                   ? '!bg-slate-300 cursor-not-allowed'
                   : '!bg-blue-600 hover:!bg-blue-700'
@@ -497,7 +496,7 @@ export default function InvoicesTab({
 
       {!latestInvoice ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border !border-slate-100 !bg-slate-50/60 px-6 py-16 text-center">
-          <Receipt size={32} className="!text-slate-300" />
+          <NairaIcon size={32} className="!text-slate-300" />
           <h3 className="mt-4 text-base font-bold !text-slate-700">
             No invoice generated yet
           </h3>
@@ -508,7 +507,7 @@ export default function InvoicesTab({
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border !border-slate-200">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b !border-slate-100 !bg-slate-50 px-5 py-4">
+          <div className="flex flex-col gap-3 border-b !border-slate-100 !bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                 Invoice number
@@ -565,8 +564,8 @@ export default function InvoicesTab({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 divide-x !divide-slate-100 border-t !border-slate-100">
-            <div className="px-5 py-4">
+           <div className="grid grid-cols-1 divide-y !divide-slate-100 border-t !border-slate-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+            <div className="px-4 py-4 sm:px-5">
               <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                 Total paid
               </p>
@@ -574,7 +573,7 @@ export default function InvoicesTab({
                 {formatCurrency(latestInvoice.totalPaid)}
               </p>
             </div>
-            <div className="px-5 py-4">
+            <div className="px-4 py-4 sm:px-5">
               <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                 Outstanding
               </p>
@@ -608,7 +607,7 @@ export default function InvoicesTab({
               {invoices.map((inv) => (
                 <div
                   key={inv.id}
-                  className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
+                  className="grid grid-cols-2 items-center gap-3 px-4 py-3 sm:flex sm:flex-wrap sm:justify-between"
                 >
                   <span className="font-mono text-sm font-medium !text-slate-700">
                     {inv.invoiceNumber}
@@ -625,7 +624,7 @@ export default function InvoicesTab({
                   <Link
                     href={printHref(inv.id)}
                     target="_blank"
-                    className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 !bg-white px-2.5 py-1 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700"
+                    className="col-span-2 inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border !border-slate-200 !bg-white px-2.5 py-1 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700 sm:col-span-1"
                   >
                     <Printer size={12} />
                     Print

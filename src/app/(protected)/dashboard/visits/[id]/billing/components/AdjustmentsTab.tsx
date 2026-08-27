@@ -476,8 +476,8 @@ export default function AdjustmentsTab({
   }
 
   return (
-    <div className="space-y-5 py-5">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 py-5 sm:space-y-7">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-sm font-bold !text-slate-800">
           {adjustments.length} adjustment{adjustments.length === 1 ? '' : 's'}
         </h3>
@@ -486,7 +486,7 @@ export default function AdjustmentsTab({
           type="button"
           onClick={openRequestForm}
           disabled={isReconciled}
-          className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition ${
+          className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium !text-white shadow-sm transition sm:w-auto ${
             isReconciled
               ? '!bg-slate-300 cursor-not-allowed'
               : '!bg-blue-600 hover:!bg-blue-700'
@@ -509,7 +509,7 @@ export default function AdjustmentsTab({
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border !border-slate-200">
+        <div className="overflow-hidden rounded-2xl border !border-slate-200 !bg-slate-50/40">
           <div className="divide-y !divide-slate-100">
             {adjustments.map((a) => {
               const alreadyReversed = adjustments.some(
@@ -527,8 +527,8 @@ export default function AdjustmentsTab({
                   : [];
 
               return (
-                <div key={a.id} className="px-4 py-4">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div key={a.id} className="px-4 py-4 sm:px-5 sm:py-5">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-semibold !text-slate-800">
@@ -570,7 +570,7 @@ export default function AdjustmentsTab({
                       )}
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 sm:max-w-[min(100%,24rem)] sm:justify-end">
                       {a.status === 'REQUESTED' && (
                         <>
                           <HasRoles roles={[Roles.ADMIN, Roles.DOCTOR, Roles.GUEST]}>
@@ -578,7 +578,7 @@ export default function AdjustmentsTab({
                               type="button"
                               disabled={actionLoadingId === a.id || isReconciled}
                               onClick={() => runAction(a.id, 'approve')}
-                              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold transition ${
+                              className={`inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold transition sm:flex-none ${
                                 isReconciled
                                   ? '!border-slate-200 !bg-slate-100 !text-slate-400 cursor-not-allowed'
                                   : '!border-emerald-300 !bg-emerald-50 !text-emerald-700 hover:!bg-emerald-100'
@@ -595,7 +595,7 @@ export default function AdjustmentsTab({
                               type="button"
                               disabled={actionLoadingId === a.id || isReconciled}
                               onClick={() => setRejectTarget(a.id)}
-                              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold transition ${
+                              className={`inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold transition sm:flex-none ${
                                 isReconciled
                                   ? '!border-slate-200 !bg-slate-100 !text-slate-400 cursor-not-allowed'
                                   : '!border-red-300 !bg-red-50 !text-red-700 hover:!bg-red-100'
@@ -614,7 +614,7 @@ export default function AdjustmentsTab({
                           type="button"
                           disabled={actionLoadingId === a.id || isReconciled}
                           onClick={() => handleApplyClick(a)}
-                          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold !text-white transition ${
+                          className={`inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold !text-white transition sm:w-auto ${
                             isReconciled
                               ? '!bg-slate-300 cursor-not-allowed'
                               : '!bg-blue-600 hover:!bg-blue-700'

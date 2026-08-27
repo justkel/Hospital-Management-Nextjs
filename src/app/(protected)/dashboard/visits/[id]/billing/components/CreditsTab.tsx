@@ -7,12 +7,12 @@ import {
   AlertTriangle,
   Banknote,
   CheckCircle2,
-  CircleDollarSign,
   Loader2,
   ShieldCheck,
   Wallet,
   XCircle,
 } from 'lucide-react';
+import { NairaIcon } from '@/components/icon/NairaIcon';
 
 import { clientFetch } from '@/lib/clientFetch';
 import StatusBadge from './StatusBadge';
@@ -397,7 +397,7 @@ export default function CreditsTab({
                 : '!bg-slate-100 !text-slate-500'
                 }`}
             >
-              <CircleDollarSign size={18} />
+              <NairaIcon size={18} />
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
@@ -437,7 +437,7 @@ export default function CreditsTab({
 
       {credits.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border !border-slate-100 !bg-slate-50/60 px-6 py-16 text-center">
-          <CircleDollarSign size={32} className="!text-slate-300" />
+          <NairaIcon size={32} className="!text-slate-300" />
           <h3 className="mt-4 text-base font-bold !text-slate-700">
             No refunds recorded yet
           </h3>

@@ -467,7 +467,7 @@ export default function ChargeSummaryTab({
                       {renderBalanceNote(c.id)}
                       {renderChargeMeta(c)}
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                       <StatusBadge status={c.status} />
                       {renderPaymentStateBadge(c.id, c.status)}
                       <span className="font-semibold !text-slate-900">
@@ -510,7 +510,7 @@ export default function ChargeSummaryTab({
                         {renderBalanceNote(c.id)}
                         {renderChargeMeta(c)}
                       </div>
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                         <StatusBadge status={c.status} />
                         {renderPaymentStateBadge(c.id, c.status)}
                         <span className="font-semibold !text-slate-900">
@@ -529,7 +529,7 @@ export default function ChargeSummaryTab({
           )}
         </div>
 
-        <div className="flex items-center justify-between rounded-xl border !border-slate-200 !bg-slate-50 px-5 py-4">
+        <div className="flex flex-col gap-3 rounded-xl border !border-slate-200 !bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <span className="text-sm font-semibold !text-slate-600">
             Running total
           </span>
@@ -543,12 +543,12 @@ export default function ChargeSummaryTab({
 
   return (
     <div className="space-y-8 py-5">
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-stretch sm:justify-end">
         <button
           type="button"
           onClick={refreshAll}
           disabled={refreshing}
-          className="inline-flex items-center gap-2 rounded-2xl border !border-slate-200 !bg-white px-4 py-2.5 text-sm font-medium !text-slate-600 shadow-sm transition-all hover:!bg-slate-50 disabled:opacity-60"
+          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border !border-slate-200 !bg-white px-4 py-2.5 text-sm font-medium !text-slate-600 shadow-sm transition-all hover:!bg-slate-50 disabled:opacity-60 sm:w-auto"
         >
           {refreshing && <Loader2 size={14} className="animate-spin" />}
           Refresh
@@ -576,7 +576,7 @@ export default function ChargeSummaryTab({
 
       {unbilled.length > 0 && (
         <div className="rounded-2xl border !border-amber-200 !bg-amber-50/50">
-          <div className="flex items-center gap-2 border-b !border-amber-200 px-5 py-4">
+          <div className="flex items-start gap-2 border-b !border-amber-200 px-4 py-4 sm:items-center sm:px-5">
             <Pill size={16} className="!text-amber-600" />
             <h3 className="text-sm font-bold !text-amber-900">
               {unbilled.length} in-house prescription
@@ -588,7 +588,7 @@ export default function ChargeSummaryTab({
             {unbilled.map((p) => (
               <div
                 key={p.id}
-                className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
               >
                 <div className="min-w-0">
                   <p className="font-semibold !text-slate-800">{p.drug}</p>
@@ -601,7 +601,7 @@ export default function ChargeSummaryTab({
                 </div>
 
                 {pricingPrescriptionId === p.id ? (
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                     <input
                       type="number"
                       autoFocus
@@ -667,7 +667,7 @@ export default function ChargeSummaryTab({
               {summary.lockedCharges.map((c) => (
                 <div
                   key={c.id}
-                  className="flex flex-col gap-2 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-2 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0">
                     <p className="font-medium !text-slate-800">{c.chargeName}</p>
@@ -678,7 +678,7 @@ export default function ChargeSummaryTab({
                     {renderBalanceNote(c.id)}
                     {renderChargeMeta(c)}
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                     <StatusBadge status={c.status} />
                     {renderPaymentStateBadge(c.id, c.status)}
                     <span className="font-semibold !text-slate-900">
@@ -723,7 +723,7 @@ export default function ChargeSummaryTab({
                           className="w-32 rounded-lg border !border-slate-300 px-3 py-2 text-sm focus:!border-blue-400 focus:outline-none"
                         />
                         <Select
-                          className="min-w-[220px] flex-1"
+                          className="min-w-0 w-full flex-1 sm:min-w-[220px]"
                           placeholder="Reason for price change"
                           value={editReason || undefined}
                           onChange={(v) => setEditReason(v)}
@@ -807,7 +807,7 @@ export default function ChargeSummaryTab({
         )}
       </div>
 
-      <div className="flex items-center justify-between rounded-xl border !border-slate-200 !bg-slate-50 px-5 py-4">
+      <div className="flex flex-col gap-2 rounded-xl border !border-slate-200 !bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <span className="text-sm font-semibold !text-slate-600">
           Running total
         </span>
