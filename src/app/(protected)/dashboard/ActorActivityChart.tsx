@@ -49,25 +49,46 @@ const PERIOD_OPTIONS: { value: ActorActivityPeriod; label: string }[] = [
 const MOBILE_BREAKPOINT = 480;
 const TABLET_BREAKPOINT = 768;
 
-function formatBucketLabel(timestamp: string, period: ActorActivityPeriod, isMobile: boolean, isTablet: boolean): string {
+function formatBucketLabel(
+  timestamp: string, 
+  period: ActorActivityPeriod, 
+  isMobile: boolean, 
+  isTablet: boolean, 
+  index: number, 
+  totalBuckets: number
+): string {
   const date = new Date(timestamp);
 
   if (period === 'LAST_24_HOURS') {
+    let spacing = 1;
+    
     if (isMobile) {
-      const hour = date.getHours();
-      if (hour % 4 === 0) {
-        return date.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
-      }
+      spacing = Math.max(2, Math.ceil(totalBuckets / 6));
+    } else if (isTablet) {
+      spacing = Math.max(2, Math.ceil(totalBuckets / 8));
+    } else {
+      spacing = Math.max(2, Math.ceil(totalBuckets / 12));
+    }
+
+    if (index % spacing !== 0 && index !== 0 && index !== totalBuckets - 1) {
       return '';
     }
-    if (isTablet) {
-      const hour = date.getHours();
-      if (hour % 3 === 0) {
-        return date.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
-      }
-      return '';
-    }
+
     return date.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
+  }
+
+  // For 7 days period
+  let spacing = 1;
+  if (isMobile) {
+    spacing = Math.max(1, Math.ceil(totalBuckets / 5)); // Show ~5 labels on mobile
+  } else if (isTablet) {
+    spacing = Math.max(1, Math.ceil(totalBuckets / 7)); // Show ~7 labels on tablet
+  } else {
+    spacing = Math.max(1, Math.ceil(totalBuckets / 7)); // Show all 7 days on desktop
+  }
+
+  if (index % spacing !== 0 && index !== 0 && index !== totalBuckets - 1) {
+    return '';
   }
 
   if (isMobile) {
@@ -98,8 +119,10 @@ function useBreakpoints() {
     const tabletQuery = window.matchMedia(`(max-width: ${TABLET_BREAKPOINT}px)`);
 
     const update = () => {
-      setIsMobile(mobileQuery.matches);
-      setIsTablet(tabletQuery.matches && !mobileQuery.matches);
+      const mobile = mobileQuery.matches;
+      const tablet = tabletQuery.matches && !mobile;
+      setIsMobile(mobile);
+      setIsTablet(tablet);
     };
 
     update();
@@ -185,8 +208,15 @@ export default function ActorActivityChart() {
   const chartData: ChartBucket[] = useMemo(() => {
     if (!stats) return [];
 
-    return stats.buckets.map((bucket) => ({
-      label: formatBucketLabel(bucket.timestamp, period, isMobile, isTablet),
+    return stats.buckets.map((bucket, index) => ({
+      label: formatBucketLabel(
+        bucket.timestamp, 
+        period, 
+        isMobile, 
+        isTablet, 
+        index, 
+        stats.buckets.length
+      ),
       count: bucket.count,
     }));
   }, [stats, period, isMobile, isTablet]);
@@ -194,7 +224,7 @@ export default function ActorActivityChart() {
   const chartSettings = useMemo(() => {
     if (isMobile) {
       return {
-        xAxisInterval: 2,
+        xAxisInterval: 0,
         barSize: 16,
         margin: { top: 8, right: 4, left: -8, bottom: 0 },
         tickFontSize: 9,
@@ -204,7 +234,7 @@ export default function ActorActivityChart() {
     }
     if (isTablet) {
       return {
-        xAxisInterval: 1,
+        xAxisInterval: 0,
         barSize: 24,
         margin: { top: 8, right: 4, left: -12, bottom: 0 },
         tickFontSize: 10,
