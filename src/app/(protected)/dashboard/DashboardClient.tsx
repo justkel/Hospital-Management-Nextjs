@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Lottie from 'lottie-react';
 import {
   ShieldCheck,
@@ -51,9 +51,11 @@ export default function DashboardClient({
   selectedPeriod,
 }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [animationReady, setAnimationReady] = useState(false);
   const [forceReveal, setForceReveal] = useState(false);
+  const [currentPeriod, setCurrentPeriod] = useState<DashboardPeriod>(selectedPeriod);
 
   const allReady = animationReady || forceReveal;
 
@@ -65,6 +67,21 @@ export default function DashboardClient({
     const timeout = setTimeout(() => setForceReveal(true), 3000);
     return () => clearTimeout(timeout);
   }, []);
+
+  useEffect(() => {
+    const periodParam = searchParams.get('period') as DashboardPeriod | null;
+    if (periodParam && Object.values(DashboardPeriod).includes(periodParam)) {
+      setCurrentPeriod(periodParam);
+    }
+  }, [searchParams]);
+
+  const handlePeriodChange = (period: DashboardPeriod) => {
+    setCurrentPeriod(period);
+    // Update URL with new period
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('period', period);
+    router.push(`/dashboard?${params.toString()}`);
+  };
 
   const hour = new Date().getHours();
 
@@ -281,7 +298,7 @@ export default function DashboardClient({
     { value: DashboardPeriod.Last_7Days, label: 'Last 7 days' },
   ];
   const periodLabel =
-    periods.find((periodOption) => periodOption.value === selectedPeriod)?.label ??
+    periods.find((periodOption) => periodOption.value === currentPeriod)?.label ??
     'Selected period';
 
   const laboratory = overview.laboratory;
@@ -435,10 +452,8 @@ export default function DashboardClient({
                     </span>
                   </div>
                   <select
-                    value={selectedPeriod}
-                    onChange={(event) =>
-                      router.push(`/dashboard?period=${event.target.value}`)
-                    }
+                    value={currentPeriod}
+                    onChange={(event) => handlePeriodChange(event.target.value as DashboardPeriod)}
                     className="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-[13px] font-medium !text-white outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 hover:bg-white/20"
                     aria-label="Dashboard period"
                   >
