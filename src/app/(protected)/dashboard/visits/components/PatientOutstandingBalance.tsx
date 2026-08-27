@@ -3,8 +3,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import {
-  CircleDollarSign,
-  Receipt,
   ArrowUpRight,
   CheckCircle2,
   Clock,
@@ -15,6 +13,7 @@ import {
   CalendarDays,
   RefreshCw,
 } from 'lucide-react';
+import { NairaIcon } from '@/components/icon/NairaIcon';
 import { clientFetch } from '@/lib/clientFetch';
 
 interface VisitOutstanding {
@@ -244,7 +243,7 @@ export default function PatientOutstandingBalance({
     <div className={`space-y-4 ${className}`}>
       <CollapsibleSection
         title="Patient Outstanding Balance"
-        icon={<CircleDollarSign size={15} />}
+        icon={<NairaIcon size={15} />}
         defaultOpen={true}
         onRefresh={handleRefresh}
         isRefreshing={refreshing}
@@ -267,7 +266,7 @@ export default function PatientOutstandingBalance({
               </div>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Receipt className="h-4 w-4" />
+              <NairaIcon className="h-4 w-4" />
               <span>
                 {totalVisits} visit{totalVisits !== 1 ? 's' : ''}
               </span>
@@ -277,7 +276,7 @@ export default function PatientOutstandingBalance({
           <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <div className="flex items-center gap-2">
               <div className="rounded-lg bg-amber-100 p-1.5 text-amber-600">
-                <CircleDollarSign className="h-4 w-4" />
+                <NairaIcon className="h-4 w-4" />
               </div>
               <p className="text-xs font-medium text-gray-500">
                 Total Outstanding

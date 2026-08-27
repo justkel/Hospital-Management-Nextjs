@@ -7,9 +7,9 @@ import {
   AlertTriangle,
   XCircle,
   Loader2,
-  CircleDollarSign,
   RefreshCcw,
 } from 'lucide-react';
+import { NairaIcon } from '@/components/icon/NairaIcon';
 
 import {
   CanReconcileVisitQuery,
@@ -196,7 +196,7 @@ export default function ReconcileVisitModal({
               <div className="rounded-xl !bg-slate-50 p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs font-semibold !text-slate-500">
-                    <CircleDollarSign size={14} />
+                    <NairaIcon size={14} />
                     Outstanding balance
                   </div>
                   <span

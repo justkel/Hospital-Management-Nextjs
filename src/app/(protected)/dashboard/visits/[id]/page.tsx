@@ -21,11 +21,12 @@ import VisitBedAllocationSection from '../components/visit-bed-allocation/VisitB
 import VisitTasksSection from '../components/visit-tasks/VisitTasksSection';
 import VisitNoteBoard from '../components/visit-note-positions/VisitNoteBoard';
 import Link from 'next/link';
-import { ClipboardList, FlaskConical, Receipt } from 'lucide-react';
+import { ClipboardList, FlaskConical } from 'lucide-react';
 import VisitOtherChargeSection from '../components/VisitOtherChargeSection';
 import CloseVisitButton from '../components/CloseVisitButton';
 import { HasRoles } from '@/components/auth/HasRoles';
 import { Roles } from '@/shared/utils/enums/roles';
+import { NairaIcon } from '@/components/icon/NairaIcon';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -106,7 +107,7 @@ export default async function VisitDetailPage({ params }: Props) {
                 className="inline-flex h-[38px] w-full sm:w-auto items-center justify-center sm:justify-start gap-2.5 rounded-[9px] border !border-[#E8E6E0] !bg-white px-4 text-[13px] font-medium !text-[#5F5E5A] transition hover:!border-[#1D9E75]/30 hover:!bg-[#F0FAF5] hover:!text-[#1D9E75]"
               >
                 <div className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-[6px] !bg-[#F0FAF5] !text-[#1D9E75]">
-                  <Receipt size={13} />
+                  <NairaIcon size={13} />
                 </div>
                 <span>View billing</span>
               </Link>
