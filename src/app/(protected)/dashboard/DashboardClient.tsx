@@ -161,7 +161,6 @@ export default function DashboardClient({
         className={`group relative min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white p-3 transition-all duration-200 hover:border-gray-300 hover:shadow-md sm:p-4 lg:p-5 ${colorMap[color]}`}
       >
         <div className="flex min-w-0 flex-col">
-          {/* Icon — always above */}
           <div
             className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg sm:h-9 sm:w-9 lg:h-10 lg:w-10 ${iconBgMap[color]}`}
           >
@@ -170,9 +169,7 @@ export default function DashboardClient({
             </div>
           </div>
 
-          {/* Content */}
           <div className="mt-2 min-w-0 sm:mt-3">
-            {/* Label + Trend */}
             <div className="flex min-w-0 flex-col gap-0.5 min-[380px]:flex-row min-[380px]:items-start min-[380px]:justify-between min-[380px]:gap-2">
               <p
                 className="min-w-0 text-[11px] font-medium leading-snug text-gray-600 sm:text-sm"
@@ -204,7 +201,6 @@ export default function DashboardClient({
               )}
             </div>
 
-            {/* Main value */}
             <p
               className="
               mt-1
@@ -226,7 +222,6 @@ export default function DashboardClient({
               {formattedValue}
             </p>
 
-            {/* Subtitle */}
             {subtitle && (
               <p
                 className="
@@ -463,7 +458,6 @@ export default function DashboardClient({
           </div>
         </div>
 
-        {/* Metrics Grid */}
         {hasMetricData && (
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {overview.patients.activePatients > 0 && (
@@ -558,7 +552,6 @@ export default function DashboardClient({
           </div>
         )}
 
-        {/* Main Content Grid */}
         <div className="grid gap-6 lg:grid-cols-2">
           {hasVisitStatusData && (
             <Section
@@ -654,7 +647,6 @@ export default function DashboardClient({
           </Section>
         </div>
 
-        {/* Secondary Metrics */}
         {(hasLaboratoryData || hasTheatreData || hasFinancialData) && (
           <div className="grid gap-6 lg:grid-cols-3">
             {hasLaboratoryData && laboratory && (
@@ -769,7 +761,6 @@ export default function DashboardClient({
           </div>
         )}
 
-        {/* Activity Chart */}
         <div className="rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -779,7 +770,6 @@ export default function DashboardClient({
           <ActorActivityChart />
         </div>
 
-        {/* Profile Section */}
         <div className="group overflow-hidden rounded-2xl border border-gray-100 bg-white transition-all hover:shadow-xl">
           <div className="relative bg-gray-50 p-6">
             <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">

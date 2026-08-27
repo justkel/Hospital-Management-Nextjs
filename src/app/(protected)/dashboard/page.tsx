@@ -53,6 +53,7 @@ export default async function DashboardPage({
     <SessionGuard mode="none">
       <DashboardClient
         email={whoAmI.email ?? 'Unknown'}
+        fullName={whoAmI.fullName ?? ''}
         roles={Array.isArray(whoAmI.roles) ? whoAmI.roles : []}
         phoneNumber={whoAmI.phoneNumber}
         status={whoAmI.status}
