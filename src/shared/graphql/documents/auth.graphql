@@ -19,6 +19,7 @@ mutation RefreshToken {
 query WhoAmI {
   whoAmI {
     email
+    fullName
     roles
     userCode
     status
