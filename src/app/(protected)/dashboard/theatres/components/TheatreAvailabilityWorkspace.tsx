@@ -118,7 +118,6 @@ export default function TheatreAvailabilityWorkspace({
               </p>
             </div>
 
-            {/* Ledger stats — same pattern as every other header in the app */}
             <div className="grid grid-cols-3 divide-x !divide-[#E8E6E0] overflow-hidden rounded-xl border !border-[#E8E6E0]">
               <div className="min-w-[76px] p-3.5">
                 <p className="text-[9px] font-semibold uppercase tracking-[0.1em] !text-[#B4B2A9]">
@@ -150,8 +149,8 @@ export default function TheatreAvailabilityWorkspace({
           <div
             className="mt-6 flex w-full items-center gap-1 overflow-x-auto rounded-xl border !border-[#E8E6E0] !bg-[#F7F7F5] p-1 sm:w-fit hide-scrollbar"
             style={{
-              scrollbarWidth: 'none', /* Firefox */
-              msOverflowStyle: 'none', /* IE and Edge */
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
             }}
           >            <TabButton
               active={view === 'board'}
