@@ -8,19 +8,19 @@ import {
   ShieldCheck,
   User,
   Clock,
-  Activity,
   TrendingUp,
   TrendingDown,
   Users,
   Stethoscope,
   Syringe,
   Bed,
-  Scissors,
+  ClipboardCheck,
   AlertTriangle,
   CheckCircle,
   Calendar,
   ChevronRight,
   CreditCard,
+  Minus,
 } from 'lucide-react';
 import ActorActivityChart from './ActorActivityChart';
 import { DashboardPeriod } from '@/shared/graphql/generated/graphql';
@@ -30,6 +30,7 @@ import pillAnimation from '@/animations/pill.json';
 
 interface Props {
   email: string | null;
+  fullName?: string | null;
   roles: string[];
   phoneNumber?: string | null;
   status?: string | null;
@@ -41,6 +42,7 @@ interface Props {
 
 export default function DashboardClient({
   email,
+  fullName,
   roles,
   status,
   lastLoginAt,
@@ -105,12 +107,10 @@ export default function DashboardClient({
     });
   };
 
-  const money = (value: number, currency = 'NGN') =>
-    new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency,
+  const money = (value: number) =>
+    `₦${new Intl.NumberFormat('en-NG', {
       maximumFractionDigits: 0,
-    }).format(value);
+    }).format(value)}`;
 
   const MetricCard = ({
     label,
@@ -130,67 +130,120 @@ export default function DashboardClient({
     subtitle?: string;
   }) => {
     const colorMap = {
-      blue: 'bg-blue-50 text-blue-600 border-blue-100',
-      green: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-      purple: 'bg-purple-50 text-purple-600 border-purple-100',
-      orange: 'bg-orange-50 text-orange-600 border-orange-100',
-      red: 'bg-rose-50 text-rose-600 border-rose-100',
-      teal: 'bg-cyan-50 text-cyan-600 border-cyan-100',
+      blue: 'hover:border-blue-200',
+      green: 'hover:border-emerald-200',
+      purple: 'hover:border-purple-200',
+      orange: 'hover:border-orange-200',
+      red: 'hover:border-rose-200',
+      teal: 'hover:border-cyan-200',
     };
 
-    const iconColorMap = {
-      blue: 'text-blue-600',
-      green: 'text-emerald-600',
-      purple: 'text-purple-600',
-      orange: 'text-orange-600',
-      red: 'text-rose-600',
-      teal: 'text-cyan-600',
+    const iconBgMap = {
+      blue: 'bg-blue-50 text-blue-600',
+      green: 'bg-emerald-50 text-emerald-600',
+      purple: 'bg-purple-50 text-purple-600',
+      orange: 'bg-orange-50 text-orange-600',
+      red: 'bg-rose-50 text-rose-600',
+      teal: 'bg-cyan-50 text-cyan-600',
     };
+
+    const trendColorMap = {
+      up: 'text-emerald-600',
+      down: 'text-rose-600',
+      neutral: 'text-gray-500',
+    };
+
+    const formattedValue =
+      typeof value === 'number' ? value.toLocaleString() : value;
 
     return (
       <div
-        className={`group relative overflow-hidden rounded-2xl border ${colorMap[color]} bg-white p-6 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:border-transparent`}
-        style={{
-          background: `linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.9) 100%)`,
-        }}
+        className={`group relative min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white p-3 transition-all duration-200 hover:border-gray-300 hover:shadow-md sm:p-4 lg:p-5 ${colorMap[color]}`}
       >
-        <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-current opacity-[0.03] blur-2xl" />
-        <div className="relative flex items-start justify-between">
-          <div className="flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">
-              {label}
-            </p>
-            <p className="mt-2 text-[28px] font-bold tracking-tight text-gray-900">
-              {value}
-            </p>
-            {subtitle && (
-              <p className="mt-1 text-[12px] text-gray-500">{subtitle}</p>
-            )}
-            {trend && trendValue && (
-              <div className="mt-2 flex items-center gap-1.5">
-                {trend === 'up' ? (
-                  <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
-                ) : trend === 'down' ? (
-                  <TrendingDown className="h-3.5 w-3.5 text-rose-500" />
-                ) : null}
-                <span
-                  className={`text-[12px] font-medium ${
-                    trend === 'up'
-                      ? 'text-emerald-600'
-                      : trend === 'down'
-                        ? 'text-rose-600'
-                        : 'text-gray-500'
-                  }`}
-                >
-                  {trendValue}
-                </span>
-              </div>
-            )}
-          </div>
+        <div className="flex min-w-0 flex-col">
+          {/* Icon — always above */}
           <div
-            className={`flex h-12 w-12 items-center justify-center rounded-xl ${colorMap[color]} border`}
+            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg sm:h-9 sm:w-9 lg:h-10 lg:w-10 ${iconBgMap[color]}`}
           >
-            <div className={iconColorMap[color]}>{icon}</div>
+            <div className="flex [&>svg]:h-3.5 [&>svg]:w-3.5 sm:[&>svg]:h-4 sm:[&>svg]:w-4 lg:[&>svg]:h-[18px] lg:[&>svg]:w-[18px]">
+              {icon}
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="mt-2 min-w-0 sm:mt-3">
+            {/* Label + Trend */}
+            <div className="flex min-w-0 flex-col gap-0.5 min-[380px]:flex-row min-[380px]:items-start min-[380px]:justify-between min-[380px]:gap-2">
+              <p
+                className="min-w-0 text-[11px] font-medium leading-snug text-gray-600 sm:text-sm"
+                title={label}
+              >
+                {label}
+              </p>
+
+              {trend && trendValue && (
+                <div className="flex shrink-0 items-center gap-0.5 whitespace-nowrap sm:gap-1">
+                  {trend === 'up' && (
+                    <TrendingUp className="h-2.5 w-2.5 text-emerald-500 sm:h-3.5 sm:w-3.5" />
+                  )}
+
+                  {trend === 'down' && (
+                    <TrendingDown className="h-2.5 w-2.5 text-rose-500 sm:h-3.5 sm:w-3.5" />
+                  )}
+
+                  {trend === 'neutral' && (
+                    <Minus className="h-2.5 w-2.5 text-gray-400 sm:h-3.5 sm:w-3.5" />
+                  )}
+
+                  <span
+                    className={`text-[9px] font-medium sm:text-xs ${trendColorMap[trend]}`}
+                  >
+                    {trendValue}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Main value */}
+            <p
+              className="
+              mt-1
+              min-w-0
+              whitespace-nowrap
+              text-base
+              font-semibold
+              leading-tight
+              tracking-tight
+              tabular-nums
+              text-gray-900
+              min-[380px]:text-lg
+              sm:mt-1.5
+              sm:text-xl
+              md:text-2xl
+            "
+              title={formattedValue}
+            >
+              {formattedValue}
+            </p>
+
+            {/* Subtitle */}
+            {subtitle && (
+              <p
+                className="
+                mt-1
+                min-w-0
+                break-words
+                text-[9px]
+                leading-snug
+                text-gray-400
+                min-[380px]:text-[10px]
+                sm:text-xs
+              "
+                title={subtitle}
+              >
+                {subtitle}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -211,11 +264,10 @@ export default function DashboardClient({
     <section
       className={`group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 transition-all duration-300 hover:shadow-xl hover:border-gray-200 ${className}`}
     >
-      <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-gradient-to-br from-gray-50 to-transparent opacity-50 blur-3xl" />
       <div className="relative">
         <div className="mb-5 flex items-center gap-2.5">
           {icon && (
-            <div className="rounded-lg bg-gradient-to-br from-gray-100 to-gray-50 p-2 text-gray-600">
+            <div className="rounded-lg bg-gray-100 p-2 text-gray-600">
               {icon}
             </div>
           )}
@@ -298,7 +350,7 @@ export default function DashboardClient({
   return (
     <>
       {!allReady && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900">
           <div className="relative">
             <div className="h-16 w-16 animate-spin rounded-full border-4 border-gray-700 border-t-emerald-500" />
             <div className="absolute inset-0 flex items-center justify-center">
@@ -313,7 +365,7 @@ export default function DashboardClient({
       >
         {/* Hero Section */}
         <div
-          className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8 transition-all duration-500 hover:shadow-2xl"
+          className="group relative overflow-hidden rounded-3xl bg-gray-900 p-8 transition-all duration-500 hover:shadow-2xl"
           style={{
             boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
           }}
@@ -321,13 +373,6 @@ export default function DashboardClient({
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl animate-pulse" />
             <div className="absolute -left-32 -bottom-32 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl animate-pulse delay-1000" />
-            <div
-              className="absolute inset-0 opacity-5"
-              style={{
-                backgroundImage:
-                  'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)',
-              }}
-            />
           </div>
 
           <div className="relative z-10">
@@ -354,8 +399,8 @@ export default function DashboardClient({
 
                 <h1 className="text-[32px] font-bold tracking-tight !text-white lg:text-[40px]">
                   {greeting} 👋
-                  <span className="ml-3 inline-block bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
-                    {email?.split('@')[0]}
+                  <span className="ml-3 inline-block text-emerald-400">
+                    {fullName?.trim().split(/\s+/)[0] || email?.split('@')[0] || 'there'}
                   </span>
                 </h1>
 
@@ -418,7 +463,8 @@ export default function DashboardClient({
           </div>
         </div>
 
- s        {hasMetricData && (
+        {/* Metrics Grid */}
+        {hasMetricData && (
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {overview.patients.activePatients > 0 && (
               <MetricCard
@@ -480,7 +526,7 @@ export default function DashboardClient({
               <MetricCard
                 label={`Scheduled procedures · ${periodLabel}`}
                 value={theatre.todayProcedures}
-                icon={<Scissors className="h-5 w-5" />}
+                icon={<ClipboardCheck className="h-5 w-5" />}
                 color="purple"
               />
             )}
@@ -512,6 +558,7 @@ export default function DashboardClient({
           </div>
         )}
 
+        {/* Main Content Grid */}
         <div className="grid gap-6 lg:grid-cols-2">
           {hasVisitStatusData && (
             <Section
@@ -545,7 +592,7 @@ export default function DashboardClient({
                       </div>
                       <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-500 group-hover:from-blue-500 group-hover:to-blue-700"
+                          className="h-full rounded-full bg-blue-500 transition-all duration-500 group-hover:bg-blue-600"
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
@@ -569,7 +616,7 @@ export default function DashboardClient({
                     className="group flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3 transition-all duration-200 hover:border-gray-200 hover:bg-white hover:shadow-md"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                         <User className="h-4 w-4" />
                       </div>
                       <div>
@@ -607,6 +654,7 @@ export default function DashboardClient({
           </Section>
         </div>
 
+        {/* Secondary Metrics */}
         {(hasLaboratoryData || hasTheatreData || hasFinancialData) && (
           <div className="grid gap-6 lg:grid-cols-3">
             {hasLaboratoryData && laboratory && (
@@ -649,7 +697,7 @@ export default function DashboardClient({
             {hasTheatreData && theatre && (
               <Section
                 title="Upcoming Procedures"
-                icon={<Scissors className="h-4 w-4" />}
+                icon={<ClipboardCheck className="h-4 w-4" />}
               >
                 <div className="space-y-2">
                   {theatre.upcomingSchedule.length ? (
@@ -721,6 +769,7 @@ export default function DashboardClient({
           </div>
         )}
 
+        {/* Activity Chart */}
         <div className="rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -730,9 +779,9 @@ export default function DashboardClient({
           <ActorActivityChart />
         </div>
 
+        {/* Profile Section */}
         <div className="group overflow-hidden rounded-2xl border border-gray-100 bg-white transition-all hover:shadow-xl">
-          <div className="relative bg-gradient-to-br from-gray-50 to-white p-6">
-            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-emerald-50 to-blue-50 opacity-30 blur-2xl" />
+          <div className="relative bg-gray-50 p-6">
             <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
               <div className="flex items-center gap-4">
                 <div className="relative">
@@ -790,31 +839,39 @@ export default function DashboardClient({
           </div>
 
           <div className="grid grid-cols-1 divide-y divide-gray-100 border-t border-gray-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-            <div className="flex items-center gap-4 p-5 transition-all hover:bg-gray-50/50">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600">
-                <Clock className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.07em] text-gray-400">
-                  Signed in since
-                </p>
-                <p className="mt-0.5 text-[16px] font-semibold text-gray-900">
-                  {formatRelativeTime(lastLoginAt)}
-                </p>
+            <div className="group p-5 transition-colors hover:bg-gray-50/60">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.07em] text-gray-400">
+                    Signed in since
+                  </p>
+
+                  <p className="mt-1 text-[16px] font-semibold tracking-tight text-gray-900">
+                    {formatRelativeTime(lastLoginAt)}
+                  </p>
+                </div>
+
+                <span className="shrink-0 rounded-md bg-blue-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-blue-600">
+                  Session
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 p-5 transition-all hover:bg-gray-50/50">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-600">
-                <Activity className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.07em] text-gray-400">
-                  Last active
-                </p>
-                <p className="mt-0.5 text-[16px] font-semibold text-gray-900">
-                  {formatRelativeTime(lastSeenAt)}
-                </p>
+            <div className="group p-5 transition-colors hover:bg-gray-50/60">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.07em] text-gray-400">
+                    Last active
+                  </p>
+
+                  <p className="mt-1 text-[16px] font-semibold tracking-tight text-gray-900">
+                    {formatRelativeTime(lastSeenAt)}
+                  </p>
+                </div>
+
+                <span className="shrink-0 rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-600">
+                  Active
+                </span>
               </div>
             </div>
           </div>
