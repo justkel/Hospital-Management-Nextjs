@@ -9,7 +9,7 @@ import { loginAction } from '@/lib/auth/login.action';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Activity, AlertCircle, ArrowRight, CreditCard, FileText, IdCard, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { Activity, AlertCircle, ArrowRight, CreditCard, FileText, IdCard, ShieldCheck, Sparkles, Users, Loader2, CheckCircle } from 'lucide-react';
 import AuthBrandPanel from '@/components/auth/AuthBrandPanel';
 
 const STATUS_MESSAGE_MAP: Record<string, string> = {
@@ -25,10 +25,14 @@ export default function LoginPage() {
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [buttonText, setButtonText] = useState('Sign in');
 
   const onFinish = async (values: { userCode: string; password: string }) => {
     setError(null);
     setLoading(true);
+    setSuccess(false);
+    setButtonText('Authenticating...');
 
     try {
       const result = await loginAction(values);
@@ -41,8 +45,18 @@ export default function LoginPage() {
           'Login failed';
 
         setError(customMessage);
+        setLoading(false);
+        setButtonText('Sign in');
         return;
       }
+
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setLoading(false);
+      setSuccess(true);
+      setButtonText('Success!');
+      
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
       if (result.forcePasswordChange) {
         router.replace('/force-password-change');
@@ -52,8 +66,9 @@ export default function LoginPage() {
       router.replace('/dashboard');
     } catch {
       setError('Something went wrong. Please try again.');
-    } finally {
       setLoading(false);
+      setSuccess(false);
+      setButtonText('Sign in');
     }
   };
 
@@ -79,13 +94,13 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-[10px] border !border-[#F7C1C1] !bg-[#FCEBEB] px-3 py-2.5 text-sm font-medium !text-[#A32D2D]">
+            <div className="mb-4 flex items-start gap-2.5 rounded-[10px] border !border-[#F7C1C1] !bg-[#FCEBEB] px-3 py-2.5 text-sm font-medium !text-[#A32D2D] animate-in slide-in-from-top-2 duration-200">
               <AlertCircle size={14} className="mt-0.5 shrink-0" />
               {error}
             </div>
           )}
 
-          <Form form={form} layout="vertical" onFinish={onFinish} disabled={loading}>
+          <Form form={form} layout="vertical" onFinish={onFinish} disabled={loading || success}>
 
             <Form.Item
               name="userCode"
@@ -104,7 +119,8 @@ export default function LoginPage() {
                 <Input
                   size="large"
                   placeholder="e.g. STF-00142"
-                  className="!h-12 !rounded-[10px] !border-[#D3D1C7] !bg-white !pl-10 !text-[#2C2C2A] placeholder:!text-[#B4B2A9]"
+                  disabled={loading || success}
+                  className="!h-12 !rounded-[10px] !border-[#D3D1C7] !bg-white !pl-10 !text-[#2C2C2A] placeholder:!text-[#B4B2A9] transition-all focus:!border-[#1D9E75] focus:!shadow-[0_0_0_3px_rgba(29,158,117,0.1)] disabled:!bg-[#f5f4f0] disabled:!cursor-not-allowed"
                 />
               </div>
             </Form.Item>
@@ -126,7 +142,8 @@ export default function LoginPage() {
                 <Input.Password
                   size="large"
                   placeholder="Enter your password"
-                  className="!h-12 !rounded-[10px] !border-[#D3D1C7] !bg-white !pl-10 !text-[#2C2C2A] placeholder:!text-[#B4B2A9]"
+                  disabled={loading || success}
+                  className="!h-12 !rounded-[10px] !border-[#D3D1C7] !bg-white !pl-10 !text-[#2C2C2A] placeholder:!text-[#B4B2A9] transition-all focus:!border-[#1D9E75] focus:!shadow-[0_0_0_3px_rgba(29,158,117,0.1)] disabled:!bg-[#f5f4f0] disabled:!cursor-not-allowed"
                 />
               </div>
             </Form.Item>
@@ -134,7 +151,7 @@ export default function LoginPage() {
             <div className="mb-2 flex justify-end">
               <Link
                 href="/forgot-password"
-                className="text-[12px] font-bold !text-[#1D9E75] hover:underline"
+                className="text-[12px] font-bold !text-[#1D9E75] hover:underline transition-colors hover:!text-[#167A5E]"
               >
                 Forgot password?
               </Link>
@@ -144,10 +161,30 @@ export default function LoginPage() {
               htmlType="submit"
               block
               loading={loading}
-              className="!mt-4 !h-12 !rounded-[10px] !border-none !bg-[#0c1a12] !font-bold !text-white transition hover:!bg-[#1D9E75]"
+              disabled={loading || success}
+              className={`!mt-4 !h-12 !rounded-[10px] !border-none !font-bold !text-white transition-all duration-500 ${
+                success 
+                  ? '!bg-[#1D9E75] !shadow-[0_4px_20px_rgba(29,158,117,0.3)]' 
+                  : loading 
+                  ? '!bg-[#0c1a12]' 
+                  : '!bg-[#0c1a12] hover:!bg-[#1D9E75] hover:!shadow-[0_4px_20px_rgba(29,158,117,0.2)]'
+              }`}
             >
-              {!loading && <ArrowRight size={16} className="mr-2" />}
-              Sign in
+              {success ? (
+                <span className="flex items-center justify-center gap-2">
+                  <CheckCircle size={18} className="animate-in zoom-in duration-500" />
+                  <span className="animate-in fade-in duration-500">Success!</span>
+                </span>
+              ) : loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="animate-pulse">Authenticating...</span>
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  {buttonText ? (buttonText) : "Sign in"}
+                </span>
+              )}
             </Button>
           </Form>
 
@@ -160,7 +197,8 @@ export default function LoginPage() {
           <Link href="/guest-access" className="block">
             <Button
               block
-              className="!h-12 !rounded-[10px] !border !border-[#1D9E75]/30 !bg-[#F0FAF5] !font-bold !text-[#1D9E75] transition hover:!border-[#1D9E75] hover:!bg-[#1D9E75]/10"
+              disabled={loading || success}
+              className="!h-12 !rounded-[10px] !border !border-[#1D9E75]/30 !bg-[#F0FAF5] !font-bold !text-[#1D9E75] transition-all hover:!border-[#1D9E75] hover:!bg-[#1D9E75]/10 hover:scale-[1.02] disabled:!opacity-50 disabled:!cursor-not-allowed"
             >
               <Sparkles size={15} className="mr-2 inline -mt-0.5" />
               Try the demo as a guest
@@ -182,7 +220,7 @@ export default function LoginPage() {
             ].map(({ icon: Icon, label, tint }) => (
               <div
                 key={label}
-                className="flex items-center gap-2.5 rounded-lg border !border-[#D3D1C7] !bg-white px-3 py-2.5 transition hover:!border-[#1D9E75]/40 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
+                className="flex items-center gap-2.5 rounded-lg border !border-[#D3D1C7] !bg-white px-3 py-2.5 transition-all hover:!border-[#1D9E75]/40 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:scale-[1.02]"
               >
                 <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${tint}`}>
                   <Icon size={13} />
