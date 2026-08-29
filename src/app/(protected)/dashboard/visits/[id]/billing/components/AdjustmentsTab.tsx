@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';
+import { notifyBillingChanged, subscribeToBillingChanges } from '../billing-refresh';
 import StatusBadge from './StatusBadge';
 import type { Adjustment, ChargeRow } from '../billing-client';
 import { AdjustmentMethod, AdjustmentType } from '@/shared/graphql/generated/graphql';
@@ -149,6 +150,19 @@ export default function AdjustmentsTab({
 
   useEffect(() => {
     Promise.all([refreshBalances(), refreshCurrentTotals()]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visitId]);
+
+  useEffect(() => {
+    return subscribeToBillingChanges((sources) => {
+      if (
+        sources.includes('payments') ||
+        sources.includes('invoices') ||
+        sources.includes('summary')
+      ) {
+        void Promise.all([refreshBalances(), refreshCurrentTotals()]);
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
@@ -390,6 +404,7 @@ export default function AdjustmentsTab({
       message.success('Adjustment requested');
       setFormOpen(false);
       await refresh();
+      notifyBillingChanged('adjustments');
     } finally {
       setSubmitting(false);
     }
@@ -423,6 +438,7 @@ export default function AdjustmentsTab({
 
       message.success('Done');
       await Promise.all([refresh(), refreshBalances(), refreshCurrentTotals()]);
+      notifyBillingChanged('adjustments');
     } finally {
       setActionLoadingId(null);
     }

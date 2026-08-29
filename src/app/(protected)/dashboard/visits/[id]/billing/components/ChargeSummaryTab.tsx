@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';
+import { notifyBillingChanged, subscribeToBillingChanges } from '../billing-refresh';
 import { useHasRoles } from '@/components/auth/HasRoles';
 import { Roles } from '@/shared/utils/enums/roles';
 import StatusBadge from './StatusBadge';
@@ -174,8 +175,29 @@ export default function ChargeSummaryTab({
     }
   };
 
+  const refreshSummary = async () => {
+    const res = await clientFetch(`/api/visit-charge/summary?visitId=${visitId}`, {
+      cache: 'no-store',
+    });
+    const json = await res.json();
+    if (res.ok && json.summary) onSummaryChange(json.summary);
+  };
+
   useEffect(() => {
     Promise.all([refreshBalances(), refreshCurrentTotals()]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visitId]);
+
+  useEffect(() => {
+    return subscribeToBillingChanges((sources) => {
+      if (sources.includes('payments') || sources.includes('adjustments')) {
+        void Promise.all([
+          refreshSummary(),
+          refreshBalances(),
+          refreshCurrentTotals(),
+        ]);
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
@@ -231,6 +253,7 @@ export default function ChargeSummaryTab({
       message.success('Charge updated');
       cancelEdit();
       await refreshAll();
+      notifyBillingChanged('summary');
     } finally {
       setSavingEdit(false);
     }
@@ -282,6 +305,7 @@ export default function ChargeSummaryTab({
       message.success('Charge created from prescription');
       cancelPricing();
       await refreshAll();
+      notifyBillingChanged('summary');
     } finally {
       setSavingPrice(false);
     }

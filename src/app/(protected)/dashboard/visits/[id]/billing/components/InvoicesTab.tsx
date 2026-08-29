@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';
+import { notifyBillingChanged, subscribeToBillingChanges } from '../billing-refresh';
 import StatusBadge from './StatusBadge';
 import type { InvoiceRow } from '../billing-client';
 import { NairaIcon } from '@/components/icon/NairaIcon';
@@ -112,6 +113,17 @@ export default function InvoicesTab({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
+  useEffect(() => {
+    return subscribeToBillingChanges((sources) => {
+      if (sources.includes('payments')) {
+        void Promise.all([refresh(), refreshCurrentTotals()]);
+      } else if (sources.includes('summary') || sources.includes('adjustments')) {
+        void refreshCurrentTotals();
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visitId]);
+
   const generate = async () => {
     if (isReconciled) {
       message.warning('Cannot generate invoices on a reconciled visit');
@@ -136,6 +148,7 @@ export default function InvoicesTab({
 
       message.success('Invoice generated');
       await Promise.all([refresh(), refreshCurrentTotals()]);
+      notifyBillingChanged('invoices');
     } finally {
       setGenerating(false);
     }
@@ -167,6 +180,7 @@ export default function InvoicesTab({
 
       message.success('Invoice issued and locked');
       await refresh();
+      notifyBillingChanged('invoices');
     } finally {
       setIssuing(false);
     }

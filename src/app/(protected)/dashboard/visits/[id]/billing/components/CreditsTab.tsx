@@ -15,6 +15,7 @@ import {
 import { NairaIcon } from '@/components/icon/NairaIcon';
 
 import { clientFetch } from '@/lib/clientFetch';
+import { notifyBillingChanged, subscribeToBillingChanges } from '../billing-refresh';
 import StatusBadge from './StatusBadge';
 import type { ChargeRow, CreditRow } from '../billing-client';
 import { Lock } from 'lucide-react';
@@ -157,6 +158,15 @@ export default function CreditsTab({
   }, [visitId]);
 
   useEffect(() => {
+    return subscribeToBillingChanges((sources) => {
+      if (sources.includes('payments') && walletEnabled) {
+        void refreshWalletBalance();
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visitId, patientId, walletEnabled]);
+
+  useEffect(() => {
     if (walletEnabled) {
       refreshWalletBalance();
     }
@@ -221,6 +231,7 @@ export default function CreditsTab({
       message.success('Refund recorded');
       setFormOpen(false);
       await Promise.all([refreshCredits(), refreshBalance()]);
+      notifyBillingChanged('credits');
     } finally {
       setSubmitting(false);
     }
@@ -254,6 +265,7 @@ export default function CreditsTab({
         refreshBalance(),
         walletEnabled ? refreshWalletBalance() : Promise.resolve(),
       ]);
+      notifyBillingChanged('credits');
     } finally {
       setActionLoadingId(null);
     }
@@ -290,6 +302,7 @@ export default function CreditsTab({
       setFailTarget(null);
       setFailReason('');
       await Promise.all([refreshCredits(), refreshBalance()]);
+      notifyBillingChanged('credits');
     } finally {
       setActionLoadingId(null);
     }

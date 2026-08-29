@@ -15,6 +15,10 @@ import {
 } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';
+import {
+  notifyBillingChanged,
+  subscribeToBillingChanges,
+} from '../billing-refresh';
 import StatusBadge from './StatusBadge';
 import type { ChargeRow, InvoiceRow, PaymentRow } from '../billing-client';
 
@@ -227,6 +231,31 @@ export default function PaymentsTab({
   }, [visitId]);
 
   useEffect(() => {
+    return subscribeToBillingChanges((sources) => {
+      if (sources.includes('payments')) {
+        void Promise.all([
+          refreshPayments(),
+          refreshBalancePayments(),
+          refreshInvoice(),
+          refreshBalances(),
+          refreshCurrentTotals(),
+        ]);
+        return;
+      }
+
+      if (sources.includes('summary') || sources.includes('adjustments')) {
+        void Promise.all([refreshBalances(), refreshCurrentTotals()]);
+      }
+
+      if (sources.includes('invoices')) {
+        void refreshInvoice();
+      }
+    });
+    // These functions are intentionally scoped to this mounted visit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visitId]);
+
+  useEffect(() => {
     if (walletEnabled) {
       refreshWalletBalance();
     }
@@ -433,7 +462,14 @@ export default function PaymentsTab({
 
       message.success('Payment recorded');
       setFormOpen(false);
-      await Promise.all([refreshPayments(), refreshBalances()]);
+      await Promise.all([
+        refreshPayments(),
+        refreshInvoice(),
+        refreshBalances(),
+        refreshCurrentTotals(),
+        paymentMethod === 'WALLET' ? refreshWalletBalance() : Promise.resolve(),
+      ]);
+      notifyBillingChanged('payments');
     } finally {
       setSubmitting(false);
     }
@@ -469,6 +505,7 @@ export default function PaymentsTab({
         refreshCurrentTotals(),
         refreshWalletBalance(),
       ]);
+      notifyBillingChanged('payments');
     } finally {
       setActionLoadingId(null);
     }
@@ -532,6 +569,7 @@ export default function PaymentsTab({
         refreshBalances(),
         refreshCurrentTotals(),
       ]);
+      notifyBillingChanged('payments');
     } finally {
       setActionLoadingId(null);
     }
@@ -624,7 +662,14 @@ export default function PaymentsTab({
 
       message.success('Balance payment recorded');
       setBalanceFormOpen(false);
-      await refreshBalancePayments();
+      await Promise.all([
+        refreshBalancePayments(),
+        refreshInvoice(),
+        refreshBalances(),
+        refreshCurrentTotals(),
+        balanceMethod === 'WALLET' ? refreshWalletBalance() : Promise.resolve(),
+      ]);
+      notifyBillingChanged('payments');
     } finally {
       setSubmittingBalance(false);
     }
@@ -660,6 +705,7 @@ export default function PaymentsTab({
         refreshCurrentTotals(),
         refreshWalletBalance(),
       ]);
+      notifyBillingChanged('payments');
     } finally {
       setBalanceActionLoadingId(null);
     }
@@ -710,6 +756,7 @@ export default function PaymentsTab({
         refreshBalances(),
         refreshCurrentTotals(),
       ]);
+      notifyBillingChanged('payments');
     } finally {
       setBalanceActionLoadingId(null);
     }

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { NairaIcon } from '@/components/icon/NairaIcon';
 import { clientFetch } from '@/lib/clientFetch';
+import { subscribeToBillingChanges } from '../[id]/billing/billing-refresh';
 
 interface VisitOutstanding {
   visitId: string;
@@ -188,6 +189,12 @@ export default function PatientOutstandingBalance({
 
   useEffect(() => {
     fetchBalance(false);
+  }, [fetchBalance]);
+
+  useEffect(() => {
+    return subscribeToBillingChanges(() => {
+      void fetchBalance(true);
+    });
   }, [fetchBalance]);
 
   const handleRefresh = () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import {
   AlertTriangle,
   FileText,
@@ -16,7 +16,7 @@ import {
   GetVisitBillingPageQuery,
   VisitStatus,
 } from '@/shared/graphql/generated/graphql';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { HasRoles, useHasRoles } from '@/components/auth/HasRoles';
 import { Roles } from '@/shared/utils/enums/roles';
 
@@ -29,6 +29,7 @@ import PatientOutstandingBalance from '../../components/PatientOutstandingBalanc
 import ReconcileVisitModal, {
   ReconciledVisitResult,
 } from './components/ReconcileVisitModal';
+import BillingTabErrorBoundary from './components/BillingTabErrorBoundary';
 
 export type ChargeSummary = NonNullable<
   GetVisitBillingPageQuery['visitChargeSummary']
@@ -124,26 +125,74 @@ export default function BillingClient({
     setReconciledInfo(updatedVisit);
   }, []);
 
-  const router = useRouter();
+  const handleSummaryChange = useCallback((value: ChargeSummary) => {
+    setSummary({
+      ...value,
+      lockedCharges: value?.lockedCharges ?? [],
+      editableCharges: value?.editableCharges ?? [],
+    });
+  }, []);
+  const handleUnbilledChange = useCallback((value: UnbilledPrescription[]) => {
+    setUnbilled(value ?? []);
+  }, []);
+  const handleAdjustmentsChange = useCallback((value: Adjustment[]) => {
+    setAdjustments(value ?? []);
+  }, []);
+  const handleLatestInvoiceChange = useCallback((value: InvoiceRow | null) => {
+    setLatestInvoice(value);
+  }, []);
+  const handleInvoicesChange = useCallback((value: InvoiceRow[]) => {
+    setInvoices(value ?? []);
+  }, []);
+  const handlePaymentsChange = useCallback((value: PaymentRow[]) => {
+    setPayments(value ?? []);
+  }, []);
+  const handleCreditsChange = useCallback((value: CreditRow[]) => {
+    setCredits(value ?? []);
+  }, []);
+  const handleCreditBalanceChange = useCallback((value: number) => {
+    setCreditBalance(value);
+  }, []);
+
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const tabParam = searchParams.get('tab');
-  const activeTab: TabKey = isTabKey(tabParam) ? tabParam : 'summary';
+  const [activeTab, setActiveTabState] = useState<TabKey>(
+    isTabKey(tabParam) ? tabParam : 'summary',
+  );
+
+  useEffect(() => {
+    setActiveTabState(isTabKey(tabParam) ? tabParam : 'summary');
+  }, [tabParam]);
 
   const setActiveTab = useCallback(
     (tab: TabKey) => {
-      const params = new URLSearchParams(searchParams.toString());
+      setActiveTabState(tab);
+      const params = new URLSearchParams(window.location.search);
       if (tab === 'summary') {
         params.delete('tab');
       } else {
         params.set('tab', tab);
       }
       const query = params.toString();
-      router.replace(`${pathname}${query ? `?${query}` : ''}`, { scroll: false });
+      window.history.replaceState(
+        window.history.state,
+        '',
+        `${pathname}${query ? `?${query}` : ''}`,
+      );
     },
-    [router, pathname, searchParams]
+    [pathname],
   );
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const value = new URLSearchParams(window.location.search).get('tab');
+      setActiveTabState(isTabKey(value) ? value : 'summary');
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const charges = useMemo(
     () => [...summary.lockedCharges, ...summary.editableCharges],
@@ -356,61 +405,71 @@ export default function BillingClient({
 
           <div className="px-3 sm:px-6">
             <div className={activeTab === 'summary' ? '' : 'hidden'}>
-              <ChargeSummaryTab
+              <BillingTabErrorBoundary tabName="charge summary">
+                <ChargeSummaryTab
                 visitId={visit.id}
                 summary={summary}
                 unbilled={unbilled}
                 isReconciled={isReconciled}
-                onSummaryChange={setSummary}
-                onUnbilledChange={setUnbilled}
-              />
+                onSummaryChange={handleSummaryChange}
+                onUnbilledChange={handleUnbilledChange}
+                />
+              </BillingTabErrorBoundary>
             </div>
 
             <div className={activeTab === 'adjustments' ? '' : 'hidden'}>
-              <AdjustmentsTab
+              <BillingTabErrorBoundary tabName="adjustments">
+                <AdjustmentsTab
                 visitId={visit.id}
                 adjustments={adjustments}
                 charges={charges}
                 isReconciled={isReconciled}
-                onAdjustmentsChange={setAdjustments}
-              />
+                onAdjustmentsChange={handleAdjustmentsChange}
+                />
+              </BillingTabErrorBoundary>
             </div>
 
             <div className={activeTab === 'invoices' ? '' : 'hidden'}>
-              <InvoicesTab
+              <BillingTabErrorBoundary tabName="invoices">
+                <InvoicesTab
                 visitId={visit.id}
                 latestInvoice={latestInvoice}
                 invoices={invoices}
                 isReconciled={isReconciled}
-                onLatestInvoiceChange={setLatestInvoice}
-                onInvoicesChange={setInvoices}
-              />
+                onLatestInvoiceChange={handleLatestInvoiceChange}
+                onInvoicesChange={handleInvoicesChange}
+                />
+              </BillingTabErrorBoundary>
             </div>
 
             <div className={activeTab === 'payments' ? '' : 'hidden'}>
-              <PaymentsTab
+              <BillingTabErrorBoundary tabName="payments">
+                <PaymentsTab
                 visitId={visit.id}
                 patientId={visit.patientId}
                 payments={payments}
                 charges={charges}
                 latestInvoice={latestInvoice}
                 isReconciled={isReconciled}
-                onPaymentsChange={setPayments}
-                onLatestInvoiceChange={setLatestInvoice}
-              />
+                onPaymentsChange={handlePaymentsChange}
+                onLatestInvoiceChange={handleLatestInvoiceChange}
+                />
+              </BillingTabErrorBoundary>
             </div>
 
             <div className={activeTab === 'credits' ? '' : 'hidden'}>
-              <CreditsTab
+              <BillingTabErrorBoundary tabName="credits">
+                <CreditsTab
                 visitId={visit.id}
                 patientId={visit.patientId}
                 charges={charges}
                 credits={credits}
                 creditBalance={creditBalance}
                 isReconciled={isReconciled}
-                onCreditsChange={setCredits}
-                onCreditBalanceChange={setCreditBalance}
-              />
+                onCreditsChange={handleCreditsChange}
+                onCreditBalanceChange={handleCreditBalanceChange}
+                />
+              </BillingTabErrorBoundary>
             </div>
           </div>
         </div>
