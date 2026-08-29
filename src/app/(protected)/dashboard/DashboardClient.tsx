@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import Lottie from 'lottie-react';
 import {
   ShieldCheck,
@@ -25,6 +26,7 @@ import {
 import ActorActivityChart from './ActorActivityChart';
 import { DashboardPeriod } from '@/shared/graphql/generated/graphql';
 import type { DashboardOverview } from '@/shared/graphql/generated/graphql';
+import { Roles } from '@/shared/utils/enums/roles';
 
 import pillAnimation from '@/animations/pill.json';
 
@@ -137,6 +139,7 @@ export default function DashboardClient({
     trendValue,
     color = 'blue',
     subtitle,
+    href,
   }: {
     label: string;
     value: string | number;
@@ -145,6 +148,7 @@ export default function DashboardClient({
     trendValue?: string;
     color?: 'blue' | 'green' | 'purple' | 'orange' | 'red' | 'teal';
     subtitle?: string;
+    href?: string;
   }) => {
     const colorMap = {
       blue: 'hover:border-blue-200',
@@ -173,7 +177,7 @@ export default function DashboardClient({
     const formattedValue =
       typeof value === 'number' ? value.toLocaleString() : value;
 
-    return (
+    const card = (
       <div
         className={`group relative min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white p-3 transition-all duration-200 hover:border-gray-300 hover:shadow-md sm:p-4 lg:p-5 ${colorMap[color]}`}
       >
@@ -219,21 +223,7 @@ export default function DashboardClient({
             </div>
 
             <p
-              className="
-              mt-1
-              min-w-0
-              whitespace-nowrap
-              text-base
-              font-semibold
-              leading-tight
-              tracking-tight
-              tabular-nums
-              text-gray-900
-              min-[380px]:text-lg
-              sm:mt-1.5
-              sm:text-xl
-              md:text-2xl
-            "
+              className="mt-1 min-w-0 whitespace-nowrap text-base font-semibold leading-tight tracking-tight tabular-nums text-gray-900 min-[380px]:text-lg sm:mt-1.5 sm:text-xl md:text-2xl"
               title={formattedValue}
             >
               {formattedValue}
@@ -241,16 +231,7 @@ export default function DashboardClient({
 
             {subtitle && (
               <p
-                className="
-                mt-1
-                min-w-0
-                break-words
-                text-[9px]
-                leading-snug
-                text-gray-400
-                min-[380px]:text-[10px]
-                sm:text-xs
-              "
+                className="mt-1 min-w-0 break-words text-[9px] leading-snug text-gray-400 min-[380px]:text-[10px] sm:text-xs"
                 title={subtitle}
               >
                 {subtitle}
@@ -260,6 +241,14 @@ export default function DashboardClient({
         </div>
       </div>
     );
+
+    return href ? (
+      <Link href={href} className="block min-w-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+        {card}
+      </Link>
+    ) : (
+      card
+    );
   };
 
   const Section = ({
@@ -267,11 +256,13 @@ export default function DashboardClient({
     icon,
     children,
     className = '',
+    href,
   }: {
     title: string;
     icon?: ReactNode;
     children: ReactNode;
     className?: string;
+    href?: string;
   }) => (
     <section
       className={`group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 transition-all duration-300 hover:shadow-xl hover:border-gray-200 ${className}`}
@@ -283,7 +274,17 @@ export default function DashboardClient({
               {icon}
             </div>
           )}
-          <h2 className="text-[14px] font-semibold text-gray-900">{title}</h2>
+          {href ? (
+            <Link
+              href={href}
+              className="group/section inline-flex items-center gap-1 text-[14px] font-semibold !text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            >
+              {title}
+              <ChevronRight className="h-3.5 w-3.5 text-gray-300 transition-transform group-hover/section:translate-x-0.5 group-hover/section:text-gray-600" />
+            </Link>
+          ) : (
+            <h2 className="text-[14px] font-semibold text-gray-900">{title}</h2>
+          )}
         </div>
         {children}
       </div>
@@ -482,6 +483,7 @@ export default function DashboardClient({
                 icon={<Users className="h-5 w-5" />}
                 trend="up"
                 color="green"
+                href="/dashboard/patients"
               />
             )}
             {overview.patients.registeredToday > 0 && (
@@ -490,6 +492,7 @@ export default function DashboardClient({
                 value={overview.patients.registeredToday}
                 icon={<User className="h-5 w-5" />}
                 color="blue"
+                href="/dashboard/patients"
               />
             )}
             {overview.visits.openVisits > 0 && (
@@ -498,6 +501,7 @@ export default function DashboardClient({
                 value={overview.visits.openVisits}
                 icon={<Stethoscope className="h-5 w-5" />}
                 color="purple"
+                href="/dashboard/visits"
               />
             )}
             {overview.visits.visitsInPeriod > 0 && (
@@ -506,6 +510,7 @@ export default function DashboardClient({
                 value={overview.visits.visitsInPeriod}
                 icon={<Calendar className="h-5 w-5" />}
                 color="teal"
+                href="/dashboard/visits"
               />
             )}
             {hasLaboratoryData && laboratory && (
@@ -515,6 +520,7 @@ export default function DashboardClient({
                 icon={<Syringe className="h-5 w-5" />}
                 color="orange"
                 subtitle={`${laboratory.inProgress} in progress, ${laboratory.urgent} urgent`}
+                href="/dashboard/lab-requests"
               />
             )}
             {hasBedData && beds && (
@@ -529,6 +535,7 @@ export default function DashboardClient({
                     : 'down'
                 }
                 trendValue={`${Math.round((beds.occupied / beds.totalActive) * 100)}% occupied`}
+                href="/dashboard/wards"
               />
             )}
             {hasTheatreData && theatre && (
@@ -537,6 +544,7 @@ export default function DashboardClient({
                 value={theatre.todayProcedures}
                 icon={<ClipboardCheck className="h-5 w-5" />}
                 color="purple"
+                href="/dashboard/theatres"
               />
             )}
             {hasIncidentData && incidents && (
@@ -562,6 +570,7 @@ export default function DashboardClient({
                 icon={<CreditCard className="h-5 w-5" />}
                 color="green"
                 subtitle={`${financial.paymentsReceivedInPeriod} payments`}
+                href="/dashboard/visits"
               />
             )}
           </div>
@@ -572,6 +581,7 @@ export default function DashboardClient({
             <Section
               title="Visit Status Distribution"
               icon={<PieChart className="h-4 w-4" />}
+              href="/dashboard/visits"
             >
               <div className="space-y-3">
                 {overview.visits.byStatus.map((item) => {
@@ -614,6 +624,7 @@ export default function DashboardClient({
           <Section
             title="Recent Open Visits"
             icon={<Clock className="h-4 w-4" />}
+            href="/dashboard/visits"
           >
             <div className="space-y-2">
               {overview.visits.recentOpenVisits.length ? (
@@ -668,6 +679,7 @@ export default function DashboardClient({
               <Section
                 title="Lab Workload"
                 icon={<Syringe className="h-4 w-4" />}
+                href="/dashboard/lab-requests"
               >
                 <div className="grid grid-cols-3 gap-3">
                   {[
@@ -705,6 +717,7 @@ export default function DashboardClient({
               <Section
                 title="Upcoming Procedures"
                 icon={<ClipboardCheck className="h-4 w-4" />}
+                href="/dashboard/theatres"
               >
                 <div className="space-y-2">
                   {theatre.upcomingSchedule.length ? (
@@ -744,6 +757,7 @@ export default function DashboardClient({
               <Section
                 title="Financial Overview"
                 icon={<CreditCard className="h-4 w-4" />}
+                href="/dashboard/visits"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between rounded-xl bg-emerald-50 px-4 py-3">
