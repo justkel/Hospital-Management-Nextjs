@@ -96,6 +96,11 @@ const renderPieLabel = (props: PieLabelRenderProps) => {
   return `${name} ${(percent * 100).toFixed(0)}%`;
 };
 
+const hideScrollbarStyle = {
+  scrollbarWidth: 'none',
+  msOverflowStyle: 'none',
+} as const;
+
 export default function DashboardClient({
   email,
   fullName,
@@ -417,7 +422,7 @@ export default function DashboardClient({
   );
   const hasMetricData =
     overview.patients.activePatients > 0 ||
-    overview.patients.registeredToday > 0 ||
+    overview.patients.registeredInPeriod > 0 ||
     overview.visits.openVisits > 0 ||
     overview.visits.visitsInPeriod > 0 ||
     hasLaboratoryData ||
@@ -432,6 +437,8 @@ export default function DashboardClient({
   const theatreOutcomeData = (theatre?.outcomes ?? []).filter((entry) => entry.count > 0);
   const paymentMethodData = (financial?.paymentMethods ?? []).filter((entry) => entry.count > 0);
   const revenueBreakdownData = (financial?.revenueVsGrantsDiscounts ?? []).filter((entry) => entry.amount > 0 || entry.count > 0);
+  const hasDepartmentData = (beds?.byDepartment ?? []).filter((entry) => entry.count > 0).length > 0;
+  const hasWardData = (beds?.byWard ?? []).filter((entry) => entry.count > 0).length > 0;
 
   return (
     <>
@@ -558,7 +565,7 @@ export default function DashboardClient({
 
         {hasMetricData && (
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {overview.patients.activePatients > 0 && (
+            {overview.patients?.activePatients > 0 && (
               <MetricCard
                 label={`Active · ${periodLabel}`}
                 value={overview.patients.activePatients}
@@ -569,10 +576,10 @@ export default function DashboardClient({
                 href="/dashboard/patients"
               />
             )}
-            {overview.patients.registeredToday > 0 && (
+            {overview.patients?.registeredInPeriod > 0 && (
               <MetricCard
                 label={`Registered · ${periodLabel}`}
-                value={overview.patients.registeredToday}
+                value={overview.patients.registeredInPeriod}
                 icon={<User className="h-5 w-5" />}
                 trend="up"
                 trendValue="+8%"
@@ -580,7 +587,7 @@ export default function DashboardClient({
                 href="/dashboard/patients"
               />
             )}
-            {overview.visits.openVisits > 0 && (
+            {overview.visits?.openVisits > 0 && (
               <MetricCard
                 label="Open Visits"
                 value={overview.visits.openVisits}
@@ -591,7 +598,7 @@ export default function DashboardClient({
                 href="/dashboard/visits"
               />
             )}
-            {overview.visits.visitsInPeriod > 0 && (
+            {overview.visits?.visitsInPeriod > 0 && (
               <MetricCard
                 label={`Visits · ${periodLabel}`}
                 value={overview.visits.visitsInPeriod}
@@ -661,7 +668,10 @@ export default function DashboardClient({
             icon={<HeartPulse className="h-4 w-4" />}
             className="lg:col-span-2"
           >
-            <div className="overflow-x-auto pb-2">
+            <div
+              className="overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden"
+              style={hideScrollbarStyle}
+            >
               <div style={{ minWidth: Math.max(compactTimeSeriesData.length * 52, 640) }}>
                 <ResponsiveContainer width="100%" height={280}>
                   <ComposedChart data={compactTimeSeriesData}>
@@ -748,113 +758,124 @@ export default function DashboardClient({
           )}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Section
-            title="Department Workload"
-            icon={<Activity className="h-4 w-4" />}
-          >
-            <div className="overflow-x-auto pb-2">
-              <div style={{ minWidth: Math.max((beds?.byDepartment?.length ?? 0) * 90, 420) }}>
-                <ResponsiveContainer width="100%" height={240}>
-                  <BarChart data={(beds?.byDepartment ?? []).map((item) => ({ department: item.label, load: item.count }))} layout="vertical" margin={{ left: 80 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                    <XAxis type="number" domain={[0, 100]} stroke="#9CA3AF" fontSize={11} />
-                    <YAxis type="category" dataKey="department" stroke="#9CA3AF" fontSize={11} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="load" fill="#8B5CF6" radius={[0, 8, 8, 0]}>
-                      {(beds?.byDepartment ?? []).map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </Section>
-
-          <Section
-            title="Bed Occupancy by Ward"
-            icon={<Bed className="h-4 w-4" />}
-          >
-            <div className="overflow-x-auto pb-2">
-              <div style={{ minWidth: Math.max((beds?.byWard?.length ?? 0) * 110, 420) }}>
-                <ResponsiveContainer width="100%" height={240}>
-                  <BarChart data={(beds?.byWard ?? []).map((item) => ({ ward: item.label, occupied: item.count }))}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                    <XAxis dataKey="ward" stroke="#9CA3AF" fontSize={11} tick={{ fontSize: 10 }} interval={0} angle={-10} textAnchor="end" height={48} />
-                    <YAxis stroke="#9CA3AF" fontSize={11} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend />
-                    <Bar dataKey="occupied" fill="#3B82F6" radius={[4, 4, 0, 0]} name="Occupied" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </Section>
-        </div>
-
-        {(overview.patients.genderDistribution.length > 0 ||
-          overview.patients.firstTimeVsReturning.length > 0) && (
-            <Section title="Patient Demographics" icon={<Users className="h-4 w-4" />}>
-              <div className="grid gap-6 md:grid-cols-3">
-                {patientGenderData.length > 0 && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">Gender</h3>
-                      <span className="text-[11px] text-gray-400">{overview.patients.genderDistribution.reduce((sum, item) => sum + item.count, 0)} total</span>
-                    </div>
-                    <ResponsiveContainer width="100%" height={220}>
-                      <RechartsPieChart>
-                        <Pie
-                          data={patientGenderData}
-                          dataKey="count"
-                          nameKey="label"
-                          innerRadius={45}
-                          outerRadius={75}
-                          paddingAngle={3}
-                          label={renderPieLabel}
-                          labelLine={false}
-                        >
-                          {patientGenderData.map((entry, index) => (
-                            <Cell key={`gender-${index}`} fill={COLORS[index % COLORS.length]} />
+        {(hasDepartmentData || hasWardData) && (
+          <div className="grid gap-6 lg:grid-cols-2">
+            {hasDepartmentData && (
+              <Section
+                title="Department Workload"
+                icon={<Activity className="h-4 w-4" />}
+              >
+                <div
+                  className="overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden"
+                  style={hideScrollbarStyle}
+                >
+                  <div style={{ minWidth: Math.max((beds?.byDepartment?.length ?? 0) * 90, 420) }}>
+                    <ResponsiveContainer width="100%" height={240}>
+                      <BarChart data={(beds?.byDepartment ?? []).map((item) => ({ department: item.label, load: item.count }))} layout="vertical" margin={{ left: 80 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                        <XAxis type="number" domain={[0, 100]} stroke="#9CA3AF" fontSize={11} />
+                        <YAxis type="category" dataKey="department" stroke="#9CA3AF" fontSize={11} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar dataKey="load" fill="#8B5CF6" radius={[0, 8, 8, 0]}>
+                          {(beds?.byDepartment ?? []).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
-                        </Pie>
-                        <Tooltip />
-                      </RechartsPieChart>
+                        </Bar>
+                      </BarChart>
                     </ResponsiveContainer>
                   </div>
-                )}
+                </div>
+              </Section>
+            )}
 
-                {patientVisitTypeData.length > 0 && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">First visits</h3>
-                      <span className="text-[11px] text-gray-400">{overview.patients.firstTimeVsReturning.reduce((sum, item) => sum + item.count, 0)} total</span>
-                    </div>
-                    <ResponsiveContainer width="100%" height={220}>
-                      <RechartsPieChart>
-                        <Pie
-                          data={patientVisitTypeData}
-                          dataKey="count"
-                          nameKey="label"
-                          innerRadius={45}
-                          outerRadius={75}
-                          paddingAngle={3}
-                          label={renderPieLabel}
-                          labelLine={false}
-                        >
-                          {patientVisitTypeData.map((entry, index) => (
-                            <Cell key={`visit-type-${index}`} fill={COLORS[(index + 4) % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </RechartsPieChart>
+            {hasWardData && (
+              <Section
+                title="Bed Occupancy by Ward"
+                icon={<Bed className="h-4 w-4" />}
+              >
+                <div
+                  className="overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden"
+                  style={hideScrollbarStyle}
+                >
+                  <div style={{ minWidth: Math.max((beds?.byWard?.length ?? 0) * 110, 420) }}>
+                    <ResponsiveContainer width="100%" height={240}>
+                      <BarChart data={(beds?.byWard ?? []).map((item) => ({ ward: item.label, occupied: item.count }))}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                        <XAxis dataKey="ward" stroke="#9CA3AF" fontSize={11} tick={{ fontSize: 10 }} interval={0} angle={-10} textAnchor="end" height={48} />
+                        <YAxis stroke="#9CA3AF" fontSize={11} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend />
+                        <Bar dataKey="occupied" fill="#3B82F6" radius={[4, 4, 0, 0]} name="Occupied" />
+                      </BarChart>
                     </ResponsiveContainer>
                   </div>
-                )}
-              </div>
-            </Section>
-          )}
+                </div>
+              </Section>
+            )}
+          </div>
+        )}
+
+        {(patientGenderData.length > 0 || patientVisitTypeData.length > 0) && (
+          <Section title="Patient Demographics" icon={<Users className="h-4 w-4" />}>
+            <div className="grid gap-6 md:grid-cols-3">
+              {patientGenderData.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">Gender</h3>
+                    <span className="text-[11px] text-gray-400">{overview.patients.genderDistribution.reduce((sum, item) => sum + item.count, 0)} total</span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <RechartsPieChart>
+                      <Pie
+                        data={patientGenderData}
+                        dataKey="count"
+                        nameKey="label"
+                        innerRadius={45}
+                        outerRadius={75}
+                        paddingAngle={3}
+                        label={renderPieLabel}
+                        labelLine={false}
+                      >
+                        {patientGenderData.map((entry, index) => (
+                          <Cell key={`gender-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {patientVisitTypeData.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">First visits</h3>
+                    <span className="text-[11px] text-gray-400">{overview.patients.firstTimeVsReturning.reduce((sum, item) => sum + item.count, 0)} total</span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <RechartsPieChart>
+                      <Pie
+                        data={patientVisitTypeData}
+                        dataKey="count"
+                        nameKey="label"
+                        innerRadius={45}
+                        outerRadius={75}
+                        paddingAngle={3}
+                        label={renderPieLabel}
+                        labelLine={false}
+                      >
+                        {patientVisitTypeData.map((entry, index) => (
+                          <Cell key={`visit-type-${index}`} fill={COLORS[(index + 4) % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+          </Section>
+        )}
 
         {(theatreStatusData.length > 0 || theatreOutcomeData.length > 0) && (
           <Section title="Theatre Performance" icon={<ClipboardCheck className="h-4 w-4" />}>
