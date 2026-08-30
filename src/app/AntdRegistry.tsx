@@ -26,7 +26,30 @@ export default function AntdRegistry({
       <ConfigProvider
         theme={{
           token: {
-            fontFamily: 'Montserrat, sans-serif',
+            fontFamily: 'var(--font-montserrat), Montserrat, sans-serif',
+          },
+          components: {
+            Button: {
+              fontFamily: 'var(--font-montserrat), Montserrat, sans-serif',
+            },
+            Input: {
+              fontFamily: 'var(--font-montserrat), Montserrat, sans-serif',
+            },
+            Form: {
+              fontFamily: 'var(--font-montserrat), Montserrat, sans-serif',
+            },
+            Typography: {
+              fontFamily: 'var(--font-montserrat), Montserrat, sans-serif',
+            },
+            Modal: {
+              fontFamily: 'var(--font-montserrat), Montserrat, sans-serif',
+            },
+            Select: {
+              fontFamily: 'var(--font-montserrat), Montserrat, sans-serif',
+            },
+            Table: {
+              fontFamily: 'var(--font-montserrat), Montserrat, sans-serif',
+            },
           },
         }}
       >
