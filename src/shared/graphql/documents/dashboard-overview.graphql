@@ -8,6 +8,9 @@ query DashboardOverview($input: DashboardOverviewInput) {
       activePatients
       registeredToday
       registeredInPeriod
+      genderDistribution { label count }
+      ageDistribution { label count }
+      firstTimeVsReturning { label count }
     }
 
     visits {
@@ -28,6 +31,7 @@ query DashboardOverview($input: DashboardOverviewInput) {
         visitDateTime
         status
       }
+      activityRevenue { label amount count }
     }
 
     laboratory {
@@ -48,6 +52,8 @@ query DashboardOverview($input: DashboardOverviewInput) {
       occupied
       totalActive
       allocatedInPeriod
+      byWard { label count }
+      byDepartment { label count }
     }
 
     theatre {
@@ -64,6 +70,8 @@ query DashboardOverview($input: DashboardOverviewInput) {
         status
         priority
       }
+      byStatus { label count }
+      outcomes { label count }
     }
 
     financial {
@@ -74,6 +82,8 @@ query DashboardOverview($input: DashboardOverviewInput) {
       paymentsReceivedInPeriod
       pendingCredits
       successfulCreditsInPeriod
+      creditsAmount
+      refundsAmount
       revenueTrend {
         label
         start
@@ -87,6 +97,8 @@ query DashboardOverview($input: DashboardOverviewInput) {
         status
         recordedAt
       }
+      paymentMethods { label count }
+      revenueVsGrantsDiscounts { label amount count }
     }
 
     incidents {
@@ -97,6 +109,7 @@ query DashboardOverview($input: DashboardOverviewInput) {
 
     guests {
       pendingRequests
+      byStatus { label count }
     }
   }
 }
