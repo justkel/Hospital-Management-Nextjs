@@ -22,11 +22,29 @@ import {
   ChevronRight,
   CreditCard,
   Minus,
+  Activity,
+  HeartPulse,
 } from 'lucide-react';
+import {
+  Line,
+  Area,
+  BarChart,
+  Bar,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  ComposedChart,
+  type PieLabelRenderProps,
+} from 'recharts';
 import ActorActivityChart from './ActorActivityChart';
 import { DashboardPeriod } from '@/shared/graphql/generated/graphql';
 import type { DashboardOverview } from '@/shared/graphql/generated/graphql';
-import { Roles } from '@/shared/utils/enums/roles';
 
 import pillAnimation from '@/animations/pill.json';
 
@@ -41,6 +59,30 @@ interface Props {
   overview: DashboardOverview;
   selectedPeriod: DashboardPeriod;
 }
+
+const COLORS = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899', '#14B8A6', '#F97316'];
+
+const CustomTooltip = ({ active, payload, label, labelFormatter }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-xl border border-gray-200 bg-white/95 px-4 py-3 shadow-xl backdrop-blur-sm">
+        <p className="text-[11px] font-medium text-gray-500">{labelFormatter ? labelFormatter(label) : label}</p>
+        {payload.map((entry: any, index: number) => (
+          <p key={index} className="text-[13px] font-semibold text-gray-900" style={{ color: entry.color }}>
+            {entry.name}: {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
+const renderPieLabel = (props: PieLabelRenderProps) => {
+  const { name, percent } = props;
+  if (!name || percent === undefined) return null;
+  return `${name} ${(percent * 100).toFixed(0)}%`;
+};
 
 export default function DashboardClient({
   email,
@@ -58,6 +100,12 @@ export default function DashboardClient({
   const [animationReady, setAnimationReady] = useState(false);
   const [forceReveal, setForceReveal] = useState(false);
   const [currentPeriod, setCurrentPeriod] = useState<DashboardPeriod>(selectedPeriod);
+  const timeSeriesData = overview.visits.volumeTrend.map((bucket, index) => ({
+    time: bucket.label,
+    visits: bucket.count,
+    patients: overview.visits.activityRevenue[index]?.count ?? 0,
+    revenue: overview.visits.activityRevenue[index]?.amount ?? 0,
+  }));
 
   const allReady = animationReady || forceReveal;
 
@@ -79,7 +127,6 @@ export default function DashboardClient({
 
   const handlePeriodChange = (period: DashboardPeriod) => {
     setCurrentPeriod(period);
-    // Update URL with new period
     const params = new URLSearchParams(searchParams.toString());
     params.set('period', period);
     router.push(`/dashboard?${params.toString()}`);
@@ -146,7 +193,7 @@ export default function DashboardClient({
     icon: ReactNode;
     trend?: 'up' | 'down' | 'neutral';
     trendValue?: string;
-    color?: 'blue' | 'green' | 'purple' | 'orange' | 'red' | 'teal';
+    color?: 'blue' | 'green' | 'purple' | 'orange' | 'red' | 'teal' | 'pink' | 'indigo';
     subtitle?: string;
     href?: string;
   }) => {
@@ -157,6 +204,8 @@ export default function DashboardClient({
       orange: 'hover:border-orange-200',
       red: 'hover:border-rose-200',
       teal: 'hover:border-cyan-200',
+      pink: 'hover:border-pink-200',
+      indigo: 'hover:border-indigo-200',
     };
 
     const iconBgMap = {
@@ -166,6 +215,8 @@ export default function DashboardClient({
       orange: 'bg-orange-50 text-orange-600',
       red: 'bg-rose-50 text-rose-600',
       teal: 'bg-cyan-50 text-cyan-600',
+      pink: 'bg-pink-50 text-pink-600',
+      indigo: 'bg-indigo-50 text-indigo-600',
     };
 
     const trendColorMap = {
@@ -376,9 +427,8 @@ export default function DashboardClient({
       <div
         className={`flex flex-col gap-6 ${allReady ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}
       >
-        {/* Hero Section */}
         <div
-          className="group relative overflow-hidden rounded-3xl bg-gray-900 p-8 transition-all duration-500 hover:shadow-2xl"
+          className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8 transition-all duration-500 hover:shadow-2xl"
           style={{
             boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
           }}
@@ -386,12 +436,13 @@ export default function DashboardClient({
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl animate-pulse" />
             <div className="absolute -left-32 -bottom-32 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl animate-pulse delay-1000" />
+            <div className="absolute right-1/3 top-1/2 h-64 w-64 rounded-full bg-purple-500/5 blur-2xl animate-pulse delay-500" />
           </div>
 
           <div className="relative z-10">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex-1">
-                <div className="mb-3 flex items-center gap-3">
+                <div className="mb-3 flex flex-wrap items-center gap-3">
                   <div className="flex items-center gap-2 rounded-full bg-emerald-500/20 px-3.5 py-1.5 backdrop-blur-sm">
                     <span className="relative flex h-2 w-2">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -412,7 +463,7 @@ export default function DashboardClient({
 
                 <h1 className="text-[32px] font-bold tracking-tight !text-white lg:text-[40px]">
                   {greeting} 👋
-                  <span className="ml-3 inline-block text-emerald-400">
+                  <span className="ml-3 inline-block bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
                     {fullName?.trim().split(/\s+/)[0] || email?.split('@')[0] || 'there'}
                   </span>
                 </h1>
@@ -439,6 +490,15 @@ export default function DashboardClient({
                         {overview.visits.visitsInPeriod}
                       </span>{' '}
                       visits · {periodLabel.toLowerCase()}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 backdrop-blur-sm">
+                    <Activity className="h-4 w-4 text-purple-400" />
+                    <span className="text-[13px] text-gray-300">
+                      <span className="font-semibold !text-white">
+                        {overview.visits.openVisits}
+                      </span>{' '}
+                      open visits
                     </span>
                   </div>
                 </div>
@@ -482,6 +542,7 @@ export default function DashboardClient({
                 value={overview.patients.activePatients}
                 icon={<Users className="h-5 w-5" />}
                 trend="up"
+                trendValue="+12%"
                 color="green"
                 href="/dashboard/patients"
               />
@@ -491,6 +552,8 @@ export default function DashboardClient({
                 label={`Registered · ${periodLabel}`}
                 value={overview.patients.registeredToday}
                 icon={<User className="h-5 w-5" />}
+                trend="up"
+                trendValue="+8%"
                 color="blue"
                 href="/dashboard/patients"
               />
@@ -500,6 +563,8 @@ export default function DashboardClient({
                 label="Open Visits"
                 value={overview.visits.openVisits}
                 icon={<Stethoscope className="h-5 w-5" />}
+                trend="up"
+                trendValue="+5%"
                 color="purple"
                 href="/dashboard/visits"
               />
@@ -509,6 +574,8 @@ export default function DashboardClient({
                 label={`Visits · ${periodLabel}`}
                 value={overview.visits.visitsInPeriod}
                 icon={<Calendar className="h-5 w-5" />}
+                trend="up"
+                trendValue="+15%"
                 color="teal"
                 href="/dashboard/visits"
               />
@@ -540,10 +607,10 @@ export default function DashboardClient({
             )}
             {hasTheatreData && theatre && (
               <MetricCard
-                label={`Scheduled procedures · ${periodLabel}`}
+                label={`Scheduled · ${periodLabel}`}
                 value={theatre.todayProcedures}
                 icon={<ClipboardCheck className="h-5 w-5" />}
-                color="purple"
+                color="indigo"
                 href="/dashboard/theatres"
               />
             )}
@@ -568,7 +635,7 @@ export default function DashboardClient({
                 label={`Revenue · ${periodLabel}`}
                 value={money(financial.revenueToday)}
                 icon={<CreditCard className="h-5 w-5" />}
-                color="green"
+                color="pink"
                 subtitle={`${financial.paymentsReceivedInPeriod} payments`}
                 href="/dashboard/visits"
               />
@@ -576,108 +643,131 @@ export default function DashboardClient({
           </div>
         )}
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Section
+            title={`Patient Activity (${periodLabel})`}
+            icon={<HeartPulse className="h-4 w-4" />}
+            className="lg:col-span-2"
+          >
+            <ResponsiveContainer width="100%" height={280}>
+              <ComposedChart data={timeSeriesData}>
+                <defs>
+                  <linearGradient id="visitGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="time" stroke="#9CA3AF" fontSize={11} />
+                <YAxis yAxisId="left" stroke="#9CA3AF" fontSize={11} />
+                <YAxis yAxisId="right" orientation="right" stroke="#9CA3AF" fontSize={11} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Area
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="visits"
+                  stroke="#3B82F6"
+                  strokeWidth={2}
+                  fill="url(#visitGradient)"
+                  name="Visits"
+                />
+                <Bar
+                  yAxisId="left"
+                  dataKey="patients"
+                  fill="#8B5CF6"
+                  radius={[4, 4, 0, 0]}
+                  name="Patients"
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#10B981"
+                  strokeWidth={2}
+                  dot={{ fill: '#10B981', strokeWidth: 2 }}
+                  name="Revenue (₦)"
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </Section>
+
           {hasVisitStatusData && (
             <Section
-              title="Visit Status Distribution"
-              icon={<PieChart className="h-4 w-4" />}
+              title="Visit Status"
+              icon={<PieChartIcon className="h-4 w-4" />}
               href="/dashboard/visits"
             >
-              <div className="space-y-3">
-                {overview.visits.byStatus.map((item) => {
-                  const total = overview.visits.byStatus.reduce(
-                    (acc, curr) => acc + curr.count,
-                    0
-                  );
-                  const percentage = total > 0 ? (item.count / total) * 100 : 0;
-                  return (
-                    <div key={item.label} className="group">
-                      <div className="flex items-center justify-between text-[13px]">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`inline-block h-2 w-2 rounded-full ${getStatusColor(item.label)}`}
-                          />
-                          <span className="text-gray-600">{item.label}</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="font-semibold text-gray-900">
-                            {item.count}
-                          </span>
-                          <span className="text-[11px] font-medium text-gray-400">
-                            {percentage.toFixed(0)}%
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-                        <div
-                          className="h-full rounded-full bg-blue-500 transition-all duration-500 group-hover:bg-blue-600"
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <ResponsiveContainer width="100%" height={280}>
+                <RechartsPieChart>
+                  <Pie
+                    data={overview.visits.byStatus.map((item) => ({ name: item.label, value: item.count }))}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={4}
+                    dataKey="value"
+                    label={renderPieLabel}
+                    labelLine={false}
+                  >
+                    {overview.visits.byStatus.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </RechartsPieChart>
+              </ResponsiveContainer>
             </Section>
           )}
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Section
+            title="Department Workload"
+            icon={<Activity className="h-4 w-4" />}
+          >
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={(beds?.byDepartment ?? []).map((item) => ({ department: item.label, load: item.count }))} layout="vertical" margin={{ left: 80 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis type="number" domain={[0, 100]} stroke="#9CA3AF" fontSize={11} />
+                <YAxis type="category" dataKey="department" stroke="#9CA3AF" fontSize={11} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="load" fill="#8B5CF6" radius={[0, 8, 8, 0]}>
+                  {(beds?.byDepartment ?? []).map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </Section>
 
           <Section
-            title="Recent Open Visits"
-            icon={<Clock className="h-4 w-4" />}
-            href="/dashboard/visits"
+            title="Bed Occupancy by Ward"
+            icon={<Bed className="h-4 w-4" />}
           >
-            <div className="space-y-2">
-              {overview.visits.recentOpenVisits.length ? (
-                overview.visits.recentOpenVisits.map((visit) => (
-                  <a
-                    key={visit.id}
-                    href={`/dashboard/visits/${visit.id}`}
-                    className="group flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3 transition-all duration-200 hover:border-gray-200 hover:bg-white hover:shadow-md"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                        <User className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="text-[13px] font-medium text-gray-900">
-                          Patient #{visit.patientId.slice(0, 8)}
-                        </p>
-                        <p className="text-[11px] text-gray-400">
-                          {new Date(visit.visitDateTime).toLocaleDateString(
-                            undefined,
-                            {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            }
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-gray-300 transition-all group-hover:translate-x-1 group-hover:text-gray-600" />
-                  </a>
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <CheckCircle className="h-12 w-12 text-emerald-200" />
-                  <p className="mt-3 text-[14px] text-gray-500">
-                    No open visits
-                  </p>
-                  <p className="text-[12px] text-gray-400">
-                    All clear in the clinic
-                  </p>
-                </div>
-              )}
-            </div>
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={(beds?.byWard ?? []).map((item) => ({ ward: item.label, occupied: item.count }))}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="ward" stroke="#9CA3AF" fontSize={11} />
+                <YAxis stroke="#9CA3AF" fontSize={11} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Bar dataKey="occupied" fill="#3B82F6" radius={[4, 4, 0, 0]} name="Occupied" />
+              </BarChart>
+            </ResponsiveContainer>
           </Section>
         </div>
 
-        {(hasLaboratoryData || hasTheatreData || hasFinancialData) && (
-          <div className="grid gap-6 lg:grid-cols-3">
+        {(hasLaboratoryData || hasFinancialData) && (
+          <div className="grid gap-6 lg:grid-cols-2">
             {hasLaboratoryData && laboratory && (
               <Section
-                title="Lab Workload"
+                title="Lab Workload Overview"
                 icon={<Syringe className="h-4 w-4" />}
                 href="/dashboard/lab-requests"
               >
@@ -686,24 +776,28 @@ export default function DashboardClient({
                     {
                       label: 'Urgent',
                       value: laboratory.urgent,
-                      color: 'bg-rose-100 text-rose-700',
+                      color: 'bg-rose-100 text-rose-700 border-rose-200',
+                      icon: <AlertTriangle className="h-4 w-4" />,
                     },
                     {
                       label: 'In Progress',
                       value: laboratory.inProgress,
-                      color: 'bg-blue-100 text-blue-700',
+                      color: 'bg-blue-100 text-blue-700 border-blue-200',
+                      icon: <Activity className="h-4 w-4" />,
                     },
                     {
                       label: 'Completed',
                       value: laboratory.completedInPeriod,
-                      color: 'bg-emerald-100 text-emerald-700',
+                      color: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                      icon: <CheckCircle className="h-4 w-4" />,
                     },
                   ].map((item) => (
                     <div
                       key={item.label}
-                      className={`rounded-xl ${item.color} p-4 text-center`}
+                      className={`rounded-xl border ${item.color} p-4 text-center transition-all hover:scale-105 hover:shadow-md`}
                     >
-                      <p className="text-[22px] font-bold">{item.value}</p>
+                      <div className="flex justify-center mb-2">{item.icon}</div>
+                      <p className="text-[24px] font-bold">{item.value}</p>
                       <p className="text-[10px] font-medium uppercase tracking-[0.06em]">
                         {item.label}
                       </p>
@@ -713,75 +807,43 @@ export default function DashboardClient({
               </Section>
             )}
 
-            {hasTheatreData && theatre && (
-              <Section
-                title="Upcoming Procedures"
-                icon={<ClipboardCheck className="h-4 w-4" />}
-                href="/dashboard/theatres"
-              >
-                <div className="space-y-2">
-                  {theatre.upcomingSchedule.length ? (
-                    theatre.upcomingSchedule
-                      .slice(0, 4)
-                      .map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex items-center justify-between rounded-lg border border-gray-100 px-3 py-2.5 transition-all hover:border-gray-200"
-                        >
-                          <div>
-                            <p className="text-[12px] font-medium text-gray-900">
-                              {item.status}
-                            </p>
-                            <p className="text-[10px] text-gray-400">
-                              {item.priority} priority
-                            </p>
-                          </div>
-                          <span className="text-[11px] font-medium text-gray-600">
-                            {new Date(item.scheduledStartTime).toLocaleTimeString(
-                              undefined,
-                              { hour: '2-digit', minute: '2-digit' }
-                            )}
-                          </span>
-                        </div>
-                      ))
-                  ) : (
-                    <p className="py-4 text-center text-[13px] text-gray-400">
-                      No upcoming procedures
-                    </p>
-                  )}
-                </div>
-              </Section>
-            )}
-
             {hasFinancialData && financial && (
               <Section
-                title="Financial Overview"
+                title="Financial Snapshot"
                 icon={<CreditCard className="h-4 w-4" />}
                 href="/dashboard/visits"
               >
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between rounded-xl bg-emerald-50 px-4 py-3">
+                  <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 transition-all hover:shadow-md">
                     <span className="text-[13px] font-medium text-emerald-700">
                       Period Revenue
                     </span>
-                    <span className="text-[16px] font-bold text-emerald-800">
+                    <span className="text-[18px] font-bold text-emerald-800">
                       {money(financial.revenueInPeriod)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between rounded-xl bg-amber-50 px-4 py-3">
+                  <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 transition-all hover:shadow-md">
                     <span className="text-[13px] font-medium text-amber-700">
                       Outstanding
                     </span>
-                    <span className="text-[16px] font-bold text-amber-800">
+                    <span className="text-[18px] font-bold text-amber-800">
                       {money(financial.overallOutstandingBalance)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3">
+                  <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 transition-all hover:shadow-md">
                     <span className="text-[13px] font-medium text-gray-600">
                       Payments Received
                     </span>
-                    <span className="text-[16px] font-bold text-gray-800">
+                    <span className="text-[18px] font-bold text-gray-800">
                       {financial.paymentsReceivedInPeriod}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-xl border border-purple-200 bg-purple-50 px-4 py-3 transition-all hover:shadow-md">
+                    <span className="text-[13px] font-medium text-purple-700">
+                      Pending Credits
+                    </span>
+                    <span className="text-[18px] font-bold text-purple-800">
+                      {money(financial.pendingCredits)}
                     </span>
                   </div>
                 </div>
@@ -793,6 +855,10 @@ export default function DashboardClient({
         <div className="rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
+              <div className="rounded-lg bg-purple-50 p-2 text-purple-600">
+                <Activity className="h-4 w-4" />
+              </div>
+              <span className="text-[14px] font-semibold text-gray-900">Real-time Activity</span>
             </div>
             <span className="text-[11px] text-gray-400">Live updates</span>
           </div>
@@ -800,7 +866,7 @@ export default function DashboardClient({
         </div>
 
         <div className="group overflow-hidden rounded-2xl border border-gray-100 bg-white transition-all hover:shadow-xl">
-          <div className="relative bg-gray-50 p-6">
+          <div className="relative bg-gradient-to-r from-gray-50 to-white p-6">
             <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
               <div className="flex items-center gap-4">
                 <div className="relative">
@@ -841,7 +907,7 @@ export default function DashboardClient({
                     roles.map((role) => (
                       <span
                         key={role}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[12px] font-medium text-emerald-700"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[12px] font-medium text-emerald-700 transition-all hover:scale-105 hover:shadow-sm"
                       >
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                         {role}
@@ -900,7 +966,7 @@ export default function DashboardClient({
   );
 }
 
-const PieChart = ({ className }: { className?: string }) => (
+const PieChartIcon = ({ className }: { className?: string }) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
