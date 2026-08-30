@@ -399,6 +399,14 @@ export default function DashboardClient({
     hasTheatreData ||
     hasIncidentData ||
     hasFinancialData;
+  const patientGenderData = overview.patients.genderDistribution.filter((entry) => entry.count > 0);
+  const patientAgeData = overview.patients.ageDistribution.filter((entry) => entry.count > 0);
+  const patientVisitTypeData = overview.patients.firstTimeVsReturning.filter((entry) => entry.count > 0);
+  const theatreStatusData = (theatre?.byStatus ?? []).filter((entry) => entry.count > 0);
+  const theatreOutcomeData = (theatre?.outcomes ?? []).filter((entry) => entry.count > 0);
+  const paymentMethodData = (financial?.paymentMethods ?? []).filter((entry) => entry.count > 0);
+  const revenueBreakdownData = (financial?.revenueVsGrantsDiscounts ?? []).filter((entry) => entry.amount > 0 || entry.count > 0);
+  const guestStatusData = (overview.guests?.byStatus ?? []).filter((entry) => entry.count > 0);
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -762,6 +770,248 @@ export default function DashboardClient({
             </ResponsiveContainer>
           </Section>
         </div>
+
+        {(overview.patients.genderDistribution.length > 0 ||
+          overview.patients.ageDistribution.length > 0 ||
+          overview.patients.firstTimeVsReturning.length > 0) && (
+          <Section title="Patient Demographics" icon={<Users className="h-4 w-4" />}>
+            <div className="grid gap-6 md:grid-cols-3">
+              {patientGenderData.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">Gender</h3>
+                    <span className="text-[11px] text-gray-400">{overview.patients.genderDistribution.reduce((sum, item) => sum + item.count, 0)} total</span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <RechartsPieChart>
+                      <Pie
+                        data={patientGenderData}
+                        dataKey="count"
+                        nameKey="label"
+                        innerRadius={45}
+                        outerRadius={75}
+                        paddingAngle={3}
+                        label={renderPieLabel}
+                        labelLine={false}
+                      >
+                        {patientGenderData.map((entry, index) => (
+                          <Cell key={`gender-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {patientAgeData.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">Age bands</h3>
+                    <span className="text-[11px] text-gray-400">{overview.patients.ageDistribution.reduce((sum, item) => sum + item.count, 0)} total</span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <RechartsPieChart>
+                      <Pie
+                        data={patientAgeData}
+                        dataKey="count"
+                        nameKey="label"
+                        innerRadius={45}
+                        outerRadius={75}
+                        paddingAngle={3}
+                        label={renderPieLabel}
+                        labelLine={false}
+                      >
+                        {patientAgeData.map((entry, index) => (
+                          <Cell key={`age-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {patientVisitTypeData.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">First visits</h3>
+                    <span className="text-[11px] text-gray-400">{overview.patients.firstTimeVsReturning.reduce((sum, item) => sum + item.count, 0)} total</span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <RechartsPieChart>
+                      <Pie
+                        data={patientVisitTypeData}
+                        dataKey="count"
+                        nameKey="label"
+                        innerRadius={45}
+                        outerRadius={75}
+                        paddingAngle={3}
+                        label={renderPieLabel}
+                        labelLine={false}
+                      >
+                        {patientVisitTypeData.map((entry, index) => (
+                          <Cell key={`visit-type-${index}`} fill={COLORS[(index + 4) % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+          </Section>
+        )}
+
+        {(theatreStatusData.length > 0 || theatreOutcomeData.length > 0) && (
+          <Section title="Theatre Performance" icon={<ClipboardCheck className="h-4 w-4" />}>
+            <div className="grid gap-6 md:grid-cols-2">
+              {theatreStatusData.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">Procedure status</h3>
+                    <span className="text-[11px] text-gray-400">{theatreStatusData.reduce((sum, item) => sum + item.count, 0)} total</span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <RechartsPieChart>
+                      <Pie
+                        data={theatreStatusData}
+                        dataKey="count"
+                        nameKey="label"
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={3}
+                        label={renderPieLabel}
+                        labelLine={false}
+                      >
+                        {theatreStatusData.map((entry, index) => (
+                          <Cell key={`status-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {theatreOutcomeData.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">Procedure outcomes</h3>
+                    <span className="text-[11px] text-gray-400">{theatreOutcomeData.reduce((sum, item) => sum + item.count, 0)} total</span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <RechartsPieChart>
+                      <Pie
+                        data={theatreOutcomeData}
+                        dataKey="count"
+                        nameKey="label"
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={3}
+                        label={renderPieLabel}
+                        labelLine={false}
+                      >
+                        {theatreOutcomeData.map((entry, index) => (
+                          <Cell key={`outcome-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+          </Section>
+        )}
+
+        {(paymentMethodData.length > 0 || revenueBreakdownData.length > 0) && (
+          <Section title="Financial Mix" icon={<CreditCard className="h-4 w-4" />}>
+            <div className="grid gap-6 md:grid-cols-2">
+              {paymentMethodData.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">Payment methods</h3>
+                    <span className="text-[11px] text-gray-400">including balance payments</span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <RechartsPieChart>
+                      <Pie
+                        data={paymentMethodData}
+                        dataKey="count"
+                        nameKey="label"
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={3}
+                        label={renderPieLabel}
+                        labelLine={false}
+                      >
+                        {paymentMethodData.map((entry, index) => (
+                          <Cell key={`payment-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {revenueBreakdownData.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">Revenue vs grants & discounts</h3>
+                    <span className="text-[11px] text-gray-400">net trend</span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart data={revenueBreakdownData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                      <XAxis dataKey="label" stroke="#9CA3AF" fontSize={11} />
+                      <YAxis stroke="#9CA3AF" fontSize={11} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="amount" radius={[8, 8, 0, 0]}>
+                        {revenueBreakdownData.map((entry, index) => (
+                          <Cell key={`revenue-breakdown-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+          </Section>
+        )}
+
+        {overview.guests && (overview.guests.pendingRequests > 0 || guestStatusData.length > 0) && (
+          <Section title="Guest Access Requests" icon={<ShieldCheck className="h-4 w-4" />}>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-500">Pending requests</p>
+                <p className="mt-3 text-[32px] font-bold text-gray-900">{overview.guests.pendingRequests}</p>
+              </div>
+              {guestStatusData.length > 0 && (
+                <ResponsiveContainer width="100%" height={220}>
+                  <RechartsPieChart>
+                    <Pie
+                      data={guestStatusData}
+                      dataKey="count"
+                      nameKey="label"
+                      innerRadius={45}
+                      outerRadius={75}
+                      paddingAngle={3}
+                      label={renderPieLabel}
+                      labelLine={false}
+                    >
+                      {guestStatusData.map((entry, index) => (
+                        <Cell key={`guest-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </Section>
+        )}
 
         {(hasLaboratoryData || hasFinancialData) && (
           <div className="grid gap-6 lg:grid-cols-2">
