@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -8,7 +8,6 @@ import Lottie from 'lottie-react';
 import {
   ShieldCheck,
   User,
-  Clock,
   TrendingUp,
   TrendingDown,
   Users,
@@ -62,12 +61,25 @@ interface Props {
 
 const COLORS = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899', '#14B8A6', '#F97316'];
 
-const CustomTooltip = ({ active, payload, label, labelFormatter }: any) => {
+type ChartTooltipEntry = {
+  color?: string;
+  name?: string | number;
+  value?: number | string;
+};
+
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: ChartTooltipEntry[];
+  label?: string | number;
+  labelFormatter?: (label: string | number) => string;
+};
+
+const CustomTooltip = ({ active, payload, label, labelFormatter }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-xl border border-gray-200 bg-white/95 px-4 py-3 shadow-xl backdrop-blur-sm">
-        <p className="text-[11px] font-medium text-gray-500">{labelFormatter ? labelFormatter(label) : label}</p>
-        {payload.map((entry: any, index: number) => (
+        <p className="text-[11px] font-medium text-gray-500">{labelFormatter ? labelFormatter(label ?? '') : label}</p>
+        {payload.map((entry, index) => (
           <p key={index} className="text-[13px] font-semibold text-gray-900" style={{ color: entry.color }}>
             {entry.name}: {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
           </p>
@@ -98,14 +110,36 @@ export default function DashboardClient({
   const searchParams = useSearchParams();
 
   const [animationReady, setAnimationReady] = useState(false);
-  const [forceReveal, setForceReveal] = useState(false);
-  const [currentPeriod, setCurrentPeriod] = useState<DashboardPeriod>(selectedPeriod);
+  const [forceReveal] = useState(true);
+  const currentPeriod =
+    (searchParams.get('period') as DashboardPeriod | null) &&
+    Object.values(DashboardPeriod).includes(searchParams.get('period') as DashboardPeriod)
+      ? (searchParams.get('period') as DashboardPeriod)
+      : selectedPeriod;
   const timeSeriesData = overview.visits.volumeTrend.map((bucket, index) => ({
     time: bucket.label,
     visits: bucket.count,
     patients: overview.visits.activityRevenue[index]?.count ?? 0,
     revenue: overview.visits.activityRevenue[index]?.amount ?? 0,
   }));
+  const compactTimeSeriesData = timeSeriesData.length > 12
+    ? timeSeriesData.filter((_, index, arr) => {
+      const step = Math.max(1, Math.ceil(arr.length / 12));
+      return index % step === 0 || index === arr.length - 1;
+    })
+    : timeSeriesData;
+
+  const formatChartTick = (value: string) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat('en-NG', {
+      month: 'short',
+      day: 'numeric',
+    }).format(date);
+  };
 
   const allReady = animationReady || forceReveal;
 
@@ -113,20 +147,7 @@ export default function DashboardClient({
     setAnimationReady(true);
   };
 
-  useEffect(() => {
-    const timeout = setTimeout(() => setForceReveal(true), 3000);
-    return () => clearTimeout(timeout);
-  }, []);
-
-  useEffect(() => {
-    const periodParam = searchParams.get('period') as DashboardPeriod | null;
-    if (periodParam && Object.values(DashboardPeriod).includes(periodParam)) {
-      setCurrentPeriod(periodParam);
-    }
-  }, [searchParams]);
-
   const handlePeriodChange = (period: DashboardPeriod) => {
-    setCurrentPeriod(period);
     const params = new URLSearchParams(searchParams.toString());
     params.set('period', period);
     router.push(`/dashboard?${params.toString()}`);
@@ -346,6 +367,7 @@ export default function DashboardClient({
     { value: DashboardPeriod.Today, label: 'Today' },
     { value: DashboardPeriod.ThisWeek, label: 'This week' },
     { value: DashboardPeriod.ThisMonth, label: 'This month' },
+    { value: DashboardPeriod.Last_3Months, label: 'Last 3 months' },
     { value: DashboardPeriod.Last_24Hours, label: 'Last 24 hours' },
     { value: DashboardPeriod.Last_7Days, label: 'Last 7 days' },
   ];
@@ -389,6 +411,10 @@ export default function DashboardClient({
       financial.pendingCredits > 0 ||
       financial.successfulCreditsInPeriod > 0 ||
       financial.recentTransactions.length > 0);
+  const guestStatusData = (overview.guests?.byStatus ?? []).filter((entry) => entry.count > 0);
+  const hasGuestData = Boolean(
+    overview.guests && (overview.guests.pendingRequests > 0 || guestStatusData.length > 0),
+  );
   const hasMetricData =
     overview.patients.activePatients > 0 ||
     overview.patients.registeredToday > 0 ||
@@ -398,26 +424,14 @@ export default function DashboardClient({
     hasBedData ||
     hasTheatreData ||
     hasIncidentData ||
-    hasFinancialData;
+    hasFinancialData ||
+    hasGuestData;
   const patientGenderData = overview.patients.genderDistribution.filter((entry) => entry.count > 0);
-  const patientAgeData = overview.patients.ageDistribution.filter((entry) => entry.count > 0);
   const patientVisitTypeData = overview.patients.firstTimeVsReturning.filter((entry) => entry.count > 0);
   const theatreStatusData = (theatre?.byStatus ?? []).filter((entry) => entry.count > 0);
   const theatreOutcomeData = (theatre?.outcomes ?? []).filter((entry) => entry.count > 0);
   const paymentMethodData = (financial?.paymentMethods ?? []).filter((entry) => entry.count > 0);
   const revenueBreakdownData = (financial?.revenueVsGrantsDiscounts ?? []).filter((entry) => entry.amount > 0 || entry.count > 0);
-  const guestStatusData = (overview.guests?.byStatus ?? []).filter((entry) => entry.count > 0);
-
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      'checked-in': 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      'in-progress': 'bg-blue-100 text-blue-700 border-blue-200',
-      'waiting': 'bg-amber-100 text-amber-700 border-amber-200',
-      'completed': 'bg-gray-100 text-gray-700 border-gray-200',
-      'cancelled': 'bg-rose-100 text-rose-700 border-rose-200',
-    };
-    return colors[status.toLowerCase()] || 'bg-gray-100 text-gray-700 border-gray-200';
-  };
 
   return (
     <>
@@ -594,7 +608,7 @@ export default function DashboardClient({
                 value={laboratory.pending}
                 icon={<Syringe className="h-5 w-5" />}
                 color="orange"
-                subtitle={`${laboratory.inProgress} in progress, ${laboratory.urgent} urgent`}
+                subtitle={`${laboratory.inProgress} in progress, ${laboratory.urgent} urgent / high priority`}
                 href="/dashboard/lab-requests"
               />
             )}
@@ -638,16 +652,6 @@ export default function DashboardClient({
                 }
               />
             )}
-            {hasFinancialData && financial && (
-              <MetricCard
-                label={`Revenue · ${periodLabel}`}
-                value={money(financial.revenueToday)}
-                icon={<CreditCard className="h-5 w-5" />}
-                color="pink"
-                subtitle={`${financial.paymentsReceivedInPeriod} payments`}
-                href="/dashboard/visits"
-              />
-            )}
           </div>
         )}
 
@@ -657,51 +661,61 @@ export default function DashboardClient({
             icon={<HeartPulse className="h-4 w-4" />}
             className="lg:col-span-2"
           >
-            <ResponsiveContainer width="100%" height={280}>
-              <ComposedChart data={timeSeriesData}>
-                <defs>
-                  <linearGradient id="visitGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                  </linearGradient>
-                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis dataKey="time" stroke="#9CA3AF" fontSize={11} />
-                <YAxis yAxisId="left" stroke="#9CA3AF" fontSize={11} />
-                <YAxis yAxisId="right" orientation="right" stroke="#9CA3AF" fontSize={11} />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                <Area
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="visits"
-                  stroke="#3B82F6"
-                  strokeWidth={2}
-                  fill="url(#visitGradient)"
-                  name="Visits"
-                />
-                <Bar
-                  yAxisId="left"
-                  dataKey="patients"
-                  fill="#8B5CF6"
-                  radius={[4, 4, 0, 0]}
-                  name="Patients"
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#10B981"
-                  strokeWidth={2}
-                  dot={{ fill: '#10B981', strokeWidth: 2 }}
-                  name="Revenue (₦)"
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
+            <div className="overflow-x-auto pb-2">
+              <div style={{ minWidth: Math.max(compactTimeSeriesData.length * 52, 640) }}>
+                <ResponsiveContainer width="100%" height={280}>
+                  <ComposedChart data={compactTimeSeriesData}>
+                    <defs>
+                      <linearGradient id="visitGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis
+                      dataKey="time"
+                      stroke="#9CA3AF"
+                      fontSize={11}
+                      tickFormatter={formatChartTick}
+                      minTickGap={14}
+                    />
+                    <YAxis yAxisId="left" stroke="#9CA3AF" fontSize={11} />
+                    <YAxis yAxisId="right" orientation="right" stroke="#9CA3AF" fontSize={11} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+                    <Area
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="visits"
+                      stroke="#3B82F6"
+                      strokeWidth={2}
+                      fill="url(#visitGradient)"
+                      name="Visits"
+                    />
+                    <Bar
+                      yAxisId="left"
+                      dataKey="patients"
+                      fill="#8B5CF6"
+                      radius={[4, 4, 0, 0]}
+                      name="Patients"
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#10B981"
+                      strokeWidth={2}
+                      dot={{ fill: '#10B981', strokeWidth: 2 }}
+                      name="Revenue (₦)"
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </Section>
 
           {hasVisitStatusData && (
@@ -739,129 +753,108 @@ export default function DashboardClient({
             title="Department Workload"
             icon={<Activity className="h-4 w-4" />}
           >
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={(beds?.byDepartment ?? []).map((item) => ({ department: item.label, load: item.count }))} layout="vertical" margin={{ left: 80 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis type="number" domain={[0, 100]} stroke="#9CA3AF" fontSize={11} />
-                <YAxis type="category" dataKey="department" stroke="#9CA3AF" fontSize={11} />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="load" fill="#8B5CF6" radius={[0, 8, 8, 0]}>
-                  {(beds?.byDepartment ?? []).map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="overflow-x-auto pb-2">
+              <div style={{ minWidth: Math.max((beds?.byDepartment?.length ?? 0) * 90, 420) }}>
+                <ResponsiveContainer width="100%" height={240}>
+                  <BarChart data={(beds?.byDepartment ?? []).map((item) => ({ department: item.label, load: item.count }))} layout="vertical" margin={{ left: 80 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis type="number" domain={[0, 100]} stroke="#9CA3AF" fontSize={11} />
+                    <YAxis type="category" dataKey="department" stroke="#9CA3AF" fontSize={11} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Bar dataKey="load" fill="#8B5CF6" radius={[0, 8, 8, 0]}>
+                      {(beds?.byDepartment ?? []).map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </Section>
 
           <Section
             title="Bed Occupancy by Ward"
             icon={<Bed className="h-4 w-4" />}
           >
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={(beds?.byWard ?? []).map((item) => ({ ward: item.label, occupied: item.count }))}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis dataKey="ward" stroke="#9CA3AF" fontSize={11} />
-                <YAxis stroke="#9CA3AF" fontSize={11} />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                <Bar dataKey="occupied" fill="#3B82F6" radius={[4, 4, 0, 0]} name="Occupied" />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="overflow-x-auto pb-2">
+              <div style={{ minWidth: Math.max((beds?.byWard?.length ?? 0) * 110, 420) }}>
+                <ResponsiveContainer width="100%" height={240}>
+                  <BarChart data={(beds?.byWard ?? []).map((item) => ({ ward: item.label, occupied: item.count }))}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="ward" stroke="#9CA3AF" fontSize={11} tick={{ fontSize: 10 }} interval={0} angle={-10} textAnchor="end" height={48} />
+                    <YAxis stroke="#9CA3AF" fontSize={11} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+                    <Bar dataKey="occupied" fill="#3B82F6" radius={[4, 4, 0, 0]} name="Occupied" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </Section>
         </div>
 
         {(overview.patients.genderDistribution.length > 0 ||
-          overview.patients.ageDistribution.length > 0 ||
           overview.patients.firstTimeVsReturning.length > 0) && (
-          <Section title="Patient Demographics" icon={<Users className="h-4 w-4" />}>
-            <div className="grid gap-6 md:grid-cols-3">
-              {patientGenderData.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">Gender</h3>
-                    <span className="text-[11px] text-gray-400">{overview.patients.genderDistribution.reduce((sum, item) => sum + item.count, 0)} total</span>
+            <Section title="Patient Demographics" icon={<Users className="h-4 w-4" />}>
+              <div className="grid gap-6 md:grid-cols-3">
+                {patientGenderData.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">Gender</h3>
+                      <span className="text-[11px] text-gray-400">{overview.patients.genderDistribution.reduce((sum, item) => sum + item.count, 0)} total</span>
+                    </div>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <RechartsPieChart>
+                        <Pie
+                          data={patientGenderData}
+                          dataKey="count"
+                          nameKey="label"
+                          innerRadius={45}
+                          outerRadius={75}
+                          paddingAngle={3}
+                          label={renderPieLabel}
+                          labelLine={false}
+                        >
+                          {patientGenderData.map((entry, index) => (
+                            <Cell key={`gender-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
                   </div>
-                  <ResponsiveContainer width="100%" height={220}>
-                    <RechartsPieChart>
-                      <Pie
-                        data={patientGenderData}
-                        dataKey="count"
-                        nameKey="label"
-                        innerRadius={45}
-                        outerRadius={75}
-                        paddingAngle={3}
-                        label={renderPieLabel}
-                        labelLine={false}
-                      >
-                        {patientGenderData.map((entry, index) => (
-                          <Cell key={`gender-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </RechartsPieChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
+                )}
 
-              {patientAgeData.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">Age bands</h3>
-                    <span className="text-[11px] text-gray-400">{overview.patients.ageDistribution.reduce((sum, item) => sum + item.count, 0)} total</span>
+                {patientVisitTypeData.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">First visits</h3>
+                      <span className="text-[11px] text-gray-400">{overview.patients.firstTimeVsReturning.reduce((sum, item) => sum + item.count, 0)} total</span>
+                    </div>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <RechartsPieChart>
+                        <Pie
+                          data={patientVisitTypeData}
+                          dataKey="count"
+                          nameKey="label"
+                          innerRadius={45}
+                          outerRadius={75}
+                          paddingAngle={3}
+                          label={renderPieLabel}
+                          labelLine={false}
+                        >
+                          {patientVisitTypeData.map((entry, index) => (
+                            <Cell key={`visit-type-${index}`} fill={COLORS[(index + 4) % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
                   </div>
-                  <ResponsiveContainer width="100%" height={220}>
-                    <RechartsPieChart>
-                      <Pie
-                        data={patientAgeData}
-                        dataKey="count"
-                        nameKey="label"
-                        innerRadius={45}
-                        outerRadius={75}
-                        paddingAngle={3}
-                        label={renderPieLabel}
-                        labelLine={false}
-                      >
-                        {patientAgeData.map((entry, index) => (
-                          <Cell key={`age-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </RechartsPieChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-
-              {patientVisitTypeData.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-gray-500">First visits</h3>
-                    <span className="text-[11px] text-gray-400">{overview.patients.firstTimeVsReturning.reduce((sum, item) => sum + item.count, 0)} total</span>
-                  </div>
-                  <ResponsiveContainer width="100%" height={220}>
-                    <RechartsPieChart>
-                      <Pie
-                        data={patientVisitTypeData}
-                        dataKey="count"
-                        nameKey="label"
-                        innerRadius={45}
-                        outerRadius={75}
-                        paddingAngle={3}
-                        label={renderPieLabel}
-                        labelLine={false}
-                      >
-                        {patientVisitTypeData.map((entry, index) => (
-                          <Cell key={`visit-type-${index}`} fill={COLORS[(index + 4) % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </RechartsPieChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </div>
-          </Section>
-        )}
+                )}
+              </div>
+            </Section>
+          )}
 
         {(theatreStatusData.length > 0 || theatreOutcomeData.length > 0) && (
           <Section title="Theatre Performance" icon={<ClipboardCheck className="h-4 w-4" />}>
@@ -981,7 +974,7 @@ export default function DashboardClient({
           </Section>
         )}
 
-        {overview.guests && (overview.guests.pendingRequests > 0 || guestStatusData.length > 0) && (
+        {hasGuestData && overview.guests && (
           <Section title="Guest Access Requests" icon={<ShieldCheck className="h-4 w-4" />}>
             <div className="grid gap-6 md:grid-cols-2">
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
