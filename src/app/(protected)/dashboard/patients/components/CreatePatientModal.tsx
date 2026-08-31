@@ -8,7 +8,7 @@ import {
 } from '@/shared/graphql/generated/graphql';
 import { X, User, Phone, Heart, Users, MapPin, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react';
 
-const NIGERIAN_STATES = [
+export const NIGERIAN_STATES = [
     'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa',
     'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo',
     'Ekiti', 'Enugu', 'Gombe', 'Imo', 'Jigawa', 'Kaduna',

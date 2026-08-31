@@ -7,7 +7,6 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   CheckCircle2,
-  CircleDollarSign,
   Gift,
   Loader2,
   PlusCircle,
@@ -17,6 +16,7 @@ import {
   X,
   XCircle,
 } from 'lucide-react';
+import { NairaIcon } from '@/components/icon/NairaIcon';
 
 import { clientFetch } from '@/lib/clientFetch';
 import { useUrlFilters } from '@/hooks/useUrlFilters';
@@ -488,7 +488,7 @@ export default function PatientWalletClient({
           <div className="flex flex-wrap items-center justify-between gap-4 p-6">
             <div className="flex items-center gap-4">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl !bg-[#ECFBF5]">
-                <CircleDollarSign size={20} className="!text-[#1D9E75]" />
+                <NairaIcon size={20} className="!text-[#1D9E75]" />
               </div>
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] !text-[#B4B2A9]">
@@ -597,7 +597,7 @@ export default function PatientWalletClient({
                   const meta = TYPE_META[t.type] ?? {
                     label: t.type,
                     sign: '+' as const,
-                    icon: CircleDollarSign,
+                    icon: NairaIcon,
                     badgeClass: '!bg-[#F7F7F5] !text-[#767570]',
                   };
                   const Icon = meta.icon;

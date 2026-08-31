@@ -408,7 +408,7 @@ export default function BedForm({
                         loading={loading}
                         disabled={!canSubmit}
                         onClick={submit}
-                        className="!h-12 w-full !rounded-xl !border-0 !bg-[#0c1a12] text-sm font-semibold hover:!bg-[#16211B] lg:flex-1"
+                        className="!h-12 w-full !rounded-xl !border-0 !bg-[#0c1a12] !text-white text-sm font-semibold hover:!bg-[#16211B] lg:flex-1"
                     >
                         {loading
                             ? isEdit ? 'Updating bed…' : 'Deploying beds…'
