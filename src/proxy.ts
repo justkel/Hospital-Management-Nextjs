@@ -39,6 +39,7 @@ const routeRoles: Record<string, Roles[]> = {
     Roles.LAB_TECH,
     Roles.GUEST
   ],
+  '/dashboard/financials': [Roles.ADMIN, Roles.BILLING_OFFICER],
 
   // Admin only
   '/dashboard/guest-requests': [Roles.ADMIN],

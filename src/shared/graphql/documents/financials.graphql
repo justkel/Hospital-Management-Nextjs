@@ -1,0 +1,61 @@
+query Financials($input: FinancialsInput) {
+  financials(input: $input) {
+    items {
+      id
+      type
+      direction
+      amount
+      currency
+      status
+      occurredAt
+      patientId
+      patientName
+      visitId
+      invoiceId
+      invoiceNumber
+      paymentMethod
+      reference
+      reason
+      notes
+      staffId
+      staffName
+    }
+
+    total
+    page
+    pageCount
+    summary {
+      grossBilled
+      grossCollected
+      paymentsReceived
+      outstandingBalance
+      creditsCreated
+      adjustmentsTotal
+      unissuedBillableValue
+      transactionCount
+    }
+  }
+}
+
+query FinancialTransaction($id: ID!, $type: FinancialTransactionType) {
+  financialTransaction(id: $id, type: $type) {
+    id
+    type
+    direction
+    amount
+    currency
+    status
+    occurredAt
+    patientId
+    patientName
+    visitId
+    invoiceId
+    invoiceNumber
+    paymentMethod
+    reference
+    reason
+    notes
+    staffId
+    staffName
+  }
+}

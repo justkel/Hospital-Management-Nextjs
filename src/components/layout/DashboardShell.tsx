@@ -11,7 +11,7 @@ import {
     FlagOutlined,
     IdcardOutlined,
 } from '@ant-design/icons';
-import { Theater } from 'lucide-react';
+import { Theater, Coins } from 'lucide-react';
 import { Roles } from '@/shared/utils/enums/roles';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -103,6 +103,7 @@ export default function DashboardShell({
         if (pathname.startsWith('/admins/staff')) return 'staff';
         if (pathname.startsWith('/dashboard/patients')) return 'patients';
         if (pathname.startsWith('/dashboard/visits')) return 'visits';
+        if (pathname.startsWith('/dashboard/financials')) return 'financials';
         if (pathname.startsWith('/dashboard/visit-procedures')) return 'visit-procedures';
         if (pathname.startsWith('/dashboard/ward-incidents')) return 'wards';
         if (pathname.startsWith('/dashboard/wards')) return 'wards';
@@ -236,6 +237,13 @@ export default function DashboardShell({
         {
             label: 'Admin',
             items: [
+                {
+                    key: 'financials',
+                    icon: <Coins size={15} />,
+                    label: 'Financials',
+                    href: '/dashboard/financials',
+                    allowedRoles: [Roles.ADMIN, Roles.BILLING_OFFICER],
+                },
                 {
                     key: 'billing-catalogs',
                     icon: <CreditCardOutlined />,
