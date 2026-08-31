@@ -111,5 +111,26 @@ query DashboardOverview($input: DashboardOverviewInput) {
       pendingRequests
       byStatus { label count }
     }
+
+    peakHours {
+      period
+      totalActivities
+      peakHours {
+        hour
+        hourOfDay
+        count
+        percentage
+      }
+      busiestHour {
+        hour
+        hourOfDay
+        count
+        percentage
+      }
+      averagePerHour
+      offPeakAverage
+      peakAverage
+      percentPeak
+    }
   }
 }

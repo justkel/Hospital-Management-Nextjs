@@ -23,6 +23,7 @@ import {
   Minus,
   Activity,
   HeartPulse,
+  Clock3,
 } from 'lucide-react';
 import {
   Line,
@@ -439,6 +440,21 @@ export default function DashboardClient({
   const revenueBreakdownData = (financial?.revenueVsGrantsDiscounts ?? []).filter((entry) => entry.amount > 0 || entry.count > 0);
   const hasDepartmentData = (beds?.byDepartment ?? []).filter((entry) => entry.count > 0).length > 0;
   const hasWardData = (beds?.byWard ?? []).filter((entry) => entry.count > 0).length > 0;
+  const peakHours = overview.peakHours;
+  const peakHourData = peakHours?.peakHours ?? [];
+  const hasPeakHoursData =
+    peakHours !== null &&
+    peakHours !== undefined &&
+    peakHours.totalActivities > 0 &&
+    peakHourData.some((hourData) => hourData.count > 0);
+  const maxPeakHourCount = Math.max(
+    ...peakHourData.map((hourData) => hourData.count),
+    1,
+  );
+  const getPeakHourColor = (count: number) => {
+    const intensity = count / maxPeakHourCount;
+    return `rgba(16, 185, 129, ${Math.max(0.08, intensity * 0.9)})`;
+  };
 
   return (
     <>
@@ -757,6 +773,78 @@ export default function DashboardClient({
             </Section>
           )}
         </div>
+
+        {hasPeakHoursData && peakHours && (
+          <Section
+            title={`Organization Peak Hours (${periodLabel})`}
+            icon={<Clock3 className="h-4 w-4" />}
+          >
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px]">
+              <div
+                className="overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden"
+                style={hideScrollbarStyle}
+              >
+                <div className="min-w-[620px]">
+                  <div className="grid grid-cols-[repeat(24,minmax(0,1fr))] gap-1.5">
+                    {peakHourData.map((hourData) => (
+                      <div
+                        key={hourData.hourOfDay}
+                        className="group relative flex h-20 items-end rounded-md border border-emerald-100 bg-emerald-50/50 p-1 transition-transform hover:z-10 hover:scale-105"
+                        title={`${hourData.hour}: ${hourData.count.toLocaleString()} activities (${hourData.percentage.toFixed(2)}%)`}
+                      >
+                        <div
+                          className="w-full rounded-sm transition-all group-hover:ring-2 group-hover:ring-emerald-400/50"
+                          style={{
+                            height: `${Math.max(
+                              hourData.count > 0 ? (hourData.count / maxPeakHourCount) * 100 : 4,
+                              4,
+                            )}%`,
+                            backgroundColor: getPeakHourColor(hourData.count),
+                          }}
+                        />
+                        <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] text-gray-400">
+                          {String(hourData.hourOfDay).padStart(2, '0')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-8 flex items-center justify-between text-[10px] text-gray-400">
+                    <span>12 AM</span>
+                    <span>6 AM</span>
+                    <span>12 PM</span>
+                    <span>6 PM</span>
+                    <span>12 AM</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
+                <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-700">
+                    Busiest hour
+                  </p>
+                  <p className="mt-2 text-xl font-bold text-emerald-900">
+                    {peakHours.busiestHour?.hour ?? '—'}
+                  </p>
+                  <p className="mt-1 text-[11px] text-emerald-700">
+                    {peakHours.busiestHour?.count.toLocaleString() ?? 0} activities
+                  </p>
+                </div>
+                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-gray-500">
+                    Activity summary
+                  </p>
+                  <p className="mt-2 text-xl font-bold text-gray-900">
+                    {peakHours.totalActivities.toLocaleString()}
+                  </p>
+                  <p className="mt-1 text-[11px] text-gray-500">
+                    {peakHours.percentPeak}% during business hours
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Section>
+        )}
 
         {(hasDepartmentData || hasWardData) && (
           <div className="grid gap-6 lg:grid-cols-2">
