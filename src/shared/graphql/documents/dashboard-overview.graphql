@@ -81,6 +81,7 @@ query DashboardOverview($input: DashboardOverviewInput) {
       outstandingBalanceInPeriod
       paymentsReceivedInPeriod
       pendingCredits
+      unresolvedCredits
       successfulCreditsInPeriod
       creditsAmount
       refundsAmount
