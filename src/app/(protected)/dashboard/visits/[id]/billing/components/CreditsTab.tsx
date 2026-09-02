@@ -152,15 +152,26 @@ export default function CreditsTab({
     }
   };
 
+  const refreshCreditState = async () => {
+    await Promise.all([
+      refreshCredits(),
+      refreshBalance(),
+      walletEnabled ? refreshWalletBalance() : Promise.resolve(),
+    ]);
+  };
+
   useEffect(() => {
     refreshFeatureFlags();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
   useEffect(() => {
     return subscribeToBillingChanges((sources) => {
-      if (sources.includes('payments') && walletEnabled) {
-        void refreshWalletBalance();
+      if (
+        sources.includes('summary') ||
+        sources.includes('credits') ||
+        (sources.includes('payments') && walletEnabled)
+      ) {
+        void refreshCreditState();
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -230,7 +241,7 @@ export default function CreditsTab({
 
       message.success('Refund recorded');
       setFormOpen(false);
-      await Promise.all([refreshCredits(), refreshBalance()]);
+      await refreshCreditState();
       notifyBillingChanged('credits');
     } finally {
       setSubmitting(false);
@@ -260,11 +271,7 @@ export default function CreditsTab({
       }
 
       message.success('Refund confirmed');
-      await Promise.all([
-        refreshCredits(),
-        refreshBalance(),
-        walletEnabled ? refreshWalletBalance() : Promise.resolve(),
-      ]);
+      await refreshCreditState();
       notifyBillingChanged('credits');
     } finally {
       setActionLoadingId(null);
@@ -301,7 +308,7 @@ export default function CreditsTab({
       message.success('Done');
       setFailTarget(null);
       setFailReason('');
-      await Promise.all([refreshCredits(), refreshBalance()]);
+      await refreshCreditState();
       notifyBillingChanged('credits');
     } finally {
       setActionLoadingId(null);
