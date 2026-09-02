@@ -122,7 +122,13 @@ export default function FinancialsClient({
       const occurredAt = new Date(item.occurredAt);
       const textMatches =
         !query ||
-        [item.patientName, item.invoiceNumber, item.reference, item.reason]
+        [
+          item.patientName,
+          item.visitId,
+          item.invoiceNumber,
+          item.reference,
+          item.reason,
+        ]
           .filter(Boolean)
           .some((value) => value!.toLowerCase().includes(query));
       return (
@@ -340,7 +346,7 @@ export default function FinancialsClient({
               setSearch(value);
               applyQuery({ search: value || undefined });
             }}
-            placeholder="Search patient, invoice, reference..."
+            placeholder="Search patient, visit ID, invoice, reference..."
             className="rounded-lg border border-slate-200 px-3 py-2 text-sm sm:col-span-2"
           />
 
