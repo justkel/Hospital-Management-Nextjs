@@ -135,10 +135,10 @@ export default function DashboardClient({
     })
     : timeSeriesData;
 
-  const formatChartTick = (value: string) => {
-    const date = new Date(value);
+  const formatChartTick = (value: string | number) => {
+    const date = new Date(String(value));
     if (Number.isNaN(date.getTime())) {
-      return value;
+      return String(value);
     }
 
     return new Intl.DateTimeFormat('en-NG', {
@@ -737,7 +737,11 @@ export default function DashboardClient({
                     />
                     <YAxis yAxisId="left" stroke="#9CA3AF" fontSize={11} />
                     <YAxis yAxisId="right" orientation="right" stroke="#9CA3AF" fontSize={11} />
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip
+                      content={
+                        <CustomTooltip labelFormatter={formatChartTick} />
+                      }
+                    />
                     <Legend />
                     <Area
                       yAxisId="left"
@@ -1162,6 +1166,14 @@ export default function DashboardClient({
                     </span>
                     <span className="text-[18px] font-bold text-purple-800">
                       {money(financial.pendingCredits)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-xl border border-fuchsia-200 bg-fuchsia-50 px-4 py-3 transition-all hover:shadow-md">
+                    <span className="text-[13px] font-medium text-fuchsia-700">
+                      Unresolved Credits
+                    </span>
+                    <span className="text-[18px] font-bold text-fuchsia-800">
+                      {money(financial.unresolvedCredits)}
                     </span>
                   </div>
                 </div>
