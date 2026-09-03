@@ -168,7 +168,7 @@ export default function ActorActivityChart() {
   const { isMobile, isTablet } = useBreakpoints();
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
 
     const fetchStats = async () => {
       setLoading(true);
@@ -176,7 +176,8 @@ export default function ActorActivityChart() {
 
       try {
         const res = await clientFetch(
-          `/api/audit/actor-activity-stats?period=${period}`
+          `/api/audit/actor-activity-stats?period=${period}`,
+          { signal: controller.signal }
         );
         const json = await res.json();
 
@@ -184,24 +185,19 @@ export default function ActorActivityChart() {
           throw new Error(json.error ?? 'Failed to load activity stats');
         }
 
-        if (!cancelled) {
-          setStats(json.stats);
-        }
+        setStats(json.stats);
       } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Something went wrong');
-        }
+        if (err instanceof Error && err.name === 'AbortError') return;
+        setError(err instanceof Error ? err.message : 'Something went wrong');
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     fetchStats();
 
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, [period]);
 

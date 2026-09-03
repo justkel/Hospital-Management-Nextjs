@@ -44,25 +44,31 @@ export default function LabRequestSearchSection({
       return;
     }
 
+    const controller = new AbortController();
+
     const run = async () => {
       setLoading(true);
       setSearched(true);
 
       try {
         const res = await clientFetch(
-          `/api/visit/search-by-user-code?userCode=${debouncedSearch}`
+          `/api/visit/search-by-user-code?userCode=${debouncedSearch}`,
+          { signal: controller.signal }
         );
 
         const json = await res.json();
         setVisits(json.visits ?? []);
-      } catch {
-        setVisits([]);
+      } catch (err) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          setVisits([]);
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     run();
+    return () => controller.abort();
   }, [debouncedSearch]);
 
   const patient = useMemo(() => visits[0]?.patient, [visits]);
