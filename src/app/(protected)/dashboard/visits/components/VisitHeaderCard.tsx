@@ -1,6 +1,9 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
 import { GetVisitByIdQuery } from '@/shared/graphql/generated/graphql';
-import { User, Stethoscope } from 'lucide-react';
+import { User, Stethoscope, Copy, Check } from 'lucide-react';
 
 type Visit = GetVisitByIdQuery['visit'];
 
@@ -24,6 +27,17 @@ function DarkBadge({ label, styles }: { label: string; styles: string }) {
 export default function VisitHeaderCard({ visit }: { visit: Visit }) {
   const patient = visit.patient;
   const initial = patient?.fullName?.charAt(0)?.toUpperCase() ?? '?';
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyVisitId = async () => {
+    try {
+      await navigator.clipboard.writeText(visit.id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      // ignore clipboard errors; the action is best-effort for convenience
+    }
+  };
 
   return (
     <div className="relative overflow-hidden rounded-xl bg-[#0c1a12] px-6 py-6 sm:px-8">
@@ -58,13 +72,26 @@ export default function VisitHeaderCard({ visit }: { visit: Visit }) {
           </div>
         </div>
 
-        <Link
-          href={`/dashboard/patients/${patient?.id}`}
-          className="inline-flex h-9 items-center gap-2 rounded-[9px] border border-white/12 bg-white/[0.07] px-4 text-[13px] font-medium !text-[#c8d8e8] transition hover:bg-white/[0.12]"
-        >
-          <User size={13} />
-          View patient
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleCopyVisitId}
+            className="inline-flex h-9 items-center gap-2 rounded-[9px] border border-white/12 bg-white/[0.07] px-3 text-[13px] font-medium !text-[#c8d8e8] transition hover:bg-white/[0.12]"
+            title="Copy visit ID"
+            aria-label="Copy visit ID"
+          >
+            {copied ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+            {copied ? 'Copied' : 'Copy visit ID'}
+          </button>
+
+          <Link
+            href={`/dashboard/patients/${patient?.id}`}
+            className="inline-flex h-9 items-center gap-2 rounded-[9px] border border-white/12 bg-white/[0.07] px-4 text-[13px] font-medium !text-[#c8d8e8] transition hover:bg-white/[0.12]"
+          >
+            <User size={13} />
+            View patient
+          </Link>
+        </div>
       </div>
     </div>
   );

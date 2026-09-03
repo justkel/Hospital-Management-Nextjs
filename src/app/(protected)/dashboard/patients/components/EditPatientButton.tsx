@@ -89,6 +89,7 @@ export default function EditPatientButton({ patient }: Props) {
         key: K,
         value: (typeof form)[K]
     ) => {
+        if (loading || success) return;
         setForm(prev => ({ ...prev, [key]: value }));
     };
 
@@ -107,20 +108,6 @@ export default function EditPatientButton({ patient }: Props) {
 
         setLoading(true);
 
-        const payload: UpdatePatientInput = {
-            id: patient.id,
-            phoneNumber: form.phoneNumber || undefined,
-            email: form.email || undefined,
-            dateOfBirth: form.dateOfBirth || undefined,
-            nextOfKinName: form.nextOfKinName || undefined,
-            nextOfKinPhone: form.nextOfKinPhone || undefined,
-            bloodGroup: form.bloodGroup || undefined,
-            extraDetails: form.extraDetails || undefined,
-            allergies: form.allergies
-                ? form.allergies.split(',').map(a => a.trim()).filter(Boolean)
-                : undefined,
-        };
-
         const isAddressComplete =
             form.addressLine1?.trim() &&
             form.city?.trim() &&
@@ -133,20 +120,32 @@ export default function EditPatientButton({ patient }: Props) {
             form.state?.trim() ||
             form.country?.trim();
 
-        if (isAddressComplete) {
-            payload.addresses = [
-                {
-                    addressLine1: form.addressLine1.trim(),
-                    city: form.city.trim(),
-                    state: form.state.trim(),
-                    country: form.country.trim(),
-                },
-            ];
-        } else if (isAddressPartiallyFilled) {
+        const payload: UpdatePatientInput = {
+            id: patient.id,
+            phoneNumber: form.phoneNumber || undefined,
+            email: form.email || undefined,
+            dateOfBirth: form.dateOfBirth || undefined,
+            nextOfKinName: form.nextOfKinName || undefined,
+            nextOfKinPhone: form.nextOfKinPhone || undefined,
+            bloodGroup: form.bloodGroup || undefined,
+            extraDetails: form.extraDetails || undefined,
+            allergies: form.allergies
+                ? form.allergies.split(',').map(a => a.trim()).filter(Boolean)
+                : undefined,
+            addresses: isAddressComplete
+                ? [
+                    {
+                        addressLine1: form.addressLine1.trim(),
+                        city: form.city.trim(),
+                        state: form.state.trim(),
+                        country: form.country.trim(),
+                    },
+                ]
+                : undefined,
+        };
+
+        if (!isAddressComplete && isAddressPartiallyFilled) {
             setAddressWarning('Incomplete address detected — it will be ignored.');
-            payload.addresses = undefined;
-        } else {
-            payload.addresses = undefined;
         }
 
         try {
@@ -215,19 +214,9 @@ export default function EditPatientButton({ patient }: Props) {
                         </div>
 
                         <div 
-                            className="flex-1 overflow-y-auto px-5 py-5 sm:px-6 sm:py-6 space-y-5"
+                            className="flex-1 overflow-y-auto px-5 py-5 sm:px-6 sm:py-6 space-y-5 hide-scrollbar"
                             ref={contentRef}
-                            style={{
-                                scrollbarWidth: 'none',
-                                msOverflowStyle: 'none',
-                            }}
                         >
-                            <style jsx>{`
-                                div::-webkit-scrollbar {
-                                    display: none;
-                                }
-                            `}</style>
-
                             <div className="space-y-3">
                                 {success && (
                                     <div className="flex items-start gap-3 rounded-xl border !border-[#CFF0E1] !bg-[#ECFBF5] px-4 py-3">
@@ -312,36 +301,36 @@ export default function EditPatientButton({ patient }: Props) {
                                         onChange={v => handleChange('allergies', v)}
                                     />
                                 </Section>
-                            </div>
 
-                            <Section title="Address" icon={<MapPin size={16} />}>
-                                <Input
-                                    label="Address Line"
-                                    value={form.addressLine1}
-                                    disabled={isLocked}
-                                    onChange={v => handleChange('addressLine1', v)}
-                                />
-                                <Input
-                                    label="City"
-                                    value={form.city}
-                                    disabled={isLocked}
-                                    onChange={v => handleChange('city', v)}
-                                />
-                                <Select
-                                    label="Country"
-                                    value={form.country}
-                                    disabled={isLocked}
-                                    options={['NIGERIA']}
-                                    onChange={v => handleChange('country', v)}
-                                />
-                                <Select
-                                    label="State"
-                                    value={form.state}
-                                    disabled={isLocked}
-                                    options={NIGERIAN_STATES}
-                                    onChange={v => handleChange('state', v)}
-                                />
-                            </Section>
+                                <Section title="Address" icon={<MapPin size={16} />}>
+                                    <Input
+                                        label="Address Line"
+                                        value={form.addressLine1}
+                                        disabled={isLocked}
+                                        onChange={v => handleChange('addressLine1', v)}
+                                    />
+                                    <Input
+                                        label="City"
+                                        value={form.city}
+                                        disabled={isLocked}
+                                        onChange={v => handleChange('city', v)}
+                                    />
+                                    <Select
+                                        label="Country"
+                                        value={form.country}
+                                        disabled={isLocked}
+                                        options={['NIGERIA']}
+                                        onChange={v => handleChange('country', v)}
+                                    />
+                                    <Select
+                                        label="State"
+                                        value={form.state}
+                                        disabled={isLocked}
+                                        options={NIGERIAN_STATES}
+                                        onChange={v => handleChange('state', v)}
+                                    />
+                                </Section>
+                            </div>
 
                             <div className="space-y-3 pb-2">
                                 <div className="flex items-center gap-2">

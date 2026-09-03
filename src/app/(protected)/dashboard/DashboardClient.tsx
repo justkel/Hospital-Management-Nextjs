@@ -463,7 +463,9 @@ export default function DashboardClient({
   const theatreStatusData = (theatre?.byStatus ?? []).filter((entry) => entry.count > 0);
   const theatreOutcomeData = (theatre?.outcomes ?? []).filter((entry) => entry.count > 0);
   const paymentMethodData = (financial?.paymentMethods ?? []).filter((entry) => entry.count > 0);
-  const revenueBreakdownData = (financial?.revenueVsGrantsDiscounts ?? []).filter((entry) => entry.amount > 0 || entry.count > 0);
+  const revenueBreakdownData = (financial?.revenueVsGrantsDiscounts ?? []).filter(
+    (entry) => Math.abs(entry.amount) > 0 || entry.count > 0,
+  );
   const hasDepartmentData = (beds?.byDepartment ?? []).filter((entry) => entry.count > 0).length > 0;
   const hasWardData = (beds?.byWard ?? []).filter((entry) => entry.count > 0).length > 0;
   const peakHours = overview.peakHours;
