@@ -30,6 +30,8 @@ import ReconcileVisitModal, {
   ReconciledVisitResult,
 } from './components/ReconcileVisitModal';
 import BillingTabErrorBoundary from './components/BillingTabErrorBoundary';
+import { subscribeToBillingChanges } from './billing-refresh';
+import { clientFetch } from '@/lib/clientFetch';
 
 export type ChargeSummary = NonNullable<
   GetVisitBillingPageQuery['visitChargeSummary']
@@ -153,6 +155,75 @@ export default function BillingClient({
   const handleCreditBalanceChange = useCallback((value: number) => {
     setCreditBalance(value);
   }, []);
+
+  const refreshBillingState = useCallback(async () => {
+    const [
+      summaryRes,
+      unbilledRes,
+      adjustmentsRes,
+      latestInvoiceRes,
+      invoicesRes,
+      paymentsRes,
+      creditsRes,
+      creditBalanceRes,
+    ] = await Promise.all([
+      clientFetch(`/api/visit-charge/summary?visitId=${visit.id}`, { cache: 'no-store' }),
+      clientFetch(`/api/visit-prescription/unbilled?visitId=${visit.id}`, { cache: 'no-store' }),
+      clientFetch(`/api/billing-adjustment/list?visitId=${visit.id}`, { cache: 'no-store' }),
+      clientFetch(`/api/visit-invoice/latest?visitId=${visit.id}`, { cache: 'no-store' }),
+      clientFetch(`/api/visit-invoice/list?visitId=${visit.id}`, { cache: 'no-store' }),
+      clientFetch(`/api/visit-payment/list?visitId=${visit.id}`, { cache: 'no-store' }),
+      clientFetch(`/api/visit-credit/list?visitId=${visit.id}`, { cache: 'no-store' }),
+      clientFetch(`/api/visit-credit/balance?visitId=${visit.id}`, { cache: 'no-store' }),
+    ]);
+
+    const [
+      summaryJson,
+      unbilledJson,
+      adjustmentsJson,
+      latestInvoiceJson,
+      invoicesJson,
+      paymentsJson,
+      creditsJson,
+      creditBalanceJson,
+    ] = await Promise.all([
+      summaryRes.json(),
+      unbilledRes.json(),
+      adjustmentsRes.json(),
+      latestInvoiceRes.json(),
+      invoicesRes.json(),
+      paymentsRes.json(),
+      creditsRes.json(),
+      creditBalanceRes.json(),
+    ]);
+
+    if (summaryRes.ok && summaryJson.summary) handleSummaryChange(summaryJson.summary);
+    if (unbilledRes.ok && unbilledJson.prescriptions) handleUnbilledChange(unbilledJson.prescriptions);
+    if (adjustmentsRes.ok && adjustmentsJson.adjustments) handleAdjustmentsChange(adjustmentsJson.adjustments);
+    if (latestInvoiceRes.ok) handleLatestInvoiceChange(latestInvoiceJson.invoice ?? null);
+    if (invoicesRes.ok && invoicesJson.invoices) handleInvoicesChange(invoicesJson.invoices);
+    if (paymentsRes.ok && paymentsJson.payments) handlePaymentsChange(paymentsJson.payments);
+    if (creditsRes.ok && creditsJson.credits) handleCreditsChange(creditsJson.credits);
+    if (creditBalanceRes.ok && creditBalanceJson.balance !== undefined) {
+      handleCreditBalanceChange(creditBalanceJson.balance);
+    }
+  }, [
+    visit.id,
+    handleSummaryChange,
+    handleUnbilledChange,
+    handleAdjustmentsChange,
+    handleLatestInvoiceChange,
+    handleInvoicesChange,
+    handlePaymentsChange,
+    handleCreditsChange,
+    handleCreditBalanceChange,
+  ]);
+
+  useEffect(() => {
+    return subscribeToBillingChanges(() => {
+      void refreshBillingState();
+    });
+  }, [refreshBillingState]);
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -404,7 +475,7 @@ export default function BillingClient({
           </div>
 
           <div className="px-3 sm:px-6">
-            <div className={activeTab === 'summary' ? '' : 'hidden'}>
+            {activeTab === 'summary' && (
               <BillingTabErrorBoundary tabName="charge summary">
                 <ChargeSummaryTab
                 visitId={visit.id}
@@ -415,9 +486,9 @@ export default function BillingClient({
                 onUnbilledChange={handleUnbilledChange}
                 />
               </BillingTabErrorBoundary>
-            </div>
+            )}
 
-            <div className={activeTab === 'adjustments' ? '' : 'hidden'}>
+            {activeTab === 'adjustments' && (
               <BillingTabErrorBoundary tabName="adjustments">
                 <AdjustmentsTab
                 visitId={visit.id}
@@ -427,9 +498,9 @@ export default function BillingClient({
                 onAdjustmentsChange={handleAdjustmentsChange}
                 />
               </BillingTabErrorBoundary>
-            </div>
+            )}
 
-            <div className={activeTab === 'invoices' ? '' : 'hidden'}>
+            {activeTab === 'invoices' && (
               <BillingTabErrorBoundary tabName="invoices">
                 <InvoicesTab
                 visitId={visit.id}
@@ -440,9 +511,9 @@ export default function BillingClient({
                 onInvoicesChange={handleInvoicesChange}
                 />
               </BillingTabErrorBoundary>
-            </div>
+            )}
 
-            <div className={activeTab === 'payments' ? '' : 'hidden'}>
+            {activeTab === 'payments' && (
               <BillingTabErrorBoundary tabName="payments">
                 <PaymentsTab
                 visitId={visit.id}
@@ -455,9 +526,9 @@ export default function BillingClient({
                 onLatestInvoiceChange={handleLatestInvoiceChange}
                 />
               </BillingTabErrorBoundary>
-            </div>
+            )}
 
-            <div className={activeTab === 'credits' ? '' : 'hidden'}>
+            {activeTab === 'credits' && (
               <BillingTabErrorBoundary tabName="credits">
                 <CreditsTab
                 visitId={visit.id}
@@ -470,7 +541,7 @@ export default function BillingClient({
                 onCreditBalanceChange={handleCreditBalanceChange}
                 />
               </BillingTabErrorBoundary>
-            </div>
+            )}
           </div>
         </div>
       </div>

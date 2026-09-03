@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';
-import { notifyBillingChanged, subscribeToBillingChanges } from '../billing-refresh';
+import { notifyBillingChanged } from '../billing-refresh';
 import StatusBadge from './StatusBadge';
 import type { InvoiceRow } from '../billing-client';
 import { NairaIcon } from '@/components/icon/NairaIcon';
@@ -113,17 +113,6 @@ export default function InvoicesTab({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
-  useEffect(() => {
-    return subscribeToBillingChanges((sources) => {
-      if (sources.includes('payments')) {
-        void Promise.all([refresh(), refreshCurrentTotals()]);
-      } else if (sources.includes('summary') || sources.includes('adjustments')) {
-        void refreshCurrentTotals();
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visitId]);
-
   const generate = async () => {
     if (isReconciled) {
       message.warning('Cannot generate invoices on a reconciled visit');
@@ -190,21 +179,21 @@ export default function InvoicesTab({
     !!latestInvoice &&
     !!currentTotals &&
     Math.abs(Number(latestInvoice.totalPayable) - currentTotals.totalPayable) >
-      0.01;
+    0.01;
 
   const outstandingChanged =
     !!latestInvoice &&
     !!currentTotals &&
     Math.abs(
       Number(latestInvoice.outstandingBalance ?? 0) -
-        currentTotals.outstandingBalance
+      currentTotals.outstandingBalance
     ) > 0.01;
 
   const isStale = totalPayableChanged || outstandingChanged;
 
-  if (isReconciled) {
-    return (
-      <div className="space-y-6 py-5 sm:space-y-7">
+  return (
+    <div className="space-y-6 py-5 sm:space-y-7">
+      {isReconciled && (
         <div className="flex flex-col items-center justify-center rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-5 py-12 text-center sm:px-6 sm:py-16">
           <ShieldCheck size={32} className="!text-emerald-600" />
           <h3 className="mt-4 text-base font-bold !text-emerald-800">
@@ -214,143 +203,15 @@ export default function InvoicesTab({
             This visit has been reconciled and is locked for billing. Invoices cannot be generated or issued.
           </p>
         </div>
+      )}
 
-=        {latestInvoice && (
-          <div className="overflow-hidden rounded-2xl border !border-slate-200">
-            <div className="flex flex-col gap-3 border-b !border-slate-100 !bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
-                  Invoice number
-                </p>
-                <p className="font-mono text-lg font-bold !text-slate-900">
-                  {latestInvoice.invoiceNumber}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusBadge status={latestInvoice.status} />
-                <Link
-                  href={printHref(latestInvoice.id)}
-                  target="_blank"
-                  className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 !bg-white px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700"
-                >
-                  <Printer size={13} />
-                  Print
-                </Link>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 divide-y !divide-slate-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-              <div className="px-4 py-4 sm:px-5">
-                <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
-                  Subtotal
-                </p>
-                <p className="mt-1 text-lg font-semibold !text-slate-800">
-                  {formatCurrency(latestInvoice.subtotal)}
-                </p>
-              </div>
-              <div className="px-4 py-4 sm:px-5">
-                <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
-                  Discounts applied
-                </p>
-                <p className="mt-1 text-lg font-semibold !text-emerald-600">
-                  −{formatCurrency(latestInvoice.discountTotal)}
-                </p>
-              </div>
-              <div className="px-4 py-4 sm:px-5">
-                <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
-                  Total payable
-                </p>
-                <p className="mt-1 text-lg font-bold !text-slate-900">
-                  {formatCurrency(latestInvoice.totalPayable)}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 divide-y !divide-slate-100 border-t !border-slate-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-              <div className="px-4 py-4 sm:px-5">
-                <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
-                  Total paid
-                </p>
-                <p className="mt-1 text-lg font-semibold !text-emerald-600">
-                  {formatCurrency(latestInvoice.totalPaid)}
-                </p>
-              </div>
-              <div className="px-4 py-4 sm:px-5">
-                <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
-                  Outstanding
-                </p>
-                <p
-                  className={`mt-1 text-lg font-bold ${
-                    Number(latestInvoice.outstandingBalance) > 0.01
-                      ? '!text-amber-600'
-                      : '!text-emerald-600'
-                  }`}
-                >
-                  {formatCurrency(latestInvoice.outstandingBalance)}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-4 border-t !border-slate-100 px-5 py-3 text-xs !text-slate-500">
-              <span>Issued: {formatDateTime(latestInvoice.issuedAt)}</span>
-              <span>Locked: {formatDateTime(latestInvoice.lockedAt)}</span>
-            </div>
-          </div>
-        )}
-
-        {invoices.length > 1 && (
+      <div className={`overflow-hidden rounded-2xl border ${isReconciled ? '!border-emerald-200 !bg-emerald-50/40' : '!border-blue-200 !bg-blue-50/40'}`}>
+        <div className={`flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 ${isReconciled ? '!border-emerald-200' : '!border-blue-200'}`}>
           <div>
-            <h3 className="mb-3 text-sm font-bold !text-slate-800">
-              Invoice history ({invoices.length})
-            </h3>
-
-            <div className="overflow-hidden rounded-xl border !border-slate-200">
-              <div className="divide-y !divide-slate-100">
-                {invoices.map((inv) => (
-                  <div
-                    key={inv.id}
-                    className="grid grid-cols-2 items-center gap-3 px-4 py-3 sm:flex sm:flex-wrap sm:justify-between"
-                  >
-                    <span className="font-mono text-sm font-medium !text-slate-700">
-                      {inv.invoiceNumber}
-                    </span>
-                    <StatusBadge status={inv.status} />
-                    <span className="text-sm font-semibold !text-slate-800">
-                      {formatCurrency(inv.totalPayable)}
-                    </span>
-                    {Number(inv.outstandingBalance) > 0.01 && (
-                      <span className="text-xs font-medium !text-amber-600">
-                        {formatCurrency(inv.outstandingBalance)} owed
-                      </span>
-                    )}
-                    <Link
-                      href={printHref(inv.id)}
-                      target="_blank"
-                      className="col-span-2 inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border !border-slate-200 !bg-white px-2.5 py-1 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700 sm:col-span-1"
-                    >
-                      <Printer size={12} />
-                      Print
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6 py-5 sm:space-y-7">
-      <div className="overflow-hidden rounded-2xl border !border-blue-200 !bg-blue-50/40">
-        <div className="flex flex-col gap-3 border-b !border-blue-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wide !text-blue-700">
+            <p className={`text-xs font-bold uppercase tracking-wide ${isReconciled ? '!text-emerald-700' : '!text-blue-700'}`}>
               Current totals (live)
             </p>
-            <p className="mt-0.5 text-xs !text-blue-600/80">
+            <p className={`mt-0.5 text-xs ${isReconciled ? '!text-emerald-600/80' : '!text-blue-600/80'}`}>
               Reflects charges and applied adjustments right now — not a
               real invoice, nothing here is ever printed.
             </p>
@@ -358,7 +219,10 @@ export default function InvoicesTab({
           <button
             type="button"
             onClick={refreshCurrentTotals}
-            className="inline-flex items-center gap-1.5 rounded-lg border !border-blue-200 !bg-white px-3 py-1.5 text-xs font-medium !text-blue-700 transition hover:!bg-blue-50"
+            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${isReconciled 
+              ? '!border-emerald-200 !bg-white !text-emerald-700 hover:!bg-emerald-50' 
+              : '!border-blue-200 !bg-white !text-blue-700 hover:!bg-blue-50'
+            }`}
           >
             <RefreshCw size={12} />
             Refresh
@@ -367,9 +231,9 @@ export default function InvoicesTab({
 
         {currentTotals ? (
           <>
-            <div className="grid grid-cols-1 divide-y !divide-blue-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            <div className={`grid grid-cols-1 divide-y sm:grid-cols-3 sm:divide-x sm:divide-y-0 ${isReconciled ? '!divide-emerald-100' : '!divide-blue-100'}`}>
               <div className="px-4 py-4 sm:px-5">
-                <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
+                <p className={`text-xs font-medium uppercase tracking-wide ${isReconciled ? '!text-emerald-600/70' : '!text-blue-600/70'}`}>
                   Subtotal
                 </p>
                 <p className="mt-1 text-lg font-semibold !text-slate-800">
@@ -377,7 +241,7 @@ export default function InvoicesTab({
                 </p>
               </div>
               <div className="px-4 py-4 sm:px-5">
-                <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
+                <p className={`text-xs font-medium uppercase tracking-wide ${isReconciled ? '!text-emerald-600/70' : '!text-blue-600/70'}`}>
                   Discounts
                 </p>
                 <p className="mt-1 text-lg font-semibold !text-emerald-600">
@@ -385,7 +249,7 @@ export default function InvoicesTab({
                 </p>
               </div>
               <div className="px-4 py-4 sm:px-5">
-                <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
+                <p className={`text-xs font-medium uppercase tracking-wide ${isReconciled ? '!text-emerald-600/70' : '!text-blue-600/70'}`}>
                   Total payable
                 </p>
                 <p className="mt-1 text-lg font-bold !text-slate-900">
@@ -394,9 +258,9 @@ export default function InvoicesTab({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 divide-y !divide-blue-100 border-t !border-blue-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+            <div className={`grid grid-cols-1 divide-y border-t sm:grid-cols-2 sm:divide-x sm:divide-y-0 ${isReconciled ? '!divide-emerald-100 !border-emerald-100' : '!divide-blue-100 !border-blue-100'}`}>
               <div className="px-4 py-4 sm:px-5">
-                <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
+                <p className={`text-xs font-medium uppercase tracking-wide ${isReconciled ? '!text-emerald-600/70' : '!text-blue-600/70'}`}>
                   Total paid
                 </p>
                 <p className="mt-1 text-lg font-semibold !text-emerald-600">
@@ -404,15 +268,14 @@ export default function InvoicesTab({
                 </p>
               </div>
               <div className="px-4 py-4 sm:px-5">
-                <p className="text-xs font-medium uppercase tracking-wide !text-blue-600/70">
+                <p className={`text-xs font-medium uppercase tracking-wide ${isReconciled ? '!text-emerald-600/70' : '!text-blue-600/70'}`}>
                   Outstanding
                 </p>
                 <p
-                  className={`mt-1 text-lg font-bold ${
-                    currentTotals.outstandingBalance > 0.01
+                  className={`mt-1 text-lg font-bold ${currentTotals.outstandingBalance > 0.01
                       ? '!text-amber-600'
                       : '!text-emerald-600'
-                  }`}
+                    }`}
                 >
                   {formatCurrency(currentTotals.outstandingBalance)}
                 </p>
@@ -420,7 +283,7 @@ export default function InvoicesTab({
             </div>
 
             {totalPayableChanged && (
-              <div className="flex items-start gap-2.5 border-t !border-blue-200 !bg-amber-50 px-5 py-3.5">
+              <div className={`flex items-start gap-2.5 border-t px-5 py-3.5 ${isReconciled ? '!border-emerald-200 !bg-amber-50' : '!border-blue-200 !bg-amber-50'}`}>
                 <AlertTriangle
                   size={15}
                   className="mt-0.5 shrink-0 !text-amber-600"
@@ -436,7 +299,7 @@ export default function InvoicesTab({
             )}
           </>
         ) : (
-          <div className="px-5 py-6 text-center text-sm !text-blue-600/60">
+          <div className={`px-5 py-6 text-center text-sm ${isReconciled ? '!text-emerald-600/60' : '!text-blue-600/60'}`}>
             Loading current totals…
           </div>
         )}
@@ -462,8 +325,8 @@ export default function InvoicesTab({
         </div>
       )}
 
-      <div className="flex flex-col gap-3 rounded-2xl border !border-slate-100 !bg-white/70 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-        <h3 className="text-sm font-bold !text-slate-800">
+      <div className={`flex flex-col gap-3 rounded-2xl border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 ${isReconciled ? '!border-emerald-100 !bg-emerald-50/30' : '!border-slate-100 !bg-white/70'}`}>
+        <h3 className={`text-sm font-bold ${isReconciled ? '!text-emerald-800' : '!text-slate-800'}`}>
           Latest invoice
         </h3>
 
@@ -521,7 +384,7 @@ export default function InvoicesTab({
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border !border-slate-200">
-          <div className="flex flex-col gap-3 border-b !border-slate-100 !bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div className={`flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 ${isReconciled ? '!border-emerald-100 !bg-emerald-50/30' : '!border-slate-100 !bg-slate-50'}`}>
             <div>
               <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                 Invoice number
@@ -578,7 +441,7 @@ export default function InvoicesTab({
             </div>
           </div>
 
-           <div className="grid grid-cols-1 divide-y !divide-slate-100 border-t !border-slate-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+          <div className="grid grid-cols-1 divide-y !divide-slate-100 border-t !border-slate-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
             <div className="px-4 py-4 sm:px-5">
               <p className="text-xs font-medium uppercase tracking-wide !text-slate-400">
                 Total paid

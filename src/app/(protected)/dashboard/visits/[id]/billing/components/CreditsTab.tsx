@@ -15,7 +15,7 @@ import {
 import { NairaIcon } from '@/components/icon/NairaIcon';
 
 import { clientFetch } from '@/lib/clientFetch';
-import { notifyBillingChanged, subscribeToBillingChanges } from '../billing-refresh';
+import { notifyBillingChanged } from '../billing-refresh';
 import StatusBadge from './StatusBadge';
 import type { ChargeRow, CreditRow } from '../billing-client';
 import { Lock } from 'lucide-react';
@@ -165,19 +165,6 @@ export default function CreditsTab({
   }, [visitId]);
 
   useEffect(() => {
-    return subscribeToBillingChanges((sources) => {
-      if (
-        sources.includes('summary') ||
-        sources.includes('credits') ||
-        (sources.includes('payments') && walletEnabled)
-      ) {
-        void refreshCreditState();
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visitId, patientId, walletEnabled]);
-
-  useEffect(() => {
     if (walletEnabled) {
       refreshWalletBalance();
     }
@@ -323,70 +310,17 @@ export default function CreditsTab({
     );
   };
 
-  if (isReconciled) {
-    return (
-      <div className="space-y-5 py-5">
-        <div className="flex flex-col items-center justify-center rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-6 py-16 text-center">
-          <ShieldCheck size={32} className="!text-emerald-600" />
-          <h3 className="mt-4 text-base font-bold !text-emerald-800">
-            Visit is reconciled
-          </h3>
-          <p className="mt-1 max-w-sm text-sm !text-emerald-600">
-            This visit has been reconciled and is locked for billing. Credits cannot be processed.
-          </p>
-        </div>
-
-        {/* Still show existing credits for reference */}
-        {credits.length > 0 && (
-          <div className="overflow-hidden rounded-xl border !border-slate-200">
-            <div className="divide-y !divide-slate-100">
-              {credits.map((c) => (
-                <div key={c.id} className="px-4 py-4">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-lg font-bold !text-slate-900">
-                          {formatCurrency(c.amount)}
-                        </span>
-                        <StatusBadge status={c.status} />
-                        <span className="rounded-full border !border-slate-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-slate-500">
-                          {c.method.replace(/_/g, ' ')}
-                        </span>
-                      </div>
-
-                      <p className="mt-1 text-xs !text-slate-500">
-                        Recorded: {formatDateTime(c.createdAt)}
-                        {c.confirmedAt &&
-                          ` · Confirmed: ${formatDateTime(c.confirmedAt)}`}
-                      </p>
-
-                      {c.visitChargeId && (
-                        <p className="mt-1 text-xs !text-slate-400">
-                          Related charge: {chargeName(c.visitChargeId)}
-                        </p>
-                      )}
-
-                      <p className="mt-1 text-sm !text-slate-600">{c.reason}</p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <span className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-2 text-xs font-medium !text-slate-400">
-                        <Lock size={12} />
-                        Locked
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-5 py-5">
+      {isReconciled && (
+        <div className="flex items-start gap-2.5 rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-5 py-4">
+          <ShieldCheck size={18} className="mt-0.5 shrink-0 !text-emerald-600" />
+          <p className="text-sm !text-emerald-700">
+            Visit is reconciled and locked for billing. Existing credits
+            remain visible, but credit actions are disabled.
+          </p>
+        </div>
+      )}
       {walletEnabled && (
         <div className="flex items-center justify-end">
           <Link

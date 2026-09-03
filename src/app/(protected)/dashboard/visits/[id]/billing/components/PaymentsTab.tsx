@@ -17,7 +17,6 @@ import {
 import { clientFetch } from '@/lib/clientFetch';
 import {
   notifyBillingChanged,
-  subscribeToBillingChanges,
 } from '../billing-refresh';
 import StatusBadge from './StatusBadge';
 import type { ChargeRow, InvoiceRow, PaymentRow } from '../billing-client';
@@ -227,31 +226,6 @@ export default function PaymentsTab({
     refreshBalances();
     refreshCurrentTotals();
     refreshFeatureFlags();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visitId]);
-
-  useEffect(() => {
-    return subscribeToBillingChanges((sources) => {
-      if (sources.includes('payments')) {
-        void Promise.all([
-          refreshPayments(),
-          refreshBalancePayments(),
-          refreshInvoice(),
-          refreshBalances(),
-          refreshCurrentTotals(),
-        ]);
-        return;
-      }
-
-      if (sources.includes('summary') || sources.includes('adjustments')) {
-        void Promise.all([refreshBalances(), refreshCurrentTotals()]);
-      }
-
-      if (sources.includes('invoices')) {
-        void refreshInvoice();
-      }
-    });
-    // These functions are intentionally scoped to this mounted visit.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
@@ -762,129 +736,17 @@ export default function PaymentsTab({
     }
   };
 
-  if (isReconciled) {
-    return (
-      <div className="space-y-5 py-5">
-        <div className="flex flex-col items-center justify-center rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-6 py-16 text-center">
-          <ShieldCheck size={32} className="!text-emerald-600" />
-          <h3 className="mt-4 text-base font-bold !text-emerald-800">
-            Visit is reconciled
-          </h3>
-          <p className="mt-1 max-w-sm text-sm !text-emerald-600">
-            This visit has been reconciled and is locked for billing. Payments cannot be recorded.
-          </p>
-        </div>
-
-        {payments.length > 0 && (
-          <div>
-            <h3 className="mb-3 text-sm font-bold !text-slate-800">
-              {payments.length} payment{payments.length === 1 ? '' : 's'}
-            </h3>
-            <div className="overflow-hidden rounded-xl border !border-slate-200">
-              <div className="divide-y !divide-slate-100">
-                {payments.map((p) => (
-                  <div key={p.id} className="px-4 py-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-lg font-bold !text-slate-900">
-                            {formatCurrency(p.amountPaid)}
-                          </span>
-                          <StatusBadge status={p.status} />
-                          <span className="rounded-full border !border-slate-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-slate-500">
-                            {p.paymentMethod}
-                          </span>
-                        </div>
-
-                        <p className="mt-1 text-xs !text-slate-500">
-                          Paid: {formatDateTime(p.paidAt)}
-                          {p.confirmedAt &&
-                            ` · Confirmed: ${formatDateTime(p.confirmedAt)}`}
-                          {p.reference && ` · Ref: ${p.reference}`}
-                        </p>
-
-                        {p.allocations?.length ? (
-                          <div className="mt-2 flex flex-wrap gap-1.5">
-                            {p.allocations.map((alloc) => (
-                              <span
-                                key={alloc.id}
-                                className="inline-flex items-center gap-1 rounded-full border !border-slate-200 !bg-white px-2.5 py-1 text-xs !text-slate-600"
-                              >
-                                {alloc.visitCharge?.chargeName} ·{' '}
-                                {formatCurrency(alloc.amountAllocated)}
-                              </span>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-
-                      <div className="flex flex-wrap gap-2">
-                        <span className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-2 text-xs font-medium !text-slate-400">
-                          <Lock size={12} />
-                          Locked
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {balancePayments.length > 0 && (
-          <div>
-            <h3 className="mb-3 text-sm font-bold !text-slate-800">
-              {balancePayments.length} balance payment
-              {balancePayments.length === 1 ? '' : 's'}
-            </h3>
-            <div className="overflow-hidden rounded-xl border !border-amber-200">
-              <div className="divide-y !divide-amber-100">
-                {balancePayments.map((p) => (
-                  <div key={p.id} className="px-4 py-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-lg font-bold !text-slate-900">
-                            {formatCurrency(p.amountPaid)}
-                          </span>
-                          <StatusBadge status={p.status} />
-                          <span className="rounded-full border !border-amber-200 !bg-white px-2 py-0.5 text-[11px] font-bold uppercase !text-amber-700">
-                            {p.paymentMethod}
-                          </span>
-                        </div>
-
-                        <p className="mt-1 text-xs !text-slate-500">
-                          Paid: {formatDateTime(p.paidAt)}
-                          {p.confirmedAt &&
-                            ` · Confirmed: ${formatDateTime(p.confirmedAt)}`}
-                          {p.reference && ` · Ref: ${p.reference}`}
-                        </p>
-
-                        <p className="mt-1 text-sm !text-slate-600">
-                          {p.reason}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2">
-                        <span className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-2 text-xs font-medium !text-slate-400">
-                          <Lock size={12} />
-                          Locked
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-5 py-5">
+      {isReconciled && (
+        <div className="flex items-start gap-2.5 rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-5 py-4">
+          <ShieldCheck size={18} className="mt-0.5 shrink-0 !text-emerald-600" />
+          <p className="text-sm !text-emerald-700">
+            Visit is reconciled and locked for billing. Existing payment
+            records remain visible, but payment actions are disabled.
+          </p>
+        </div>
+      )}
       <div
         role="tablist"
         aria-label="Payment records"

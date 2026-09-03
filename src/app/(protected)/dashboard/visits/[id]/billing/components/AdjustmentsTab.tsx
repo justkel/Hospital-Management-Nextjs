@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';
-import { notifyBillingChanged, subscribeToBillingChanges } from '../billing-refresh';
+import { notifyBillingChanged } from '../billing-refresh';
 import StatusBadge from './StatusBadge';
 import type { Adjustment, ChargeRow } from '../billing-client';
 import { AdjustmentMethod, AdjustmentType } from '@/shared/graphql/generated/graphql';
@@ -150,19 +150,6 @@ export default function AdjustmentsTab({
 
   useEffect(() => {
     Promise.all([refreshBalances(), refreshCurrentTotals()]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visitId]);
-
-  useEffect(() => {
-    return subscribeToBillingChanges((sources) => {
-      if (
-        sources.includes('payments') ||
-        sources.includes('invoices') ||
-        sources.includes('summary')
-      ) {
-        void Promise.all([refreshBalances(), refreshCurrentTotals()]);
-      }
-    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
@@ -475,24 +462,17 @@ export default function AdjustmentsTab({
     setRejectReason('');
   };
 
-  if (isReconciled) {
-    return (
-      <div className="space-y-5 py-5">
-        <div className="flex flex-col items-center justify-center rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-6 py-16 text-center">
-          <ShieldCheck size={32} className="!text-emerald-600" />
-          <h3 className="mt-4 text-base font-bold !text-emerald-800">
-            Visit is reconciled
-          </h3>
-          <p className="mt-1 max-w-sm text-sm !text-emerald-600">
-            This visit has been reconciled and is locked for billing. No adjustments can be made.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 py-5 sm:space-y-7">
+      {isReconciled && (
+        <div className="flex items-start gap-2.5 rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-5 py-4">
+          <ShieldCheck size={18} className="mt-0.5 shrink-0 !text-emerald-600" />
+          <p className="text-sm !text-emerald-700">
+            Visit is reconciled and locked for billing. Existing adjustments
+            remain visible, but adjustment actions are disabled.
+          </p>
+        </div>
+      )}
       <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-sm font-bold !text-slate-800">
           {adjustments.length} adjustment{adjustments.length === 1 ? '' : 's'}

@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';
-import { notifyBillingChanged, subscribeToBillingChanges } from '../billing-refresh';
+import { notifyBillingChanged } from '../billing-refresh';
 import { useHasRoles } from '@/components/auth/HasRoles';
 import { Roles } from '@/shared/utils/enums/roles';
 import StatusBadge from './StatusBadge';
@@ -185,19 +185,6 @@ export default function ChargeSummaryTab({
 
   useEffect(() => {
     Promise.all([refreshBalances(), refreshCurrentTotals()]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visitId]);
-
-  useEffect(() => {
-    return subscribeToBillingChanges((sources) => {
-      if (sources.includes('payments') || sources.includes('adjustments')) {
-        void Promise.all([
-          refreshSummary(),
-          refreshBalances(),
-          refreshCurrentTotals(),
-        ]);
-      }
-    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
@@ -449,124 +436,17 @@ export default function ChargeSummaryTab({
   const allCharges = [...summary.lockedCharges, ...summary.editableCharges];
   const unpricedCount = allCharges.filter(isUnpriced).length;
 
-  if (isReconciled) {
-    return (
-      <div className="space-y-8 py-5">
-        <div className="flex flex-col items-center justify-center rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-6 py-16 text-center">
-          <ShieldCheck size={32} className="!text-emerald-600" />
-          <h3 className="mt-4 text-base font-bold !text-emerald-800">
-            Visit is reconciled
-          </h3>
-          <p className="mt-1 max-w-sm text-sm !text-emerald-600">
-            This visit has been reconciled and is locked for billing. Charges cannot be edited.
-          </p>
-        </div>
-
-        <div>
-          <div className="mb-3 flex items-center gap-2">
-            <Lock size={15} className="!text-slate-400" />
-            <h3 className="text-sm font-bold !text-slate-800">
-              Locked charges ({summary.lockedCharges.length})
-            </h3>
-          </div>
-
-          {summary.lockedCharges.length === 0 ? (
-            <p className="rounded-xl border !border-slate-100 !bg-slate-50/60 px-4 py-6 text-center text-sm !text-slate-400">
-              No fixed charges recorded yet.
-            </p>
-          ) : (
-            <div className="overflow-hidden rounded-xl border !border-slate-200">
-              <div className="divide-y !divide-slate-100">
-                {summary.lockedCharges.map((c) => (
-                  <div
-                    key={c.id}
-                    className="flex flex-col gap-2 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="min-w-0">
-                      <p className="font-medium !text-slate-800">{c.chargeName}</p>
-                      <p className="text-xs !text-slate-500">
-                        {c.chargeDomain} · Qty {c.quantity} ·{' '}
-                        {formatCurrency(c.unitPrice)} each
-                      </p>
-                      {renderBalanceNote(c.id)}
-                      {renderChargeMeta(c)}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                      <StatusBadge status={c.status} />
-                      {renderPaymentStateBadge(c.id, c.status)}
-                      <span className="font-semibold !text-slate-900">
-                        {formatCurrency(c.totalAmount)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div>
-          <div className="mb-3 flex items-center gap-2">
-            <Pencil size={15} className="!text-blue-500" />
-            <h3 className="text-sm font-bold !text-slate-800">
-              Editable charges ({summary.editableCharges.length})
-            </h3>
-          </div>
-
-          {summary.editableCharges.length === 0 ? (
-            <p className="rounded-xl border !border-slate-100 !bg-slate-50/60 px-4 py-6 text-center text-sm !text-slate-400">
-              No variable charges recorded yet.
-            </p>
-          ) : (
-            <div className="overflow-hidden rounded-xl border !border-slate-200">
-              <div className="divide-y !divide-slate-100">
-                {summary.editableCharges.map((c) => (
-                  <div key={c.id} className="px-4 py-3.5">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="min-w-0">
-                        <p className="font-medium !text-slate-800">
-                          {c.chargeName}
-                        </p>
-                        <p className="text-xs !text-slate-500">
-                          {c.chargeDomain} · Qty {c.quantity} ·{' '}
-                          {formatCurrency(c.unitPrice)} each
-                        </p>
-                        {renderBalanceNote(c.id)}
-                        {renderChargeMeta(c)}
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                        <StatusBadge status={c.status} />
-                        {renderPaymentStateBadge(c.id, c.status)}
-                        <span className="font-semibold !text-slate-900">
-                          {formatCurrency(c.totalAmount)}
-                        </span>
-                        <span className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-1.5 text-xs font-medium !text-slate-400">
-                          <Lock size={12} />
-                          Locked
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-3 rounded-xl border !border-slate-200 !bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-          <span className="text-sm font-semibold !text-slate-600">
-            Running total
-          </span>
-          <span className="text-xl font-bold !text-slate-900">
-            {formatCurrency(summary.total)}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8 py-5">
+      {isReconciled && (
+        <div className="flex items-start gap-2.5 rounded-2xl border !border-emerald-200 !bg-emerald-50/60 px-5 py-4">
+          <ShieldCheck size={18} className="mt-0.5 shrink-0 !text-emerald-600" />
+          <p className="text-sm !text-emerald-700">
+            Visit is reconciled and locked for billing. Existing charges remain
+            visible, but billing actions are disabled.
+          </p>
+        </div>
+      )}
       <div className="flex items-center justify-stretch sm:justify-end">
         <button
           type="button"
@@ -631,13 +511,14 @@ export default function ChargeSummaryTab({
                       autoFocus
                       value={priceInput}
                       onChange={(e) => setPriceInput(e.target.value)}
+                      disabled={isReconciled}
                       placeholder="Unit price"
                       className="w-32 rounded-lg border !border-slate-300 px-3 py-2 text-sm focus:!border-blue-400 focus:outline-none"
                     />
                     <button
                       type="button"
                       onClick={savePricing}
-                      disabled={savingPrice}
+                      disabled={savingPrice || isReconciled}
                       className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-sm font-medium !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
                     >
                       {savingPrice ? (
@@ -650,7 +531,7 @@ export default function ChargeSummaryTab({
                     <button
                       type="button"
                       onClick={cancelPricing}
-                      disabled={savingPrice}
+                      disabled={savingPrice || isReconciled}
                       className="inline-flex items-center rounded-lg border !border-slate-200 px-3 py-2 text-sm font-medium !text-slate-600 transition hover:!bg-slate-50"
                     >
                       <X size={14} />
@@ -661,7 +542,7 @@ export default function ChargeSummaryTab({
                     type="button"
                     onClick={() => startPricing(p.id)}
                     className="inline-flex items-center gap-1.5 self-start rounded-lg border !border-amber-300 !bg-white px-3 py-2 text-sm font-medium !text-amber-700 transition hover:!bg-amber-50 sm:self-auto"
-                    disabled={!hasAdmin}
+                    disabled={!hasAdmin || isReconciled}
                   >
                     <Pencil size={14} />
                     Set price &amp; bill
@@ -744,6 +625,7 @@ export default function ChargeSummaryTab({
                           autoFocus
                           value={editUnitPrice}
                           onChange={(e) => setEditUnitPrice(e.target.value)}
+                          disabled={isReconciled}
                           className="w-32 rounded-lg border !border-slate-300 px-3 py-2 text-sm focus:!border-blue-400 focus:outline-none"
                         />
                         <Select
@@ -751,6 +633,7 @@ export default function ChargeSummaryTab({
                           placeholder="Reason for price change"
                           value={editReason || undefined}
                           onChange={(v) => setEditReason(v)}
+                          disabled={isReconciled}
                           options={[
                             ...OVERRIDE_REASON_OPTIONS.map((r) => ({
                               value: r,
@@ -762,7 +645,7 @@ export default function ChargeSummaryTab({
                         <button
                           type="button"
                           onClick={saveEdit}
-                          disabled={savingEdit}
+                          disabled={savingEdit || isReconciled}
                           className="inline-flex items-center gap-1.5 rounded-lg !bg-emerald-600 px-3 py-2 text-sm font-medium !text-white transition hover:!bg-emerald-700 disabled:opacity-60"
                         >
                           {savingEdit ? (
@@ -775,7 +658,7 @@ export default function ChargeSummaryTab({
                         <button
                           type="button"
                           onClick={cancelEdit}
-                          disabled={savingEdit}
+                          disabled={savingEdit || isReconciled}
                           className="inline-flex items-center rounded-lg border !border-slate-200 px-3 py-2 text-sm font-medium !text-slate-600 transition hover:!bg-slate-50"
                         >
                           <X size={14} />
@@ -788,6 +671,7 @@ export default function ChargeSummaryTab({
                           autoFocus
                           value={editReasonOther}
                           onChange={(e) => setEditReasonOther(e.target.value)}
+                          disabled={isReconciled}
                           placeholder="Specify the reason"
                           className="min-w-[220px] rounded-lg border !border-slate-300 px-3 py-2 text-sm focus:!border-blue-400 focus:outline-none"
                         />
@@ -815,7 +699,7 @@ export default function ChargeSummaryTab({
                         <button
                           type="button"
                           onClick={() => startEdit(c)}
-                          disabled={!hasAdmin}
+                          disabled={!hasAdmin || isReconciled}
                           className="inline-flex items-center gap-1.5 rounded-lg border !border-slate-200 px-3 py-1.5 text-xs font-medium !text-slate-600 transition hover:!border-blue-300 hover:!bg-blue-50 hover:!text-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           <Pencil size={12} />
