@@ -14,6 +14,7 @@ import {
 } from '@/lib/handle-graphql-error';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
+const GATEWAY_TIMEOUT_MS = 10_000;
 
 export async function GET(req: Request) {
   const accessToken = (await cookies()).get('access_token')?.value;
@@ -41,11 +42,23 @@ export async function GET(req: Request) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
       },
+      signal: AbortSignal.timeout(GATEWAY_TIMEOUT_MS),
       body: JSON.stringify({
         query: print(GetVisitChargeBalancesDocument),
         variables,
       }),
     });
+
+    if (!res.ok) {
+      console.error('Gateway request failed for visit charge balances', {
+        status: res.status,
+        visitId,
+      });
+      return NextResponse.json(
+        { error: 'Billing service is temporarily unavailable' },
+        { status: res.status >= 500 ? 503 : 502 }
+      );
+    }
 
     const json: {
       data?: GetVisitChargeBalancesQuery;
@@ -57,8 +70,8 @@ export async function GET(req: Request) {
 
     if (!json.data?.visitChargeBalances) {
       return NextResponse.json(
-        { error: 'Failed to fetch visit charge balances' },
-        { status: 500 }
+        { error: 'Billing service returned no charge balances' },
+        { status: 502 }
       );
     }
 
@@ -68,8 +81,8 @@ export async function GET(req: Request) {
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      { error: 'Something went wrong' },
-      { status: 500 }
+      { error: 'Billing service is temporarily unavailable' },
+      { status: 503 }
     );
   }
 }
