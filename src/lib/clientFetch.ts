@@ -23,6 +23,14 @@ const inFlightGets = new Map<string, Promise<Response>>();
 
 let refreshing = false;
 let refreshPromise: Promise<boolean> | null = null;
+let rateLimitResumeAt = 0;
+let rateLimitRetryTail = Promise.resolve();
+let nextRateLimitRetryAt = 0;
+const RATE_LIMIT_RETRY_SPACING_MS = 100;
+let transientRetryTail = Promise.resolve();
+let nextTransientRetryAt = 0;
+const TRANSIENT_RETRY_DELAYS_MS = [500, 1500] as const;
+const TRANSIENT_RETRY_SPACING_MS = 150;
 
 function handleForcedLogout(message: string) {
   if (logoutTriggered) return;
@@ -67,6 +75,38 @@ function wait(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function scheduleRateLimitRetry(retryAfterMs: number): Promise<void> {
+  rateLimitResumeAt = Math.max(rateLimitResumeAt, Date.now() + retryAfterMs);
+
+  const retry = rateLimitRetryTail.then(async () => {
+    const delay = Math.max(
+      rateLimitResumeAt - Date.now(),
+      nextRateLimitRetryAt - Date.now(),
+      0
+    );
+    if (delay > 0) await wait(delay);
+    nextRateLimitRetryAt = Date.now() + RATE_LIMIT_RETRY_SPACING_MS;
+  });
+
+  rateLimitRetryTail = retry.catch(() => {});
+  return retry;
+}
+
+function scheduleTransientRetry(delayMs: number): Promise<void> {
+  const retry = transientRetryTail.then(async () => {
+    const delay = Math.max(
+      delayMs,
+      nextTransientRetryAt - Date.now(),
+      0,
+    );
+    if (delay > 0) await wait(delay);
+    nextTransientRetryAt = Date.now() + TRANSIENT_RETRY_SPACING_MS;
+  });
+
+  transientRetryTail = retry.catch(() => {});
+  return retry;
+}
+
 const DEFAULT_RETRY_AFTER_SECONDS = 5;
 const MAX_RETRY_AFTER_SECONDS = 30; // cap so a bad/huge value can't hang a request indefinitely
 
@@ -75,7 +115,7 @@ async function clientFetchUncached(
   init: RequestInit = {},
   options: { skipRateLimitRetry?: boolean } = {}
 ): Promise<Response> {
-  const res = await fetch(input, {
+  let res = await fetch(input, {
     ...init,
     credentials: 'include',
   });
@@ -103,7 +143,7 @@ async function clientFetchUncached(
       MAX_RETRY_AFTER_SECONDS
     );
 
-    await wait(retryAfterSeconds * 1000);
+    await scheduleRateLimitRetry(retryAfterSeconds * 1000);
 
     return fetch(input, {
       ...init,
@@ -136,12 +176,14 @@ async function clientFetchUncached(
   const ok = await refreshSession();
   if (!ok) throw new Error('Unauthenticated');
 
-  return fetch(input, {
+  res = await fetch(input, {
     ...init,
     credentials: 'include',
     ...(init as object),
     _retry: true as unknown as boolean,
   } as RequestInit);
+
+  return res;
 }
 
 export function clientFetch(
@@ -154,6 +196,20 @@ export function clientFetch(
     return clientFetchUncached(input, init, options);
   }
 
+  const requestWithTransientRetry = async (): Promise<Response> => {
+    for (let attempt = 0; ; attempt += 1) {
+      const response = await clientFetchUncached(input, init, options);
+      if (
+        ![500, 502, 503, 504].includes(response.status) ||
+        attempt >= TRANSIENT_RETRY_DELAYS_MS.length
+      ) {
+        return response;
+      }
+
+      await scheduleTransientRetry(TRANSIENT_RETRY_DELAYS_MS[attempt]);
+    }
+  };
+
   const url =
     typeof input === 'string'
       ? input
@@ -164,7 +220,7 @@ export function clientFetch(
     return existing.then((response) => response.clone());
   }
 
-  const request = clientFetchUncached(input, init, options).finally(() => {
+  const request = requestWithTransientRetry().finally(() => {
     inFlightGets.delete(key);
   });
   inFlightGets.set(key, request);
