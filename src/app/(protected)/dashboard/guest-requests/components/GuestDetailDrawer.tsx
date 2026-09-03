@@ -72,25 +72,26 @@ export default function GuestDetailDrawer({
   useEffect(() => {
     if (!requestId) return;
 
-    let cancelled = false;
+    const controller = new AbortController();
 
     clientFetch(`/api/guest-requests/detail?id=${requestId}`, {
       cache: 'no-store',
+      signal: controller.signal,
     })
       .then((res) => res.json())
       .then((json) => {
-        if (!cancelled && json.guestRequest) {
+        if (json.guestRequest) {
           setDetail(json.guestRequest);
         }
       })
       .catch((err) => {
-        if (!cancelled) {
+        if (err?.name !== 'AbortError') {
           console.error('Failed to load guest request details:', err);
         }
       });
 
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, [requestId]);
 
