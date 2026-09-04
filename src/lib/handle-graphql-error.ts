@@ -10,6 +10,7 @@ export type GraphQLErrorShape = {
   extensions?: {
     code?: string;
     originalError?: OriginalError;
+    retryAfter?: number;
   };
 };
 
@@ -46,6 +47,9 @@ export function handleGraphQLError(
     {
       error: error.message,
       code,
+      ...(error.extensions?.retryAfter !== undefined
+        ? { retryAfter: error.extensions.retryAfter }
+        : {}),
     },
     {
       status: isAuthError ? 401 : isIdempotencyConflict ? 409 : 400,

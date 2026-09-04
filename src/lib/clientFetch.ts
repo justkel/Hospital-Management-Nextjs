@@ -4,8 +4,13 @@ import { ensureIdempotencyKey } from '@/lib/idempotency';
 
 type ErrorResponse = {
   error?: string;
+  message?: string;
   code?: string;
   retryAfter?: number;
+  errors?: Array<{
+    message?: string;
+    extensions?: { code?: string; retryAfter?: number };
+  }>;
 };
 
 const forceLogoutCodes = [
@@ -112,6 +117,48 @@ function scheduleTransientRetry(delayMs: number): Promise<void> {
 const DEFAULT_RETRY_AFTER_SECONDS = 5;
 const MAX_RETRY_AFTER_SECONDS = 30; // cap so a bad/huge value can't hang a request indefinitely
 
+async function normalizeIdempotencyConflict(
+  response: Response,
+): Promise<Response> {
+  const body = (await response.clone().json().catch(() => ({}))) as ErrorResponse;
+  const retryAfter = response.headers.get('Retry-After');
+  const graphqlError = body.errors?.[0];
+  const message =
+    body.message ||
+    body.error ||
+    graphqlError?.message ||
+    'This operation is already being processed. Please wait and try again.';
+  const retryAfterSeconds = retryAfter
+    ? Number(retryAfter)
+    : body.retryAfter ?? graphqlError?.extensions?.retryAfter;
+  const normalized = {
+    ...body,
+    error: message,
+    message,
+    code:
+      body.code ||
+      graphqlError?.extensions?.code ||
+      'IDEMPOTENCY_CONFLICT',
+    ...(Number.isFinite(retryAfterSeconds)
+      ? { retryAfter: retryAfterSeconds }
+      : {}),
+  };
+  const headers = new Headers(response.headers);
+  headers.set('content-type', 'application/json');
+  headers.delete('content-length');
+  return new Response(JSON.stringify(normalized), {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+async function normalizeResponse(response: Response): Promise<Response> {
+  return response.status === 409
+    ? normalizeIdempotencyConflict(response)
+    : response;
+}
+
 async function clientFetchUncached(
   input: RequestInfo,
   init: RequestInit = {},
@@ -121,6 +168,8 @@ async function clientFetchUncached(
     ...init,
     credentials: 'include',
   });
+
+  if (res.status === 409) return normalizeIdempotencyConflict(res);
 
   if (res.status === 429) {
     // Callers that manage their own coordinated backoff (e.g. the
@@ -147,11 +196,11 @@ async function clientFetchUncached(
 
     await scheduleRateLimitRetry(retryAfterSeconds * 1000);
 
-    return fetch(input, {
+    return normalizeResponse(await fetch(input, {
       ...init,
       credentials: 'include',
       _retry429: true,
-    } as RequestInit);
+    } as RequestInit));
   }
 
   if (!res.ok && res.status !== 401) {
@@ -178,12 +227,12 @@ async function clientFetchUncached(
   const ok = await refreshSession();
   if (!ok) throw new Error('Unauthenticated');
 
-  res = await fetch(input, {
+  res = await normalizeResponse(await fetch(input, {
     ...init,
     credentials: 'include',
     ...(init as object),
     _retry: true as unknown as boolean,
-  } as RequestInit);
+  } as RequestInit));
 
   return res;
 }
