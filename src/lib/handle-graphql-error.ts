@@ -40,6 +40,7 @@ export function handleGraphQLError(
         code as (typeof AUTH_ERROR_CODES)[number]
       )) ||
     error.message?.toLowerCase().includes('unauthorized');
+  const isIdempotencyConflict = code === 'IDEMPOTENCY_CONFLICT';
 
   return NextResponse.json(
     {
@@ -47,7 +48,7 @@ export function handleGraphQLError(
       code,
     },
     {
-      status: isAuthError ? 401 : 400,
+      status: isAuthError ? 401 : isIdempotencyConflict ? 409 : 400,
     }
   );
 }

@@ -1,3 +1,4 @@
+import { idempotencyHeaders } from '@/lib/idempotency';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { print } from 'graphql';
@@ -27,7 +28,11 @@ export async function POST(req: Request) {
     const res = await fetch(GATEWAY_URL, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+        ...idempotencyHeaders(req),
+                ...(req.headers.get('x-idempotency-test-delay') === '2000'
+                    ? { 'x-idempotency-test-delay': '2000' }
+                    : {}),
+                'Content-Type': 'application/json',
             Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
@@ -39,10 +44,19 @@ export async function POST(req: Request) {
     const json: {
         data?: UpdatePatientMutation;
         errors?: GraphQLErrorShape[];
+        extensions?: { idempotencyState?: string };
     } = await res.json();
 
     const errorResponse = handleGraphQLError(json.errors);
-    if (errorResponse) return errorResponse;
+    if (errorResponse) {
+        const idempotencyState =
+          json.extensions?.idempotencyState ??
+          res.headers.get('x-idempotency-state');
+      if (idempotencyState) {
+        errorResponse.headers.set('x-idempotency-state', idempotencyState);
+      }
+      return errorResponse;
+    }
 
     if (!json.data?.updatePatient) {
       return NextResponse.json(
@@ -51,5 +65,16 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ patient: json.data?.updatePatient });
+    const response = NextResponse.json({ patient: json.data?.updatePatient });
+    const idempotencyKey = req.headers.get('x-idempotency-key');
+    if (idempotencyKey) {
+      response.headers.set('x-idempotency-key-forwarded', idempotencyKey);
+    }
+    const idempotencyState =
+      json.extensions?.idempotencyState ??
+      res.headers.get('x-idempotency-state');
+    if (idempotencyState) {
+      response.headers.set('x-idempotency-state', idempotencyState);
+    }
+    return response;
 }

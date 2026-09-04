@@ -1,3 +1,4 @@
+import { idempotencyHeaders } from '@/lib/idempotency';
 import { NextResponse } from 'next/server';
 import { cookies, headers } from 'next/headers';
 import { print } from 'graphql';
@@ -13,7 +14,7 @@ type GraphQLError = {
   extensions?: { code?: string };
 };
 
-export async function POST() {
+export async function POST(req: Request) {
   const cookieStore = await cookies();
   const headerStore = headers();
 
@@ -31,6 +32,7 @@ export async function POST() {
     const res = await fetch(GATEWAY_URL, {
       method: 'POST',
       headers: {
+        ...idempotencyHeaders(req),
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
         ...(rawCookie ? { cookie: rawCookie } : {}),

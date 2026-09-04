@@ -1,3 +1,4 @@
+import { idempotencyHeaders } from '@/lib/idempotency';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { print } from 'graphql';
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
   const res = await fetch(GATEWAY_URL, {
     method: 'POST',
     headers: {
+        ...idempotencyHeaders(req),
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },

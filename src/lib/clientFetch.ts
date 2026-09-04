@@ -1,5 +1,7 @@
 'use client';
 
+import { ensureIdempotencyKey } from '@/lib/idempotency';
+
 type ErrorResponse = {
   error?: string;
   code?: string;
@@ -193,7 +195,7 @@ export function clientFetch(
 ): Promise<Response> {
   const method = (init.method ?? 'GET').toUpperCase();
   if (method !== 'GET') {
-    return clientFetchUncached(input, init, options);
+    return clientFetchUncached(input, ensureIdempotencyKey(init), options);
   }
 
   const requestWithTransientRetry = async (): Promise<Response> => {

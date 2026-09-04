@@ -1,3 +1,4 @@
+import { idempotencyHeaders } from '@/lib/idempotency';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { print } from 'graphql';
@@ -13,7 +14,7 @@ type GraphQLError = {
   extensions?: { code?: string };
 };
 
-export async function POST() {
+export async function POST(req: Request) {
   const cookieStore = await cookies();
   const refreshToken = cookieStore.get('refresh_token')?.value;
 
@@ -30,6 +31,7 @@ export async function POST() {
   const res = await fetch(GATEWAY_URL, {
     method: 'POST',
     headers: {
+        ...idempotencyHeaders(req),
       'Content-Type': 'application/json',
       Authorization: `Bearer ${refreshToken}`,
     },
