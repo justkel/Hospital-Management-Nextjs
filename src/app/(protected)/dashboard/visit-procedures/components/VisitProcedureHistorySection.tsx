@@ -236,7 +236,7 @@ export default function VisitProcedureHistorySection({
                                 key={item.id}
                                 className="p-4 transition-colors hover:!bg-[#FAFAF8] sm:p-6"
                             >
-                                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                                     <div className="min-w-0 flex-1">
                                         <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
                                             <h3 className="truncate text-[15px] font-semibold !text-[#16211B] sm:text-base">
@@ -275,7 +275,7 @@ export default function VisitProcedureHistorySection({
                                         )}
                                     </div>
 
-                                    <div className="flex shrink-0 gap-2 sm:flex-col sm:gap-2">
+                                    <div className="flex w-full shrink-0 items-center gap-2.5 sm:w-auto md:flex-row md:items-start">
                                         <Link
                                             href={`/dashboard/visit-procedures/${item.id}`}
                                             className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border !border-[#E8E6E0] !bg-white px-4 text-sm font-medium !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] sm:flex-none"

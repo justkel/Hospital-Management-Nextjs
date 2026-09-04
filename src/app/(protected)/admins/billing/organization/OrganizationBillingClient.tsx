@@ -154,7 +154,7 @@ export default function OrganizationBillingClient({ categories: initial }: Props
 
             <Link
               href="/admins/billing/charge-domain-mappings"
-              className="inline-flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-xl border !border-[#E8E6E0] !bg-white px-5 text-xs font-semibold !text-[#5F5E5A] transition hover:!bg-[#F7F7F5] hover:!text-[#16211B]"
+              className="inline-flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-xl border !border-[#E8E6E0] !bg-white px-5 text-xs font-semibold !text-[#5F5E4A] transition hover:!bg-[#F7F7F5] hover:!text-[#16211B]"
             >
               Manage Domain Mapping
               <span className="!text-[#B4B2A9]">→</span>
@@ -168,10 +168,17 @@ export default function OrganizationBillingClient({ categories: initial }: Props
           createCategory={createCategory}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="lg:w-72 lg:flex-shrink-0">
+            <CategorySidebar
+              categories={categories}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              startEdit={startEdit}
+            />
+          </div>
 
-          <div className="lg:col-span-3 space-y-8">
-
+          <div className="flex-1 min-w-0 space-y-8">
             {isEditing && (
               <EditCategoryCard
                 editCategory={editCategory}
@@ -181,29 +188,21 @@ export default function OrganizationBillingClient({ categories: initial }: Props
               />
             )}
 
+            {selectedCategory && !isEditing && (
+              <>
+                <CollapsibleSection title="Items Grid" defaultOpen={false}>
+                  <ItemsGrid selectedCategory={selectedCategory} />
+                </CollapsibleSection>
+
+                <AddItemCard
+                  selectedCategory={selectedCategory}
+                  newItem={newItem}
+                  setNewItem={setNewItem}
+                  createItem={createItem}
+                />
+              </>
+            )}
           </div>
-
-          <CategorySidebar
-            categories={categories}
-            selectedId={selectedId}
-            setSelectedId={setSelectedId}
-            startEdit={startEdit}
-          />
-
-          {selectedCategory && !isEditing && (
-            <>
-              <CollapsibleSection title="Items Grid" defaultOpen={false}>
-                <ItemsGrid selectedCategory={selectedCategory} />
-              </CollapsibleSection>
-
-              <AddItemCard
-                selectedCategory={selectedCategory}
-                newItem={newItem}
-                setNewItem={setNewItem}
-                createItem={createItem}
-              />
-            </>
-          )}
         </div>
       </div>
     </div>
