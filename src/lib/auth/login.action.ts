@@ -1,6 +1,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
+import { idempotencyHeaders } from '@/lib/idempotency';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 const REQUEST_TIMEOUT_MS = 10_000;
@@ -37,7 +38,10 @@ export async function loginAction(input: {
   try {
     const res = await fetch(GATEWAY_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        ...idempotencyHeaders(),
+        'Content-Type': 'application/json',
+      },
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       body: JSON.stringify({
         query: `

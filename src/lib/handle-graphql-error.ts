@@ -27,6 +27,11 @@ export const AUTH_ERROR_CODES = [
   'GUEST_ACCESS_UNVERIFIABLE',
 ] as const;
 
+const CONFLICT_ERROR_CODES = [
+  'IDEMPOTENCY_CONFLICT',
+  'RECORD_VERSION_CONFLICT',
+] as const;
+
 export function handleGraphQLError(
   errors?: GraphQLErrorShape[]
 ): NextResponse | null {
@@ -41,7 +46,10 @@ export function handleGraphQLError(
         code as (typeof AUTH_ERROR_CODES)[number]
       )) ||
     error.message?.toLowerCase().includes('unauthorized');
-  const isIdempotencyConflict = code === 'IDEMPOTENCY_CONFLICT';
+  const isConflict = typeof code === 'string' &&
+    CONFLICT_ERROR_CODES.includes(
+      code as (typeof CONFLICT_ERROR_CODES)[number]
+    );
 
   return NextResponse.json(
     {
@@ -52,7 +60,7 @@ export function handleGraphQLError(
         : {}),
     },
     {
-      status: isAuthError ? 401 : isIdempotencyConflict ? 409 : 400,
+      status: isAuthError ? 401 : isConflict ? 409 : 400,
     }
   );
 }

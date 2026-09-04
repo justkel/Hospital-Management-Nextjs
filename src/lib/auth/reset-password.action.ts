@@ -1,5 +1,7 @@
 'use server';
 
+import { idempotencyHeaders } from '@/lib/idempotency';
+
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
 type ResetPasswordData = {
@@ -20,7 +22,10 @@ export async function resetPasswordAction(input: {
   try {
     const res = await fetch(GATEWAY_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        ...idempotencyHeaders(),
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         query: `
           mutation ResetPassword($input: ResetPasswordInput!) {
