@@ -126,6 +126,14 @@ const ACTIONS: {
   ];
 
 function toDatetimeLocal(d: string | Date) {
+  if (typeof d === 'string') {
+    const match = d.match(
+      /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/,
+    );
+
+    if (match) return match[1];
+  }
+
   const dt = new Date(d);
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
