@@ -39,6 +39,7 @@ query GetAllStaff(
   staffs(pagination: $pagination) {
     items {
       id
+      updatedAt
       fullName
       email
       userCode
@@ -172,6 +173,7 @@ query GetAllPatients($pagination: PatientPaginationInput!) {
 query GetPatientById($id: String!) {
   patientById(id: $id) {
     id
+    updatedAt
     fullName
     dateOfBirth
     gender
