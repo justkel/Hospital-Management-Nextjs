@@ -3754,6 +3754,14 @@ mutation CreateGuestRequest($input: CreateGuestRequestInput!) {
   }
 }
 
+query GetOrganizationGuestAccessCode {
+  organizationGuestAccessCode
+}
+
+mutation RegenerateOrganizationGuestAccessCode {
+  regenerateOrganizationGuestAccessCode
+}
+
 query GetGuestRequests($status: GuestRequestStatus) {
   guestRequests(status: $status) {
     id

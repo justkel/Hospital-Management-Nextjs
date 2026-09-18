@@ -19,9 +19,9 @@ const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { firstName, lastName, email, phone, reasonForVisit } = body ?? {};
+    const { accessCode, firstName, lastName, email, phone, reasonForVisit } = body ?? {};
 
-    if (!firstName || !lastName || !email || !phone || !reasonForVisit) {
+    if (!accessCode || !firstName || !lastName || !email || !phone || !reasonForVisit) {
       return NextResponse.json(
         { error: 'Please fill in all required fields' },
         { status: 400 }
@@ -29,6 +29,7 @@ export async function POST(req: Request) {
     }
 
     const input: CreateGuestRequestInput = {
+      accessCode,
       firstName,
       lastName,
       email,

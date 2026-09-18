@@ -60,6 +60,7 @@ interface FormState {
   lastName: string;
   email: string;
   phone: string;
+  accessCode: string;
   reasonForVisit: ReasonOption | null;
 }
 
@@ -68,6 +69,7 @@ const EMPTY_FORM: FormState = {
   lastName: '',
   email: '',
   phone: '',
+  accessCode: '',
   reasonForVisit: null,
 };
 
@@ -100,6 +102,10 @@ export default function GuestAccessPage() {
       setError('Please enter a phone number');
       return;
     }
+    if (!form.accessCode.trim()) {
+      setError('Please enter the organization guest access code');
+      return;
+    }
     if (!form.reasonForVisit) {
       setError('Let us know why you\u2019re requesting access');
       return;
@@ -116,6 +122,7 @@ export default function GuestAccessPage() {
           lastName: form.lastName.trim(),
           email: form.email.trim(),
           phone: form.phone.trim(),
+          accessCode: form.accessCode.trim().toUpperCase(),
           reasonForVisit: form.reasonForVisit,
         }),
       });
@@ -196,6 +203,18 @@ export default function GuestAccessPage() {
               )}
 
               <div className="space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.07em] text-[#888780]">
+                    Organization access code
+                  </label>
+                  <Input
+                    size="large"
+                    placeholder="Enter the code provided by the organization"
+                    value={form.accessCode}
+                    onChange={(e) => update('accessCode', e.target.value.toUpperCase())}
+                    className="!h-12 !rounded-[10px] !border-[#D3D1C7] !bg-white !font-mono !text-[#2C2C2A] placeholder:!font-sans placeholder:!text-[#B4B2A9]"
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.07em] text-[#888780]">

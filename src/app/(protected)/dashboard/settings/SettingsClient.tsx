@@ -8,7 +8,11 @@ import {
   ShieldCheck,
   ChevronRight,
   Settings as SettingsIcon,
+  Copy,
+  RefreshCw,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { clientFetch } from '@/lib/clientFetch';
 import { useHasRoles } from '@/components/auth/HasRoles';
 import { Roles } from '@/shared/utils/enums/roles';
 
@@ -57,6 +61,33 @@ const settingsItems: SettingsItem[] = [
 
 export default function SettingsClient() {
   const isAdmin = useHasRoles([Roles.ADMIN]);
+  const [guestAccessCode, setGuestAccessCode] = useState<string | null>(null);
+  const [regenerating, setRegenerating] = useState(false);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    clientFetch('/api/organization/guest-access-code')
+      .then(async response => {
+        if (!response.ok) throw new Error('Unable to load guest access code');
+        const data = await response.json();
+        setGuestAccessCode(data.organizationGuestAccessCode ?? null);
+      })
+      .catch(error => console.error(error));
+  }, [isAdmin]);
+
+  async function regenerateGuestAccessCode() {
+    setRegenerating(true);
+    try {
+      const response = await clientFetch('/api/organization/guest-access-code', {
+        method: 'POST',
+      });
+      if (!response.ok) throw new Error('Unable to regenerate guest access code');
+      const data = await response.json();
+      setGuestAccessCode(data.regenerateOrganizationGuestAccessCode);
+    } finally {
+      setRegenerating(false);
+    }
+  }
 
   const visibleSettingsItems = settingsItems.filter(
     item => !item.adminOnly || isAdmin,
@@ -133,6 +164,43 @@ export default function SettingsClient() {
             );
           })}
         </div>
+
+        {isAdmin && (
+          <div className="rounded-2xl border !border-slate-200/70 !bg-white/90 p-5 shadow-[0_10px_40px_rgba(15,23,42,0.05)]">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-base font-bold !text-slate-900">Guest access code</h2>
+                <p className="mt-1 text-sm leading-relaxed !text-slate-500">
+                  Share this code with guests who should request access to your organization.
+                  Regenerating it invalidates the previous code.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={regenerateGuestAccessCode}
+                disabled={regenerating}
+                className="inline-flex shrink-0 items-center gap-2 rounded-lg border !border-slate-200 px-3 py-2 text-xs font-semibold !text-slate-700 hover:!bg-slate-50 disabled:opacity-50"
+              >
+                <RefreshCw size={14} className={regenerating ? 'animate-spin' : ''} />
+                Regenerate
+              </button>
+            </div>
+            <div className="mt-4 flex items-center gap-2">
+              <code className="flex-1 rounded-lg !bg-slate-100 px-3 py-2.5 font-mono text-sm font-semibold tracking-wider !text-slate-800">
+                {guestAccessCode ?? 'No code generated'}
+              </code>
+              <button
+                type="button"
+                disabled={!guestAccessCode}
+                onClick={() => guestAccessCode && navigator.clipboard.writeText(guestAccessCode)}
+                aria-label="Copy guest access code"
+                className="rounded-lg border !border-slate-200 p-2.5 !text-slate-600 hover:!bg-slate-50 disabled:opacity-50"
+              >
+                <Copy size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
