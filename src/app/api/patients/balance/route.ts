@@ -10,6 +10,8 @@ import { GraphQLErrorShape, handleGraphQLError } from '@/lib/handle-graphql-erro
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL!;
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('access_token')?.value;
@@ -31,6 +33,7 @@ export async function GET(req: Request) {
   try {
     const res = await fetch(GATEWAY_URL, {
       method: 'POST',
+      cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
@@ -58,9 +61,16 @@ export async function GET(req: Request) {
       );
     }
 
-    return NextResponse.json({
-      patientOutstandingBalance: json.data.patientOutstandingBalance,
-    });
+    return NextResponse.json(
+      {
+        patientOutstandingBalance: json.data.patientOutstandingBalance,
+      },
+      {
+        headers: {
+          'Cache-Control': 'no-store, max-age=0',
+        },
+      },
+    );
   } catch (err) {
     console.error('Error fetching patient outstanding balance:', err);
     return NextResponse.json(
