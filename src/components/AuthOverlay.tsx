@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
 type LogoutEvent = CustomEvent<{ message?: string }>;
@@ -10,6 +10,7 @@ const emptySubscribe = () => () => {};
 export default function AuthOverlay() {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState('');
+  const redirectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const mounted = useSyncExternalStore(
     emptySubscribe,
@@ -24,7 +25,9 @@ export default function AuthOverlay() {
       setMessage(event.detail?.message || 'Session expired');
       setVisible(true);
 
-      setTimeout(async () => {
+      if (redirectTimer.current) return;
+
+      redirectTimer.current = setTimeout(async () => {
         try {
           await fetch('/api/logout', {
             method: 'POST',
@@ -39,7 +42,13 @@ export default function AuthOverlay() {
     };
 
     window.addEventListener('auth:logout', handler);
-    return () => window.removeEventListener('auth:logout', handler);
+    return () => {
+      window.removeEventListener('auth:logout', handler);
+      if (redirectTimer.current) {
+        clearTimeout(redirectTimer.current);
+        redirectTimer.current = null;
+      }
+    };
   }, []);
 
   if (!mounted || !visible) return null;
