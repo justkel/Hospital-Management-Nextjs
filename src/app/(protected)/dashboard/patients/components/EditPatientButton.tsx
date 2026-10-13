@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { Pencil, X, User, Phone, Heart, Users, MapPin, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { clientFetch } from '@/lib/clientFetch';
+import { newIdempotencyKey } from '@/lib/idempotency';
 import {
     BloodGroup,
     UpdatePatientInput,
@@ -13,6 +14,7 @@ import { NIGERIAN_STATES } from './CreatePatientModal';
 interface Props {
     patient: {
         id: string;
+        updatedAt: string;
         phoneNumber?: string | null;
         email?: string | null;
         dateOfBirth?: string | null;
@@ -36,6 +38,7 @@ export default function EditPatientButton({ patient }: Props) {
 
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [idempotencyTesting, setIdempotencyTesting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [warning, setWarning] = useState<string | null>(null);
@@ -93,6 +96,37 @@ export default function EditPatientButton({ patient }: Props) {
         setForm(prev => ({ ...prev, [key]: value }));
     };
 
+    const buildPayload = (): UpdatePatientInput => {
+        const isAddressComplete =
+            form.addressLine1?.trim() &&
+            form.city?.trim() &&
+            form.state?.trim() &&
+            form.country?.trim();
+
+        return {
+            id: patient.id,
+            expectedUpdatedAt: patient.updatedAt,
+            phoneNumber: form.phoneNumber || undefined,
+            email: form.email || undefined,
+            dateOfBirth: form.dateOfBirth || undefined,
+            nextOfKinName: form.nextOfKinName || undefined,
+            nextOfKinPhone: form.nextOfKinPhone || undefined,
+            bloodGroup: form.bloodGroup || undefined,
+            extraDetails: form.extraDetails || undefined,
+            allergies: form.allergies
+                ? form.allergies.split(',').map(a => a.trim()).filter(Boolean)
+                : undefined,
+            addresses: isAddressComplete
+                ? [{
+                    addressLine1: form.addressLine1.trim(),
+                    city: form.city.trim(),
+                    state: form.state.trim(),
+                    country: form.country.trim(),
+                }]
+                : undefined,
+        };
+    };
+
     const handleSubmit = async () => {
         if (loading || success) return;
 
@@ -120,29 +154,7 @@ export default function EditPatientButton({ patient }: Props) {
             form.state?.trim() ||
             form.country?.trim();
 
-        const payload: UpdatePatientInput = {
-            id: patient.id,
-            phoneNumber: form.phoneNumber || undefined,
-            email: form.email || undefined,
-            dateOfBirth: form.dateOfBirth || undefined,
-            nextOfKinName: form.nextOfKinName || undefined,
-            nextOfKinPhone: form.nextOfKinPhone || undefined,
-            bloodGroup: form.bloodGroup || undefined,
-            extraDetails: form.extraDetails || undefined,
-            allergies: form.allergies
-                ? form.allergies.split(',').map(a => a.trim()).filter(Boolean)
-                : undefined,
-            addresses: isAddressComplete
-                ? [
-                    {
-                        addressLine1: form.addressLine1.trim(),
-                        city: form.city.trim(),
-                        state: form.state.trim(),
-                        country: form.country.trim(),
-                    },
-                ]
-                : undefined,
-        };
+        const payload = buildPayload();
 
         if (!isAddressComplete && isAddressPartiallyFilled) {
             setAddressWarning('Incomplete address detected — it will be ignored.');
@@ -170,6 +182,52 @@ export default function EditPatientButton({ patient }: Props) {
             setError(e instanceof Error ? e.message : 'Something went wrong');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleIdempotencyTest = async () => {
+        if (loading || idempotencyTesting) return;
+
+        setError(null);
+        setSuccess(null);
+        setIdempotencyTesting(true);
+        const key = newIdempotencyKey();
+        const send = () =>
+            clientFetch('/api/patients/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-idempotency-key': key,
+                    'x-idempotency-test-delay': '2000',
+                },
+                body: JSON.stringify(buildPayload()),
+            });
+
+        try {
+            const results = await Promise.all([send(), send()]);
+            const statuses = results.map((response) => response.status);
+            const conflictIndex = results.findIndex((response) => response.status === 409);
+            const conflictBody = conflictIndex >= 0
+                ? await results[conflictIndex].json().catch(() => ({}))
+                : null;
+
+            if (statuses.filter(status => status === 409).length === 1 &&
+                statuses.filter(status => status === 200).length === 1) {
+                const retryMessage = conflictBody?.retryAfter
+                    ? ` Retry after ${conflictBody.retryAfter}s.`
+                    : '';
+                setSuccess(
+                    `Idempotency protection passed: one request completed (200) and the duplicate was blocked (409). ${conflictBody?.message ?? 'Conflict handled by clientFetch.'}${retryMessage}`,
+                );
+            } else {
+                setError(
+                    `Unexpected idempotency result: ${statuses.join(', ')}. Expected one 200 and one 409.`,
+                );
+            }
+        } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : 'Idempotency test failed');
+        } finally {
+            setIdempotencyTesting(false);
         }
     };
 
@@ -372,6 +430,17 @@ export default function EditPatientButton({ patient }: Props) {
                                 >
                                     {success ? '✓ Updated' : loading ? 'Saving...' : 'Save Changes'}
                                 </button>
+
+                                {process.env.NODE_ENV !== 'production' && (
+                                    <button
+                                        type="button"
+                                        disabled={isLocked || idempotencyTesting}
+                                        onClick={handleIdempotencyTest}
+                                        className="h-10 w-full sm:w-auto rounded-xl border border-dashed !border-amber-400 !bg-amber-50 px-4 text-xs font-semibold !text-amber-800 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        {idempotencyTesting ? 'Testing...' : 'Test idempotency (dev)'}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
