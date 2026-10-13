@@ -102,6 +102,203 @@ const hideScrollbarStyle = {
   msOverflowStyle: 'none',
 } as const;
 
+type MetricCardProps = {
+  label: string;
+  value: string | number;
+  icon: ReactNode;
+  trend?: 'up' | 'down' | 'neutral';
+  trendValue?: string;
+  color?: 'blue' | 'green' | 'purple' | 'orange' | 'red' | 'teal' | 'pink' | 'indigo';
+  subtitle?: string;
+  href?: string;
+};
+
+function MetricCard({
+  label,
+  value,
+  icon,
+  trend,
+  trendValue,
+  color = 'blue',
+  subtitle,
+  href,
+}: MetricCardProps) {
+  const colorMap = {
+    blue: 'border-blue-100/80 hover:border-blue-200',
+    green: 'border-emerald-100/80 hover:border-emerald-200',
+    purple: 'border-violet-100/80 hover:border-violet-200',
+    orange: 'border-orange-100/80 hover:border-orange-200',
+    red: 'border-rose-100/80 hover:border-rose-200',
+    teal: 'border-cyan-100/80 hover:border-cyan-200',
+    pink: 'border-pink-100/80 hover:border-pink-200',
+    indigo: 'border-indigo-100/80 hover:border-indigo-200',
+  };
+
+  const iconBgMap = {
+    blue: 'bg-blue-50 text-blue-600',
+    green: 'bg-emerald-50 text-emerald-600',
+    purple: 'bg-violet-50 text-violet-600',
+    orange: 'bg-orange-50 text-orange-600',
+    red: 'bg-rose-50 text-rose-600',
+    teal: 'bg-cyan-50 text-cyan-600',
+    pink: 'bg-pink-50 text-pink-600',
+    indigo: 'bg-indigo-50 text-indigo-600',
+  };
+
+  const trendColorMap = {
+    up: 'text-emerald-600 bg-emerald-50 ring-1 ring-emerald-100',
+    down: 'text-rose-600 bg-rose-50 ring-1 ring-rose-100',
+    neutral: 'text-slate-500 bg-slate-100 ring-1 ring-slate-200',
+  };
+
+  const formattedValue = typeof value === 'number' ? value.toLocaleString() : value;
+
+  const card = (
+    <div
+      className={`group relative min-w-0 overflow-hidden rounded-2xl border bg-white p-3 shadow-[0_18px_35px_-30px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_45px_-28px_rgba(15,23,42,0.42)] sm:p-4 lg:p-5 ${colorMap[color]}`}
+    >
+      <div className="relative flex min-w-0 flex-col">
+        <div className="flex items-start justify-between gap-3">
+          <div
+            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl shadow-sm ring-1 ring-black/5 sm:h-10 sm:w-10 lg:h-11 lg:w-11 ${iconBgMap[color]}`}
+          >
+            <div className="flex [&>svg]:h-4 [&>svg]:w-4 sm:[&>svg]:h-[18px] sm:[&>svg]:w-[18px] lg:[&>svg]:h-[20px] lg:[&>svg]:w-[20px]">
+              {icon}
+            </div>
+          </div>
+
+          {trend && trendValue && (
+            <div className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[9px] font-semibold sm:text-[10px] ${trendColorMap[trend]}`}>
+              {trend === 'up' && <TrendingUp className="h-3 w-3" />}
+              {trend === 'down' && <TrendingDown className="h-3 w-3" />}
+              {trend === 'neutral' && <Minus className="h-3 w-3" />}
+              {trendValue}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-3 min-w-0">
+          <p
+            className="min-w-0 text-[11px] font-medium uppercase tracking-[0.08em] text-slate-500 sm:text-[12px]"
+            title={label}
+          >
+            {label}
+          </p>
+
+          <p
+            className="mt-1 min-w-0 whitespace-nowrap text-[1.1rem] font-bold leading-tight tracking-tight tabular-nums text-slate-900 min-[380px]:text-[1.3rem] sm:text-[1.5rem] md:text-[1.8rem]"
+            title={formattedValue}
+          >
+            {formattedValue}
+          </p>
+
+          {subtitle && (
+            <p
+              className="mt-1 min-w-0 break-words text-[10px] leading-snug text-slate-500 min-[380px]:text-[11px] sm:text-xs"
+              title={subtitle}
+            >
+              {subtitle}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  return href ? (
+    <Link href={href} className="block min-w-0 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+      {card}
+    </Link>
+  ) : (
+    card
+  );
+}
+
+type SectionProps = {
+  title: string;
+  icon?: ReactNode;
+  children: ReactNode;
+  className?: string;
+  href?: string;
+};
+
+function Section({
+  title,
+  icon,
+  children,
+  className = '',
+  href,
+}: SectionProps) {
+  return (
+    <section
+      className={`group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_18px_35px_-30px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_22px_45px_-28px_rgba(15,23,42,0.42)] ${className}`}
+    >
+      <div className="relative">
+        <div className="mb-5 flex items-center gap-2.5">
+          {icon && (
+            <div className="rounded-xl bg-slate-100 p-2 text-slate-600 ring-1 ring-slate-200">
+              {icon}
+            </div>
+          )}
+          {href ? (
+            <Link
+              href={href}
+              className="group/section inline-flex items-center gap-1 text-[14px] font-semibold !text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            >
+              {title}
+              <ChevronRight className="h-3.5 w-3.5 text-slate-300 transition-transform group-hover/section:translate-x-0.5 group-hover/section:text-slate-600" />
+            </Link>
+          ) : (
+            <h2 className="text-[14px] font-semibold text-slate-900">{title}</h2>
+          )}
+        </div>
+        {children}
+      </div>
+    </section>
+  );
+}
+
+type DistributionBarsProps = {
+  data: Array<{ [key: string]: string | number }>;
+  valueKey?: string;
+  labelKey?: string;
+};
+
+function DistributionBars({
+  data,
+  valueKey = 'count',
+  labelKey = 'label',
+}: DistributionBarsProps) {
+  const total = data.reduce((sum, item) => sum + Number(item[valueKey] ?? 0), 0) || 1;
+
+  return (
+    <div className="space-y-3">
+      {data.map((entry, index) => {
+        const value = Number(entry[valueKey] ?? 0);
+        const width = Math.max((value / total) * 100, value > 0 ? 8 : 0);
+
+        return (
+          <div key={`${String(entry[labelKey])}-${index}`} className="space-y-1.5">
+            <div className="flex items-center justify-between gap-3 text-[11px] text-slate-600">
+              <span className="truncate font-medium">{entry[labelKey]}</span>
+              <span className="tabular-nums text-slate-500">{value}</span>
+            </div>
+            <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200">
+              <div
+                className="h-full rounded-full transition-all duration-300"
+                style={{
+                  width: `${width}%`,
+                  backgroundColor: COLORS[index % COLORS.length],
+                }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function DashboardClient({
   email,
   fullName,
@@ -204,196 +401,6 @@ export default function DashboardClient({
     `₦${new Intl.NumberFormat('en-NG', {
       maximumFractionDigits: 0,
     }).format(value)}`;
-
-  const MetricCard = ({
-    label,
-    value,
-    icon,
-    trend,
-    trendValue,
-    color = 'blue',
-    subtitle,
-    href,
-  }: {
-    label: string;
-    value: string | number;
-    icon: ReactNode;
-    trend?: 'up' | 'down' | 'neutral';
-    trendValue?: string;
-    color?: 'blue' | 'green' | 'purple' | 'orange' | 'red' | 'teal' | 'pink' | 'indigo';
-    subtitle?: string;
-    href?: string;
-  }) => {
-    const colorMap = {
-      blue: 'border-blue-100/80 hover:border-blue-200',
-      green: 'border-emerald-100/80 hover:border-emerald-200',
-      purple: 'border-violet-100/80 hover:border-violet-200',
-      orange: 'border-orange-100/80 hover:border-orange-200',
-      red: 'border-rose-100/80 hover:border-rose-200',
-      teal: 'border-cyan-100/80 hover:border-cyan-200',
-      pink: 'border-pink-100/80 hover:border-pink-200',
-      indigo: 'border-indigo-100/80 hover:border-indigo-200',
-    };
-
-    const iconBgMap = {
-      blue: 'bg-blue-50 text-blue-600',
-      green: 'bg-emerald-50 text-emerald-600',
-      purple: 'bg-violet-50 text-violet-600',
-      orange: 'bg-orange-50 text-orange-600',
-      red: 'bg-rose-50 text-rose-600',
-      teal: 'bg-cyan-50 text-cyan-600',
-      pink: 'bg-pink-50 text-pink-600',
-      indigo: 'bg-indigo-50 text-indigo-600',
-    };
-
-    const trendColorMap = {
-      up: 'text-emerald-600 bg-emerald-50 ring-1 ring-emerald-100',
-      down: 'text-rose-600 bg-rose-50 ring-1 ring-rose-100',
-      neutral: 'text-slate-500 bg-slate-100 ring-1 ring-slate-200',
-    };
-
-    const formattedValue =
-      typeof value === 'number' ? value.toLocaleString() : value;
-
-    const card = (
-      <div
-        className={`group relative min-w-0 overflow-hidden rounded-2xl border bg-white p-3 shadow-[0_18px_35px_-30px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_45px_-28px_rgba(15,23,42,0.42)] sm:p-4 lg:p-5 ${colorMap[color]}`}
-      >
-        <div className="relative flex min-w-0 flex-col">
-          <div className="flex items-start justify-between gap-3">
-            <div
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl shadow-sm ring-1 ring-black/5 sm:h-10 sm:w-10 lg:h-11 lg:w-11 ${iconBgMap[color]}`}
-            >
-              <div className="flex [&>svg]:h-4 [&>svg]:w-4 sm:[&>svg]:h-[18px] sm:[&>svg]:w-[18px] lg:[&>svg]:h-[20px] lg:[&>svg]:w-[20px]">
-                {icon}
-              </div>
-            </div>
-
-            {trend && trendValue && (
-              <div className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[9px] font-semibold sm:text-[10px] ${trendColorMap[trend]}`}>
-                {trend === 'up' && <TrendingUp className="h-3 w-3" />}
-                {trend === 'down' && <TrendingDown className="h-3 w-3" />}
-                {trend === 'neutral' && <Minus className="h-3 w-3" />}
-                {trendValue}
-              </div>
-            )}
-          </div>
-
-          <div className="mt-3 min-w-0">
-            <p
-              className="min-w-0 text-[11px] font-medium uppercase tracking-[0.08em] text-slate-500 sm:text-[12px]"
-              title={label}
-            >
-              {label}
-            </p>
-
-            <p
-              className="mt-1 min-w-0 whitespace-nowrap text-[1.1rem] font-bold leading-tight tracking-tight tabular-nums text-slate-900 min-[380px]:text-[1.3rem] sm:text-[1.5rem] md:text-[1.8rem]"
-              title={formattedValue}
-            >
-              {formattedValue}
-            </p>
-
-            {subtitle && (
-              <p
-                className="mt-1 min-w-0 break-words text-[10px] leading-snug text-slate-500 min-[380px]:text-[11px] sm:text-xs"
-                title={subtitle}
-              >
-                {subtitle}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-
-    return href ? (
-      <Link href={href} className="block min-w-0 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-        {card}
-      </Link>
-    ) : (
-      card
-    );
-  };
-
-  const Section = ({
-    title,
-    icon,
-    children,
-    className = '',
-    href,
-  }: {
-    title: string;
-    icon?: ReactNode;
-    children: ReactNode;
-    className?: string;
-    href?: string;
-  }) => (
-    <section
-      className={`group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_18px_35px_-30px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_22px_45px_-28px_rgba(15,23,42,0.42)] ${className}`}
-    >
-      <div className="relative">
-        <div className="mb-5 flex items-center gap-2.5">
-          {icon && (
-            <div className="rounded-xl bg-slate-100 p-2 text-slate-600 ring-1 ring-slate-200">
-              {icon}
-            </div>
-          )}
-          {href ? (
-            <Link
-              href={href}
-              className="group/section inline-flex items-center gap-1 text-[14px] font-semibold !text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-            >
-              {title}
-              <ChevronRight className="h-3.5 w-3.5 text-slate-300 transition-transform group-hover/section:translate-x-0.5 group-hover/section:text-slate-600" />
-            </Link>
-          ) : (
-            <h2 className="text-[14px] font-semibold text-slate-900">{title}</h2>
-          )}
-        </div>
-        {children}
-      </div>
-    </section>
-  );
-
-  const DistributionBars = ({
-    data,
-    valueKey = 'count',
-    labelKey = 'label',
-  }: {
-    data: Array<{ [key: string]: string | number }>;
-    valueKey?: string;
-    labelKey?: string;
-  }) => {
-    const total = data.reduce((sum, item) => sum + Number(item[valueKey] ?? 0), 0) || 1;
-
-    return (
-      <div className="space-y-3">
-        {data.map((entry, index) => {
-          const value = Number(entry[valueKey] ?? 0);
-          const width = Math.max((value / total) * 100, value > 0 ? 8 : 0);
-
-          return (
-            <div key={`${String(entry[labelKey])}-${index}`} className="space-y-1.5">
-              <div className="flex items-center justify-between gap-3 text-[11px] text-slate-600">
-                <span className="truncate font-medium">{entry[labelKey]}</span>
-                <span className="tabular-nums text-slate-500">{value}</span>
-              </div>
-              <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200">
-                <div
-                  className="h-full rounded-full transition-all duration-300"
-                  style={{
-                    width: `${width}%`,
-                    backgroundColor: COLORS[index % COLORS.length],
-                  }}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
 
   const periods: Array<{ value: DashboardPeriod; label: string }> = [
     { value: DashboardPeriod.Today, label: 'Today' },

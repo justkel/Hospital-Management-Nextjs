@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   Wallet,
   XCircle,
-  Lock
 } from 'lucide-react';
 
 import { clientFetch } from '@/lib/clientFetch';

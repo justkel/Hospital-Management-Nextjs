@@ -18,8 +18,6 @@ import { clientFetch } from '@/lib/clientFetch';
 import { notifyBillingChanged } from '../billing-refresh';
 import StatusBadge from './StatusBadge';
 import type { ChargeRow, CreditRow } from '../billing-client';
-import { Lock } from 'lucide-react';
-
 function formatCurrency(amount: number | string | null | undefined) {
   const n = Number(amount ?? 0);
   return `₦${n.toLocaleString('en-NG', {

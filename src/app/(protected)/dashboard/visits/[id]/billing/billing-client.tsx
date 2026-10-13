@@ -229,13 +229,9 @@ export default function BillingClient({
   const searchParams = useSearchParams();
 
   const tabParam = searchParams.get('tab');
-  const [activeTab, setActiveTabState] = useState<TabKey>(
+  const [activeTab, setActiveTabState] = useState<TabKey>(() =>
     isTabKey(tabParam) ? tabParam : 'summary',
   );
-
-  useEffect(() => {
-    setActiveTabState(isTabKey(tabParam) ? tabParam : 'summary');
-  }, [tabParam]);
 
   const setActiveTab = useCallback(
     (tab: TabKey) => {

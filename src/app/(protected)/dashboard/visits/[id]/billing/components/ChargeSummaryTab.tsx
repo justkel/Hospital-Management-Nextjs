@@ -175,14 +175,6 @@ export default function ChargeSummaryTab({
     }
   };
 
-  const refreshSummary = async () => {
-    const res = await clientFetch(`/api/visit-charge/summary?visitId=${visitId}`, {
-      cache: 'no-store',
-    });
-    const json = await res.json();
-    if (res.ok && json.summary) onSummaryChange(json.summary);
-  };
-
   useEffect(() => {
     Promise.all([refreshBalances(), refreshCurrentTotals()]);
     // eslint-disable-next-line react-hooks/exhaustive-deps

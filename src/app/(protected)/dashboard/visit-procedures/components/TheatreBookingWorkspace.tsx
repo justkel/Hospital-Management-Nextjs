@@ -4,10 +4,7 @@ import { useState, useCallback } from 'react';
 import Link from 'next/link';
 
 import {
-  Activity,
   ArrowLeft,
-  Calendar,
-  CircleDot,
   RefreshCw,
   Stethoscope,
 } from 'lucide-react';

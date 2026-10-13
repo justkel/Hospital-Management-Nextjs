@@ -9,7 +9,7 @@ import { loginAction } from '@/lib/auth/login.action';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Activity, AlertCircle, ArrowRight, CreditCard, FileText, IdCard, ShieldCheck, Sparkles, Users, Loader2, CheckCircle } from 'lucide-react';
+import { Activity, AlertCircle, ArrowRight, CreditCard, FileText, IdCard, ShieldCheck, Sparkles, Users, CheckCircle } from 'lucide-react';
 import AuthBrandPanel from '@/components/auth/AuthBrandPanel';
 
 const STATUS_MESSAGE_MAP: Record<string, string> = {
