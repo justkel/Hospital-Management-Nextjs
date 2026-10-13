@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -19,6 +19,7 @@ import {
   FinancialTransactionType,
 } from "@/shared/graphql/generated/graphql";
 import CollapsibleSection from "@/app/(protected)/dashboard/visits/components/CollapsibleSection";
+import { clientFetch } from "@/lib/clientFetch";
 
 type Financials = FinancialsQuery["financials"];
 
@@ -45,37 +46,85 @@ type SummaryCard = {
 };
 
 export default function FinancialsClient({
-  financials,
+  financials: initialFinancials,
 }: {
   financials: Financials;
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { summary } = financials;
-  const [search, setSearch] = useState("");
-  const [period, setPeriod] = useState("");
-  const [type, setType] = useState("");
-  const [direction, setDirection] = useState("");
-  const [status, setStatus] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
+  
+  const [search, setSearch] = useState(searchParams.get("search") ?? "");
+  const [period, setPeriod] = useState(searchParams.get("period") ?? "");
+  const [type, setType] = useState(searchParams.get("type") ?? "");
+  const [direction, setDirection] = useState(searchParams.get("direction") ?? "");
+  const [status, setStatus] = useState(searchParams.get("status") ?? "");
+  const [paymentMethod, setPaymentMethod] = useState(
+    searchParams.get("paymentMethod") ?? "",
+  );
+  const [from, setFrom] = useState(searchParams.get("from") ?? "");
+  const [to, setTo] = useState(searchParams.get("to") ?? "");
+  
+  const [financials, setFinancials] = useState<Financials>(initialFinancials);
+  const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const applyQuery = (updates: Record<string, string | undefined>) => {
-    const params = new URLSearchParams(searchParams.toString());
-
-    Object.entries(updates).forEach(([key, value]) => {
-      if (!value) {
-        params.delete(key);
-        return;
-      }
-
-      params.set(key, value);
-    });
-
+  const buildQueryString = () => {
+    const params = new URLSearchParams();
+    
+    if (search) params.set('search', search);
+    if (period) params.set('period', period);
+    if (type) params.set('types', type);
+    if (direction) params.set('direction', direction);
+    if (status) params.set('status', status);
+    if (paymentMethod) params.set('paymentMethod', paymentMethod);
+    if (from) params.set('from', from);
+    if (to) params.set('to', to);
+    
     const query = params.toString();
-    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    return query ? `?${query}` : '';
+  };
+
+  const fetchFinancials = async () => {
+    setLoading(true);
+    setFetchError(null);
+    
+    try {
+      const queryString = buildQueryString();
+      const response = await clientFetch(`/api/financials${queryString}`, {
+        cache: "no-store",
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch financials');
+      }
+      
+      const data = await response.json();
+      setFinancials(data.financials);
+      const params = new URLSearchParams();
+      const filters = {
+        search,
+        period,
+        types: type,
+        direction,
+        status,
+        paymentMethod,
+        from,
+        to,
+      };
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) params.set(key, value);
+      });
+      window.history.replaceState(
+        null,
+        "",
+        params.toString() ? `?${params.toString()}` : window.location.pathname,
+      );
+    } catch (err) {
+      console.error('Error fetching financials:', err);
+      setFetchError(err instanceof Error ? err.message : 'An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const showCustomDateRange = !period;
@@ -161,6 +210,8 @@ export default function FinancialsClient({
     new Set(financials.items.map((item) => item.paymentMethod).filter(Boolean)),
   ).sort() as string[];
 
+  const { summary } = financials;
+
   const summaryCards: SummaryCard[] = [
     {
       title: "Gross billed",
@@ -175,8 +226,8 @@ export default function FinancialsClient({
       title: "Unissued billable exposure",
       value: summary.unissuedBillableValue,
       description:
-        "Current charge exposure for visits that still have no generated invoice; operational review only, not part of gross billed.",
-      scopeLabel: "Operational",
+        "Charge exposure created within the selected window for visits that still have no generated invoice; not part of gross billed.",
+      scopeLabel: "Time-scoped",
       icon: Wallet,
       colors: "text-slate-700 bg-slate-100",
     },
@@ -241,6 +292,25 @@ export default function FinancialsClient({
             Review organization-wide invoices, payments, credits, wallet
             activity, and billing adjustments.
           </p>
+          {loading && (
+            <div className="mt-3 flex items-center gap-2 text-sm text-slate-400">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-400 border-t-transparent"></div>
+              <span>Updating data...</span>
+            </div>
+          )}
+          {fetchError && (
+            <div className="mt-3 flex items-center justify-between gap-3 rounded-lg bg-red-900/20 px-4 py-2 text-sm text-red-300">
+              <span>Error: {fetchError}</span>
+              <button
+                type="button"
+                onClick={fetchFinancials}
+                disabled={loading}
+                className="rounded-md border border-red-300/40 px-3 py-1 text-xs font-semibold text-red-100 hover:bg-red-900/30 disabled:opacity-50"
+              >
+                Retry
+              </button>
+            </div>
+          )}
         </header>
 
         <CollapsibleSection
@@ -336,7 +406,10 @@ export default function FinancialsClient({
         </CollapsibleSection>
 
         <form
-          onSubmit={(event) => event.preventDefault()}
+          onSubmit={(event) => {
+            event.preventDefault();
+            fetchFinancials();
+          }}
           className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4"
         >
           <input
@@ -344,7 +417,6 @@ export default function FinancialsClient({
             onChange={(event) => {
               const value = event.target.value;
               setSearch(value);
-              applyQuery({ search: value || undefined });
             }}
             placeholder="Search patient, visit ID, invoice, reference..."
             className="rounded-lg border border-slate-200 px-3 py-2 text-sm sm:col-span-2"
@@ -357,11 +429,6 @@ export default function FinancialsClient({
               setPeriod(nextPeriod);
               setFrom("");
               setTo("");
-              applyQuery({
-                period: nextPeriod || undefined,
-                from: undefined,
-                to: undefined,
-              });
             }}
             className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
           >
@@ -389,18 +456,6 @@ export default function FinancialsClient({
               ) {
                 setPaymentMethod("");
               }
-              applyQuery({
-                type: nextType || undefined,
-                paymentMethod:
-                  nextType &&
-                  [
-                    FinancialTransactionType.Payment,
-                    FinancialTransactionType.BalancePayment,
-                    FinancialTransactionType.Wallet,
-                  ].includes(nextType as FinancialTransactionType)
-                    ? paymentMethod || undefined
-                    : undefined,
-              });
             }}
             className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
           >
@@ -417,7 +472,6 @@ export default function FinancialsClient({
             onChange={(event) => {
               const nextDirection = event.target.value;
               setDirection(nextDirection);
-              applyQuery({ direction: nextDirection || undefined });
             }}
             className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
           >
@@ -436,7 +490,6 @@ export default function FinancialsClient({
                 onChange={(event) => {
                   const next = event.target.value;
                   setFrom(next);
-                  applyQuery({ from: next || undefined });
                 }}
                 type="datetime-local"
                 className="rounded-lg border !border-slate-200 px-3 py-2 text-sm"
@@ -446,7 +499,6 @@ export default function FinancialsClient({
                 onChange={(event) => {
                   const next = event.target.value;
                   setTo(next);
-                  applyQuery({ to: next || undefined });
                 }}
                 type="datetime-local"
                 className="rounded-lg border !border-slate-200 px-3 py-2 text-sm"
@@ -459,7 +511,6 @@ export default function FinancialsClient({
             onChange={(event) => {
               const nextStatus = event.target.value;
               setStatus(nextStatus);
-              applyQuery({ status: nextStatus || undefined });
             }}
             className="rounded-lg border !border-slate-200 px-3 py-2 text-sm"
           >
@@ -477,7 +528,6 @@ export default function FinancialsClient({
               onChange={(event) => {
                 const nextMethod = event.target.value;
                 setPaymentMethod(nextMethod);
-                applyQuery({ paymentMethod: nextMethod || undefined });
               }}
               className="rounded-lg border !border-slate-200 px-3 py-2 text-sm"
             >
@@ -491,6 +541,14 @@ export default function FinancialsClient({
           )}
 
           <button
+            type="submit"
+            disabled={loading}
+            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold !text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? "Applying..." : "Apply filters"}
+          </button>
+
+          <button
             type="button"
             onClick={() => {
               setSearch("");
@@ -501,7 +559,8 @@ export default function FinancialsClient({
               setPaymentMethod("");
               setFrom("");
               setTo("");
-              router.push(pathname, { scroll: false });
+              window.history.replaceState(null, "", window.location.pathname);
+              window.location.reload();
             }}
             className="rounded-lg border !border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
           >
