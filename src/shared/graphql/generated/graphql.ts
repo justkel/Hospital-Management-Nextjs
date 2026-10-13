@@ -1830,7 +1830,6 @@ export type Organization = {
   address?: Maybe<Address>;
   code?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
-  guestAccessCode?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   organizationNumber: Scalars['String']['output'];
