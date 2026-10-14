@@ -13,8 +13,11 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: 'HMS Dashboard',
-  description: 'Hospital Management System',
+  title: {
+    default: 'Wellflexia | Hospital Management',
+    template: '%s | Wellflexia',
+  },
+  description: 'Wellflexia brings patient records, visits, billing, and hospital operations together in one connected platform.',
 };
 
 export default function RootLayout({
