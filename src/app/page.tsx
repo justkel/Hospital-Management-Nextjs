@@ -222,6 +222,7 @@ export default function Home() {
   const [activePreview, setActivePreview] = useState<(typeof PRODUCT_PREVIEWS)[number]['id']>('patient');
   const [previewIntroVisible, setPreviewIntroVisible] = useState(false);
   const previewSectionRef = useRef<HTMLElement>(null);
+  const homeRef = useRef<HTMLDivElement>(null);
   const structuredData = [
     {
       '@context': 'https://schema.org',
@@ -291,8 +292,50 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const revealTargets = document.querySelectorAll<HTMLElement>(
+      '[data-scroll-reveal], [data-scroll-stagger]',
+    );
+    const homeElement = homeRef.current;
+
+    if (!('IntersectionObserver' in window)) {
+      revealTargets.forEach((target) => target.classList.add('is-visible'));
+      return;
+    }
+
+    revealTargets.forEach((target) => {
+      if (!target.hasAttribute('data-scroll-stagger')) return;
+
+      target.querySelectorAll<HTMLElement>('[data-scroll-reveal-item]').forEach((item, index) => {
+        item.style.setProperty('--reveal-order', String(index));
+      });
+    });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -7% 0px' },
+    );
+
+    revealTargets.forEach((target) => observer.observe(target));
+    homeElement?.classList.add('scroll-reveals-ready');
+
+    return () => {
+      observer.disconnect();
+      homeElement?.classList.remove('scroll-reveals-ready');
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen !bg-[#FAFAF8] font-sans">
+    <div ref={homeRef} className="min-h-screen !bg-[#FAFAF8] font-sans">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -324,6 +367,61 @@ export default function Home() {
         @keyframes floatSlower {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-14px); }
+        }
+        .scroll-reveals-ready [data-scroll-reveal] {
+          opacity: 0;
+          translate: 0 28px;
+          scale: 0.985;
+          filter: blur(5px);
+          transition:
+            opacity 760ms cubic-bezier(0.22, 1, 0.36, 1),
+            translate 760ms cubic-bezier(0.22, 1, 0.36, 1),
+            scale 760ms cubic-bezier(0.22, 1, 0.36, 1),
+            filter 760ms cubic-bezier(0.22, 1, 0.36, 1);
+          will-change: opacity, translate, filter;
+        }
+        .scroll-reveals-ready [data-scroll-reveal="left"] {
+          translate: -30px 12px;
+        }
+        .scroll-reveals-ready [data-scroll-reveal="right"] {
+          translate: 30px 12px;
+        }
+        .scroll-reveals-ready [data-scroll-reveal="scale"] {
+          translate: 0 12px;
+          scale: 0.96;
+        }
+        .scroll-reveals-ready [data-scroll-reveal].is-visible {
+          opacity: 1;
+          translate: 0 0;
+          scale: 1;
+          filter: blur(0);
+        }
+        .scroll-reveals-ready [data-scroll-stagger] [data-scroll-reveal-item] {
+          opacity: 0;
+          translate: 0 22px;
+          filter: blur(4px);
+          transition:
+            opacity 650ms cubic-bezier(0.22, 1, 0.36, 1),
+            translate 650ms cubic-bezier(0.22, 1, 0.36, 1),
+            filter 650ms cubic-bezier(0.22, 1, 0.36, 1);
+          transition-delay: calc(var(--reveal-order, 0) * 85ms);
+          will-change: opacity, translate, filter;
+        }
+        .scroll-reveals-ready [data-scroll-stagger].is-visible [data-scroll-reveal-item] {
+          opacity: 1;
+          translate: 0 0;
+          filter: blur(0);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .scroll-reveals-ready [data-scroll-reveal],
+          .scroll-reveals-ready [data-scroll-stagger] [data-scroll-reveal-item] {
+            opacity: 1;
+            translate: none;
+            scale: none;
+            filter: none;
+            transition: none;
+            will-change: auto;
+          }
         }
         .preview-intro-reveal {
           position: relative;
@@ -485,7 +583,7 @@ export default function Home() {
         <div className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full !bg-[#5DCAA5]/10 blur-[100px]" />
 
         <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-5 pb-16 pt-16 sm:px-6 sm:pb-16 sm:pt-20 md:pt-24 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:px-8 lg:pb-20 lg:pt-24 xl:gap-14">
-          <div className="text-center lg:text-left">
+          <div data-scroll-reveal="left" className="text-center lg:text-left">
             <div className="mx-auto mb-5 inline-flex items-center gap-2 rounded-full border !border-[#1D9E75]/25 !bg-[#1D9E75]/10 px-3.5 py-1.5 lg:mx-0">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full !bg-[#1D9E75]" />
               <span className="text-[11.5px] font-bold uppercase tracking-[0.08em] !text-[#5DCAA5] sm:text-[12px]">Hospital operations, unified</span>
@@ -530,7 +628,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[420px] lg:mx-0 lg:max-w-none">
+          <div data-scroll-reveal="right" className="relative mx-auto w-full max-w-[420px] lg:mx-0 lg:max-w-none">
             <div className="relative overflow-hidden rounded-[28px] border !border-white/10 !bg-gradient-to-br !from-white/[0.07] !to-white/[0.02] p-6 backdrop-blur sm:p-8 lg:p-10">
               <div className="pointer-events-none absolute inset-0 !bg-[#1D9E75]/5" />
               <div className="relative mx-auto h-[240px] w-full sm:h-[300px] md:h-[360px] lg:h-[440px] xl:h-[480px]">
@@ -560,7 +658,7 @@ export default function Home() {
         <div className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full !bg-[#1D9E75]/[0.06] blur-3xl" />
         <div className="pointer-events-none absolute -bottom-36 -left-20 h-80 w-80 rounded-full !bg-[#D97706]/[0.05] blur-3xl" />
         <div className="relative mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-          <div className="mb-10 flex flex-col gap-5 sm:mb-14 lg:flex-row lg:items-end lg:justify-between">
+          <div data-scroll-reveal="left" className="mb-10 flex flex-col gap-5 sm:mb-14 lg:flex-row lg:items-end lg:justify-between">
             <div className="flex max-w-2xl flex-col gap-6">
               <div className="inline-flex self-start items-center gap-2 rounded-full border !border-[#1D9E75]/15 !bg-[#F0FAF5] px-3 py-1.5">
                 <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
@@ -575,13 +673,14 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="relative grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-5">
+          <div data-scroll-stagger className="relative grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-5">
             <div className="pointer-events-none absolute left-[12%] right-[12%] top-[34px] hidden h-px !bg-gradient-to-r !from-[#1D9E75]/10 !via-[#1D9E75]/30 !to-[#1D9E75]/10 lg:block" />
             {PATIENT_JOURNEY.map((step) => {
               const Icon = step.icon;
               return (
                 <article
                   key={step.number}
+                  data-scroll-reveal-item
                   className="group relative rounded-2xl border !border-[#E8E6E0] !bg-white p-5 shadow-[0_8px_30px_rgba(20,35,26,0.035)] transition duration-300 hover:-translate-y-1 hover:!border-[#1D9E75]/30 hover:shadow-[0_18px_40px_rgba(20,35,26,0.09)] sm:p-6"
                 >
                   <div className="relative mb-7 flex items-center justify-between">
@@ -599,7 +698,7 @@ export default function Home() {
             })}
           </div>
 
-          <div className="mt-6 flex items-center justify-center gap-2 text-center">
+          <div data-scroll-reveal="scale" className="mt-6 flex items-center justify-center gap-2 text-center">
             <CheckCircle2 size={15} className="shrink-0 !text-[#1D9E75]" />
             <p className="text-[11.5px] font-semibold !text-[#6b6b64] sm:text-[12px]">
               One connected record, carried through every step.
@@ -610,19 +709,20 @@ export default function Home() {
 
       <section className="my-2 !bg-[#FAFAF8] py-16 sm:my-0 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-10 flex max-w-lg flex-col items-center gap-5 text-center sm:mb-12">
+          <div data-scroll-reveal="up" className="mx-auto mb-10 flex max-w-lg flex-col items-center gap-5 text-center sm:mb-12">
             <p className="m-0 text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Everything on one record</p>
             <h2 className="m-0 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
               Built for the whole hospital,<br className="hidden sm:block" /> not one department.
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+          <div data-scroll-stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
             {FEATURES.map((f) => {
               const Icon = f.icon;
               return (
                 <div
                   key={f.title}
+                  data-scroll-reveal-item
                   className={`group relative overflow-hidden rounded-2xl border !bg-white p-5 transition hover:!border-[#D3D1C7] hover:shadow-[0_10px_28px_rgba(0,0,0,0.08)] sm:p-6 ${f.ring} ${f.big ? 'sm:col-span-2 lg:col-span-4 lg:row-span-2' : 'lg:col-span-2'
                     }`}
                 >
@@ -656,7 +756,7 @@ export default function Home() {
               );
             })}
 
-            <div className="rounded-2xl border !border-[#0F766E]/25 !bg-[#0C1A12] p-5 sm:col-span-2 sm:p-6 lg:col-span-6">
+            <div data-scroll-reveal-item className="rounded-2xl border !border-[#0F766E]/25 !bg-[#0C1A12] p-5 sm:col-span-2 sm:p-6 lg:col-span-6">
               <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                 <div className="flex items-center gap-3.5">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl !bg-[#0F766E]/20 !text-[#5DCAA5]">
@@ -683,7 +783,7 @@ export default function Home() {
       <section ref={previewSectionRef} id="preview" className="relative my-2 overflow-hidden border-y !border-[#E8E6E0] !bg-[#F3F5F2] py-16 sm:my-0 sm:py-20 lg:py-24">
         <div className="pointer-events-none absolute -right-24 top-10 h-80 w-80 rounded-full !bg-[#1D9E75]/[0.07] blur-3xl" />
         <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
+          <div data-scroll-reveal="up" className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
             <div className="flex flex-col items-center gap-6">
               <div className="inline-flex items-center gap-2 rounded-full border !border-[#1D9E75]/15 !bg-white px-3 py-1.5 shadow-sm">
                 <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
@@ -753,7 +853,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="min-w-0 rounded-[22px] border !border-[#DCE2DC] !bg-white p-2.5 shadow-[0_24px_70px_rgba(20,35,26,0.12)] sm:rounded-[26px] sm:p-3.5">
+            <div data-scroll-reveal="right" className="min-w-0 rounded-[22px] border !border-[#DCE2DC] !bg-white p-2.5 shadow-[0_24px_70px_rgba(20,35,26,0.12)] sm:rounded-[26px] sm:p-3.5">
               <div className="flex h-10 items-center gap-2 border-b !border-[#EEF0EC] px-2 sm:px-3">
                 <span className="h-2.5 w-2.5 rounded-full !bg-[#F1B8AC]" />
                 <span className="h-2.5 w-2.5 rounded-full !bg-[#E8CA83]" />
@@ -988,7 +1088,7 @@ export default function Home() {
         <div className="pointer-events-none absolute -right-28 bottom-0 h-96 w-96 rounded-full !bg-[#2563EB]/10 blur-[120px]" />
 
         <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
+          <div data-scroll-reveal="up" className="mx-auto max-w-2xl text-center">
           <div className="flex flex-col items-center gap-6">
             <div className="inline-flex items-center gap-2 rounded-full border !border-white/10 !bg-white/[0.06] px-3 py-1.5">
               <span className="h-1.5 w-1.5 rounded-full !bg-[#5DCAA5]" />
@@ -1004,12 +1104,14 @@ export default function Home() {
           </div>
 
           <div
+            data-scroll-stagger
             className="-mx-5 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-5 [scrollbar-width:none] sm:mx-0 sm:mt-12 sm:gap-5 sm:px-0 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden"
             aria-label="Wellflexia mobile screen gallery"
           >
             {MOBILE_SHOWCASES.map((screen, index) => (
               <article
                 key={screen.image}
+                data-scroll-reveal-item
                 className="group w-[78vw] max-w-[290px] shrink-0 snap-center overflow-hidden rounded-[22px] border !border-white/10 !bg-white/[0.045] p-3.5 transition duration-300 hover:-translate-y-1 hover:!border-[#5DCAA5]/35 hover:!bg-white/[0.07] sm:w-[44vw] sm:max-w-[320px] sm:rounded-[26px] sm:p-5 lg:w-auto lg:max-w-none"
               >
                 <div className="relative mx-auto w-full max-w-[250px]">
@@ -1047,7 +1149,7 @@ export default function Home() {
 
       <section id="roles" className="my-2 border-y !border-[#E8E6E0] !bg-white py-16 sm:my-0 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-2xl flex-col items-center gap-5 text-center">
+        <div data-scroll-reveal="up" className="mx-auto flex max-w-2xl flex-col items-center gap-5 text-center">
           <p className="m-0 text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Role-aware, by default</p>
           <h2 className="m-0 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
               Everyone sees what their shift needs.
@@ -1057,8 +1159,9 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-[300px_1fr] lg:gap-6">
+          <div data-scroll-stagger className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-[300px_1fr] lg:gap-6">
             <div
+              data-scroll-reveal-item
               className="-mx-5 flex snap-x snap-mandatory gap-2 overflow-x-auto px-5 pb-1 [&::-webkit-scrollbar]:hidden lg:hidden"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
@@ -1091,7 +1194,7 @@ export default function Home() {
               })}
             </div>
 
-            <div className="hidden gap-2.5 lg:grid">
+            <div data-scroll-reveal-item className="hidden gap-2.5 lg:grid">
               {ROLES.map((r) => {
                 const Icon = ROLE_ICONS[r];
                 const isActive = r === activeRole;
@@ -1133,7 +1236,7 @@ export default function Home() {
               })}
             </div>
 
-            <div className="rounded-2xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-5 sm:p-7">
+            <div data-scroll-reveal-item className="rounded-2xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-5 sm:p-7">
               <div className="flex items-start gap-3.5">
                 <div
                   className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${activeRole === 'GUEST' ? '!bg-[#FFFBEB] !text-[#D97706]' : '!bg-[#F0FAF5] !text-[#1D9E75]'
@@ -1200,7 +1303,7 @@ export default function Home() {
       <section id="guest" className="my-2 !bg-[#FAFAF8] py-16 sm:my-0 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-            <div>
+            <div data-scroll-reveal="left">
               <div className="flex flex-col items-start gap-5">
                 <p className="m-0 text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#D97706]">Guest access</p>
                 <h2 className="m-0 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
@@ -1221,11 +1324,11 @@ export default function Home() {
               </a>
             </div>
 
-            <div className="relative pl-8 sm:pl-10">
+            <div data-scroll-reveal="right" className="relative pl-8 sm:pl-10">
               <div className="absolute left-[13px] top-2 bottom-2 w-px !bg-[#D97706]/25 sm:left-[15px]" />
-              <div className="flex flex-col gap-6 sm:gap-7">
+              <div data-scroll-stagger className="flex flex-col gap-6 sm:gap-7">
                 {GUEST_STEPS.map((step, i) => (
-                  <div key={step.label} className="relative">
+                  <div key={step.label} data-scroll-reveal-item className="relative">
                     <div className="absolute -left-8 top-0 flex h-7 w-7 items-center justify-center rounded-full border-2 !border-[#D97706] !bg-white text-[11.5px] font-extrabold !text-[#D97706] sm:-left-10">
                       {i + 1}
                     </div>
@@ -1243,19 +1346,20 @@ export default function Home() {
 
       <section id="security" className="my-2 border-t !border-[#E8E6E0] !bg-white py-16 sm:my-0 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-10 flex max-w-lg flex-col items-center gap-5 text-center sm:mb-12">
+          <div data-scroll-reveal="up" className="mx-auto mb-10 flex max-w-lg flex-col items-center gap-5 text-center sm:mb-12">
             <p className="m-0 text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Underneath it all</p>
             <h2 className="m-0 text-[24px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[28px]">
               Security that doesn&apos;t ask to be trusted.
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div data-scroll-stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {SECURITY.map((s) => {
               const Icon = s.icon;
               return (
                 <div
                   key={s.label}
+                  data-scroll-reveal-item
                   className={
                     s.accent
                       ? 'rounded-2xl border !border-[#1D9E75]/30 !bg-[#0C1A12] p-5 sm:p-6'
@@ -1284,9 +1388,9 @@ export default function Home() {
         />
         <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 rounded-full !bg-[#1D9E75]/15 blur-[100px]" />
 
-        <div className="relative mx-auto max-w-4xl px-5 sm:px-6">
+        <div data-scroll-stagger className="relative mx-auto max-w-4xl px-5 sm:px-6">
           <div className="flex flex-col items-center gap-6 lg:flex-row lg:gap-12">
-            <div className="flex-1 text-center lg:text-left">
+            <div data-scroll-reveal-item className="flex-1 text-center lg:text-left">
               <h2 className="text-[28px] font-extrabold tracking-[-0.02em] !text-white sm:text-[32px] md:text-[36px]">
                 Ready to see it <span className="italic !text-[#5DCAA5]">running</span>?
               </h2>
@@ -1311,7 +1415,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative flex-shrink-0 w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 -mt-2 sm:mt-0">
+            <div data-scroll-reveal-item className="relative flex-shrink-0 w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 -mt-2 sm:mt-0">
               <div className="absolute inset-0 rounded-full !bg-[#1D9E75]/5 blur-2xl" />
               <div className="relative h-full w-full animate-[floatSlow_6s_ease-in-out_infinite]">
                 <Lottie animationData={runAnimation} loop autoplay />
