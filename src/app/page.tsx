@@ -217,20 +217,17 @@ export default function Home() {
   const [activeRole, setActiveRole] = useState('DOCTOR');
   const [activePreview, setActivePreview] = useState<(typeof PRODUCT_PREVIEWS)[number]['id']>('patient');
   const [previewIntroVisible, setPreviewIntroVisible] = useState(false);
-  const previewIntroRef = useRef<HTMLDivElement>(null);
+  const previewSectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const element = previewIntroRef.current;
+    const element = previewSectionRef.current;
     if (!element) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setPreviewIntroVisible(true);
-          observer.unobserve(element);
-        }
+        setPreviewIntroVisible(entry.isIntersecting);
       },
-      { threshold: 0.25, rootMargin: '0px 0px -8% 0px' },
+      { threshold: 0.1 },
     );
 
     observer.observe(element);
@@ -427,12 +424,12 @@ export default function Home() {
         <div className="pointer-events-none absolute -bottom-36 -left-20 h-80 w-80 rounded-full !bg-[#D97706]/[0.05] blur-3xl" />
         <div className="relative mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
           <div className="mb-10 flex flex-col gap-5 sm:mb-14 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
+            <div className="flex max-w-2xl flex-col gap-6">
               <div className="inline-flex items-center gap-2 rounded-full border !border-[#1D9E75]/15 !bg-[#F0FAF5] px-3 py-1.5">
                 <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
                 <span className="text-[10px] font-bold uppercase tracking-[0.12em] !text-[#1D9E75]">The patient journey</span>
               </div>
-              <h2 className="mt-7 text-[30px] font-extrabold leading-tight tracking-[-0.035em] !text-[#14231A] sm:text-[38px] lg:text-[44px]">
+              <h2 className="m-0 text-[30px] font-extrabold leading-tight tracking-[-0.035em] !text-[#14231A] sm:text-[38px] lg:text-[44px]">
                 From first visit to follow-up, <span className="!text-[#1D9E75]">connected.</span>
               </h2>
             </div>
@@ -476,9 +473,9 @@ export default function Home() {
 
       <section className="my-2 !bg-[#FAFAF8] py-16 sm:my-0 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-10 max-w-lg text-center sm:mb-12">
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Everything on one record</p>
-            <h2 className="mt-6 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
+          <div className="mx-auto mb-10 flex max-w-lg flex-col items-center gap-5 text-center sm:mb-12">
+            <p className="m-0 text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Everything on one record</p>
+            <h2 className="m-0 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
               Built for the whole hospital,<br className="hidden sm:block" /> not one department.
             </h2>
           </div>
@@ -546,31 +543,32 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="preview" className="relative my-2 overflow-hidden border-y !border-[#E8E6E0] !bg-[#F3F5F2] py-16 sm:my-0 sm:py-20 lg:py-24">
+      <section ref={previewSectionRef} id="preview" className="relative my-2 overflow-hidden border-y !border-[#E8E6E0] !bg-[#F3F5F2] py-16 sm:my-0 sm:py-20 lg:py-24">
         <div className="pointer-events-none absolute -right-24 top-10 h-80 w-80 rounded-full !bg-[#1D9E75]/[0.07] blur-3xl" />
         <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
-            <div className="inline-flex items-center gap-2 rounded-full border !border-[#1D9E75]/15 !bg-white px-3 py-1.5 shadow-sm">
-              <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.12em] !text-[#1D9E75]">A closer look</span>
+            <div className="flex flex-col items-center gap-6">
+              <div className="inline-flex items-center gap-2 rounded-full border !border-[#1D9E75]/15 !bg-white px-3 py-1.5 shadow-sm">
+                <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.12em] !text-[#1D9E75]">A closer look</span>
+              </div>
+              <h2 className="m-0 text-[29px] font-extrabold leading-tight tracking-[-0.035em] !text-[#14231A] sm:text-[38px] lg:text-[44px]">
+                See the care, <span className="!text-[#1D9E75]">not the complexity.</span>
+              </h2>
             </div>
-            <h2 className="mt-7 text-[29px] font-extrabold leading-tight tracking-[-0.035em] !text-[#14231A] sm:text-[38px] lg:text-[44px]">
-              See the care, <span className="!text-[#1D9E75]">not the complexity.</span>
-            </h2>
             <p className="mx-auto mt-3 max-w-xl text-[13.5px] font-medium leading-relaxed !text-[#6b6b64] sm:text-[14px]">
               A simple view of the work behind every visit. Explore a patient record, an active visit, and a ward at a glance.
             </p>
           </div>
 
           <div className="grid items-center gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-12">
-            <div
-              ref={previewIntroRef}
-              className={`preview-intro-reveal mx-auto max-w-lg lg:mx-0 ${previewIntroVisible ? 'is-visible' : ''}`}
-            >
-              <p className="preview-intro-stagger text-[10px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Thoughtfully connected</p>
-              <h3 className="preview-intro-stagger mt-4 text-[20px] font-extrabold leading-snug tracking-[-0.025em] !text-[#14231A] sm:mt-5 sm:text-[26px]">
-                The details your team needs, right where they need them.
-              </h3>
+            <div className={`preview-intro-reveal mx-auto max-w-lg lg:mx-0 ${previewIntroVisible ? 'is-visible' : ''}`}>
+              <div className="flex flex-col gap-5">
+                <p className="preview-intro-stagger m-0 text-[10px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Thoughtfully connected</p>
+                <h3 className="preview-intro-stagger m-0 text-[20px] font-extrabold leading-snug tracking-[-0.025em] !text-[#14231A] sm:text-[26px]">
+                  The details your team needs, right where they need them.
+                </h3>
+              </div>
               <p className="preview-intro-stagger mt-3 text-[13px] font-medium leading-relaxed !text-[#6b6b64] sm:text-[13.5px]">
                 Move between the patient story, today&apos;s care, and ward activity without losing the thread.
               </p>
@@ -854,14 +852,16 @@ export default function Home() {
 
         <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
+          <div className="flex flex-col items-center gap-6">
             <div className="inline-flex items-center gap-2 rounded-full border !border-white/10 !bg-white/[0.06] px-3 py-1.5">
               <span className="h-1.5 w-1.5 rounded-full !bg-[#5DCAA5]" />
               <span className="text-[10px] font-bold uppercase tracking-[0.14em] !text-[#8FE0BF]">Care, in your pocket</span>
             </div>
-            <h2 className="mt-7 text-[30px] font-extrabold leading-tight tracking-[-0.035em] !text-white sm:text-[38px] lg:text-[44px]">
+            <h2 className="m-0 text-[30px] font-extrabold leading-tight tracking-[-0.035em] !text-white sm:text-[38px] lg:text-[44px]">
               Hospital work doesn&apos;t stop at the desktop.
             </h2>
-            <p className="mx-auto mt-3 max-w-xl text-[13.5px] font-medium leading-relaxed !text-[#A5B8AD] sm:text-[14px]">
+          </div>
+          <p className="mx-auto mt-3 max-w-xl text-[13.5px] font-medium leading-relaxed !text-[#A5B8AD] sm:text-[14px]">
               A responsive workspace keeps essential patient, visit, and organization tools clear on the screens teams carry every day.
             </p>
           </div>
@@ -910,9 +910,9 @@ export default function Home() {
 
       <section id="roles" className="my-2 border-y !border-[#E8E6E0] !bg-white py-16 sm:my-0 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Role-aware, by default</p>
-            <h2 className="mt-6 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
+        <div className="mx-auto flex max-w-2xl flex-col items-center gap-5 text-center">
+          <p className="m-0 text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Role-aware, by default</p>
+          <h2 className="m-0 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
               Everyone sees what their shift needs.
             </h2>
             <p className="mx-auto mt-4 max-w-md text-[13.5px] font-medium leading-relaxed !text-[#6b6b64] sm:text-[14px]">
@@ -1064,10 +1064,12 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
             <div>
-              <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#D97706]">Guest access</p>
-              <h2 className="mt-6 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
+              <div className="flex flex-col items-start gap-5">
+                <p className="m-0 text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#D97706]">Guest access</p>
+                <h2 className="m-0 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
                 Need to look around first?
-              </h2>
+                </h2>
+              </div>
               <p className="mt-4 text-[13.5px] font-medium leading-relaxed !text-[#6b6b64] sm:text-[14px]">
                 Guest accounts are not a lighter version of a staff account — they are denied by default on every
                 endpoint, and opened up only where a screen has been marked safe for guests. Access is requested,
@@ -1104,9 +1106,9 @@ export default function Home() {
 
       <section id="security" className="my-2 border-t !border-[#E8E6E0] !bg-white py-16 sm:my-0 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-10 max-w-lg text-center sm:mb-12">
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Underneath it all</p>
-            <h2 className="mt-6 text-[24px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[28px]">
+          <div className="mx-auto mb-10 flex max-w-lg flex-col items-center gap-5 text-center sm:mb-12">
+            <p className="m-0 text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Underneath it all</p>
+            <h2 className="m-0 text-[24px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[28px]">
               Security that doesn&apos;t ask to be trusted.
             </h2>
           </div>
