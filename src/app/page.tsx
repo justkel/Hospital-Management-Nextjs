@@ -5,16 +5,24 @@ import Lottie from 'lottie-react';
 import {
   ArrowRight,
   ArrowUpRight,
+  Activity,
   Bed,
   BedDouble,
+  Bell,
+  CalendarDays,
   CheckCircle2,
+  ChevronDown,
   ClipboardList,
+  ClipboardCheck,
   FileClock,
   FlaskConical,
   Gauge,
   KeyRound,
+  LayoutDashboard,
   Lock,
   Menu,
+  Search,
+  Settings2,
   ShieldCheck,
   Timer,
   UserRound,
@@ -62,6 +70,12 @@ const PATIENT_JOURNEY = [
     label: 'Visit & billing',
   },
 ];
+
+const PRODUCT_PREVIEWS = [
+  { id: 'patient', label: 'Patient record' },
+  { id: 'visit', label: 'Visit workspace' },
+  { id: 'ward', label: 'Ward board' },
+] as const;
 
 const FEATURES = [
   {
@@ -176,6 +190,7 @@ const SECURITY = [
 export default function Home() {
   const [navOpen, setNavOpen] = useState(false);
   const [activeRole, setActiveRole] = useState('DOCTOR');
+  const [activePreview, setActivePreview] = useState<(typeof PRODUCT_PREVIEWS)[number]['id']>('patient');
 
   return (
     <div className="min-h-screen !bg-[#FAFAF8] font-sans">
@@ -202,6 +217,7 @@ export default function Home() {
 
           <nav className="hidden items-center gap-6 lg:flex xl:gap-8">
             <a href="#platform" className="text-[13px] font-semibold !text-[#5c5c56] transition hover:!text-[#14231A]">Platform</a>
+            <a href="#preview" className="text-[13px] font-semibold !text-[#5c5c56] transition hover:!text-[#14231A]">Product preview</a>
             <a href="#roles" className="text-[13px] font-semibold !text-[#5c5c56] transition hover:!text-[#14231A]">Roles</a>
             <a href="#security" className="text-[13px] font-semibold !text-[#5c5c56] transition hover:!text-[#14231A]">Security</a>
             <a href="#guest" className="text-[13px] font-semibold !text-[#5c5c56] transition hover:!text-[#14231A]">Guest access</a>
@@ -231,6 +247,7 @@ export default function Home() {
           <div className="border-t !border-[#E8E6E0] px-4 py-4 sm:hidden">
             <div className="flex flex-col gap-3">
               <a href="#platform" className="text-[13px] font-semibold !text-[#5c5c56]">Platform</a>
+              <a href="#preview" onClick={() => setNavOpen(false)} className="text-[13px] font-semibold !text-[#5c5c56]">Product preview</a>
               <a href="#roles" className="text-[13px] font-semibold !text-[#5c5c56]">Roles</a>
               <a href="#security" className="text-[13px] font-semibold !text-[#5c5c56]">Security</a>
               <a href="#guest" className="text-[13px] font-semibold !text-[#5c5c56]">Guest access</a>
@@ -440,6 +457,298 @@ export default function Home() {
                       {t}
                     </span>
                   ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="preview" className="relative overflow-hidden border-y !border-[#E8E6E0] !bg-[#F3F5F2] py-16 sm:py-20 lg:py-24">
+        <div className="pointer-events-none absolute -right-24 top-10 h-80 w-80 rounded-full !bg-[#1D9E75]/[0.07] blur-3xl" />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
+            <div className="inline-flex items-center gap-2 rounded-full border !border-[#1D9E75]/15 !bg-white px-3 py-1.5 shadow-sm">
+              <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.12em] !text-[#1D9E75]">A closer look</span>
+            </div>
+            <h2 className="mt-4 text-[29px] font-extrabold leading-tight tracking-[-0.035em] !text-[#14231A] sm:text-[38px] lg:text-[44px]">
+              See the care, <span className="!text-[#1D9E75]">not the complexity.</span>
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-[13.5px] font-medium leading-relaxed !text-[#6b6b64] sm:text-[14px]">
+              A simple view of the work behind every visit. Explore a patient record, an active visit, and a ward at a glance.
+            </p>
+          </div>
+
+          <div className="grid items-center gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-12">
+            <div className="mx-auto max-w-lg lg:mx-0">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Thoughtfully connected</p>
+              <h3 className="mt-2 text-[22px] font-extrabold leading-snug tracking-[-0.025em] !text-[#14231A] sm:text-[26px]">
+                The details your team needs, right where they need them.
+              </h3>
+              <p className="mt-3 text-[13px] font-medium leading-relaxed !text-[#6b6b64] sm:text-[13.5px]">
+                Move between the patient story, today&apos;s care, and ward activity without losing the thread.
+              </p>
+
+              <div className="mt-6 flex flex-col gap-2.5" role="group" aria-label="Choose a product preview">
+                {PRODUCT_PREVIEWS.map((preview, index) => {
+                  const isActive = activePreview === preview.id;
+                  const PreviewIcon = index === 0 ? UserRound : index === 1 ? ClipboardCheck : BedDouble;
+                  const previewCopy = [
+                    'A unified view of the patient and their care history.',
+                    'Visit notes, observations, and next steps in context.',
+                    'A clear snapshot of beds and ward activity.',
+                  ][index];
+
+                  return (
+                    <button
+                      key={preview.id}
+                      type="button"
+                      onClick={() => setActivePreview(preview.id)}
+                      aria-pressed={isActive}
+                      className={`flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition-all duration-200 sm:p-4 ${
+                        isActive
+                          ? 'border-[#1D9E75]/30 !bg-white shadow-[0_8px_24px_rgba(20,35,26,0.07)]'
+                          : 'border-transparent !bg-white/55 hover:border-[#E8E6E0] hover:!bg-white'
+                      }`}
+                    >
+                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${
+                        isActive ? '!bg-[#F0FAF5] !text-[#1D9E75]' : '!bg-[#F3F5F2] !text-[#777970]'
+                      }`}>
+                        <PreviewIcon size={18} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[12.5px] font-extrabold !text-[#14231A] sm:text-[13px]">{preview.label}</span>
+                        <span className="mt-0.5 block text-[11px] font-medium leading-relaxed !text-[#777970] sm:text-[11.5px]">{previewCopy}</span>
+                      </span>
+                      <ArrowUpRight size={15} className={`shrink-0 transition-colors ${isActive ? '!text-[#1D9E75]' : '!text-[#B4B2A9]'}`} />
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-5 inline-flex items-center gap-2 rounded-full border !border-[#E8E6E0] !bg-white/70 px-3 py-1.5">
+                <ShieldCheck size={13} className="!text-[#1D9E75]" />
+                <span className="text-[10px] font-semibold !text-[#6b6b64]">Illustrative preview · Demo data only</span>
+              </div>
+            </div>
+
+            <div className="min-w-0 rounded-[22px] border !border-[#DCE2DC] !bg-white p-2.5 shadow-[0_24px_70px_rgba(20,35,26,0.12)] sm:rounded-[26px] sm:p-3.5">
+              <div className="flex h-10 items-center gap-2 border-b !border-[#EEF0EC] px-2 sm:px-3">
+                <span className="h-2.5 w-2.5 rounded-full !bg-[#F1B8AC]" />
+                <span className="h-2.5 w-2.5 rounded-full !bg-[#E8CA83]" />
+                <span className="h-2.5 w-2.5 rounded-full !bg-[#9BCDB3]" />
+                <div className="ml-2 flex min-w-0 flex-1 items-center justify-center">
+                  <span className="truncate rounded-md !bg-[#F6F7F5] px-3 py-1 text-[9px] font-medium !text-[#93968E] sm:text-[10px]">www.wellflexia.com</span>
+                </div>
+                <span className="rounded-full !bg-[#F0FAF5] px-2 py-1 text-[8px] font-extrabold uppercase tracking-[0.08em] !text-[#1D9E75] sm:text-[9px]">Demo</span>
+              </div>
+
+              <div className="flex min-h-[390px] overflow-hidden rounded-b-[16px] !bg-[#F7F8F6] sm:min-h-[430px]">
+                <aside className="hidden w-[58px] shrink-0 flex-col items-center gap-3 border-r !border-[#EAEEE9] !bg-white py-4 sm:flex lg:w-[66px]">
+                  <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-xl !bg-[#0C1A12] text-[12px] font-extrabold !text-[#5DCAA5]">w</div>
+                  {[LayoutDashboard, UserRound, CalendarDays, BedDouble, FlaskConical].map((Icon, index) => (
+                    <div key={index} className={`flex h-8 w-8 items-center justify-center rounded-lg ${index === (activePreview === 'patient' ? 1 : activePreview === 'visit' ? 2 : 3) ? '!bg-[#F0FAF5] !text-[#1D9E75]' : '!text-[#A4A79F]'}`}>
+                      <Icon size={15} />
+                    </div>
+                  ))}
+                  <div className="mt-auto flex h-8 w-8 items-center justify-center rounded-lg !text-[#A4A79F]">
+                    <Settings2 size={15} />
+                  </div>
+                </aside>
+
+                <div className="min-w-0 flex-1 p-3.5 sm:p-5 md:p-6">
+                  <div className="mb-5 flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-[9px] font-bold uppercase tracking-[0.1em] !text-[#8D9289]">Care workspace</p>
+                      <h4 className="mt-1 truncate text-[15px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[18px]">
+                        {activePreview === 'patient' ? 'Patient record' : activePreview === 'visit' ? 'Visit workspace' : 'Ward overview'}
+                      </h4>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <div className="hidden h-8 w-36 items-center gap-1.5 rounded-lg border !border-[#E8EAE6] !bg-white px-2.5 sm:flex">
+                        <Search size={12} className="!text-[#9A9E96]" />
+                        <span className="text-[9px] font-medium !text-[#9A9E96]">Search records</span>
+                      </div>
+                      <button type="button" aria-label="Notifications preview" className="flex h-8 w-8 items-center justify-center rounded-lg border !border-[#E8EAE6] !bg-white !text-[#7C8178]">
+                        <Bell size={14} />
+                      </button>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full !bg-[#DDF2E8] text-[10px] font-extrabold !text-[#137653]">JD</div>
+                    </div>
+                  </div>
+
+                  {activePreview === 'patient' && (
+                    <div className="space-y-3.5">
+                      <div className="rounded-xl border !border-[#E8EAE6] !bg-white p-3.5 sm:p-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-full !bg-[#EAF4F0] !text-[#1D9E75]">
+                              <UserRound size={20} />
+                            </div>
+                            <div>
+                              <h5 className="text-[13px] font-extrabold !text-[#14231A] sm:text-[14px]">Amara Okafor</h5>
+                              <p className="mt-0.5 text-[9px] font-medium !text-[#8D9289] sm:text-[10px]">WF-2048 · DOB 14 May 1988</p>
+                            </div>
+                          </div>
+                          <span className="inline-flex items-center gap-1 rounded-full !bg-[#F0FAF5] px-2 py-1 text-[8px] font-bold !text-[#16835E] sm:text-[9px]">
+                            <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" /> Active patient
+                          </span>
+                        </div>
+                        <div className="mt-4 grid grid-cols-3 gap-2 border-t !border-[#F0F1EE] pt-3">
+                          {[
+                            ['Blood group', 'O+'],
+                            ['Last visit', '12 Oct 2026'],
+                            ['Care team', '3 members'],
+                          ].map(([label, value]) => (
+                            <div key={label} className="min-w-0">
+                              <p className="truncate text-[8px] font-semibold !text-[#9A9E96] sm:text-[9px]">{label}</p>
+                              <p className="mt-1 truncate text-[9px] font-bold !text-[#353B34] sm:text-[10px]">{value}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1.1fr_0.9fr]">
+                        <div className="rounded-xl border !border-[#E8EAE6] !bg-white p-3.5 sm:p-4">
+                          <div className="flex items-center justify-between">
+                            <p className="text-[10px] font-extrabold !text-[#353B34] sm:text-[11px]">Recent visits</p>
+                            <span className="text-[8px] font-bold !text-[#1D9E75] sm:text-[9px]">View history</span>
+                          </div>
+                          <div className="mt-3 space-y-3">
+                            {[
+                              ['12 Oct', 'General consultation', 'Completed'],
+                              ['28 Aug', 'Follow-up visit', 'Completed'],
+                            ].map(([date, title, status]) => (
+                              <div key={date} className="flex items-center gap-2.5">
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg !bg-[#F4F6F3] !text-[#7B8279]"><CalendarDays size={13} /></div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="truncate text-[9px] font-bold !text-[#353B34] sm:text-[10px]">{title}</p>
+                                  <p className="mt-0.5 text-[8px] font-medium !text-[#9A9E96]">{date} · {status}</p>
+                                </div>
+                                <CheckCircle2 size={13} className="!text-[#1D9E75]" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="rounded-xl border !border-[#E8EAE6] !bg-white p-3.5 sm:p-4">
+                          <p className="text-[10px] font-extrabold !text-[#353B34] sm:text-[11px]">Patient notes</p>
+                          <div className="mt-3 rounded-lg !bg-[#FFF9EB] p-2.5">
+                            <p className="text-[8px] font-bold uppercase tracking-[0.08em] !text-[#A46A13]">Reminder</p>
+                            <p className="mt-1 text-[9px] font-medium leading-relaxed !text-[#685B43]">Review follow-up plan at next visit.</p>
+                          </div>
+                          <div className="mt-2 flex items-center gap-1.5 text-[8px] font-medium !text-[#8D9289]">
+                            <ShieldCheck size={11} className="!text-[#1D9E75]" /> Visible to care team
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activePreview === 'visit' && (
+                    <div className="space-y-3.5">
+                      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border !border-[#E8EAE6] !bg-white p-3.5 sm:p-4">
+                        <div>
+                          <p className="text-[8px] font-bold uppercase tracking-[0.1em] !text-[#8D9289]">Visit · 12 Oct 2026</p>
+                          <p className="mt-1 text-[12px] font-extrabold !text-[#14231A] sm:text-[14px]">General consultation</p>
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 rounded-full !bg-[#FFF6E5] px-2.5 py-1 text-[8px] font-bold !text-[#A96B12] sm:text-[9px]">
+                          <span className="h-1.5 w-1.5 rounded-full !bg-[#D99726]" /> In progress
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        {[
+                          ['Blood pressure', '118/76', 'mmHg'],
+                          ['Temperature', '36.8', '°C'],
+                          ['Pulse', '72', 'bpm'],
+                          ['SpO₂', '98', '%'],
+                        ].map(([label, value, unit]) => (
+                          <div key={label} className="rounded-xl border !border-[#E8EAE6] !bg-white p-3">
+                            <p className="truncate text-[8px] font-semibold !text-[#8D9289]">{label}</p>
+                            <p className="mt-1.5 text-[14px] font-extrabold !text-[#14231A] sm:text-[16px]">{value}<span className="ml-1 text-[8px] font-semibold !text-[#8D9289]">{unit}</span></p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_0.85fr]">
+                        <div className="rounded-xl border !border-[#E8EAE6] !bg-white p-3.5 sm:p-4">
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg !bg-[#F0FAF5] !text-[#1D9E75]"><ClipboardList size={13} /></div>
+                            <p className="text-[10px] font-extrabold !text-[#353B34]">Clinical note</p>
+                          </div>
+                          <p className="mt-3 text-[9px] font-medium leading-relaxed !text-[#6b6b64] sm:text-[10px]">
+                            Patient reports feeling well. Observations recorded and reviewed by the care team.
+                          </p>
+                          <div className="mt-3 flex items-center gap-1.5 text-[8px] font-semibold !text-[#8D9289]"><CheckCircle2 size={11} className="!text-[#1D9E75]" /> Saved to visit</div>
+                        </div>
+                        <div className="rounded-xl border !border-[#E8EAE6] !bg-white p-3.5 sm:p-4">
+                          <p className="text-[10px] font-extrabold !text-[#353B34]">Next steps</p>
+                          <div className="mt-3 space-y-2.5">
+                            {['Review care plan', 'Complete visit notes', 'Prepare billing summary'].map((item, index) => (
+                              <div key={item} className="flex items-center gap-2 text-[8px] font-semibold !text-[#555B53] sm:text-[9px]">
+                                <span className={`flex h-4 w-4 items-center justify-center rounded border ${index === 0 ? 'border-[#1D9E75] !bg-[#F0FAF5] !text-[#1D9E75]' : '!border-[#E4E7E1] !bg-white !text-transparent'}`}>
+                                  <Check size={10} />
+                                </span>
+                                {item}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activePreview === 'ward' && (
+                    <div className="space-y-3.5">
+                      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border !border-[#E8EAE6] !bg-white p-3.5 sm:p-4">
+                        <div>
+                          <p className="text-[8px] font-bold uppercase tracking-[0.1em] !text-[#8D9289]">Inpatient care</p>
+                          <p className="mt-1 text-[12px] font-extrabold !text-[#14231A] sm:text-[14px]">Ward A · Bed overview</p>
+                        </div>
+                        <div className="flex items-center gap-1.5 rounded-lg border !border-[#E8EAE6] px-2.5 py-1.5 text-[8px] font-semibold !text-[#6b6b64]">
+                          Today <ChevronDown size={11} />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        {[
+                          ['Total beds', '24', '!text-[#353B34]'],
+                          ['Occupied', '18', '!text-[#2563EB]'],
+                          ['Available', '4', '!text-[#16835E]'],
+                          ['Needs attention', '2', '!text-[#D97706]'],
+                        ].map(([label, value, color]) => (
+                          <div key={label} className="rounded-xl border !border-[#E8EAE6] !bg-white p-3">
+                            <p className="truncate text-[8px] font-semibold !text-[#8D9289]">{label}</p>
+                            <p className={`mt-1.5 text-[16px] font-extrabold ${color}`}>{value}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="rounded-xl border !border-[#E8EAE6] !bg-white p-3.5 sm:p-4">
+                        <div className="mb-3 flex items-center justify-between">
+                          <p className="text-[10px] font-extrabold !text-[#353B34] sm:text-[11px]">Bed status</p>
+                          <div className="flex items-center gap-2.5 text-[8px] font-medium !text-[#8D9289]">
+                            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />Available</span>
+                            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full !bg-[#60A5FA]" />Occupied</span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                          {[
+                            ['A01', 'occupied'], ['A02', 'available'], ['A03', 'occupied'], ['A04', 'attention'],
+                            ['A05', 'occupied'], ['A06', 'available'], ['A07', 'occupied'], ['A08', 'occupied'],
+                          ].map(([bed, status]) => (
+                            <div key={bed} className={`flex min-w-0 items-center gap-1.5 rounded-lg border px-2 py-2 ${status === 'available' ? 'border-[#D6EEE2] !bg-[#F4FBF7]' : status === 'attention' ? 'border-[#F1E4C9] !bg-[#FFFBF2]' : 'border-[#DCEBFA] !bg-[#F5F9FE]'}`}>
+                              <Bed size={12} className={`shrink-0 ${status === 'available' ? '!text-[#1D9E75]' : status === 'attention' ? '!text-[#D99726]' : '!text-[#4D8BCB]'}`} />
+                              <span className="text-[8px] font-bold !text-[#4B514A]">{bed}</span>
+                              <span className="hidden truncate text-[7px] font-medium capitalize !text-[#8D9289] md:inline">{status}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="mt-3 flex items-center justify-between border-t !border-[#E8EAE6] pt-3">
+                    <span className="inline-flex items-center gap-1.5 text-[8px] font-semibold !text-[#8D9289] sm:text-[9px]">
+                      <Activity size={11} className="!text-[#1D9E75]" /> Connected care workspace
+                    </span>
+                    <span className="text-[8px] font-medium !text-[#A4A79F] sm:text-[9px]">Illustrative data</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -740,6 +1049,7 @@ export default function Home() {
               <div className="flex flex-col gap-2.5">
                 <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] !text-[#3B6D11]">Platform</p>
                 <a href="#platform" className="text-[12.5px] font-medium !text-[#8fa89a] hover:!text-white">Patient journey</a>
+                <a href="#preview" className="text-[12.5px] font-medium !text-[#8fa89a] hover:!text-white">Product preview</a>
                 <a href="#roles" className="text-[12.5px] font-medium !text-[#8fa89a] hover:!text-white">Roles</a>
                 <a href="#security" className="text-[12.5px] font-medium !text-[#8fa89a] hover:!text-white">Security</a>
               </div>
