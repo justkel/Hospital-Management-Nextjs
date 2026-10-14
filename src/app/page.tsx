@@ -233,7 +233,7 @@ export default function Home() {
       `}</style>
 
       <header className="sticky top-0 z-50 border-b !border-[#E8E6E0] !bg-[#FAFAF8]/85 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 sm:py-4 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5 sm:px-6 sm:py-4 lg:px-8">
           <div className="flex items-center gap-2 sm:gap-2.5">
             <span className="text-[20px] font-bold italic tracking-[-0.02em] !text-[#14231A] sm:text-[22px]">
               well<span className="!text-[#1D9E75] underline decoration-[#1D9E75]/30 underline-offset-4">flex</span>ia !
@@ -270,7 +270,7 @@ export default function Home() {
         </div>
 
         {navOpen && (
-          <div className="border-t !border-[#E8E6E0] px-4 py-4 sm:hidden">
+          <div className="border-t !border-[#E8E6E0] px-5 py-4 sm:hidden">
             <div className="flex flex-col gap-3">
               <a href="#platform" className="text-[13px] font-semibold !text-[#5c5c56]">Platform</a>
               <a href="#preview" onClick={() => setNavOpen(false)} className="text-[13px] font-semibold !text-[#5c5c56]">Product preview</a>
@@ -278,9 +278,9 @@ export default function Home() {
               <a href="#roles" className="text-[13px] font-semibold !text-[#5c5c56]">Roles</a>
               <a href="#security" className="text-[13px] font-semibold !text-[#5c5c56]">Security</a>
               <a href="#guest" className="text-[13px] font-semibold !text-[#5c5c56]">Guest access</a>
-              <div className="mt-2 flex flex-col gap-2">
-                <a href="/login" className="rounded-full border !border-[#E8E6E0] px-4 py-2.5 text-center text-[13px] font-semibold !text-[#14231A]">Sign in</a>
-                <a href="/guest-access" className="rounded-full !bg-[#0C1A12] px-4 py-2.5 text-center text-[13px] font-semibold !text-white">Request guest access</a>
+              <div className="mt-2 flex flex-row gap-2">
+                <a href="/login" className="flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-full border !border-[#E8E6E0] px-2 py-2 text-center text-[12px] font-semibold !text-[#14231A]">Sign in</a>
+                <a href="/guest-access" className="flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-full !bg-[#0C1A12] px-2 py-2 text-center text-[11px] font-semibold leading-tight !text-white">Request guest access</a>
               </div>
             </div>
           </div>
@@ -298,7 +298,7 @@ export default function Home() {
         <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full !bg-[#1D9E75]/15 blur-[90px]" />
         <div className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full !bg-[#5DCAA5]/10 blur-[100px]" />
 
-        <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 pb-14 pt-14 sm:px-6 sm:pb-16 sm:pt-20 md:pt-24 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:px-8 lg:pb-20 lg:pt-24 xl:gap-14">
+        <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-5 pb-16 pt-16 sm:px-6 sm:pb-16 sm:pt-20 md:pt-24 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:px-8 lg:pb-20 lg:pt-24 xl:gap-14">
           <div className="text-center lg:text-left">
             <div className="mx-auto mb-5 inline-flex items-center gap-2 rounded-full border !border-[#1D9E75]/25 !bg-[#1D9E75]/10 px-3.5 py-1.5 lg:mx-0">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full !bg-[#1D9E75]" />
@@ -315,17 +315,17 @@ export default function Home() {
               services instead of a pile of spreadsheets and side channels.
             </p>
 
-            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+            <div className="mt-7 flex flex-row items-stretch justify-center gap-2 sm:gap-3 lg:justify-start">
               <a
                 href="/login"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full !bg-[#1D9E75] px-4 py-3 text-[13px] font-bold !text-white transition hover:!bg-[#1a8a68] active:scale-[0.98] sm:w-auto sm:px-6 sm:text-[14px]"
+                className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full !bg-[#1D9E75] px-2.5 py-2.5 text-[11.5px] font-bold !text-white transition hover:!bg-[#1a8a68] active:scale-[0.98] sm:min-h-12 sm:w-auto sm:flex-none sm:gap-2 sm:px-6 sm:text-[14px]"
               >
                 Sign in
                 <ArrowRight size={14} className="sm:size-[15px]" />
               </a>
               <a
                 href="/guest-access"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full border !border-white/15 !bg-white/[0.04] px-4 py-3 text-[13px] font-bold !text-white transition hover:!bg-white/[0.09] active:scale-[0.98] sm:w-auto sm:px-6 sm:text-[14px]"
+                className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border !border-white/15 !bg-white/[0.04] px-2.5 py-2.5 text-[10.5px] font-bold leading-tight !text-white transition hover:!bg-white/[0.09] active:scale-[0.98] sm:min-h-12 sm:w-auto sm:flex-none sm:gap-2 sm:px-6 sm:text-[14px]"
               >
                 Request guest access
                 <ArrowUpRight size={14} className="sm:size-[15px]" />
@@ -367,10 +367,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="platform" className="relative overflow-hidden border-b !border-[#E8E6E0] !bg-white py-16 sm:py-20 lg:py-24">
+      <section id="platform" className="relative my-2 overflow-hidden border-b !border-[#E8E6E0] !bg-white py-16 sm:my-0 sm:py-20 lg:py-24">
         <div className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full !bg-[#1D9E75]/[0.06] blur-3xl" />
         <div className="pointer-events-none absolute -bottom-36 -left-20 h-80 w-80 rounded-full !bg-[#D97706]/[0.05] blur-3xl" />
-        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
           <div className="mb-10 flex flex-col gap-5 sm:mb-14 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 rounded-full border !border-[#1D9E75]/15 !bg-[#F0FAF5] px-3 py-1.5">
@@ -419,8 +419,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="!bg-[#FAFAF8] py-14 sm:py-16 lg:py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <section className="my-2 !bg-[#FAFAF8] py-16 sm:my-0 sm:py-20 lg:py-24">
+        <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
           <div className="mx-auto mb-10 max-w-lg text-center sm:mb-12">
             <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Everything on one record</p>
             <h2 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
@@ -491,9 +491,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="preview" className="relative overflow-hidden border-y !border-[#E8E6E0] !bg-[#F3F5F2] py-16 sm:py-20 lg:py-24">
+      <section id="preview" className="relative my-2 overflow-hidden border-y !border-[#E8E6E0] !bg-[#F3F5F2] py-16 sm:my-0 sm:py-20 lg:py-24">
         <div className="pointer-events-none absolute -right-24 top-10 h-80 w-80 rounded-full !bg-[#1D9E75]/[0.07] blur-3xl" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
             <div className="inline-flex items-center gap-2 rounded-full border !border-[#1D9E75]/15 !bg-white px-3 py-1.5 shadow-sm">
               <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
@@ -783,7 +783,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="mobile" className="relative overflow-hidden !bg-[#0C1A12] py-16 sm:py-20 lg:py-24">
+      <section id="mobile" className="relative my-2 overflow-hidden !bg-[#0C1A12] py-16 sm:my-0 sm:py-20 lg:py-24">
         <div
           className="pointer-events-none absolute inset-0 opacity-60"
           style={{
@@ -794,7 +794,7 @@ export default function Home() {
         <div className="pointer-events-none absolute -left-28 top-10 h-80 w-80 rounded-full !bg-[#1D9E75]/20 blur-[110px]" />
         <div className="pointer-events-none absolute -right-28 bottom-0 h-96 w-96 rounded-full !bg-[#2563EB]/10 blur-[120px]" />
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <div className="inline-flex items-center gap-2 rounded-full border !border-white/10 !bg-white/[0.06] px-3 py-1.5">
               <span className="h-1.5 w-1.5 rounded-full !bg-[#5DCAA5]" />
@@ -809,7 +809,7 @@ export default function Home() {
           </div>
 
           <div
-            className="-mx-4 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 [scrollbar-width:none] sm:mt-12 sm:gap-5 lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden"
+            className="-mx-5 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-5 [scrollbar-width:none] sm:mx-0 sm:mt-12 sm:gap-5 sm:px-0 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden"
             aria-label="Wellflexia mobile screen gallery"
           >
             {MOBILE_SHOWCASES.map((screen, index) => (
@@ -850,8 +850,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="roles" className="border-y !border-[#E8E6E0] !bg-white py-14 sm:py-16 lg:py-20">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <section id="roles" className="my-2 border-y !border-[#E8E6E0] !bg-white py-16 sm:my-0 sm:py-20 lg:py-24">
+        <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Role-aware, by default</p>
             <h2 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
@@ -864,7 +864,7 @@ export default function Home() {
 
           <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-[300px_1fr] lg:gap-6">
             <div
-              className="-mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-1 [&::-webkit-scrollbar]:hidden lg:hidden"
+              className="-mx-5 flex snap-x snap-mandatory gap-2 overflow-x-auto px-5 pb-1 [&::-webkit-scrollbar]:hidden lg:hidden"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {ROLES.map((r) => {
@@ -1002,8 +1002,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="guest" className="!bg-[#FAFAF8] py-14 sm:py-16 lg:py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <section id="guest" className="my-2 !bg-[#FAFAF8] py-16 sm:my-0 sm:py-20 lg:py-24">
+        <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
             <div>
               <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#D97706]">Guest access</p>
@@ -1044,8 +1044,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="security" className="border-t !border-[#E8E6E0] !bg-white py-14 sm:py-16 lg:py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <section id="security" className="my-2 border-t !border-[#E8E6E0] !bg-white py-16 sm:my-0 sm:py-20 lg:py-24">
+        <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
           <div className="mx-auto mb-10 max-w-lg text-center sm:mb-12">
             <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Underneath it all</p>
             <h2 className="mt-2 text-[24px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[28px]">
@@ -1077,7 +1077,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden !bg-[#0C1A12] py-16 sm:py-20">
+      <section className="relative my-2 overflow-hidden !bg-[#0C1A12] py-16 sm:my-0 sm:py-20 lg:py-24">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -1087,7 +1087,7 @@ export default function Home() {
         />
         <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 rounded-full !bg-[#1D9E75]/15 blur-[100px]" />
 
-        <div className="relative mx-auto max-w-4xl px-4 sm:px-6">
+        <div className="relative mx-auto max-w-4xl px-5 sm:px-6">
           <div className="flex flex-col items-center gap-6 lg:flex-row lg:gap-12">
             <div className="flex-1 text-center lg:text-left">
               <h2 className="text-[28px] font-extrabold tracking-[-0.02em] !text-white sm:text-[32px] md:text-[36px]">
@@ -1097,17 +1097,17 @@ export default function Home() {
                 <span className="font-bold !text-[#5DCAA5]">No sprints required</span> — our platform is already in motion.
                 Sign in if you&apos;re on staff, or request guest access for a first look.
               </p>
-              <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+              <div className="mt-6 flex flex-row items-stretch justify-center gap-2 sm:gap-3 lg:justify-start">
                 <a
                   href="/login"
-                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full !bg-[#1D9E75] px-6 py-3 text-[14px] font-bold !text-white transition hover:!bg-[#1a8a68] active:scale-[0.98]"
+                  className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full !bg-[#1D9E75] px-2.5 py-2.5 text-[11.5px] font-bold !text-white transition hover:!bg-[#1a8a68] active:scale-[0.98] sm:min-h-12 sm:w-auto sm:flex-none sm:gap-2 sm:px-6 sm:py-3 sm:text-[14px]"
                 >
                   Sign in
                   <ArrowRight size={15} />
                 </a>
                 <a
                   href="/guest-access"
-                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border !border-white/15 !bg-white/[0.04] px-6 py-3 text-[14px] font-bold !text-white transition hover:!bg-white/[0.09] active:scale-[0.98]"
+                  className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border !border-white/15 !bg-white/[0.04] px-2.5 py-2.5 text-[10.5px] font-bold leading-tight !text-white transition hover:!bg-white/[0.09] active:scale-[0.98] sm:min-h-12 sm:w-auto sm:flex-none sm:gap-2 sm:px-6 sm:py-3 sm:text-[14px]"
                 >
                   Request guest access
                 </a>
@@ -1125,7 +1125,7 @@ export default function Home() {
       </section>
 
       <footer className="!bg-[#0C1A12] pb-8 sm:pb-10">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-8 border-t !border-white/10 pt-10 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="flex items-center gap-2.5">
