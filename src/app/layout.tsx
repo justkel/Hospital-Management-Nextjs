@@ -45,10 +45,11 @@ export const metadata: Metadata = {
     icon: [
       { url: '/favicon.ico', type: 'image/x-icon' },
       { url: '/icon.svg', type: 'image/svg+xml' },
-      { url: '/icon.png', type: 'image/png', sizes: '64x64' },
+      { url: '/wellflexia-icon-48.png', type: 'image/png', sizes: '48x48' },
+      { url: '/wellflexia-icon-96.png', type: 'image/png', sizes: '96x96' },
     ],
     shortcut: '/favicon.ico',
-    apple: '/icon.png',
+    apple: '/wellflexia-icon-96.png',
   },
   openGraph: {
     type: 'website',
