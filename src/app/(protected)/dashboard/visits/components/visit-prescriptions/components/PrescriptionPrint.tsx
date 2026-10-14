@@ -34,7 +34,7 @@ export default function PrescriptionPrint({ prescriptions }: Props) {
     <button
       type="button"
       onClick={handlePrint}
-      className="flex items-center gap-2 rounded-xl bg-gray-900 px-5 py-2.5 !text-white transition hover:bg-black"
+      className="flex items-center gap-2 rounded-xl bg-[#1D9E75] px-5 py-2.5 !text-white transition hover:bg-[#178664]"
     >
       <Printer size={16} />
       Print Prescription

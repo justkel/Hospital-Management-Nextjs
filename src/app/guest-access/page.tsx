@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 
 import AuthBrandPanel from '@/components/auth/AuthBrandPanel';
+import WellflexiaHeader from '@/components/auth/WellflexiaHeader';
 import Cardiologist from '@/animations/Cardiologist.json';
 import welcomeAnimation from '@/animations/Doctor welcoming pacient.json';
 
@@ -148,6 +149,7 @@ export default function GuestAccessPage() {
 
       <div className="flex min-h-screen flex-col justify-center bg-[#f5f4f0] px-6 py-10 sm:px-10">
         <div className="mx-auto w-full max-w-[420px]">
+          <WellflexiaHeader />
           {submitted ? (
             <div className="text-center">
               <div className="mx-auto -mb-2 h-[220px] w-[220px] sm:h-[260px] sm:w-[260px]">

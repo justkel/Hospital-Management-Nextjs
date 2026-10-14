@@ -71,7 +71,7 @@ export default function VisitPrescriptionsList({
                             <HasRoles roles={[Roles.DOCTOR, Roles.NURSE, Roles.GUEST]}>
                                 <button
                                     onClick={() => onEdit(p)}
-                                    className="text-indigo-600 hover:underline"
+                                    className="text-[#1D9E75] hover:underline"
                                 >
                                     <Pencil size={16} />
                                 </button>

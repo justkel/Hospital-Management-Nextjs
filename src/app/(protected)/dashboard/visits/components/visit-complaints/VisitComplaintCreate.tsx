@@ -82,8 +82,8 @@ export default function VisitComplaintCreate({
           px-4 py-3
           text-sm sm:text-base
           shadow-sm
-          focus:ring-2 focus:ring-indigo-500
-          focus:border-indigo-500
+          focus:ring-2 focus:ring-[#1D9E75]
+          focus:border-[#1D9E75]
           outline-none
         "
       />
@@ -96,12 +96,12 @@ export default function VisitComplaintCreate({
             w-full sm:w-auto
             px-6 py-3
             rounded-xl
-            bg-indigo-600
+            bg-[#1D9E75]
             text-white!
             text-sm sm:text-base
             font-medium
             shadow
-            hover:bg-indigo-700
+            hover:bg-[#178664]
             disabled:opacity-50
             disabled:cursor-not-allowed
             transition

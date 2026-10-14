@@ -68,7 +68,7 @@ export default function BedAllocationForm({
     return (
         <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
             <div className="flex items-center gap-3 border-b border-slate-100 bg-gradient-to-r from-teal-50 to-white px-6 py-5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#EAF7F0] text-[#1D9E75]">
                     <BedDouble size={20} />
                 </div>
                 <div>
@@ -149,7 +149,7 @@ export default function BedAllocationForm({
                 <button
                     disabled={submitting || noCatalogs}
                     onClick={handleSubmit}
-                    className="w-full rounded-xl bg-teal-600 px-6 py-3.5 text-sm font-semibold text-white! shadow-md shadow-teal-200 transition hover:bg-teal-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto cursor-pointer"
+                    className="w-full rounded-xl bg-[#1D9E75] px-6 py-3.5 text-sm font-semibold text-white! shadow-md shadow-emerald-200 transition hover:bg-[#178664] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto cursor-pointer"
                 >
                     {submitting ? 'Allocating…' : 'Allocate bed'}
                 </button>

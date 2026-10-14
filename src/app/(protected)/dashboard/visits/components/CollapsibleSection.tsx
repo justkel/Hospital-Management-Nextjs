@@ -6,12 +6,13 @@ import { ChevronDown } from 'lucide-react';
 interface Props {
   title: string;
   icon?: React.ReactNode;
-  iconColor?: 'teal' | 'amber' | 'blue' | 'purple' | 'red';
+  iconColor?: 'green' | 'teal' | 'amber' | 'blue' | 'purple' | 'red';
   children: React.ReactNode;
   defaultOpen?: boolean;
 }
 
 const ICON_COLORS = {
+  green:  'bg-[#EAF7F0] text-[#1D9E75]',
   teal:   'bg-[#F0FAF5] text-[#1D9E75]',
   amber:  'bg-[#FFFBEB] text-[#D97706]',
   blue:   'bg-[#EFF6FF] text-[#2563EB]',

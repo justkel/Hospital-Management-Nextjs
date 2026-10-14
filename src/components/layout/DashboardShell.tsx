@@ -307,7 +307,7 @@ export default function DashboardShell({
                 .font-sans { font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif; }
             `}</style>
 
-            <header className="relative z-50 flex h-[52px] flex-shrink-0 items-center justify-between border-b !border-[#E8E6E0] !bg-white px-4">
+            <header className="sticky top-0 z-50 flex h-[52px] flex-shrink-0 items-center justify-between border-b !border-[#E8E6E0] !bg-white px-4">
                 <div className="flex items-center gap-2">
                     <Hamburger isOpen={menuOpen} toggle={() => setMenuOpen(v => !v)} />
 
@@ -321,8 +321,8 @@ export default function DashboardShell({
                         </button>
                     )}
 
-                    <span className="hidden text-[14px] font-bold tracking-[-0.01em] !text-[#2C2C2A] sm:block">
-                        Dashboard
+                    <span className="text-[16px] font-bold italic tracking-[-0.02em] !text-[#14231A]">
+                        well<span className="!text-[#1D9E75] underline decoration-[#1D9E75]/30 underline-offset-4">flex</span>ia !
                     </span>
                 </div>
 
@@ -350,18 +350,12 @@ export default function DashboardShell({
 
                 <aside
                     className={`
-            absolute inset-y-0 left-0 z-40 flex w-[240px] flex-col
+            fixed bottom-0 left-0 top-[52px] z-40 flex w-[240px] flex-col
             border-r !border-[#E8E6E0] !bg-white
             transition-transform duration-300 ease-in-out
             ${menuOpen ? 'translate-x-0' : '-translate-x-full'}
           `}
                 >
-                    <div className="flex flex-shrink-0 items-center border-b !border-[#E8E6E0] px-4 py-3.5">
-                        <span className="text-[17px] font-bold italic tracking-[-0.02em] !text-[#14231A]">
-                            well<span className="!text-[#1D9E75] underline decoration-[#1D9E75]/30 underline-offset-4">flex</span>ia !
-                        </span>
-                    </div>
-
                     <nav className="flex-1 overflow-y-auto px-2 py-2.5 scrollbar-hide" aria-label="Main navigation">
                         {navSections.map((section) => {
                             const visibleItems = section.items.filter((item) =>
@@ -429,7 +423,7 @@ export default function DashboardShell({
                 {menuOpen && (
                     <div
                         onClick={() => setMenuOpen(false)}
-                        className="absolute inset-0 z-30 !bg-[#0c1a12]/30 backdrop-blur-[2px]"
+                        className="fixed bottom-0 left-0 right-0 top-[52px] z-30 !bg-[#0c1a12]/30 backdrop-blur-[2px]"
                     />
                 )}
 

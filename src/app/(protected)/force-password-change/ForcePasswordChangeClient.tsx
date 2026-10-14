@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { clientFetch } from '@/lib/clientFetch';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { AlertCircle, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import AuthBrandPanel from '@/components/auth/AuthBrandPanel';
+import WellflexiaHeader from '@/components/auth/WellflexiaHeader';
 
 export default function ForcePasswordChangeClient() {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -65,13 +66,7 @@ export default function ForcePasswordChangeClient() {
 
       <div className="flex min-h-screen flex-col justify-center bg-[#f5f4f0] px-6 py-12 sm:px-10">
         <div className="w-full max-w-[380px] mx-auto">
-
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#1D9E75]">
-              <ShieldCheck size={17} className="text-white" />
-            </div>
-            <span className="text-[16px] font-medium text-[#2C2C2A]">HMS Pro</span>
-          </div>
+          <WellflexiaHeader />
 
           <div className="mb-8">
             <div className="mb-3 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.1em] text-[#888780]">

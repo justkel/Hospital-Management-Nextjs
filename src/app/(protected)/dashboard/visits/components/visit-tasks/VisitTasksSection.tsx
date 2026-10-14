@@ -49,7 +49,7 @@ export default function VisitTasksSection({ visitId }: Props) {
     <section ref={ref} className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#EAF7F0] text-[#1D9E75]">
             <ClipboardCheck size={16} />
           </div>
           <div>
@@ -66,7 +66,7 @@ export default function VisitTasksSection({ visitId }: Props) {
 
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white! shadow-sm shadow-amber-200 transition hover:bg-amber-700 cursor-pointer"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#1D9E75] px-4 py-2.5 text-sm font-semibold text-white! shadow-sm shadow-emerald-200 transition hover:bg-[#178664] cursor-pointer"
         >
           <Plus size={16} /> Add task
         </button>

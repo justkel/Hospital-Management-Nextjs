@@ -108,7 +108,7 @@ export default function VisitNoteBoard({ visitId }: Props) {
               <button
                 onClick={handleCreate}
                 disabled={creating || !draft.trim()}
-                className="cursor-pointer rounded-lg bg-teal-600 px-3 py-1.5 text-xs font-semibold text-white! disabled:opacity-50"
+                className="cursor-pointer rounded-lg bg-[#1D9E75] px-3 py-1.5 text-xs font-semibold text-white! transition hover:bg-[#178664] disabled:opacity-50"
               >
                 {creating ? 'Pinning…' : 'Pin note'}
               </button>
@@ -121,7 +121,7 @@ export default function VisitNoteBoard({ visitId }: Props) {
             <button
               onClick={() => setComposing(v => !v)}
               title="New note"
-              className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white text-teal-700 shadow-lg ring-1 ring-slate-200 transition hover:scale-105"
+              className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white text-[#1D9E75] shadow-lg ring-1 ring-slate-200 transition hover:scale-105"
             >
               {composing ? <X size={18} /> : <Plus size={20} />}
             </button>
@@ -130,7 +130,7 @@ export default function VisitNoteBoard({ visitId }: Props) {
           <button
             onClick={() => setBoardOpen(v => !v)}
             title={boardOpen ? 'Hide notes' : 'Show notes'}
-            className="relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-teal-600 text-white! shadow-xl transition hover:scale-105"
+            className="relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[#1D9E75] text-white! shadow-xl transition hover:scale-105 hover:bg-[#178664]"
           >
             <StickyNote size={22} />
             {notes.length > 0 && (

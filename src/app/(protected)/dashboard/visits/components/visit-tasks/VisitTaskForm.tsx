@@ -98,7 +98,7 @@ function VisitTaskFormFields({
   return (
     <div className="flex h-full flex-col p-5 sm:p-7">
       <div className="mb-6 flex items-center gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#EAF7F0] text-[#1D9E75]">
           <ClipboardCheck size={20} />
         </div>
         <div>
@@ -131,7 +131,7 @@ function VisitTaskFormFields({
                   onClick={() => setTaskType(type)}
                   className={`flex flex-col items-center gap-1.5 rounded-xl border px-3 py-3 text-xs font-semibold transition cursor-pointer ${
                     active
-                      ? 'border-amber-400 bg-amber-50 text-amber-700'
+                      ? 'border-[#1D9E75] bg-[#F0FAF5] text-[#178664]'
                       : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
                   }`}
                 >
@@ -164,7 +164,7 @@ function VisitTaskFormFields({
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder="Any extra detail…"
-            className="min-h-24 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+            className="min-h-24 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none transition focus:border-[#1D9E75] focus:ring-2 focus:ring-emerald-100"
           />
         </div>
 
@@ -181,7 +181,7 @@ function VisitTaskFormFields({
         <button
           disabled={submitting}
           onClick={handleSubmit}
-          className="flex-1 rounded-xl bg-amber-600 px-5 py-3 text-sm font-semibold text-white! shadow-md shadow-amber-200 transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+          className="flex-1 rounded-xl bg-[#1D9E75] px-5 py-3 text-sm font-semibold text-white! shadow-md shadow-emerald-200 transition hover:bg-[#178664] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
         >
           {submitting ? 'Saving…' : isEditing ? 'Save changes' : 'Add task'}
         </button>

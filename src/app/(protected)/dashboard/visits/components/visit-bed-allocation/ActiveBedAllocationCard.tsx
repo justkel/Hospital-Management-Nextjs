@@ -147,7 +147,7 @@ export default function ActiveBedAllocationCard({
             <button
               disabled={actionLoading}
               onClick={handleOccupyClick}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white! shadow-sm transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1D9E75] px-5 py-2.5 text-sm font-semibold text-white! shadow-sm transition hover:bg-[#178664] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
             >
               <CheckCircle2 size={16} />
               Mark occupied

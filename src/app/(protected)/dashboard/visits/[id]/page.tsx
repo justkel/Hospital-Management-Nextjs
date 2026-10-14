@@ -84,7 +84,7 @@ export default async function VisitDetailPage({ params }: Props) {
 
               <Link
                 href={`/dashboard/visits/${visit.id}/procedures`}
-                className="inline-flex h-[38px] w-full sm:w-auto items-center justify-center sm:justify-start gap-2.5 rounded-[9px] !bg-[#0c1a12] px-4 text-[13px] font-medium !text-white transition hover:!bg-[#16211B]"
+                className="inline-flex h-[38px] w-full sm:w-auto items-center justify-center sm:justify-start gap-2.5 rounded-[9px] !bg-[#1D9E75] px-4 text-[13px] font-medium !text-white transition hover:!bg-[#178664]"
               >
                 <div className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-[6px] !bg-white/12">
                   <ClipboardList size={13} />
@@ -119,7 +119,7 @@ export default async function VisitDetailPage({ params }: Props) {
           <CollapsibleSection
             title="Visit records"
             icon={<ClipboardList size={14} />}
-            iconColor="teal"
+            iconColor="green"
             defaultOpen={false}
           >
             <div className="flex flex-col gap-3 lg:grid lg:grid-cols-3">

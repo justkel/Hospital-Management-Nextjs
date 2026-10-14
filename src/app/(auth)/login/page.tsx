@@ -11,6 +11,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Activity, AlertCircle, ArrowRight, CreditCard, FileText, IdCard, ShieldCheck, Sparkles, Users, CheckCircle } from 'lucide-react';
 import AuthBrandPanel from '@/components/auth/AuthBrandPanel';
+import WellflexiaHeader from '@/components/auth/WellflexiaHeader';
 
 const STATUS_MESSAGE_MAP: Record<string, string> = {
   SUSPENDED: 'Your account has been suspended.',
@@ -78,12 +79,7 @@ export default function LoginPage() {
 
       <div className="flex min-h-screen flex-col justify-center !bg-[#f5f4f0] px-6 py-12 sm:px-10">
         <div className="w-full max-w-[380px] mx-auto">
-
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <span className="text-[19px] font-bold italic tracking-[-0.02em] !text-[#14231A]">
-              well<span className="!text-[#1D9E75] underline decoration-[#1D9E75]/30 underline-offset-4">flex</span>ia !
-            </span>
-          </div>
+          <WellflexiaHeader />
 
           <div className="mb-8">
             <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.1em] !text-[#888780]">
@@ -235,7 +231,6 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
-
     </div>
   );
 }

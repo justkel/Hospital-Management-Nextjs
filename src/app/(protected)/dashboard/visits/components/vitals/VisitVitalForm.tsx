@@ -134,7 +134,7 @@ export default function VisitVitalForm({
                 }));
                 setError(null);
               }}
-              className="w-4 h-4 accent-indigo-600"
+              className="w-4 h-4 accent-[#1D9E75]"
             />
 
             <span className="text-sm text-gray-700">
@@ -164,8 +164,8 @@ export default function VisitVitalForm({
               <select
                 className="
                   w-full px-4 py-3 rounded-xl border border-gray-200
-                  bg-white shadow-sm focus:ring-2 focus:ring-indigo-500
-                  focus:border-indigo-500 outline-none transition text-sm
+                  bg-white shadow-sm focus:ring-2 focus:ring-[#1D9E75]
+                  focus:border-[#1D9E75] outline-none transition text-sm
                 "
                 value={form.chargeCatalogId}
                 disabled={noCatalogs}
@@ -202,8 +202,8 @@ export default function VisitVitalForm({
             key={field.key}
             placeholder={field.label}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 
-            bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 
-            focus:border-indigo-500 outline-none text-sm transition"
+            bg-white shadow-sm focus:ring-2 focus:ring-[#1D9E75] 
+            focus:border-[#1D9E75] outline-none text-sm transition"
             value={String(
               form[field.key as keyof VitalFormValues] ?? ''
             )}
@@ -220,8 +220,8 @@ export default function VisitVitalForm({
         <textarea
           placeholder="Clinical notes..."
           className="sm:col-span-2 md:col-span-3 w-full px-4 py-3 rounded-xl border border-gray-200 
-          bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 
-          focus:border-indigo-500 outline-none text-sm min-h-25"
+          bg-white shadow-sm focus:ring-2 focus:ring-[#1D9E75] 
+          focus:border-[#1D9E75] outline-none text-sm min-h-25"
           value={form.notes}
           onChange={e => {
             setForm(prev => ({ ...prev, notes: e.target.value }));
@@ -244,8 +244,8 @@ export default function VisitVitalForm({
               (form.chargeEnabled && noCatalogs)
             }
             onClick={handleSubmit}
-            className="px-8 py-3 rounded-xl bg-indigo-600 text-white! font-medium
-          hover:bg-indigo-700 transition shadow-md
+            className="px-8 py-3 rounded-xl bg-[#1D9E75] text-white! font-medium
+          hover:bg-[#178664] transition shadow-md
           disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isEditing ? 'Update Vitals' : 'Record Vitals'}

@@ -60,8 +60,8 @@ export default function VisitHeaderCard({ visit }: { visit: Visit }) {
               {patient?.fullName ?? 'Visit Details'}
             </h1>
             <div className="flex flex-wrap gap-1.5">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.07] px-2.5 py-0.5 text-[10px] uppercase tracking-[0.06em] text-[#8ba0b8]">
-                <Stethoscope size={10} />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#5DCAA5]/20 bg-[#1D9E75]/10 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.06em] text-[#5DCAA5]">
+                <Stethoscope size={10} className="text-[#5DCAA5]" />
                 {visit.visitType?.replace(/_/g, ' ')}
               </span>
               <DarkBadge
@@ -76,19 +76,19 @@ export default function VisitHeaderCard({ visit }: { visit: Visit }) {
           <button
             type="button"
             onClick={handleCopyVisitId}
-            className="inline-flex h-9 items-center gap-2 rounded-[9px] border border-white/12 bg-white/[0.07] px-3 text-[13px] font-medium !text-[#c8d8e8] transition hover:bg-white/[0.12]"
+            className="inline-flex h-9 items-center gap-2 rounded-[9px] border border-[#5DCAA5]/30 bg-[#1D9E75]/15 px-3 text-[13px] font-medium !text-[#9BE0C5] transition hover:bg-[#1D9E75]/25"
             title="Copy visit ID"
             aria-label="Copy visit ID"
           >
-            {copied ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+            {copied ? <Check size={13} className="text-[#9BE0C5]" /> : <Copy size={13} className="text-[#9BE0C5]" />}
             {copied ? 'Copied' : 'Copy visit ID'}
           </button>
 
           <Link
             href={`/dashboard/patients/${patient?.id}`}
-            className="inline-flex h-9 items-center gap-2 rounded-[9px] border border-white/12 bg-white/[0.07] px-4 text-[13px] font-medium !text-[#c8d8e8] transition hover:bg-white/[0.12]"
+            className="inline-flex h-9 items-center gap-2 rounded-[9px] border border-[#5DCAA5]/30 bg-[#1D9E75]/15 px-4 text-[13px] font-medium !text-[#9BE0C5] transition hover:bg-[#1D9E75]/25"
           >
-            <User size={13} />
+            <User size={13} className="text-[#9BE0C5]" />
             View patient
           </Link>
         </div>

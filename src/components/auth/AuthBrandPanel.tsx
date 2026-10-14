@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function AuthBrandPanel() {
   return (
     <div className="relative hidden flex-col justify-between overflow-hidden !bg-[#0C1A12] px-10 py-12 font-sans lg:flex xl:px-14">
@@ -16,11 +18,13 @@ export default function AuthBrandPanel() {
       <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full !bg-[#1D9E75]/15 blur-[90px]" />
       <div className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full !bg-[#5DCAA5]/10 blur-[100px]" />
 
-      <div className="relative flex items-center gap-3">
-        <span className="text-[22px] font-bold italic tracking-[-0.02em] !text-white xl:text-[24px]">
-          well<span className="!text-[#1D9E75] underline decoration-[#1D9E75]/30 underline-offset-4">flex</span>ia !
-        </span>
-      </div>
+      <Link
+        href="/"
+        aria-label="Wellflexia home"
+        className="relative text-[22px] font-bold italic tracking-[-0.02em] !text-white xl:text-[24px]"
+      >
+        well<span className="!text-[#1D9E75] underline decoration-[#1D9E75]/30 underline-offset-4">flex</span>ia !
+      </Link>
 
       <div className="relative flex-1 flex flex-col justify-center py-12">
         <span className="pointer-events-none absolute -top-2 -left-2 select-none text-[96px] font-extrabold leading-none tracking-[-0.04em] !text-white/[0.06]">

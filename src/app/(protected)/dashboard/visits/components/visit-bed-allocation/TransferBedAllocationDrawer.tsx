@@ -102,7 +102,7 @@ export default function TransferBedAllocationDrawer({
         >
             <div className="flex h-full flex-col overflow-y-auto p-5 sm:p-7">
                 <div className="mb-6 flex items-center gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#EAF7F0] text-[#1D9E75]">
                         <ArrowRightLeft size={20} />
                     </div>
                     <div>
@@ -150,7 +150,7 @@ export default function TransferBedAllocationDrawer({
 
                     <div className="space-y-2 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
                         <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                            <ReceiptText size={15} className="text-teal-600" />
+                            <ReceiptText size={15} className="text-[#1D9E75]" />
                             Billing for the new bed
                         </div>
 
@@ -229,7 +229,7 @@ export default function TransferBedAllocationDrawer({
                     <button
                         disabled={submitting || noCatalogs}
                         onClick={handleSubmit}
-                        className="flex-1 rounded-xl bg-teal-600 px-5 py-3 text-sm font-semibold text-white! shadow-md shadow-teal-200 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                        className="flex-1 rounded-xl bg-[#1D9E75] px-5 py-3 text-sm font-semibold text-white! shadow-md shadow-emerald-200 transition hover:bg-[#178664] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                     >
                         {submitting ? 'Transferring…' : 'Confirm transfer'}
                     </button>

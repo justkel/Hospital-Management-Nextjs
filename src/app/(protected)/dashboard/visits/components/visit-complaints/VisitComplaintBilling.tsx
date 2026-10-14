@@ -180,12 +180,12 @@ export default function VisitComplaintBilling({
                     w-full sm:w-auto
                     px-5 py-3
                     rounded-xl
-                    bg-indigo-600
+                    bg-[#1D9E75]
                     text-white!
                     text-sm sm:text-base
                     font-medium
                     shadow-md
-                    hover:bg-indigo-700
+                    hover:bg-[#178664]
                     disabled:opacity-50
                     disabled:cursor-not-allowed
                     transition

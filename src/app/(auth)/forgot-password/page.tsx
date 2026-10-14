@@ -2,9 +2,10 @@
 
 import { Button, Form, Input } from 'antd';
 import { useState } from 'react';
-import { AlertCircle, ArrowRight, CheckCircle2, Mail, ShieldCheck } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Mail } from 'lucide-react';
 import Link from 'next/link';
 import AuthBrandPanel from '@/components/auth/AuthBrandPanel';
+import WellflexiaHeader from '@/components/auth/WellflexiaHeader';
 import { requestPasswordResetAction } from '@/lib/auth/request-password-reset.action';
 
 export default function ForgotPasswordPage() {
@@ -35,13 +36,7 @@ export default function ForgotPasswordPage() {
 
       <div className="flex min-h-screen flex-col justify-center bg-[#f5f4f0] px-6 py-12 sm:px-10">
         <div className="w-full max-w-[380px] mx-auto">
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#1D9E75]">
-              <ShieldCheck size={17} className="text-white" />
-            </div>
-            <span className="text-[16px] font-medium text-[#2C2C2A]">HMS Pro</span>
-          </div>
-
+          <WellflexiaHeader />
           {submitted ? (
             <div className="text-center">
               <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-[#EAF7F0]">

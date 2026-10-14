@@ -86,7 +86,7 @@ export default function VisitPrescriptionForm({
     return (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
             <div className="flex items-center gap-2">
-                <Pill size={18} className="text-indigo-600" />
+                <Pill size={18} className="text-[#1D9E75]" />
                 <h3 className="font-semibold text-gray-900 text-lg">
                     {isEditing ? 'Edit Prescription' : 'New Prescription'}
                 </h3>
@@ -227,7 +227,7 @@ export default function VisitPrescriptionForm({
                     <button
                         disabled={submitting}
                         onClick={handleSubmit}
-                        className="flex items-center gap-2 bg-indigo-600 !text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition disabled:opacity-50 cursor-pointer"
+                        className="flex items-center gap-2 bg-[#1D9E75] !text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#178664] transition disabled:opacity-50 cursor-pointer"
                     >
                         <CheckCircle2 size={16} />
                         {isEditing ? 'Update' : 'Add'}

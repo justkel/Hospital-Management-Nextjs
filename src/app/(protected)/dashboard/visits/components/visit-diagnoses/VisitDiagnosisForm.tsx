@@ -130,7 +130,7 @@ export default function VisitDiagnosisForm({
                 }));
                 setError(null);
               }}
-              className="w-4 h-4 accent-indigo-600"
+              className="w-4 h-4 accent-[#1D9E75]"
             />
 
             <span className="text-sm text-gray-700">
@@ -159,8 +159,8 @@ export default function VisitDiagnosisForm({
               <select
                 className="
                   w-full px-4 py-3 rounded-xl border border-gray-200
-                  bg-white shadow-sm focus:ring-2 focus:ring-indigo-500
-                  focus:border-indigo-500 outline-none transition text-sm
+                  bg-white shadow-sm focus:ring-2 focus:ring-[#1D9E75]
+                  focus:border-[#1D9E75] outline-none transition text-sm
                 "
                 value={form.chargeCatalogId}
                 disabled={noCatalogs}
@@ -187,7 +187,7 @@ export default function VisitDiagnosisForm({
         <input
           placeholder="Diagnosis"
           className="w-full px-4 py-3 rounded-xl border border-gray-200 
-          bg-white shadow-sm focus:ring-2 focus:ring-indigo-500"
+          bg-white shadow-sm focus:ring-2 focus:ring-[#1D9E75]"
           value={form.diagnosis}
           onChange={e => {
             setForm(prev => ({ ...prev, diagnosis: e.target.value }));
@@ -198,7 +198,7 @@ export default function VisitDiagnosisForm({
         <input
           placeholder="Diagnosis Code"
           className="w-full px-4 py-3 rounded-xl border border-gray-200 
-          bg-white shadow-sm focus:ring-2 focus:ring-indigo-500"
+          bg-white shadow-sm focus:ring-2 focus:ring-[#1D9E75]"
           value={form.diagnosisCode}
           onChange={e => {
             setForm(prev => ({ ...prev, diagnosisCode: e.target.value }));
@@ -209,7 +209,7 @@ export default function VisitDiagnosisForm({
         <textarea
           placeholder="Clinical notes..."
           className="md:col-span-2 w-full px-4 py-3 rounded-xl border border-gray-200 
-          bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 min-h-24"
+          bg-white shadow-sm focus:ring-2 focus:ring-[#1D9E75] min-h-24"
           value={form.notes}
           onChange={e => {
             setForm(prev => ({ ...prev, notes: e.target.value }));
@@ -228,8 +228,8 @@ export default function VisitDiagnosisForm({
         <button
           disabled={submitting || (form.chargeEnabled && noCatalogs)}
           onClick={handleSubmit}
-          className="px-8 py-3 rounded-xl !bg-green-600 !text-white font-medium
-          !hover:bg-green-700 transition shadow-md cursor-pointer
+          className="px-8 py-3 rounded-xl !bg-[#1D9E75] !text-white font-medium
+          hover:!bg-[#178664] transition shadow-md cursor-pointer
           disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isEditing ? 'Update Diagnosis' : 'Record Diagnosis'}

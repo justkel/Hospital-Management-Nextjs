@@ -3,9 +3,10 @@
 import { Button, Form, Input } from 'antd';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { AlertCircle, ArrowRight, CheckCircle2, Lock, ShieldCheck } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Lock } from 'lucide-react';
 import Link from 'next/link';
 import AuthBrandPanel from '@/components/auth/AuthBrandPanel';
+import WellflexiaHeader from '@/components/auth/WellflexiaHeader';
 import { validatePasswordResetTokenAction } from '@/lib/auth/validate-password-reset-token.action';
 import { resetPasswordAction } from '@/lib/auth/reset-password.action';
 
@@ -92,13 +93,7 @@ export default function ResetPasswordForm() {
 
       <div className="flex min-h-screen flex-col justify-center bg-[#f5f4f0] px-6 py-12 sm:px-10">
         <div className="w-full max-w-[380px] mx-auto">
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#1D9E75]">
-              <ShieldCheck size={17} className="text-white" />
-            </div>
-            <span className="text-[16px] font-medium text-[#2C2C2A]">HMS Pro</span>
-          </div>
-
+          <WellflexiaHeader />
           {state === 'checking' && (
             <p className="text-center text-[14px] text-[#888780]">
               Checking your link…
