@@ -226,21 +226,21 @@ export default function Home() {
     {
       '@context': 'https://schema.org',
       '@type': 'Organization',
-      '@id': 'https://wellflexia.com/#organization',
+      '@id': 'https://www.wellflexia.com/#organization',
       name: 'Wellflexia',
-      url: 'https://wellflexia.com/',
-      logo: 'https://wellflexia.com/icon.svg',
-      image: 'https://wellflexia.com/opengraph-image',
+      url: 'https://www.wellflexia.com/',
+      logo: 'https://www.wellflexia.com/icon.svg',
+      image: 'https://www.wellflexia.com/opengraph-image',
       description:
         'Wellflexia provides a hospital management system connecting patient records, clinical visits, wards, theatre scheduling, and billing.',
     },
     {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      '@id': 'https://wellflexia.com/#website',
+      '@id': 'https://www.wellflexia.com/#website',
       name: 'Wellflexia | Hospital Management System',
-      url: 'https://wellflexia.com/',
-      publisher: { '@id': 'https://wellflexia.com/#organization' },
+      url: 'https://www.wellflexia.com/',
+      publisher: { '@id': 'https://www.wellflexia.com/#organization' },
       inLanguage: 'en',
     },
     {
@@ -249,11 +249,11 @@ export default function Home() {
       name: 'Wellflexia Hospital Management System',
       applicationCategory: 'HealthApplication',
       operatingSystem: 'Web',
-      url: 'https://wellflexia.com/',
-      image: 'https://wellflexia.com/opengraph-image',
+      url: 'https://www.wellflexia.com/',
+      image: 'https://www.wellflexia.com/opengraph-image',
       description:
         'A hospital management system for patient records, visits, wards, theatre scheduling, billing, and connected care workflows.',
-      publisher: { '@id': 'https://wellflexia.com/#organization' },
+      publisher: { '@id': 'https://www.wellflexia.com/#organization' },
     },
   ];
 

@@ -14,7 +14,7 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://wellflexia.com',
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.wellflexia.com',
   ),
   alternates: {
     canonical: '/',
@@ -42,8 +42,12 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [{ url: '/icon.png', type: 'image/png', sizes: '64x64' }],
-    shortcut: '/icon.png',
+    icon: [
+      { url: '/favicon.ico', type: 'image/x-icon' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon.png', type: 'image/png', sizes: '64x64' },
+    ],
+    shortcut: '/favicon.ico',
     apple: '/icon.png',
   },
   openGraph: {
