@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
 
-export const alt = 'Wellflexia hospital management system patient management screen';
+export const alt = 'Wellflexia homepage with its patient list mobile experience';
 export const size = {
   width: 1200,
   height: 630,
@@ -11,9 +11,11 @@ export const contentType = 'image/png';
 export const runtime = 'nodejs';
 
 export default async function OpenGraphImage() {
-  const patientList = await readFile(
-    join(process.cwd(), 'public/images/mobile-patient-list-og.png'),
-  );
+  const [patientList, montserratRegular, montserratBold] = await Promise.all([
+    readFile(join(process.cwd(), 'public/images/mobile-patient-list-og.png')),
+    readFile(join(process.cwd(), 'public/fonts/montserrat-latin-400.ttf')),
+    readFile(join(process.cwd(), 'public/fonts/montserrat-latin-700.ttf')),
+  ]);
   const patientListSrc = `data:image/png;base64,${patientList.toString('base64')}`;
 
   return new ImageResponse(
@@ -21,107 +23,301 @@ export default async function OpenGraphImage() {
       <div
         style={{
           display: 'flex',
-          position: 'relative',
+          flexDirection: 'column',
           width: '100%',
           height: '100%',
           overflow: 'hidden',
-          background: 'linear-gradient(118deg, #0C1A12 0%, #10281D 58%, #173B2D 100%)',
-          color: '#FFFFFF',
-          fontFamily: 'Arial, sans-serif',
+          backgroundColor: '#FAFAF8',
+          color: '#14231A',
+          fontFamily: 'Montserrat',
         }}
       >
         <div
           style={{
             display: 'flex',
-            position: 'absolute',
-            right: -140,
-            top: -250,
-            width: 720,
-            height: 720,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(93,202,165,0.18), rgba(12,26,18,0) 70%)',
+            alignItems: 'center',
+            height: 76,
+            flexShrink: 0,
+            padding: '0 64px',
+            borderBottom: '1px solid #E8E6E0',
+            backgroundColor: '#FAFAF8',
           }}
-        />
-        <div
-          style={{
-            display: 'flex',
-            position: 'absolute',
-            inset: 0,
-            opacity: 0.12,
-            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.32) 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-          }}
-        />
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: 26,
+              fontWeight: 700,
+              fontStyle: 'italic',
+              letterSpacing: '-0.52px',
+            }}
+          >
+            <span>well</span>
+            <span
+              style={{
+                color: '#1D9E75',
+                textDecoration: 'underline',
+                textDecorationColor: 'rgba(29,158,117,0.3)',
+                textUnderlineOffset: 5,
+              }}
+            >
+              flex
+            </span>
+            <span>ia !</span>
+          </div>
+        </div>
 
         <div
           style={{
             display: 'flex',
             position: 'relative',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '100%',
-            height: '100%',
-            padding: '40px 66px 38px 72px',
+            flex: 1,
+            overflow: 'hidden',
+            backgroundColor: '#0C1A12',
+            color: '#FFFFFF',
           }}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', width: 570, height: '100%', justifyContent: 'space-between', paddingTop: 12, paddingBottom: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', fontSize: 31, fontWeight: 700, fontStyle: 'italic', letterSpacing: '-1.2px' }}>
-              <span>well</span>
-              <span style={{ color: '#5DCAA5' }}>flex</span>
-              <span>ia !</span>
-            </div>
+          <div
+            style={{
+              display: 'flex',
+              position: 'absolute',
+              inset: 0,
+              backgroundImage:
+                'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
+              backgroundSize: '22px 22px',
+            }}
+          />
+          <div
+            style={{
+              display: 'flex',
+              position: 'absolute',
+              left: -75,
+              top: -100,
+              width: 300,
+              height: 300,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(29,158,117,0.2), transparent 70%)',
+            }}
+          />
+          <div
+            style={{
+              display: 'flex',
+              position: 'absolute',
+              right: -95,
+              bottom: -140,
+              width: 360,
+              height: 360,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(93,202,165,0.14), transparent 70%)',
+            }}
+          />
 
-            <div style={{ display: 'flex', flexDirection: 'column', paddingBottom: 15 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22, color: '#75D7B5', fontSize: 13, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase' }}>
-                <span style={{ display: 'flex', width: 8, height: 8, borderRadius: '50%', backgroundColor: '#5DCAA5' }} />
-                Hospital management system
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', fontSize: 52, lineHeight: 1.08, fontWeight: 700, letterSpacing: '-2px' }}>
-                <span>Care starts</span>
-                <span>with a clearer</span>
-                <span style={{ color: '#75D7B5', fontStyle: 'italic' }}>patient view.</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', marginTop: 22, color: '#B1C0B6', fontSize: 17, lineHeight: 1.5 }}>
-                <span>Connect patient records and hospital</span>
-                <span>workflows in one secure platform.</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 24 }}>
-                <span style={{ display: 'flex', width: 8, height: 8, borderRadius: '50%', backgroundColor: '#5DCAA5' }} />
-                <span style={{ color: '#D0DFD5', fontSize: 13, fontWeight: 600 }}>Records · visits · wards · billing</span>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', color: '#789083', fontSize: 12, letterSpacing: '0.5px' }}>
-              WELLFLEXIA.COM
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', position: 'relative', width: 430, height: 580, alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ display: 'flex', position: 'absolute', right: 10, top: 24, width: 330, height: 520, borderRadius: 35, background: 'rgba(93,202,165,0.15)', transform: 'rotate(4deg)' }} />
-            <img
-              src={patientListSrc}
-              alt="Wellflexia mobile patient list screen"
-              width={385}
-              height={578}
+          <div
+            style={{
+              display: 'flex',
+              position: 'relative',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+              padding: '28px 58px 25px 66px',
+            }}
+          >
+            <div
               style={{
                 display: 'flex',
-                position: 'relative',
-                width: 385,
-                height: 578,
-                objectFit: 'contain',
+                flexDirection: 'column',
+                width: 660,
+                height: '100%',
+                justifyContent: 'center',
               }}
-            />
-            <div style={{ display: 'flex', position: 'absolute', right: -12, bottom: 38, alignItems: 'center', gap: 9, padding: '12px 15px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 14, backgroundColor: '#173B2D', boxShadow: '0 12px 28px rgba(0,0,0,0.24)' }}>
-              <div style={{ display: 'flex', width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: 9, backgroundColor: '#1D9E75', color: '#FFFFFF', fontSize: 12, fontWeight: 700 }}>01</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                <span style={{ color: '#FFFFFF', fontSize: 10, fontWeight: 700 }}>Patient records</span>
-                <span style={{ color: '#A9B9AE', fontSize: 8 }}>A connected care journey</span>
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  alignSelf: 'flex-start',
+                  gap: 10,
+                  marginBottom: 17,
+                  padding: '8px 14px',
+                  border: '1px solid rgba(29,158,117,0.25)',
+                  borderRadius: 999,
+                  backgroundColor: 'rgba(29,158,117,0.1)',
+                  color: '#5DCAA5',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                  textTransform: 'uppercase',
+                }}
+              >
+                <span
+                  style={{
+                    display: 'flex',
+                    width: 7,
+                    height: 7,
+                    borderRadius: '50%',
+                    backgroundColor: '#1D9E75',
+                  }}
+                />
+                Hospital operations, unified
               </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  fontSize: 46,
+                  fontWeight: 700,
+                  lineHeight: 1.12,
+                  letterSpacing: '-1.5px',
+                }}
+              >
+                <span>Every visit, every vital,</span>
+                <span>
+                  <span style={{ color: '#5DCAA5', fontStyle: 'italic' }}>one system.</span>
+                </span>
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  width: 630,
+                  marginTop: 15,
+                  color: '#8FA89A',
+                  fontSize: 15,
+                  fontWeight: 500,
+                  lineHeight: 1.55,
+                }}
+              >
+                Patient records, visits, theatre scheduling, billing, and compliance — running as connected services instead of a pile of spreadsheets and side channels.
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  marginTop: 20,
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 155,
+                    height: 46,
+                    borderRadius: 999,
+                    backgroundColor: '#1D9E75',
+                    color: '#FFFFFF',
+                    fontSize: 15,
+                    fontWeight: 700,
+                  }}
+                >
+                  Sign in&nbsp; →
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 242,
+                    height: 46,
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    borderRadius: 999,
+                    backgroundColor: 'rgba(255,255,255,0.04)',
+                    color: '#FFFFFF',
+                    fontSize: 14,
+                    fontWeight: 700,
+                  }}
+                >
+                  Request guest access&nbsp; ↗
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  gap: 8,
+                  marginTop: 20,
+                }}
+              >
+                {[
+                  '5 connected services',
+                  '8 hospital roles',
+                  'Guest access, fully governed',
+                ].map((item) => (
+                  <div
+                    key={item}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '8px 12px',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: 999,
+                      backgroundColor: 'rgba(255,255,255,0.05)',
+                      color: '#FFFFFF',
+                      fontSize: 11,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 365,
+                height: 520,
+                flexShrink: 0,
+                overflow: 'hidden',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 28,
+                background:
+                  'linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02))',
+                boxShadow: 'inset 0 0 0 1px rgba(29,158,117,0.05)',
+              }}
+            >
+              <img
+                src={patientListSrc}
+                alt="Wellflexia mobile patient list screen"
+                width={337}
+                height={505}
+                style={{
+                  display: 'flex',
+                  width: 337,
+                  height: 505,
+                  objectFit: 'contain',
+                }}
+              />
             </div>
           </div>
         </div>
       </div>
     ),
-    size,
+    {
+      ...size,
+      fonts: [
+        {
+          name: 'Montserrat',
+          data: montserratRegular,
+          weight: 400,
+          style: 'normal',
+        },
+        {
+          name: 'Montserrat',
+          data: montserratBold,
+          weight: 700,
+          style: 'normal',
+        },
+      ],
+    },
   );
 }
