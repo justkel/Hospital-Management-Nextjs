@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Lottie from 'lottie-react';
 import {
@@ -216,6 +216,26 @@ export default function Home() {
   const [navOpen, setNavOpen] = useState(false);
   const [activeRole, setActiveRole] = useState('DOCTOR');
   const [activePreview, setActivePreview] = useState<(typeof PRODUCT_PREVIEWS)[number]['id']>('patient');
+  const [previewIntroVisible, setPreviewIntroVisible] = useState(false);
+  const previewIntroRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const element = previewIntroRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setPreviewIntroVisible(true);
+          observer.unobserve(element);
+        }
+      },
+      { threshold: 0.25, rootMargin: '0px 0px -8% 0px' },
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="min-h-screen !bg-[#FAFAF8] font-sans">
@@ -229,6 +249,41 @@ export default function Home() {
         @keyframes floatSlower {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-14px); }
+        }
+        .preview-intro-reveal {
+          clip-path: inset(0 100% 0 0);
+          opacity: 0;
+          transform: translateX(-18px);
+          transition:
+            clip-path 900ms cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 550ms ease,
+            transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .preview-intro-reveal.is-visible {
+          clip-path: inset(0);
+          opacity: 1;
+          transform: translateX(0);
+        }
+        .preview-intro-reveal .preview-intro-stagger {
+          opacity: 0;
+          transform: translateY(10px);
+          transition: opacity 500ms ease, transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .preview-intro-reveal.is-visible .preview-intro-stagger {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .preview-intro-reveal.is-visible .preview-intro-stagger:nth-child(1) { transition-delay: 100ms; }
+        .preview-intro-reveal.is-visible .preview-intro-stagger:nth-child(2) { transition-delay: 220ms; }
+        .preview-intro-reveal.is-visible .preview-intro-stagger:nth-child(3) { transition-delay: 340ms; }
+        @media (prefers-reduced-motion: reduce) {
+          .preview-intro-reveal,
+          .preview-intro-reveal .preview-intro-stagger {
+            clip-path: none;
+            opacity: 1;
+            transform: none;
+            transition: none;
+          }
         }
       `}</style>
 
@@ -377,7 +432,7 @@ export default function Home() {
                 <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
                 <span className="text-[10px] font-bold uppercase tracking-[0.12em] !text-[#1D9E75]">The patient journey</span>
               </div>
-              <h2 className="mt-5 text-[30px] font-extrabold leading-tight tracking-[-0.035em] !text-[#14231A] sm:text-[38px] lg:text-[44px]">
+              <h2 className="mt-7 text-[30px] font-extrabold leading-tight tracking-[-0.035em] !text-[#14231A] sm:text-[38px] lg:text-[44px]">
                 From first visit to follow-up, <span className="!text-[#1D9E75]">connected.</span>
               </h2>
             </div>
@@ -423,7 +478,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
           <div className="mx-auto mb-10 max-w-lg text-center sm:mb-12">
             <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Everything on one record</p>
-            <h2 className="mt-4 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
+            <h2 className="mt-6 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
               Built for the whole hospital,<br className="hidden sm:block" /> not one department.
             </h2>
           </div>
@@ -499,7 +554,7 @@ export default function Home() {
               <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
               <span className="text-[10px] font-bold uppercase tracking-[0.12em] !text-[#1D9E75]">A closer look</span>
             </div>
-            <h2 className="mt-5 text-[29px] font-extrabold leading-tight tracking-[-0.035em] !text-[#14231A] sm:text-[38px] lg:text-[44px]">
+            <h2 className="mt-7 text-[29px] font-extrabold leading-tight tracking-[-0.035em] !text-[#14231A] sm:text-[38px] lg:text-[44px]">
               See the care, <span className="!text-[#1D9E75]">not the complexity.</span>
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-[13.5px] font-medium leading-relaxed !text-[#6b6b64] sm:text-[14px]">
@@ -508,12 +563,15 @@ export default function Home() {
           </div>
 
           <div className="grid items-center gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-12">
-            <div className="mx-auto max-w-lg lg:mx-0">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Thoughtfully connected</p>
-              <h3 className="mt-3 text-[20px] font-extrabold leading-snug tracking-[-0.025em] !text-[#14231A] sm:text-[26px]">
+            <div
+              ref={previewIntroRef}
+              className={`preview-intro-reveal mx-auto max-w-lg lg:mx-0 ${previewIntroVisible ? 'is-visible' : ''}`}
+            >
+              <p className="preview-intro-stagger text-[10px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Thoughtfully connected</p>
+              <h3 className="preview-intro-stagger mt-4 text-[20px] font-extrabold leading-snug tracking-[-0.025em] !text-[#14231A] sm:mt-5 sm:text-[26px]">
                 The details your team needs, right where they need them.
               </h3>
-              <p className="mt-3 text-[13px] font-medium leading-relaxed !text-[#6b6b64] sm:text-[13.5px]">
+              <p className="preview-intro-stagger mt-3 text-[13px] font-medium leading-relaxed !text-[#6b6b64] sm:text-[13.5px]">
                 Move between the patient story, today&apos;s care, and ward activity without losing the thread.
               </p>
 
@@ -800,7 +858,7 @@ export default function Home() {
               <span className="h-1.5 w-1.5 rounded-full !bg-[#5DCAA5]" />
               <span className="text-[10px] font-bold uppercase tracking-[0.14em] !text-[#8FE0BF]">Care, in your pocket</span>
             </div>
-            <h2 className="mt-5 text-[30px] font-extrabold leading-tight tracking-[-0.035em] !text-white sm:text-[38px] lg:text-[44px]">
+            <h2 className="mt-7 text-[30px] font-extrabold leading-tight tracking-[-0.035em] !text-white sm:text-[38px] lg:text-[44px]">
               Hospital work doesn&apos;t stop at the desktop.
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-[13.5px] font-medium leading-relaxed !text-[#A5B8AD] sm:text-[14px]">
@@ -854,7 +912,7 @@ export default function Home() {
         <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Role-aware, by default</p>
-            <h2 className="mt-4 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
+            <h2 className="mt-6 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
               Everyone sees what their shift needs.
             </h2>
             <p className="mx-auto mt-4 max-w-md text-[13.5px] font-medium leading-relaxed !text-[#6b6b64] sm:text-[14px]">
@@ -1007,7 +1065,7 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
             <div>
               <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#D97706]">Guest access</p>
-              <h2 className="mt-4 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
+              <h2 className="mt-6 text-[26px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[30px] md:text-[34px]">
                 Need to look around first?
               </h2>
               <p className="mt-4 text-[13.5px] font-medium leading-relaxed !text-[#6b6b64] sm:text-[14px]">
@@ -1048,7 +1106,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
           <div className="mx-auto mb-10 max-w-lg text-center sm:mb-12">
             <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] !text-[#1D9E75]">Underneath it all</p>
-            <h2 className="mt-4 text-[24px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[28px]">
+            <h2 className="mt-6 text-[24px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[28px]">
               Security that doesn&apos;t ask to be trusted.
             </h2>
           </div>
