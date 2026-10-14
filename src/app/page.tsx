@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Lottie from 'lottie-react';
 import {
   ArrowRight,
@@ -76,6 +77,30 @@ const PRODUCT_PREVIEWS = [
   { id: 'visit', label: 'Visit workspace' },
   { id: 'ward', label: 'Ward board' },
 ] as const;
+
+const MOBILE_SHOWCASES = [
+  {
+    image: '/images/mobile-patient-list.webp',
+    alt: 'Wellflexia mobile patient list with search and status filters',
+    category: 'Clinical records',
+    title: 'Patient records, at a glance.',
+    copy: 'Find a patient, check their status, and open their record from a phone.',
+  },
+  {
+    image: '/images/mobile-visit-billing.webp',
+    alt: 'Wellflexia mobile visit billing screen showing balances and recent visits',
+    category: 'Visit billing',
+    title: 'The visit and its details.',
+    copy: 'Review recent visits, outstanding balances, and billing in one flow.',
+  },
+  {
+    image: '/images/mobile-feature-controls.webp',
+    alt: 'Wellflexia mobile organization settings screen for feature controls',
+    category: 'Organization controls',
+    title: 'The right controls, wherever you are.',
+    copy: 'Manage optional capabilities with a clear history of changes.',
+  },
+];
 
 const FEATURES = [
   {
@@ -218,6 +243,7 @@ export default function Home() {
           <nav className="hidden items-center gap-6 lg:flex xl:gap-8">
             <a href="#platform" className="text-[13px] font-semibold !text-[#5c5c56] transition hover:!text-[#14231A]">Platform</a>
             <a href="#preview" className="text-[13px] font-semibold !text-[#5c5c56] transition hover:!text-[#14231A]">Product preview</a>
+            <a href="#mobile" className="text-[13px] font-semibold !text-[#5c5c56] transition hover:!text-[#14231A]">Mobile</a>
             <a href="#roles" className="text-[13px] font-semibold !text-[#5c5c56] transition hover:!text-[#14231A]">Roles</a>
             <a href="#security" className="text-[13px] font-semibold !text-[#5c5c56] transition hover:!text-[#14231A]">Security</a>
             <a href="#guest" className="text-[13px] font-semibold !text-[#5c5c56] transition hover:!text-[#14231A]">Guest access</a>
@@ -248,6 +274,7 @@ export default function Home() {
             <div className="flex flex-col gap-3">
               <a href="#platform" className="text-[13px] font-semibold !text-[#5c5c56]">Platform</a>
               <a href="#preview" onClick={() => setNavOpen(false)} className="text-[13px] font-semibold !text-[#5c5c56]">Product preview</a>
+              <a href="#mobile" onClick={() => setNavOpen(false)} className="text-[13px] font-semibold !text-[#5c5c56]">Mobile experience</a>
               <a href="#roles" className="text-[13px] font-semibold !text-[#5c5c56]">Roles</a>
               <a href="#security" className="text-[13px] font-semibold !text-[#5c5c56]">Security</a>
               <a href="#guest" className="text-[13px] font-semibold !text-[#5c5c56]">Guest access</a>
@@ -756,6 +783,73 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="mobile" className="relative overflow-hidden !bg-[#0C1A12] py-16 sm:py-20 lg:py-24">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-60"
+          style={{
+            backgroundImage: 'radial-gradient(circle, rgba(93,202,165,0.11) 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+          }}
+        />
+        <div className="pointer-events-none absolute -left-28 top-10 h-80 w-80 rounded-full !bg-[#1D9E75]/20 blur-[110px]" />
+        <div className="pointer-events-none absolute -right-28 bottom-0 h-96 w-96 rounded-full !bg-[#2563EB]/10 blur-[120px]" />
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="inline-flex items-center gap-2 rounded-full border !border-white/10 !bg-white/[0.06] px-3 py-1.5">
+              <span className="h-1.5 w-1.5 rounded-full !bg-[#5DCAA5]" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] !text-[#8FE0BF]">Care, in your pocket</span>
+            </div>
+            <h2 className="mt-4 text-[30px] font-extrabold leading-tight tracking-[-0.035em] !text-white sm:text-[38px] lg:text-[44px]">
+              Hospital work doesn&apos;t stop at the desktop.
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-[13.5px] font-medium leading-relaxed !text-[#A5B8AD] sm:text-[14px]">
+              A responsive workspace keeps essential patient, visit, and organization tools clear on the screens teams carry every day.
+            </p>
+          </div>
+
+          <div
+            className="-mx-4 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 [scrollbar-width:none] sm:mt-12 sm:gap-5 lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden"
+            aria-label="Wellflexia mobile screen gallery"
+          >
+            {MOBILE_SHOWCASES.map((screen, index) => (
+              <article
+                key={screen.image}
+                className="group w-[78vw] max-w-[290px] shrink-0 snap-center overflow-hidden rounded-[22px] border !border-white/10 !bg-white/[0.045] p-3.5 transition duration-300 hover:-translate-y-1 hover:!border-[#5DCAA5]/35 hover:!bg-white/[0.07] sm:w-[44vw] sm:max-w-[320px] sm:rounded-[26px] sm:p-5 lg:w-auto lg:max-w-none"
+              >
+                <div className="relative mx-auto w-full max-w-[250px]">
+                  <div className="pointer-events-none absolute inset-x-[15%] bottom-[8%] h-8 rounded-full bg-black/60 blur-xl" />
+                  <Image
+                    src={screen.image}
+                    alt={screen.alt}
+                    width={768}
+                    height={1152}
+                    loading="eager"
+                    unoptimized
+                    sizes="(min-width: 1024px) 250px, (min-width: 640px) 280px, 78vw"
+                    className="relative h-auto w-full select-none drop-shadow-[0_22px_30px_rgba(0,0,0,0.35)] transition-transform duration-500 group-hover:scale-[1.025]"
+                  />
+                </div>
+                <div className="px-1 pb-1 pt-3 sm:px-2 sm:pt-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[9px] font-extrabold uppercase tracking-[0.13em] !text-[#69D3A9]">{screen.category}</span>
+                    <span className="font-mono text-[10px] font-semibold !text-white/35">0{index + 1}</span>
+                  </div>
+                  <h3 className="mt-2 text-[15px] font-extrabold tracking-[-0.02em] !text-white sm:text-[16px]">{screen.title}</h3>
+                  <p className="mt-1.5 min-h-[40px] text-[11.5px] font-medium leading-relaxed !text-[#A5B8AD] sm:text-[12px]">{screen.copy}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-4 flex items-center justify-center gap-2 text-center text-[10px] font-medium !text-white/45 lg:mt-7">
+            <span className="h-1 w-1 rounded-full !bg-[#5DCAA5]" />
+            Swipe to explore the mobile screens
+            <span className="h-1 w-1 rounded-full !bg-[#5DCAA5]" />
+          </div>
+        </div>
+      </section>
+
       <section id="roles" className="border-y !border-[#E8E6E0] !bg-white py-14 sm:py-16 lg:py-20">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
@@ -1050,6 +1144,7 @@ export default function Home() {
                 <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] !text-[#3B6D11]">Platform</p>
                 <a href="#platform" className="text-[12.5px] font-medium !text-[#8fa89a] hover:!text-white">Patient journey</a>
                 <a href="#preview" className="text-[12.5px] font-medium !text-[#8fa89a] hover:!text-white">Product preview</a>
+                <a href="#mobile" className="text-[12.5px] font-medium !text-[#8fa89a] hover:!text-white">Mobile experience</a>
                 <a href="#roles" className="text-[12.5px] font-medium !text-[#8fa89a] hover:!text-white">Roles</a>
                 <a href="#security" className="text-[12.5px] font-medium !text-[#8fa89a] hover:!text-white">Security</a>
               </div>
