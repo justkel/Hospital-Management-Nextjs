@@ -222,6 +222,40 @@ export default function Home() {
   const [activePreview, setActivePreview] = useState<(typeof PRODUCT_PREVIEWS)[number]['id']>('patient');
   const [previewIntroVisible, setPreviewIntroVisible] = useState(false);
   const previewSectionRef = useRef<HTMLElement>(null);
+  const structuredData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      '@id': 'https://wellflexia.com/#organization',
+      name: 'Wellflexia',
+      url: 'https://wellflexia.com/',
+      logo: 'https://wellflexia.com/icon.svg',
+      image: 'https://wellflexia.com/opengraph-image',
+      description:
+        'Wellflexia provides a hospital management system connecting patient records, clinical visits, wards, theatre scheduling, and billing.',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      '@id': 'https://wellflexia.com/#website',
+      name: 'Wellflexia | Hospital Management System',
+      url: 'https://wellflexia.com/',
+      publisher: { '@id': 'https://wellflexia.com/#organization' },
+      inLanguage: 'en',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: 'Wellflexia Hospital Management System',
+      applicationCategory: 'HealthApplication',
+      operatingSystem: 'Web',
+      url: 'https://wellflexia.com/',
+      image: 'https://wellflexia.com/opengraph-image',
+      description:
+        'A hospital management system for patient records, visits, wards, theatre scheduling, billing, and connected care workflows.',
+      publisher: { '@id': 'https://wellflexia.com/#organization' },
+    },
+  ];
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -237,7 +271,7 @@ export default function Home() {
       if (characterIndex >= HERO_COPY.length) {
         window.clearInterval(timer);
       }
-    }, 100);
+    }, 34);
 
     return () => window.clearInterval(timer);
   }, []);
@@ -259,6 +293,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen !bg-[#FAFAF8] font-sans">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData).replace(/</g, '\\u003c'),
+        }}
+      />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,700&display=swap');
         .font-sans { font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif; }
