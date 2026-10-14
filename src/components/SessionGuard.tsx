@@ -8,7 +8,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-const MIN_DISPLAY_MS = 500;
+const MIN_DISPLAY_MS = 300;
 
 export default function SessionGuard({ mode, reason, children }: Props) {
   const hasRun = useRef(false);
