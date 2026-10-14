@@ -32,11 +32,35 @@ import heroAnimation from '@/animations/health1.json';
 import careAnimation from '@/animations/doc-pat1.json';
 import runAnimation from '@/animations/run1.json';
 
-const SERVICES = [
-  { name: 'Main', role: 'Operational core', detail: 'Patients, visits, theatre, wards, billing — the record of truth.' },
-  { name: 'Auth', role: 'Identity layer', detail: 'Credentials, sessions, token rotation, guest-access checks.' },
-  { name: 'Audit', role: 'Compliance layer', detail: 'Every actor, every action, queryable and filterable.' },
-  { name: 'Notification', role: 'Messaging layer', detail: 'Event-driven email for staff, resets, and reminders.' },
+const PATIENT_JOURNEY = [
+  {
+    number: '01',
+    title: 'Start with the person',
+    copy: 'Create one complete patient record, with key details and history ready for the care team.',
+    icon: UserRound,
+    label: 'Patient record',
+  },
+  {
+    number: '02',
+    title: 'Understand the visit',
+    copy: 'Bring complaints, vitals, diagnoses, and clinical notes together in one visit.',
+    icon: Stethoscope,
+    label: 'Clinical assessment',
+  },
+  {
+    number: '03',
+    title: 'Coordinate the care',
+    copy: 'Keep prescriptions, procedures, and lab requests connected to the visit.',
+    icon: HeartPulse,
+    label: 'Connected care',
+  },
+  {
+    number: '04',
+    title: 'Close with clarity',
+    copy: 'Track charges and keep the completed visit as part of the patient’s ongoing history.',
+    icon: NairaIcon,
+    label: 'Visit & billing',
+  },
 ];
 
 const FEATURES = [
@@ -299,67 +323,54 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="platform" className="border-b !border-[#E8E6E0] !bg-white py-14 sm:py-16 lg:py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-12 max-w-lg text-center sm:mb-16">
-            <div className="inline-flex items-center gap-2 rounded-full !bg-[#F0FAF5] px-3 py-1">
-              <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.12em] !text-[#1D9E75]">Architecture</span>
+      <section id="platform" className="relative overflow-hidden border-b !border-[#E8E6E0] !bg-white py-16 sm:py-20 lg:py-24">
+        <div className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full !bg-[#1D9E75]/[0.06] blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-36 -left-20 h-80 w-80 rounded-full !bg-[#D97706]/[0.05] blur-3xl" />
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 flex flex-col gap-5 sm:mb-14 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full border !border-[#1D9E75]/15 !bg-[#F0FAF5] px-3 py-1.5">
+                <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.12em] !text-[#1D9E75]">The patient journey</span>
+              </div>
+              <h2 className="mt-4 text-[30px] font-extrabold leading-tight tracking-[-0.035em] !text-[#14231A] sm:text-[38px] lg:text-[44px]">
+                From first visit to follow-up, <span className="!text-[#1D9E75]">connected.</span>
+              </h2>
             </div>
-            <h2 className="mt-3 text-[28px] font-extrabold tracking-[-0.02em] !text-[#14231A] sm:text-[32px]">
-              One gateway. <span className="!text-[#1D9E75]">Five services.</span>
-            </h2>
-            <p className="mt-3 text-[14px] font-medium !text-[#6b6b64] max-w-sm mx-auto">
-              Every request flows through a single entry point, then routes to the right service.
+            <p className="max-w-md text-[13.5px] font-medium leading-relaxed !text-[#6b6b64] sm:text-[14px] lg:pb-1">
+              Care is a series of important moments. Wellflexia keeps the patient record moving with the people and decisions around it.
             </p>
           </div>
 
-          <div className="relative mx-auto flex max-w-xs flex-col items-center">
-            <div className="w-full max-w-[220px] rounded-2xl border-2 !border-[#1D9E75] !bg-[#F0FAF5] px-5 py-4 shadow-[0_4px_16px_rgba(29,158,117,0.12)]">
-              <p className="text-center text-[14px] font-extrabold !text-[#14231A]">Gateway</p>
-              <p className="mt-0.5 text-center text-[10.5px] font-semibold uppercase tracking-[0.06em] !text-[#1D9E75]">Public entry point</p>
-            </div>
-            <div className="relative h-8 w-px">
-              <div className="absolute inset-0 !bg-gradient-to-b !from-[#1D9E75]/30 !to-[#1D9E75]/10" />
-            </div>
-          </div>
-
-          <div className="relative mx-auto mt-0 hidden max-w-5xl md:block">
-            <div className="relative mx-auto h-px w-[86%]">
-              <div className="absolute inset-0 !bg-gradient-to-r !from-transparent !via-[#1D9E75]/30 !to-transparent" />
-              <div className="absolute left-[10%] top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full !bg-[#1D9E75]/20" />
-              <div className="absolute left-[30%] top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full !bg-[#1D9E75]/30" />
-              <div className="absolute left-[50%] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full !bg-[#1D9E75]/40" />
-              <div className="absolute left-[70%] top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full !bg-[#1D9E75]/30" />
-              <div className="absolute right-[10%] top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full !bg-[#1D9E75]/20" />
-            </div>
-          </div>
-
-          <div className="mx-auto mt-6 grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 md:mt-0 md:grid-cols-4 md:gap-4">
-            {SERVICES.map((s, index) => (
-              <div key={s.name} className="flex flex-col items-center">
-                <div className="hidden h-5 w-px !bg-[#1D9E75]/25 md:block" />
-                <div className="group h-full w-full rounded-xl border !border-[#E8E6E0] !bg-[#FAFAF8] p-4 transition-all duration-300 hover:!border-[#1D9E75]/40 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:-translate-y-0.5">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-[14px] font-extrabold !text-[#14231A] group-hover:!text-[#1D9E75] transition-colors">
-                        {s.name}
-                      </p>
-                      <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] !text-[#B4B2A9]">
-                        {s.role}
-                      </p>
+          <div className="relative grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-5">
+            <div className="pointer-events-none absolute left-[12%] right-[12%] top-[34px] hidden h-px !bg-gradient-to-r !from-[#1D9E75]/10 !via-[#1D9E75]/30 !to-[#1D9E75]/10 lg:block" />
+            {PATIENT_JOURNEY.map((step) => {
+              const Icon = step.icon;
+              return (
+                <article
+                  key={step.number}
+                  className="group relative rounded-2xl border !border-[#E8E6E0] !bg-white p-5 shadow-[0_8px_30px_rgba(20,35,26,0.035)] transition duration-300 hover:-translate-y-1 hover:!border-[#1D9E75]/30 hover:shadow-[0_18px_40px_rgba(20,35,26,0.09)] sm:p-6"
+                >
+                  <div className="relative mb-7 flex items-center justify-between">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border !border-[#1D9E75]/15 !bg-[#F0FAF5] !text-[#1D9E75] transition duration-300 group-hover:!bg-[#1D9E75] group-hover:!text-white">
+                      <Icon size={21} strokeWidth={2.2} />
                     </div>
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full !bg-[#F0FAF5] text-[10px] font-bold !text-[#1D9E75]">
-                      {index + 1}
-                    </span>
+                    <span className="font-mono text-[12px] font-bold tracking-[0.12em] !text-[#B4B2A9]">{step.number}</span>
                   </div>
-                  <p className="mt-3 text-[12.5px] font-medium leading-relaxed !text-[#6b6b64] group-hover:!text-[#5c5c56] transition-colors">
-                    {s.detail}
-                  </p>
-                  <div className="mt-3 h-0.5 w-8 rounded-full !bg-[#1D9E75]/20 group-hover:!bg-[#1D9E75]/60 transition-all group-hover:w-12" />
-                </div>
-              </div>
-            ))}
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] !text-[#1D9E75]">{step.label}</p>
+                  <h3 className="mt-2 text-[17px] font-extrabold tracking-[-0.02em] !text-[#14231A]">{step.title}</h3>
+                  <p className="mt-2 text-[12.5px] font-medium leading-relaxed !text-[#6b6b64]">{step.copy}</p>
+                  <div className="mt-6 h-1 w-10 rounded-full !bg-[#1D9E75]/20 transition-all duration-300 group-hover:w-16 group-hover:!bg-[#1D9E75]" />
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="mt-6 flex items-center justify-center gap-2 text-center">
+            <CheckCircle2 size={15} className="shrink-0 !text-[#1D9E75]" />
+            <p className="text-[11.5px] font-semibold !text-[#6b6b64] sm:text-[12px]">
+              One connected record, carried through every step.
+            </p>
           </div>
         </div>
       </section>
@@ -728,7 +739,7 @@ export default function Home() {
             <div className="flex gap-10 sm:gap-12">
               <div className="flex flex-col gap-2.5">
                 <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] !text-[#3B6D11]">Platform</p>
-                <a href="#platform" className="text-[12.5px] font-medium !text-[#8fa89a] hover:!text-white">Architecture</a>
+                <a href="#platform" className="text-[12.5px] font-medium !text-[#8fa89a] hover:!text-white">Patient journey</a>
                 <a href="#roles" className="text-[12.5px] font-medium !text-[#8fa89a] hover:!text-white">Roles</a>
                 <a href="#security" className="text-[12.5px] font-medium !text-[#8fa89a] hover:!text-white">Security</a>
               </div>
