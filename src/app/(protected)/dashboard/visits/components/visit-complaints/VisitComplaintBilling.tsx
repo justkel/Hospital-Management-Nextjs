@@ -92,7 +92,7 @@ export default function VisitComplaintBilling({
   }
 
   return (
-    <div className="space-y-4 w-full max-w-lg mx-auto px-2 sm:px-4">
+    <div className="w-full space-y-4">
       {error && (
         <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm text-center sm:text-left">
           {error}
@@ -116,7 +116,7 @@ export default function VisitComplaintBilling({
                 setChargeCatalogId('');
                 setError(null);
               }}
-              className="w-5 h-5 accent-indigo-600"
+              className="h-4 w-4 accent-[#1D9E75]"
             />
             <span className="text-gray-700">
               Apply consultation billing for this visit
@@ -155,12 +155,12 @@ export default function VisitComplaintBilling({
                     w-full sm:w-80
                     px-4 py-3
                     rounded-xl
-                    border border-gray-300
+                    border border-[#E5EAE5]
                     bg-white
                     shadow-sm
-                    text-sm sm:text-base
-                    focus:ring-2 focus:ring-indigo-500
-                    focus:border-indigo-500
+                    text-[12px] text-[#353B34]
+                    focus:ring-2 focus:ring-[#1D9E75]/15
+                    focus:border-[#1D9E75]
                     outline-none
                     transition
                   "

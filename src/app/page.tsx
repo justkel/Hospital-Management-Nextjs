@@ -78,6 +78,9 @@ const PRODUCT_PREVIEWS = [
   { id: 'ward', label: 'Ward board' },
 ] as const;
 
+const HERO_COPY =
+  'Patient records, visits, theatre scheduling, billing, and compliance — running as connected services instead of a pile of spreadsheets and side channels.';
+
 const MOBILE_SHOWCASES = [
   {
     image: '/images/mobile-patient-list.webp',
@@ -214,10 +217,30 @@ const SECURITY = [
 
 export default function Home() {
   const [navOpen, setNavOpen] = useState(false);
+  const [typedHeroCopy, setTypedHeroCopy] = useState('');
   const [activeRole, setActiveRole] = useState('DOCTOR');
   const [activePreview, setActivePreview] = useState<(typeof PRODUCT_PREVIEWS)[number]['id']>('patient');
   const [previewIntroVisible, setPreviewIntroVisible] = useState(false);
   const previewSectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const timeout = window.setTimeout(() => setTypedHeroCopy(HERO_COPY), 0);
+      return () => window.clearTimeout(timeout);
+    }
+
+    let characterIndex = 0;
+    const timer = window.setInterval(() => {
+      characterIndex += 1;
+      setTypedHeroCopy(HERO_COPY.slice(0, characterIndex));
+
+      if (characterIndex >= HERO_COPY.length) {
+        window.clearInterval(timer);
+      }
+    }, 100);
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const element = previewSectionRef.current;
@@ -239,6 +262,21 @@ export default function Home() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,700&display=swap');
         .font-sans { font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif; }
+        @keyframes heroTypewriterCaret {
+          50% { opacity: 0; }
+        }
+        .hero-typewriter-caret {
+          display: inline-block;
+          width: 1px;
+          height: 0.9em;
+          margin-left: 2px;
+          vertical-align: -0.08em;
+          background: #5DCAA5;
+          animation: heroTypewriterCaret 850ms steps(1, end) infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-typewriter-caret { animation: none; }
+        }
         @keyframes floatSlow {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-10px); }
@@ -418,9 +456,12 @@ export default function Home() {
               <span className="italic !text-[#5DCAA5]">one system.</span>
             </h1>
 
-            <p className="mx-auto mt-5 max-w-xl text-[14.5px] font-medium leading-relaxed !text-[#8fa89a] sm:text-[15.5px] lg:mx-0">
-              Patient records, visits, theatre scheduling, billing, and compliance — running as connected
-              services instead of a pile of spreadsheets and side channels.
+            <p
+              aria-label={HERO_COPY}
+              className="mx-auto mt-5 min-h-[5.5em] max-w-xl text-[14.5px] font-medium leading-relaxed !text-[#8fa89a] sm:min-h-[3.5em] sm:text-[15.5px] lg:mx-0"
+            >
+              <span aria-hidden="true">{typedHeroCopy}</span>
+              <span className="hero-typewriter-caret" aria-hidden="true" />
             </p>
 
             <div className="mt-7 flex flex-row items-stretch justify-center gap-2 sm:gap-3 lg:justify-start">
@@ -481,7 +522,7 @@ export default function Home() {
         <div className="relative mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
           <div className="mb-10 flex flex-col gap-5 sm:mb-14 lg:flex-row lg:items-end lg:justify-between">
             <div className="flex max-w-2xl flex-col gap-6">
-              <div className="inline-flex items-center gap-2 rounded-full border !border-[#1D9E75]/15 !bg-[#F0FAF5] px-3 py-1.5">
+              <div className="inline-flex self-start items-center gap-2 rounded-full border !border-[#1D9E75]/15 !bg-[#F0FAF5] px-3 py-1.5">
                 <span className="h-1.5 w-1.5 rounded-full !bg-[#1D9E75]" />
                 <span className="text-[10px] font-bold uppercase tracking-[0.12em] !text-[#1D9E75]">The patient journey</span>
               </div>

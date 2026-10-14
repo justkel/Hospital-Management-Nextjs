@@ -13,11 +13,26 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://wellflexia.com',
+  ),
   title: {
     default: 'Wellflexia | Hospital Management',
     template: '%s | Wellflexia',
   },
   description: 'Wellflexia brings patient records, visits, billing, and hospital operations together in one connected platform.',
+  openGraph: {
+    type: 'website',
+    url: '/',
+    siteName: 'Wellflexia',
+    title: 'Wellflexia | Hospital Management',
+    description: 'Patient records, visits, theatre, billing, and hospital operations — connected in one platform.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Wellflexia | Hospital Management',
+    description: 'Patient records, visits, theatre, billing, and hospital operations — connected in one platform.',
+  },
 };
 
 export default function RootLayout({

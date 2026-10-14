@@ -8,6 +8,7 @@ import { useBilling } from '@/hooks/billing/useBilling';
 import { ChargeDomain, VisitDiagnosesQuery } from '@/shared/graphql/generated/graphql';
 import { scheduledFetch } from '@/lib/requestScheduler';
 import { useInView } from '@/lib/useInView';
+import { ClipboardPlus, Stethoscope } from 'lucide-react';
 
 interface Props {
     visitId: string;
@@ -181,35 +182,67 @@ export default function VisitDiagnosisSection({ visitId }: Props) {
     const isEditing = useMemo(() => !!editingId, [editingId]);
 
     return (
-        <div ref={ref} className="space-y-10">
-            <h2 className="text-xl font-semibold text-gray-900">
-                Visit Diagnosis
-            </h2>
+        <section ref={ref} className="space-y-4">
+            <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F0FAF5] text-[#1D9E75]">
+                    <Stethoscope size={18} />
+                </div>
+                <div>
+                    <h2 className="text-[15px] font-extrabold tracking-[-0.02em] text-[#14231A]">
+                        Visit diagnosis
+                    </h2>
+                    <p className="mt-0.5 text-[11px] font-medium text-[#8D9289]">
+                        Document clinical findings and diagnosis codes
+                    </p>
+                </div>
+            </div>
 
-            <VisitDiagnosisForm
-                form={form}
-                setForm={setForm}
-                submitting={submitting}
-                catalogs={catalogs}
-                isEditing={isEditing}
-                onCreate={handleCreate}
-                onUpdate={handleUpdate}
-                onCancel={resetForm}
-                visitId={visitId}
-                enabled={inView}
-            />
+            <div className="overflow-hidden rounded-2xl border border-[#E5EAE5] bg-white shadow-[0_8px_28px_rgba(20,35,26,0.045)]">
+                <div className="flex items-center gap-2.5 border-b border-[#EEF0EC] px-4 py-3.5 sm:px-5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F0FAF5] text-[#1D9E75]">
+                        <ClipboardPlus size={15} />
+                    </div>
+                    <div>
+                        <h3 className="text-[12px] font-extrabold text-[#14231A]">
+                            {isEditing ? 'Update diagnosis' : 'Record a diagnosis'}
+                        </h3>
+                        <p className="mt-0.5 text-[10px] font-medium text-[#8D9289]">
+                            Add the clinical assessment for this visit
+                        </p>
+                    </div>
+                </div>
+                <div className="p-4 sm:p-5">
+                    <VisitDiagnosisForm
+                        form={form}
+                        setForm={setForm}
+                        submitting={submitting}
+                        catalogs={catalogs}
+                        isEditing={isEditing}
+                        onCreate={handleCreate}
+                        onUpdate={handleUpdate}
+                        onCancel={resetForm}
+                        visitId={visitId}
+                        enabled={inView}
+                    />
+                </div>
+            </div>
 
             {error && (
-                <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm">
+                <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                     {error}
                 </div>
             )}
 
+            <div className="space-y-3">
+                <h3 className="text-[12px] font-extrabold text-[#14231A]">
+                    Recorded diagnoses
+                </h3>
             <VisitDiagnosisList
                 diagnoses={diagnoses}
                 loading={!inView || loading}
                 onEdit={handleEdit}
             />
-        </div>
+            </div>
+        </section>
     );
 }

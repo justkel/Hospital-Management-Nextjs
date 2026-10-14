@@ -157,11 +157,7 @@ export default function VisitDiagnosisForm({
               )}
 
               <select
-                className="
-                  w-full px-4 py-3 rounded-xl border border-gray-200
-                  bg-white shadow-sm focus:ring-2 focus:ring-[#1D9E75]
-                  focus:border-[#1D9E75] outline-none transition text-sm
-                "
+                className="w-full rounded-lg border border-[#E5EAE5] bg-[#FCFDFC] px-4 py-3 text-[12px] text-[#353B34] shadow-sm outline-none transition focus:border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/15"
                 value={form.chargeCatalogId}
                 disabled={noCatalogs}
                 onChange={e =>
@@ -183,11 +179,10 @@ export default function VisitDiagnosisForm({
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2">
         <input
           placeholder="Diagnosis"
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 
-          bg-white shadow-sm focus:ring-2 focus:ring-[#1D9E75]"
+          className="w-full rounded-lg border border-[#E5EAE5] bg-[#FCFDFC] px-4 py-3 text-[12px] text-[#353B34] shadow-sm outline-none transition placeholder:text-[#A5AAA2] focus:border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/15"
           value={form.diagnosis}
           onChange={e => {
             setForm(prev => ({ ...prev, diagnosis: e.target.value }));
@@ -197,8 +192,7 @@ export default function VisitDiagnosisForm({
 
         <input
           placeholder="Diagnosis Code"
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 
-          bg-white shadow-sm focus:ring-2 focus:ring-[#1D9E75]"
+          className="w-full rounded-lg border border-[#E5EAE5] bg-[#FCFDFC] px-4 py-3 text-[12px] text-[#353B34] shadow-sm outline-none transition placeholder:text-[#A5AAA2] focus:border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/15"
           value={form.diagnosisCode}
           onChange={e => {
             setForm(prev => ({ ...prev, diagnosisCode: e.target.value }));
@@ -208,8 +202,7 @@ export default function VisitDiagnosisForm({
 
         <textarea
           placeholder="Clinical notes..."
-          className="md:col-span-2 w-full px-4 py-3 rounded-xl border border-gray-200 
-          bg-white shadow-sm focus:ring-2 focus:ring-[#1D9E75] min-h-24"
+          className="min-h-24 w-full rounded-lg border border-[#E5EAE5] bg-[#FCFDFC] px-4 py-3 text-[12px] text-[#353B34] shadow-sm outline-none transition placeholder:text-[#A5AAA2] focus:border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/15 md:col-span-2"
           value={form.notes}
           onChange={e => {
             setForm(prev => ({ ...prev, notes: e.target.value }));
@@ -228,9 +221,7 @@ export default function VisitDiagnosisForm({
         <button
           disabled={submitting || (form.chargeEnabled && noCatalogs)}
           onClick={handleSubmit}
-          className="px-8 py-3 rounded-xl !bg-[#1D9E75] !text-white font-medium
-          hover:!bg-[#178664] transition shadow-md cursor-pointer
-          disabled:opacity-50 disabled:cursor-not-allowed"
+          className="cursor-pointer rounded-lg !bg-[#1D9E75] px-5 py-2.5 text-[12px] font-semibold !text-white shadow-sm transition hover:!bg-[#178664] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isEditing ? 'Update Diagnosis' : 'Record Diagnosis'}
         </button>
@@ -241,7 +232,7 @@ export default function VisitDiagnosisForm({
               setError(null);
               onCancel();
             }}
-            className="px-8 py-3 rounded-xl border border-gray-300 hover:bg-gray-50"
+            className="cursor-pointer rounded-lg border border-[#E5EAE5] bg-white px-5 py-2.5 text-[12px] font-semibold text-[#5F5E5A] transition hover:bg-[#F7F8F6]"
           >
             Cancel
           </button>

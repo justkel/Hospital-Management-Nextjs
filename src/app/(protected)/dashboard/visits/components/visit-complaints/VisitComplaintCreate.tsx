@@ -2,6 +2,7 @@
 
 import { clientFetch } from '@/lib/clientFetch';
 import { useEffect, useState } from 'react';
+import { MessageSquarePlus } from 'lucide-react';
 
 interface Props {
   visitId: string;
@@ -65,7 +66,16 @@ export default function VisitComplaintCreate({
   };
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 p-4 sm:p-5">
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F0FAF5] text-[#1D9E75]">
+          <MessageSquarePlus size={15} />
+        </div>
+        <div>
+          <h3 className="text-[12px] font-extrabold text-[#14231A]">Record a complaint</h3>
+          <p className="mt-0.5 text-[10px] font-medium text-[#8D9289]">Add the patient&apos;s concern to this visit</p>
+        </div>
+      </div>
       <textarea
         value={complaint}
         onChange={(e) => {
@@ -78,11 +88,13 @@ export default function VisitComplaintCreate({
           min-h-27.5
           resize-none
           rounded-xl
-          border border-gray-300
+          border border-[#E5EAE5]
+          bg-[#FCFDFC]
           px-4 py-3
-          text-sm sm:text-base
+          text-[13px] text-[#353B34]
           shadow-sm
-          focus:ring-2 focus:ring-[#1D9E75]
+          transition
+          focus:ring-2 focus:ring-[#1D9E75]/15
           focus:border-[#1D9E75]
           outline-none
         "
@@ -94,13 +106,13 @@ export default function VisitComplaintCreate({
           disabled={creating || !complaint.trim()}
           className="
             w-full sm:w-auto
-            px-6 py-3
-            rounded-xl
+            px-5 py-2.5
+            rounded-lg
             bg-[#1D9E75]
             text-white!
-            text-sm sm:text-base
-            font-medium
-            shadow
+            text-[12px]
+            font-semibold
+            shadow-sm
             hover:bg-[#178664]
             disabled:opacity-50
             disabled:cursor-not-allowed
