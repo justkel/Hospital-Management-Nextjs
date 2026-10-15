@@ -9,9 +9,13 @@ import { loginAction } from '@/lib/auth/login.action';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Activity, AlertCircle, ArrowRight, CreditCard, FileText, IdCard, ShieldCheck, Sparkles, Users, CheckCircle } from 'lucide-react';
+import Lottie from 'lottie-react';
+import { Activity, AlertCircle, ArrowRight, CreditCard, FileText, IdCard, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import AuthBrandPanel from '@/components/auth/AuthBrandPanel';
 import WellflexiaHeader from '@/components/auth/WellflexiaHeader';
+import loginRunAnimation from '@/animations/login-run.json';
+
+const MIN_LOGIN_ANIMATION_MS = 3000;
 
 const STATUS_MESSAGE_MAP: Record<string, string> = {
   SUSPENDED: 'Your account has been suspended.',
@@ -26,14 +30,13 @@ export default function LoginPage() {
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [buttonText, setButtonText] = useState('Sign in');
+  const [openingWorkspace, setOpeningWorkspace] = useState(false);
+  const isBusy = loading || openingWorkspace;
 
   const onFinish = async (values: { userCode: string; password: string }) => {
     setError(null);
     setLoading(true);
-    setSuccess(false);
-    setButtonText('Authenticating...');
+    setOpeningWorkspace(false);
 
     try {
       const result = await loginAction(values);
@@ -47,17 +50,12 @@ export default function LoginPage() {
 
         setError(customMessage);
         setLoading(false);
-        setButtonText('Sign in');
         return;
       }
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
       setLoading(false);
-      setSuccess(true);
-      setButtonText('Success!');
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      setOpeningWorkspace(true);
+      await new Promise((resolve) => setTimeout(resolve, MIN_LOGIN_ANIMATION_MS));
 
       if (result.forcePasswordChange) {
         router.replace('/force-password-change');
@@ -68,8 +66,7 @@ export default function LoginPage() {
     } catch {
       setError('Something went wrong. Please try again.');
       setLoading(false);
-      setSuccess(false);
-      setButtonText('Sign in');
+      setOpeningWorkspace(false);
     }
   };
 
@@ -77,7 +74,25 @@ export default function LoginPage() {
     <div className="relative min-h-screen overflow-hidden !bg-[#f5f4f0] font-sans lg:grid lg:grid-cols-[1fr_480px]">
       <AuthBrandPanel />
 
-      <div className="flex min-h-screen flex-col justify-center !bg-[#f5f4f0] px-6 py-12 sm:px-10">
+      <div className="relative flex min-h-screen flex-col justify-center !bg-[#f5f4f0] px-6 py-12 sm:px-10">
+        {openingWorkspace && (
+          <div
+            className="absolute inset-0 z-20 flex flex-col items-center justify-center !bg-[#f5f4f0]/95 px-6 text-center backdrop-blur-sm animate-in fade-in duration-300"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <div className="h-44 w-44 sm:h-52 sm:w-52">
+              <Lottie animationData={loginRunAnimation} loop autoplay />
+            </div>
+            <p className="mt-1 text-[17px] font-extrabold tracking-[-0.02em] !text-[#14231A]">
+              Opening your workspace
+            </p>
+            <p className="mt-1.5 max-w-xs text-[13px] font-medium leading-relaxed !text-[#777970]">
+              Getting everything ready for you.
+            </p>
+          </div>
+        )}
         <div className="w-full max-w-[380px] mx-auto">
           <WellflexiaHeader />
 
@@ -96,7 +111,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <Form form={form} layout="vertical" onFinish={onFinish} disabled={loading || success}>
+          <Form form={form} layout="vertical" onFinish={onFinish} disabled={isBusy}>
 
             <Form.Item
               name="userCode"
@@ -115,7 +130,7 @@ export default function LoginPage() {
                 <Input
                   size="large"
                   placeholder="e.g. STF-00142"
-                  disabled={loading || success}
+                  disabled={isBusy}
                   className="!h-12 !rounded-[10px] !border-[#D3D1C7] !bg-white !pl-10 !text-[#2C2C2A] placeholder:!text-[#B4B2A9] transition-all focus:!border-[#1D9E75] focus:!shadow-[0_0_0_3px_rgba(29,158,117,0.1)] disabled:!bg-[#f5f4f0] disabled:!cursor-not-allowed"
                 />
               </div>
@@ -138,7 +153,7 @@ export default function LoginPage() {
                 <Input.Password
                   size="large"
                   placeholder="Enter your password"
-                  disabled={loading || success}
+                  disabled={isBusy}
                   className="!h-12 !rounded-[10px] !border-[#D3D1C7] !bg-white !pl-10 !text-[#2C2C2A] placeholder:!text-[#B4B2A9] transition-all focus:!border-[#1D9E75] focus:!shadow-[0_0_0_3px_rgba(29,158,117,0.1)] disabled:!bg-[#f5f4f0] disabled:!cursor-not-allowed"
                 />
               </div>
@@ -157,28 +172,21 @@ export default function LoginPage() {
               htmlType="submit"
               block
               loading={loading}
-              disabled={loading || success}
-              className={`!mt-4 !h-12 !rounded-[10px] !border-none !font-bold !text-white transition-all duration-500 ${
-                success 
-                  ? '!bg-[#1D9E75] !shadow-[0_4px_20px_rgba(29,158,117,0.3)]' 
-                  : loading 
-                  ? '!bg-[#0c1a12]' 
+              disabled={isBusy}
+              className={`!mt-4 !h-12 !rounded-[10px] !border-none !font-bold !text-white transition-all duration-300 ${
+                loading
+                  ? '!bg-[#0c1a12]'
                   : '!bg-[#0c1a12] hover:!bg-[#1D9E75] hover:!shadow-[0_4px_20px_rgba(29,158,117,0.2)]'
               }`}
             >
-              {success ? (
-                <span className="flex items-center justify-center gap-2">
-                  <CheckCircle size={18} className="animate-in zoom-in duration-500" />
-                  <span className="animate-in fade-in duration-500">Success!</span>
-                </span>
-              ) : loading ? (
+              {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="animate-pulse">Authenticating...</span>
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
                   <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                  {buttonText ? (buttonText) : "Sign in"}
+                  Sign in
                 </span>
               )}
             </Button>
@@ -193,7 +201,7 @@ export default function LoginPage() {
           <Link href="/guest-access" className="block">
             <Button
               block
-              disabled={loading || success}
+              disabled={isBusy}
               className="!h-12 !rounded-[10px] !border !border-[#1D9E75]/30 !bg-[#F0FAF5] !font-bold !text-[#1D9E75] transition-all hover:!border-[#1D9E75] hover:!bg-[#1D9E75]/10 hover:scale-[1.02] disabled:!opacity-50 disabled:!cursor-not-allowed"
             >
               <Sparkles size={15} className="mr-2 inline -mt-0.5" />
