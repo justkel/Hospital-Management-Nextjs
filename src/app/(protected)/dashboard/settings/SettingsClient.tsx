@@ -9,9 +9,10 @@ import {
   ChevronRight,
   Settings as SettingsIcon,
   Copy,
+  Check,
   RefreshCw,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { clientFetch } from '@/lib/clientFetch';
 import { useHasRoles } from '@/components/auth/HasRoles';
 import { Roles } from '@/shared/utils/enums/roles';
@@ -63,6 +64,8 @@ export default function SettingsClient() {
   const isAdmin = useHasRoles([Roles.ADMIN]);
   const [guestAccessCode, setGuestAccessCode] = useState<string | null>(null);
   const [regenerating, setRegenerating] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<'copied' | 'error' | null>(null);
+  const copyStatusTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -73,7 +76,26 @@ export default function SettingsClient() {
         setGuestAccessCode(data.organizationGuestAccessCode ?? null);
       })
       .catch(error => console.error(error));
+
+    return () => {
+      if (copyStatusTimeout.current) clearTimeout(copyStatusTimeout.current);
+    };
   }, [isAdmin]);
+
+  async function copyGuestAccessCode() {
+    if (!guestAccessCode) return;
+
+    try {
+      await navigator.clipboard.writeText(guestAccessCode);
+      setCopyStatus('copied');
+    } catch (error) {
+      console.error('Unable to copy guest access code', error);
+      setCopyStatus('error');
+    }
+
+    if (copyStatusTimeout.current) clearTimeout(copyStatusTimeout.current);
+    copyStatusTimeout.current = setTimeout(() => setCopyStatus(null), 2000);
+  }
 
   async function regenerateGuestAccessCode() {
     setRegenerating(true);
@@ -84,6 +106,7 @@ export default function SettingsClient() {
       if (!response.ok) throw new Error('Unable to regenerate guest access code');
       const data = await response.json();
       setGuestAccessCode(data.regenerateOrganizationGuestAccessCode);
+      setCopyStatus(null);
     } finally {
       setRegenerating(false);
     }
@@ -189,15 +212,29 @@ export default function SettingsClient() {
               <code className="flex-1 rounded-lg !bg-slate-100 px-3 py-2.5 font-mono text-sm font-semibold tracking-wider !text-slate-800">
                 {guestAccessCode ?? 'No code generated'}
               </code>
-              <button
-                type="button"
-                disabled={!guestAccessCode}
-                onClick={() => guestAccessCode && navigator.clipboard.writeText(guestAccessCode)}
-                aria-label="Copy guest access code"
-                className="rounded-lg border !border-slate-200 p-2.5 !text-slate-600 hover:!bg-slate-50 disabled:opacity-50"
-              >
-                <Copy size={16} />
-              </button>
+              <div className="flex min-w-[5.5rem] items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={!guestAccessCode}
+                  onClick={copyGuestAccessCode}
+                  aria-label="Copy guest access code"
+                  className="rounded-lg border !border-slate-200 p-2.5 !text-slate-600 hover:!bg-slate-50 disabled:opacity-50"
+                >
+                  {copyStatus === 'copied' ? (
+                    <Check size={16} className="!text-emerald-600" />
+                  ) : (
+                    <Copy size={16} />
+                  )}
+                </button>
+                {copyStatus && (
+                  <span
+                    role="status"
+                    className={`text-xs font-medium ${copyStatus === 'copied' ? '!text-emerald-700' : '!text-red-600'}`}
+                  >
+                    {copyStatus === 'copied' ? 'Copied!' : 'Copy failed'}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         )}

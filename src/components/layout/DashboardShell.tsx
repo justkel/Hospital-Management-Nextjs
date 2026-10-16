@@ -3,7 +3,7 @@
 import { ReactNode, useState } from 'react';
 import { Avatar, Dropdown, Modal } from 'antd';
 import {
-    DashboardOutlined, TeamOutlined, FileTextOutlined,
+    DashboardOutlined, TeamOutlined,
     SettingOutlined, LogoutOutlined, UserOutlined,
     MedicineBoxOutlined, FileSearchOutlined, SolutionOutlined,
     CreditCardOutlined, ExperimentOutlined, ApartmentOutlined,
@@ -285,11 +285,6 @@ export default function DashboardShell({
         {
             label: 'System',
             items: [
-                {
-                    key: 'records',
-                    icon: <FileTextOutlined />,
-                    label: 'Medical Records',
-                },
                 {
                     key: 'settings',
                     icon: <SettingOutlined />,
