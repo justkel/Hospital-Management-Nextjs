@@ -228,7 +228,7 @@ export default function GuestAccessPage() {
                       </div>
                       <Input
                         size="large"
-                        placeholder="Iyekolo"
+                        placeholder="Stephen"
                         value={form.firstName}
                         onChange={(e) => update('firstName', e.target.value)}
                         className="!h-12 !rounded-[10px] !border-[#D3D1C7] !bg-white !pl-10 !text-[#2C2C2A] placeholder:!text-[#B4B2A9]"
@@ -238,11 +238,11 @@ export default function GuestAccessPage() {
 
                   <div>
                     <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.07em] text-[#888780]">
-                      Last name
+                      Other name(s)
                     </label>
                     <Input
                       size="large"
-                      placeholder="Wabby"
+                      placeholder="Iyekolo Wabby Anjola"
                       value={form.lastName}
                       onChange={(e) => update('lastName', e.target.value)}
                       className="!h-12 !rounded-[10px] !border-[#D3D1C7] !bg-white !text-[#2C2C2A] placeholder:!text-[#B4B2A9]"
@@ -261,7 +261,7 @@ export default function GuestAccessPage() {
                     <Input
                       size="large"
                       type="email"
-                      placeholder="you@bubulicious.com"
+                      placeholder="zayzay@bubulicious.com"
                       value={form.email}
                       onChange={(e) => update('email', e.target.value)}
                       className="!h-12 !rounded-[10px] !border-[#D3D1C7] !bg-white !pl-10 !text-[#2C2C2A] placeholder:!text-[#B4B2A9]"

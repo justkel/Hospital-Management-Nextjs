@@ -53,14 +53,14 @@ export default function LoginPage() {
         return;
       }
 
-      setLoading(false);
-      setOpeningWorkspace(true);
-      await new Promise((resolve) => setTimeout(resolve, MIN_LOGIN_ANIMATION_MS));
-
       if (result.forcePasswordChange) {
         router.replace('/force-password-change');
         return;
       }
+
+      setLoading(false);
+      setOpeningWorkspace(true);
+      await new Promise((resolve) => setTimeout(resolve, MIN_LOGIN_ANIMATION_MS));
 
       router.replace('/dashboard');
     } catch {
